@@ -8,7 +8,10 @@ is one. Older releases are not supported.
 ## Reporting a vulnerability
 
 Please report vulnerabilities privately through GitHub private vulnerability reporting: open the
-repository's **Security** tab and choose **Report a vulnerability**.
+repository's **Security** tab and choose **Report a vulnerability**, or go straight to
+<https://github.com/JonHHH09/JobniacFastFs/security/advisories/new>.
+
+Published advisories are listed at <https://github.com/JonHHH09/JobniacFastFs/security/advisories>.
 
 Do not open a public issue or pull request for a suspected vulnerability, and do not post exploit
 details, tokens, database connection strings or personal data in public.
