@@ -459,6 +459,18 @@ mod tests {
     }
 
     #[test]
+    fn open_refuses_a_root_with_group_or_other_bits() {
+        use std::os::unix::fs::PermissionsExt;
+        let dir = Private::new();
+        let text = dir.0.to_str().expect("utf-8");
+        fs::set_permissions(&dir.0, fs::Permissions::from_mode(0o755)).expect("chmod");
+        let error = Root::open(text).expect_err("a 0755 root is not private");
+        assert_eq!(error.kind(), io::ErrorKind::PermissionDenied);
+        fs::set_permissions(&dir.0, fs::Permissions::from_mode(0o700)).expect("chmod");
+        Root::open(text).expect("a 0700 root is private");
+    }
+
+    #[test]
     fn the_publication_probe_creates_no_entry() {
         let dir = Private::new();
         let root = dir.root();

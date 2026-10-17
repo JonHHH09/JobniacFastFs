@@ -55,7 +55,9 @@ export function databaseEnvironment(base) {
  * Creates the directories of one run: the import root and the generated root. They live under the
  * ignored `target/` folder of the repository and are removed by the runner when it ends. The
  * generated root is not placed in the user temporary folder: setup-generated-root refuses that
- * location on Windows (see e2e/README.md).
+ * location on Windows (see e2e/README.md). On Linux the root must be owner-only (no group or other
+ * bits, checked by `Root::open`), and a plain `mkdir` under the usual umask 022 gives 0755, so the
+ * generated root is created with mode 0700.
  */
 export function createRunRoot() {
   mkdirSync(join(repoRoot, "target"), { recursive: true });
@@ -63,6 +65,6 @@ export function createRunRoot() {
   const importRoot = join(root, "imports");
   const generatedRoot = join(root, "generated");
   mkdirSync(importRoot);
-  mkdirSync(generatedRoot);
+  mkdirSync(generatedRoot, { mode: 0o700 });
   return { root, importRoot, generatedRoot };
 }
