@@ -1,0 +1,41 @@
+name: Branch policy
+
+# GitHub rulesets cannot restrict which branch a pull request comes from, so this check does.
+# It is a required status check on both protected branches (see docs/ops/branch-protection.md):
+#   - into `main`: only from `development`, in this repository;
+#   - into `development`: only from a branch of this repository (an issue branch), never from a
+#     fork and never from `main`.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, edited]
+    branches: [main, development]
+
+permissions:
+  contents: read
+
+jobs:
+  branch-policy:
+    name: Branch policy
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check head and base branches
+        env:
+          BASE: ${{ github.event.pull_request.base.ref }}
+          HEAD: ${{ github.event.pull_request.head.ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          THIS_REPO: ${{ github.repository }}
+        run: |
+          if [ "$HEAD_REPO" != "$THIS_REPO" ]; then
+            echo "::error::Pull requests must come from a branch of $THIS_REPO, not from a fork."
+            exit 1
+          fi
+          if [ "$BASE" = "main" ] && [ "$HEAD" != "development" ]; then
+            echo "::error::Only \`development\` may be merged into \`main\`. Open this pull request against \`development\`."
+            exit 1
+          fi
+          if [ "$BASE" = "development" ] && { [ "$HEAD" = "main" ] || [ "$HEAD" = "development" ]; }; then
+            echo "::error::\`$HEAD\` cannot be merged into \`development\`. Use an issue branch."
+            exit 1
+          fi
+          echo "OK: $HEAD -> $BASE"
