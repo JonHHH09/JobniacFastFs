@@ -63,6 +63,8 @@ export function createRunRoot() {
   const importRoot = join(root, "imports");
   const generatedRoot = join(root, "generated");
   mkdirSync(importRoot);
-  mkdirSync(generatedRoot);
+  // The Linux generated root must be owner-only (no group or other bits), or setup-generated-root
+  // refuses it. The mode is ignored on Windows.
+  mkdirSync(generatedRoot, { mode: 0o700 });
   return { root, importRoot, generatedRoot };
 }
