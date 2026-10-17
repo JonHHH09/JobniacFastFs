@@ -1,0 +1,14 @@
+# OSV-Scanner ignore list for Cargo.lock. Mirrors the `[advisories] ignore` entries in deny.toml;
+# keep both files in sync and re-check when specta or Tauri move on.
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2024-0436"
+reason = "paste is unmaintained (notice, not a vulnerability); pulled only by specta 2.0.0-rc.25, a build-time proc-macro with no runtime code"
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2024-0370"
+reason = "proc-macro-error is unmaintained (notice, not a vulnerability); pulled only by glib-macros and gtk3-macros of the Tauri 2 Linux GTK3 stack; compile-time only"
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2024-0429"
+reason = "glib 0.18 VariantStrIter unsoundness; glib comes only from the Tauri 2 Linux GTK3 stack, no code in this repository uses it, and the fixed glib 0.20 needs a Tauri move off GTK3"
