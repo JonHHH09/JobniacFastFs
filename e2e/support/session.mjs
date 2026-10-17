@@ -50,6 +50,9 @@ export async function openSession(env) {
       capabilities: {
         browserName: "wry",
         "tauri:options": { application: appBinary },
+        // WebdriverIO 10 asks for a BiDi session (`webSocketUrl`), which WebKitWebDriver and
+        // msedgedriver behind tauri-driver do not support; stay on the classic protocol.
+        "wdio:enforceWebDriverClassic": true,
       },
     });
     return session;
