@@ -757,7 +757,12 @@ mod tests {
             Uuid::new_v4().simple()
         ));
         create_private_directory(&path).expect("create test directory");
-        path
+        // The pinned leaf must report the requested path as its final path, so the test directory
+        // is spelled the way Win32 reports it. GitHub-hosted runners give a temporary folder with an
+        // 8.3 short component (`RUNNER~1`), which the final path expands.
+        let resolved = std::fs::canonicalize(&path).expect("resolve test directory");
+        let text = resolved.to_string_lossy();
+        PathBuf::from(text.strip_prefix(r"\\?\").unwrap_or(&text))
     }
 
     fn artifact_of(size: usize) -> DocumentArtifact {
@@ -889,7 +894,10 @@ mod tests {
     fn partial_writes_are_completed_without_a_named_partial_file() {
         let dir = fresh_dir("partial");
         let (outcome, published) = run(&dir, &ShortWrites, 4096);
-        assert!(matches!(outcome.as_deref(), Ok("selected.pdf")));
+        assert!(
+            matches!(outcome.as_deref(), Ok("selected.pdf")),
+            "{outcome:?} in {dir:?}"
+        );
         assert!(published);
         assert_eq!(names_in(&dir), ["selected.pdf"]);
         assert_eq!(
@@ -929,7 +937,10 @@ mod tests {
     fn a_failure_after_the_rename_is_uncertain_and_keeps_the_complete_file() {
         let dir = fresh_dir("uncertain");
         let (outcome, published) = run(&dir, &FailingAfterRename, 64);
-        assert!(matches!(outcome, Err(Failure::Published)));
+        assert!(
+            matches!(outcome, Err(Failure::Published)),
+            "{outcome:?} in {dir:?}"
+        );
         assert!(published);
         assert_eq!(names_in(&dir), ["selected.pdf"]);
         assert_eq!(
@@ -976,7 +987,7 @@ mod tests {
             assert!(names_in(&moved).is_empty());
             remove(&moved);
         } else {
-            assert!(outcome.is_ok());
+            assert!(outcome.is_ok(), "{outcome:?} in {dir:?}");
         }
         remove(&dir);
     }
