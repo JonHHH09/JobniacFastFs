@@ -22,7 +22,9 @@ hosted runner yet.
 - **What, in this order:**
   1. **Private vulnerability reporting:** enabled (Security tab). The advisory link in
      `.github/ISSUE_TEMPLATE/config.yml` depends on it.
-  2. **Branch protection on `development` and `main`:** required checks named as the CI jobs are named
+  2. **Branch protection on `development` and `main`:** configured as recorded in
+     [branch-protection.md](branch-protection.md) (rulesets, required checks, merge methods). The older
+     notes below predate it. Required checks named as the CI jobs are named
      in `ci.yml`: `rust` (both systems), `supply-chain`, `ui`, `bindings` and
      `postgres-18`. The names in `ci.yml` today are `ui`, `rust`, `supply-chain` and `postgres`; the
      `bindings` check is a step of `rust`, and the `postgres-18` job is required on the promotion
