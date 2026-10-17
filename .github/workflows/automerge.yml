@@ -1,0 +1,34 @@
+name: Auto-merge
+
+# Turns on auto-merge (squash) for pull requests from an issue branch into `development` when the
+# author is the owner or a collaborator. GitHub then merges as soon as every required check passes
+# and deletes the issue branch. Never enabled for `main`: a merge into `main` starts the release
+# workflow, so the promotion pull request is merged deliberately by the owner.
+#
+# pull_request_target runs with write access, so this workflow never checks out or runs pull request
+# code; it only calls the GitHub API.
+
+on:
+  pull_request_target:
+    types: [opened, reopened, ready_for_review]
+    branches: [development]
+
+permissions: {}
+
+jobs:
+  enable:
+    name: Enable auto-merge
+    if: >-
+      github.event.pull_request.draft == false
+      && github.event.pull_request.head.repo.full_name == github.repository
+      && contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Enable auto-merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --squash "$PR_URL"

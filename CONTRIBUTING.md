@@ -43,8 +43,13 @@ pnpm build
 
 ## Branches and commits
 
-- Create a feature branch from `main` and open the pull request against `main`.
-- Keep one commit per concern; do not mix unrelated core, UI, MCP, docs or packaging changes.
+- `main` and `development` are protected: no direct pushes, every change goes through a pull
+  request with passing checks. See [docs/ops/branch-protection.md](docs/ops/branch-protection.md).
+- Create an issue branch from `development` and open the pull request against `development`. It is
+  merged by squash and the branch is deleted automatically once it is merged.
+- Only `development` is merged into `main` (the release promotion pull request).
+- Pull requests are open to repository collaborators. To propose a change, open an issue first.
+- Keep one concern per pull request; do not mix unrelated core, UI, MCP, docs or packaging changes.
 - Link the issue your change resolves in the pull request.
 
 ## Dependencies

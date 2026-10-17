@@ -519,6 +519,12 @@
       "reason": "Third-party package metadata: the deprecation notice of the glob package in the lockfile carries the package maintainer's published contact address, kept verbatim from the npm registry. The lockfile is not edited by hand. Reviewed."
     },
     {
+      "sha256": "c52e09c5d236e3e2ed0c3fa199585514c7f3c1eb76a8cc0e652550aee38662b5",
+      "classes": ["email"],
+      "paths": ["pnpm-lock.yaml"],
+      "reason": "Same glob deprecation notice (maintainer's published contact address, verbatim from the npm registry) in the lockfile of the Dependabot react update. Reviewed."
+    },
+    {
       "sha256": "25ff8cf340f213ea6c914ccbace50205ae3d9556b7b2a0aa00e3259124f518a4",
       "classes": ["email"],
       "paths": ["crates/core/tests/arbeitnow_board.rs"],
