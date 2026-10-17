@@ -49,6 +49,9 @@ export async function openSession(env) {
       connectionRetryCount: 3,
       capabilities: {
         browserName: "wry",
+        // WebdriverIO otherwise requests a BiDi session (webSocketUrl), which WebKitWebDriver on
+        // Linux rejects with "Failed to match capabilities". The specs only use classic WebDriver.
+        "wdio:enforceWebDriverClassic": true,
         "tauri:options": { application: appBinary },
       },
     });
