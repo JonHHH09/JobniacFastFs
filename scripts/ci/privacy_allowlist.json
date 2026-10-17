@@ -525,6 +525,12 @@
       "reason": "Same glob deprecation notice (maintainer's published contact address, verbatim from the npm registry) in the lockfile of the Dependabot react update. Reviewed."
     },
     {
+      "sha256": "3346dd2586068ca3f5922d7cd394c7042c12483e234a5042078b112a7b063475",
+      "classes": ["email"],
+      "paths": ["pnpm-lock.yaml"],
+      "reason": "Same glob deprecation notice (maintainer's published contact address, verbatim from the npm registry) in the lockfile after react-dom is bumped to match react. Reviewed."
+    },
+    {
       "sha256": "25ff8cf340f213ea6c914ccbace50205ae3d9556b7b2a0aa00e3259124f518a4",
       "classes": ["email"],
       "paths": ["crates/core/tests/arbeitnow_board.rs"],
