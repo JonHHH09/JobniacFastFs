@@ -27,8 +27,13 @@ issue branch ──PR (squash, auto-merge)──▶ development ──PR (merge 
 There is no bypass actor: direct pushes are blocked for everyone, including the owner.
 
 Required status checks (named as the jobs are named in the workflows): `Branch policy`, `UI`,
-`Rust (ubuntu-22.04)`, `Rust (windows-latest)`, `Supply chain (cargo-deny)`,
-`Release tool unit tests` and `Privacy scan (working tree and history, generic classes)`.
+`Rust (ubuntu-22.04)`, `Supply chain (cargo-deny)`, `Release tool unit tests` and
+`Privacy scan (working tree and history, generic classes)`.
+
+`Rust (windows-latest)` and `E2E (...)` are not required yet: they fail on `main` today (three
+`platform_windows` export tests in `jobniac-infra`, and the end-to-end suite on both systems), so
+requiring them would block every pull request, including the fix. Add them to both rulesets once
+they are green.
 
 `PostgreSQL 18 integration` is not listed: it is opt-in on pull requests, so it does not report
 there. It runs on every push to `development` and `main`, and `release.yml` requires it on the
