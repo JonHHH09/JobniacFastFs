@@ -1,0 +1,692 @@
+{
+ "metadata": {
+  "unicodedata": "16.0.0",
+  "now": "2026-09-28T12:30:15.123Z",
+  "note": "Identifiers are counter-based; every input is synthetic."
+ },
+ "base": {
+  "fullName": " Ada Lovelace ",
+  "email": " ADA@EXAMPLE.TEST ",
+  "summary": " Analytical engine ",
+  "contacts": [
+   {
+    "id": "11111111-1111-1111-1111-111111111111",
+    "contactType": " Phone ",
+    "contactValue": " 555-0100 ",
+    "label": " mobile "
+   }
+  ],
+  "links": [
+   {
+    "id": "22222222-2222-2222-2222-222222222222",
+    "linkType": " Portfolio ",
+    "url": "HTTP://EXAMPLE.TEST/ada/?source=profile#bio",
+    "label": " personal site "
+   }
+  ],
+  "skills": [
+   {
+    "id": "33333333-3333-3333-3333-333333333333",
+    "skill": " Python ",
+    "normalizedSkill": null,
+    "category": " Programming ",
+    "displayOrder": 2
+   }
+  ],
+  "languages": [
+   {
+    "id": "44444444-4444-4444-4444-444444444444",
+    "language": " English ",
+    "normalizedLanguage": null,
+    "proficiency": " Fluent ",
+    "displayOrder": 1
+   }
+  ],
+  "education": [
+   {
+    "id": "55555555-5555-5555-5555-555555555555",
+    "institution": " University ",
+    "degree": " BSc ",
+    "field": " Mathematics ",
+    "location": " London ",
+    "startDate": "2018-01-01",
+    "endDate": "2022-01-01",
+    "relevantFocus": " Computing "
+   }
+  ],
+  "experiences": [
+   {
+    "id": "66666666-6666-6666-6666-666666666666",
+    "company": " Analytical Engines Ltd ",
+    "title": " Programmer ",
+    "location": " London ",
+    "startDate": "2022-01-01",
+    "endDate": null,
+    "description": " Built a compiler ",
+    "displayOrder": 3
+   }
+  ],
+  "projects": [
+   {
+    "id": "77777777-7777-7777-7777-777777777777",
+    "name": " Notes ",
+    "url": " https://example.test/notes ",
+    "description": " Project notebook ",
+    "displayOrder": 4,
+    "technologies": [
+     {
+      "id": "88888888-8888-8888-8888-888888888888",
+      "technology": " PostgreSQL ",
+      "normalizedTechnology": null,
+      "displayOrder": 5
+     }
+    ]
+   },
+   {
+    "id": "99999999-9999-9999-9999-999999999999",
+    "name": "Tracker",
+    "url": "https://example.test/tracker",
+    "description": null,
+    "displayOrder": 0,
+    "technologies": [
+     {
+      "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "technology": "SQLite",
+      "normalizedTechnology": "sqlite",
+      "displayOrder": 0
+     }
+    ]
+   }
+  ]
+ },
+ "baseGraph": {
+  "profile": {
+   "id": "00000000-0000-0000-0000-000000000001",
+   "fullName": "Ada Lovelace",
+   "email": "ada@example.test",
+   "summary": "Analytical engine",
+   "rawResumeText": null,
+   "createdAt": "2026-09-28T12:30:15.123Z",
+   "updatedAt": "2026-09-28T12:30:15.123Z",
+   "embedding": null,
+   "revision": 0
+  },
+  "contacts": [
+   {
+    "id": "11111111-1111-1111-1111-111111111111",
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "contactType": "phone",
+    "contactValue": "555-0100",
+    "label": "mobile",
+    "createdAt": "2026-09-28T12:30:15.123Z",
+    "updatedAt": "2026-09-28T12:30:15.123Z"
+   }
+  ],
+  "links": [
+   {
+    "id": "22222222-2222-2222-2222-222222222222",
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "linkType": "portfolio",
+    "url": "https://example.test/ada",
+    "label": "personal site",
+    "createdAt": "2026-09-28T12:30:15.123Z",
+    "updatedAt": "2026-09-28T12:30:15.123Z"
+   }
+  ],
+  "skills": [
+   {
+    "id": "33333333-3333-3333-3333-333333333333",
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "skill": "Python",
+    "normalizedSkill": "python",
+    "category": "Programming",
+    "displayOrder": 2,
+    "createdAt": "2026-09-28T12:30:15.123Z"
+   }
+  ],
+  "languages": [
+   {
+    "id": "44444444-4444-4444-4444-444444444444",
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "language": "English",
+    "normalizedLanguage": "english",
+    "proficiency": "Fluent",
+    "displayOrder": 1,
+    "createdAt": "2026-09-28T12:30:15.123Z"
+   }
+  ],
+  "education": [
+   {
+    "id": "55555555-5555-5555-5555-555555555555",
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "institution": "University",
+    "degree": "BSc",
+    "field": "Mathematics",
+    "location": "London",
+    "startDate": "2018-01-01",
+    "endDate": "2022-01-01",
+    "relevantFocus": "Computing",
+    "createdAt": "2026-09-28T12:30:15.123Z"
+   }
+  ],
+  "experiences": [
+   {
+    "id": "66666666-6666-6666-6666-666666666666",
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "company": "Analytical Engines Ltd",
+    "title": "Programmer",
+    "location": "London",
+    "startDate": "2022-01-01",
+    "endDate": null,
+    "description": "Built a compiler",
+    "displayOrder": 3,
+    "createdAt": "2026-09-28T12:30:15.123Z"
+   }
+  ],
+  "projects": [
+   {
+    "id": "77777777-7777-7777-7777-777777777777",
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "name": "Notes",
+    "url": "https://example.test/notes",
+    "description": "Project notebook",
+    "technologies": [
+     {
+      "id": "88888888-8888-8888-8888-888888888888",
+      "projectId": "77777777-7777-7777-7777-777777777777",
+      "technology": "PostgreSQL",
+      "normalizedTechnology": "postgresql",
+      "displayOrder": 5,
+      "createdAt": "2026-09-28T12:30:15.123Z"
+     }
+    ],
+    "displayOrder": 4,
+    "createdAt": "2026-09-28T12:30:15.123Z"
+   },
+   {
+    "id": "99999999-9999-9999-9999-999999999999",
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "name": "Tracker",
+    "url": "https://example.test/tracker",
+    "description": null,
+    "technologies": [
+     {
+      "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "projectId": "99999999-9999-9999-9999-999999999999",
+      "technology": "SQLite",
+      "normalizedTechnology": "sqlite",
+      "displayOrder": 0,
+      "createdAt": "2026-09-28T12:30:15.123Z"
+     }
+    ],
+    "displayOrder": 0,
+    "createdAt": "2026-09-28T12:30:15.123Z"
+   }
+  ],
+  "projectTechnologies": [
+   {
+    "id": "88888888-8888-8888-8888-888888888888",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "technology": "PostgreSQL",
+    "normalizedTechnology": "postgresql",
+    "displayOrder": 5,
+    "createdAt": "2026-09-28T12:30:15.123Z"
+   },
+   {
+    "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "projectId": "99999999-9999-9999-9999-999999999999",
+    "technology": "SQLite",
+    "normalizedTechnology": "sqlite",
+    "displayOrder": 0,
+    "createdAt": "2026-09-28T12:30:15.123Z"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "name": "patch_rename_keeps_other_fields",
+   "request": {
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "expectedRevision": 0,
+    "name": "  Research Notes  "
+   },
+   "ok": true,
+   "result": {
+    "project": {
+     "id": "77777777-7777-7777-7777-777777777777",
+     "profileId": "00000000-0000-0000-0000-000000000001",
+     "name": "Research Notes",
+     "url": "https://example.test/notes",
+     "description": "Project notebook",
+     "technologies": [
+      {
+       "id": "88888888-8888-8888-8888-888888888888",
+       "projectId": "77777777-7777-7777-7777-777777777777",
+       "technology": "PostgreSQL",
+       "normalizedTechnology": "postgresql",
+       "displayOrder": 5,
+       "createdAt": "2026-09-28T12:30:15.123Z"
+      }
+     ],
+     "displayOrder": 4,
+     "createdAt": "2026-09-28T12:30:15.123Z"
+    },
+    "profileRevision": 1
+   }
+  },
+  {
+   "name": "patch_url_and_order",
+   "request": {
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "expectedRevision": 0,
+    "url": " https://example.test/new ",
+    "displayOrder": 7
+   },
+   "ok": true,
+   "result": {
+    "project": {
+     "id": "77777777-7777-7777-7777-777777777777",
+     "profileId": "00000000-0000-0000-0000-000000000001",
+     "name": "Notes",
+     "url": "https://example.test/new",
+     "description": "Project notebook",
+     "technologies": [
+      {
+       "id": "88888888-8888-8888-8888-888888888888",
+       "projectId": "77777777-7777-7777-7777-777777777777",
+       "technology": "PostgreSQL",
+       "normalizedTechnology": "postgresql",
+       "displayOrder": 5,
+       "createdAt": "2026-09-28T12:30:15.123Z"
+      }
+     ],
+     "displayOrder": 7,
+     "createdAt": "2026-09-28T12:30:15.123Z"
+    },
+    "profileRevision": 1
+   }
+  },
+  {
+   "name": "patch_clear_technologies",
+   "request": {
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "expectedRevision": 0,
+    "technologies": []
+   },
+   "ok": true,
+   "result": {
+    "project": {
+     "id": "77777777-7777-7777-7777-777777777777",
+     "profileId": "00000000-0000-0000-0000-000000000001",
+     "name": "Notes",
+     "url": "https://example.test/notes",
+     "description": "Project notebook",
+     "technologies": [],
+     "displayOrder": 4,
+     "createdAt": "2026-09-28T12:30:15.123Z"
+    },
+    "profileRevision": 1
+   }
+  },
+  {
+   "name": "patch_replace_technologies",
+   "request": {
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "expectedRevision": 0,
+    "technologies": [
+     {
+      "technology": " SQLite ",
+      "normalizedTechnology": null,
+      "displayOrder": 1
+     }
+    ]
+   },
+   "ok": true,
+   "result": {
+    "project": {
+     "id": "77777777-7777-7777-7777-777777777777",
+     "profileId": "00000000-0000-0000-0000-000000000001",
+     "name": "Notes",
+     "url": "https://example.test/notes",
+     "description": "Project notebook",
+     "technologies": [
+      {
+       "id": "<new>",
+       "projectId": "77777777-7777-7777-7777-777777777777",
+       "technology": "SQLite",
+       "normalizedTechnology": "sqlite",
+       "displayOrder": 1,
+       "createdAt": "2026-09-28T12:30:15.123Z"
+      }
+     ],
+     "displayOrder": 4,
+     "createdAt": "2026-09-28T12:30:15.123Z"
+    },
+    "profileRevision": 1
+   }
+  },
+  {
+   "name": "patch_replace_technologies_supplied_id",
+   "request": {
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "expectedRevision": 0,
+    "technologies": [
+     {
+      "id": "88888888-8888-8888-8888-888888888888",
+      "technology": "SQLite",
+      "displayOrder": 0
+     }
+    ]
+   },
+   "ok": true,
+   "result": {
+    "project": {
+     "id": "77777777-7777-7777-7777-777777777777",
+     "profileId": "00000000-0000-0000-0000-000000000001",
+     "name": "Notes",
+     "url": "https://example.test/notes",
+     "description": "Project notebook",
+     "technologies": [
+      {
+       "id": "<new>",
+       "projectId": "77777777-7777-7777-7777-777777777777",
+       "technology": "SQLite",
+       "normalizedTechnology": "sqlite",
+       "displayOrder": 0,
+       "createdAt": "2026-09-28T12:30:15.123Z"
+      }
+     ],
+     "displayOrder": 4,
+     "createdAt": "2026-09-28T12:30:15.123Z"
+    },
+    "profileRevision": 1
+   }
+  },
+  {
+   "name": "patch_null_fields_are_absent",
+   "request": {
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "expectedRevision": 0,
+    "name": null,
+    "description": "Changed"
+   },
+   "ok": true,
+   "result": {
+    "project": {
+     "id": "77777777-7777-7777-7777-777777777777",
+     "profileId": "00000000-0000-0000-0000-000000000001",
+     "name": "Notes",
+     "url": "https://example.test/notes",
+     "description": "Changed",
+     "technologies": [
+      {
+       "id": "88888888-8888-8888-8888-888888888888",
+       "projectId": "77777777-7777-7777-7777-777777777777",
+       "technology": "PostgreSQL",
+       "normalizedTechnology": "postgresql",
+       "displayOrder": 5,
+       "createdAt": "2026-09-28T12:30:15.123Z"
+      }
+     ],
+     "displayOrder": 4,
+     "createdAt": "2026-09-28T12:30:15.123Z"
+    },
+    "profileRevision": 1
+   }
+  },
+  {
+   "name": "patch_stale_revision",
+   "request": {
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "expectedRevision": 1,
+    "name": "x"
+   },
+   "ok": false,
+   "error": {
+    "code": "conflict",
+    "message": "Profile revision conflict",
+    "details": {
+     "resource": "profile",
+     "profileId": "00000000-0000-0000-0000-000000000001",
+     "expectedRevision": "1"
+    }
+   }
+  },
+  {
+   "name": "patch_no_fields",
+   "request": {
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "expectedRevision": 0
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile request",
+    "details": {
+     "field": "request",
+     "reason": "must specify at least one project field"
+    }
+   }
+  },
+  {
+   "name": "patch_missing_project",
+   "request": {
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "projectId": "88888888-8888-8888-8888-888888888889",
+    "expectedRevision": 0,
+    "name": "x"
+   },
+   "ok": false,
+   "error": {
+    "code": "not_found",
+    "message": "Profile project not found: 88888888-8888-8888-8888-888888888889",
+    "details": {
+     "resource": "project",
+     "profileId": "00000000-0000-0000-0000-000000000001",
+     "projectId": "88888888-8888-8888-8888-888888888889"
+    }
+   }
+  },
+  {
+   "name": "patch_blank_name",
+   "request": {
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "expectedRevision": 0,
+    "name": "   "
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile write request",
+    "details": {
+     "field": "name",
+     "reason": "must not be blank"
+    }
+   }
+  },
+  {
+   "name": "patch_display_order_overflow",
+   "request": {
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "expectedRevision": 0,
+    "displayOrder": 2147483648
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile write request",
+    "details": {
+     "field": "displayOrder",
+     "reason": "must be less than or equal to 2147483647"
+    }
+   }
+  },
+  {
+   "name": "patch_technology_overflow",
+   "request": {
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "expectedRevision": 0,
+    "technologies": [
+     {
+      "technology": "Rust",
+      "displayOrder": 2147483648
+     }
+    ]
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile write request",
+    "details": {
+     "field": "technologies[0].displayOrder",
+     "reason": "must be less than or equal to 2147483647"
+    }
+   }
+  },
+  {
+   "name": "patch_technology_blank_normalized",
+   "request": {
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "expectedRevision": 0,
+    "technologies": [
+     {
+      "technology": "SQLite",
+      "normalizedTechnology": " ",
+      "displayOrder": 0
+     }
+    ]
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile write request",
+    "details": {
+     "field": "technologies[0].normalizedTechnology",
+     "reason": "must not be blank when supplied"
+    }
+   }
+  },
+  {
+   "name": "patch_duplicate_project_key",
+   "request": {
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "expectedRevision": 0,
+    "name": " tracker ",
+    "url": "https://example.test/tracker"
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile write request",
+    "details": {
+     "field": "name",
+     "reason": "duplicates another project name/url in this profile"
+    }
+   }
+  },
+  {
+   "name": "patch_revision_null",
+   "request": {
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "expectedRevision": null,
+    "name": "x"
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile request",
+    "details": {
+     "field": "expectedRevision",
+     "reason": "must not be null"
+    }
+   }
+  },
+  {
+   "name": "patch_revision_bool",
+   "request": {
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "expectedRevision": true,
+    "name": "x"
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile request",
+    "details": {
+     "field": "expectedRevision",
+     "reason": "must be an integer"
+    }
+   }
+  },
+  {
+   "name": "patch_revision_negative",
+   "request": {
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "expectedRevision": -1,
+    "name": "x"
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile request",
+    "details": {
+     "field": "expectedRevision",
+     "reason": "must not be negative"
+    }
+   }
+  },
+  {
+   "name": "patch_revision_maximum_conflict",
+   "request": {
+    "profileId": "00000000-0000-0000-0000-000000000001",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "expectedRevision": 9223372036854775807,
+    "name": "x"
+   },
+   "ok": false,
+   "error": {
+    "code": "conflict",
+    "message": "Profile revision conflict",
+    "details": {
+     "resource": "profile",
+     "profileId": "00000000-0000-0000-0000-000000000001",
+     "expectedRevision": "9223372036854775807"
+    }
+   }
+  },
+  {
+   "name": "patch_profile_id_invalid",
+   "request": {
+    "profileId": "not-a-uuid",
+    "projectId": "77777777-7777-7777-7777-777777777777",
+    "expectedRevision": 0,
+    "name": "x"
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile request",
+    "details": {
+     "field": "profileId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  }
+ ]
+}

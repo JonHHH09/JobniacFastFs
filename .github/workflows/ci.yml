@@ -1,0 +1,188 @@
+name: CI
+
+# Reusable: release.yml calls this workflow (job `checks`) on the merge commit of a promotion pull
+# request with `postgres-required: true`, which makes the PostgreSQL 18 job a required gate there.
+
+on:
+  pull_request:
+  push:
+    branches: [main, development]
+  workflow_call:
+    inputs:
+      postgres-required:
+        description: "Run the PostgreSQL 18 job even on events where it is opt-in, and fail the run if it cannot run."
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# Pull requests cancel superseded runs. Pushes and the release call (a merged pull request) never cancel.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged != true }}
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  ui:
+    name: UI
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+      - name: Install pnpm
+        run: npm install -g pnpm@12.10.1
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Lint and format check
+        run: pnpm lint
+      - name: Type-check
+        run: pnpm typecheck
+      - name: Unit tests
+        run: pnpm test
+      - name: Build
+        run: pnpm build
+
+  rust:
+    name: Rust (${{ matrix.platform }})
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [windows-latest, ubuntu-22.04]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Install Linux system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+      - name: Install pnpm
+        run: npm install -g pnpm@12.10.1
+      - name: Build the UI (needed by tauri::generate_context!)
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+      - uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249 # stable branch at the pinned commit
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+      - uses: swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+      - name: Fetch the pinned PDFium library (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          bash scripts/fetch-pdfium.sh linux-x64
+          echo "JOBNIAC_PDFIUM_DIR=$GITHUB_WORKSPACE/vendor/pdfium/linux-x64" >> "$GITHUB_ENV"
+      - name: Fetch the pinned PDFium library (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          ./scripts/fetch-pdfium.ps1 -Platform windows-x64
+          "JOBNIAC_PDFIUM_DIR=$env:GITHUB_WORKSPACE\vendor\pdfium\windows-x64" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Confirm the PDFium library is visible to the tests (Linux)
+        if: runner.os == 'Linux'
+        run: test -f "$JOBNIAC_PDFIUM_DIR/libpdfium.so"
+      - name: Confirm the PDFium library is visible to the tests (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (-not $env:JOBNIAC_PDFIUM_DIR) { throw 'JOBNIAC_PDFIUM_DIR was not exported to later steps' }
+          if (-not (Test-Path -LiteralPath (Join-Path $env:JOBNIAC_PDFIUM_DIR 'pdfium.dll') -PathType Leaf)) { throw 'pdfium.dll is missing from JOBNIAC_PDFIUM_DIR' }
+      - name: Format
+        run: cargo fmt --all --check
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: Clippy (PostgreSQL test files behind the postgres-tests features)
+        # Cargo skips targets whose required-features are off, so lint them explicitly.
+        run: cargo clippy --workspace --all-targets --locked --features jobniac-infra/postgres-tests,jobniac-cli/postgres-tests -- -D warnings
+      - name: Test
+        run: cargo test --workspace --locked
+      - name: Generated TypeScript bindings are up to date
+        if: runner.os == 'Linux'
+        run: git diff --exit-code -- src/ipc/bindings.ts
+
+  supply-chain:
+    name: Supply chain (cargo-deny)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: cargo deny check (advisories, licences, bans, sources)
+        uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
+        with:
+          command: check
+
+  postgres:
+    name: PostgreSQL 18 integration
+    # Opt-in on pull requests; runs on pushes, and always when the caller requires it.
+    if: ${{ inputs.postgres-required || github.event_name == 'push' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Fetch the pinned PDFium library
+        run: |
+          bash scripts/fetch-pdfium.sh linux-x64
+          echo "JOBNIAC_PDFIUM_DIR=$GITHUB_WORKSPACE/vendor/pdfium/linux-x64" >> "$GITHUB_ENV"
+      - name: Confirm the PDFium library is visible to the tests
+        run: test -f "$JOBNIAC_PDFIUM_DIR/libpdfium.so"
+      - name: Install PostgreSQL 18 from the PostgreSQL apt repository (signing key fingerprint pinned)
+        run: bash scripts/ci/install-postgresql-18.sh
+      - name: Confirm PostgreSQL 18 is present (required gate, never skipped)
+        if: ${{ inputs.postgres-required }}
+        run: |
+          test -x /usr/lib/postgresql/18/bin/postgres
+          /usr/lib/postgresql/18/bin/postgres --version | grep -E ' 18(\.|$)'
+      - uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249 # stable branch at the pinned commit
+        with:
+          toolchain: stable
+      - uses: swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+      - name: Integration tests against a disposable cluster
+        env:
+          JOBNIAC_POSTGRES_BIN: /usr/lib/postgresql/18/bin
+        # The `postgres-tests` features turn on the test files that fail closed on CI without a
+        # server; the `rust` job leaves them off.
+        run: cargo run --locked -p jobniac-testkit --bin pg-test -- --workspace --exclude jobniac-desktop --locked --features jobniac-infra/postgres-tests,jobniac-cli/postgres-tests
+
+  release-tools:
+    name: Release tool unit tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      # The same interpreter as release.yml, which runs the tools under test.
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+      - name: Unit tests of scripts/release
+        run: python -I -m unittest discover -s scripts/release/tests -p "test_*.py"
+
+  privacy-scan:
+    name: Privacy scan (working tree and history, generic classes)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Unit tests of the privacy scanner
+        run: python3 -I -m unittest discover -s scripts/ci/tests -p "test_*.py"
+      - name: Scan the working tree and every reachable ref
+        # Owner-specific classes and personal phrase fingerprints are local-only (gitignored inputs), so CI
+        # runs the generic classes. The scan fails on any finding that is not in the reviewed allow-list.
+        run: python3 -I scripts/ci/privacy_scan.py --mode all

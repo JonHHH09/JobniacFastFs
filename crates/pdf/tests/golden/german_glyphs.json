@@ -1,0 +1,1531 @@
+{
+ "source": "src/jobniac/infrastructure/german_pdf_renderer.py",
+ "glyphs": [
+  {
+   "codepoint": 32,
+   "bytes": "20",
+   "literal": "( )",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 33,
+   "bytes": "21",
+   "literal": "(!)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 34,
+   "bytes": "22",
+   "literal": "(\")",
+   "width_normal_bits": "43b18000",
+   "width_bold_bits": "43ed0000"
+  },
+  {
+   "codepoint": 35,
+   "bytes": "23",
+   "literal": "(#)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 36,
+   "bytes": "24",
+   "literal": "($)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 37,
+   "bytes": "25",
+   "literal": "(%)",
+   "width_normal_bits": "445e4000",
+   "width_bold_bits": "445e4000"
+  },
+  {
+   "codepoint": 38,
+   "bytes": "26",
+   "literal": "(&)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 39,
+   "bytes": "27",
+   "literal": "(')",
+   "width_normal_bits": "433f0000",
+   "width_bold_bits": "436e0000"
+  },
+  {
+   "codepoint": 40,
+   "bytes": "28",
+   "literal": "(\\()",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 41,
+   "bytes": "29",
+   "literal": "(\\))",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 42,
+   "bytes": "2a",
+   "literal": "(*)",
+   "width_normal_bits": "43c28000",
+   "width_bold_bits": "43c28000"
+  },
+  {
+   "codepoint": 43,
+   "bytes": "2b",
+   "literal": "(+)",
+   "width_normal_bits": "44120000",
+   "width_bold_bits": "44120000"
+  },
+  {
+   "codepoint": 44,
+   "bytes": "2c",
+   "literal": "(,)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 45,
+   "bytes": "2d",
+   "literal": "(-)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 46,
+   "bytes": "2e",
+   "literal": "(.)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 47,
+   "bytes": "2f",
+   "literal": "(/)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 48,
+   "bytes": "30",
+   "literal": "(0)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 49,
+   "bytes": "31",
+   "literal": "(1)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 50,
+   "bytes": "32",
+   "literal": "(2)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 51,
+   "bytes": "33",
+   "literal": "(3)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 52,
+   "bytes": "34",
+   "literal": "(4)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 53,
+   "bytes": "35",
+   "literal": "(5)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 54,
+   "bytes": "36",
+   "literal": "(6)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 55,
+   "bytes": "37",
+   "literal": "(7)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 56,
+   "bytes": "38",
+   "literal": "(8)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 57,
+   "bytes": "39",
+   "literal": "(9)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 58,
+   "bytes": "3a",
+   "literal": "(:)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 59,
+   "bytes": "3b",
+   "literal": "(;)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 60,
+   "bytes": "3c",
+   "literal": "(<)",
+   "width_normal_bits": "44120000",
+   "width_bold_bits": "44120000"
+  },
+  {
+   "codepoint": 61,
+   "bytes": "3d",
+   "literal": "(=)",
+   "width_normal_bits": "44120000",
+   "width_bold_bits": "44120000"
+  },
+  {
+   "codepoint": 62,
+   "bytes": "3e",
+   "literal": "(>)",
+   "width_normal_bits": "44120000",
+   "width_bold_bits": "44120000"
+  },
+  {
+   "codepoint": 63,
+   "bytes": "3f",
+   "literal": "(?)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 64,
+   "bytes": "40",
+   "literal": "(@)",
+   "width_normal_bits": "447dc000",
+   "width_bold_bits": "4473c000"
+  },
+  {
+   "codepoint": 65,
+   "bytes": "41",
+   "literal": "(A)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 66,
+   "bytes": "42",
+   "literal": "(B)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 67,
+   "bytes": "43",
+   "literal": "(C)",
+   "width_normal_bits": "44348000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 68,
+   "bytes": "44",
+   "literal": "(D)",
+   "width_normal_bits": "44348000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 69,
+   "bytes": "45",
+   "literal": "(E)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "4426c000"
+  },
+  {
+   "codepoint": 70,
+   "bytes": "46",
+   "literal": "(F)",
+   "width_normal_bits": "4418c000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 71,
+   "bytes": "47",
+   "literal": "(G)",
+   "width_normal_bits": "44428000",
+   "width_bold_bits": "44428000"
+  },
+  {
+   "codepoint": 72,
+   "bytes": "48",
+   "literal": "(H)",
+   "width_normal_bits": "44348000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 73,
+   "bytes": "49",
+   "literal": "(I)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 74,
+   "bytes": "4a",
+   "literal": "(J)",
+   "width_normal_bits": "43fa0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 75,
+   "bytes": "4b",
+   "literal": "(K)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 76,
+   "bytes": "4c",
+   "literal": "(L)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 77,
+   "bytes": "4d",
+   "literal": "(M)",
+   "width_normal_bits": "44504000",
+   "width_bold_bits": "44504000"
+  },
+  {
+   "codepoint": 78,
+   "bytes": "4e",
+   "literal": "(N)",
+   "width_normal_bits": "44348000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 79,
+   "bytes": "4f",
+   "literal": "(O)",
+   "width_normal_bits": "44428000",
+   "width_bold_bits": "44428000"
+  },
+  {
+   "codepoint": 80,
+   "bytes": "50",
+   "literal": "(P)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "4426c000"
+  },
+  {
+   "codepoint": 81,
+   "bytes": "51",
+   "literal": "(Q)",
+   "width_normal_bits": "44428000",
+   "width_bold_bits": "44428000"
+  },
+  {
+   "codepoint": 82,
+   "bytes": "52",
+   "literal": "(R)",
+   "width_normal_bits": "44348000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 83,
+   "bytes": "53",
+   "literal": "(S)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "4426c000"
+  },
+  {
+   "codepoint": 84,
+   "bytes": "54",
+   "literal": "(T)",
+   "width_normal_bits": "4418c000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 85,
+   "bytes": "55",
+   "literal": "(U)",
+   "width_normal_bits": "44348000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 86,
+   "bytes": "56",
+   "literal": "(V)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "4426c000"
+  },
+  {
+   "codepoint": 87,
+   "bytes": "57",
+   "literal": "(W)",
+   "width_normal_bits": "446c0000",
+   "width_bold_bits": "446c0000"
+  },
+  {
+   "codepoint": 88,
+   "bytes": "58",
+   "literal": "(X)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "4426c000"
+  },
+  {
+   "codepoint": 89,
+   "bytes": "59",
+   "literal": "(Y)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "4426c000"
+  },
+  {
+   "codepoint": 90,
+   "bytes": "5a",
+   "literal": "(Z)",
+   "width_normal_bits": "4418c000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 91,
+   "bytes": "5b",
+   "literal": "([)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 92,
+   "bytes": "5c",
+   "literal": "(\\\\)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 93,
+   "bytes": "5d",
+   "literal": "(])",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 94,
+   "bytes": "5e",
+   "literal": "(^)",
+   "width_normal_bits": "43ea8000",
+   "width_bold_bits": "44120000"
+  },
+  {
+   "codepoint": 95,
+   "bytes": "5f",
+   "literal": "(_)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 96,
+   "bytes": "60",
+   "literal": "(`)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 97,
+   "bytes": "61",
+   "literal": "(a)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 98,
+   "bytes": "62",
+   "literal": "(b)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 99,
+   "bytes": "63",
+   "literal": "(c)",
+   "width_normal_bits": "43fa0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 100,
+   "bytes": "64",
+   "literal": "(d)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 101,
+   "bytes": "65",
+   "literal": "(e)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 102,
+   "bytes": "66",
+   "literal": "(f)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 103,
+   "bytes": "67",
+   "literal": "(g)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 104,
+   "bytes": "68",
+   "literal": "(h)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 105,
+   "bytes": "69",
+   "literal": "(i)",
+   "width_normal_bits": "435e0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 106,
+   "bytes": "6a",
+   "literal": "(j)",
+   "width_normal_bits": "435e0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 107,
+   "bytes": "6b",
+   "literal": "(k)",
+   "width_normal_bits": "43fa0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 108,
+   "bytes": "6c",
+   "literal": "(l)",
+   "width_normal_bits": "435e0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 109,
+   "bytes": "6d",
+   "literal": "(m)",
+   "width_normal_bits": "44504000",
+   "width_bold_bits": "445e4000"
+  },
+  {
+   "codepoint": 110,
+   "bytes": "6e",
+   "literal": "(n)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 111,
+   "bytes": "6f",
+   "literal": "(o)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 112,
+   "bytes": "70",
+   "literal": "(p)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 113,
+   "bytes": "71",
+   "literal": "(q)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 114,
+   "bytes": "72",
+   "literal": "(r)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43c28000"
+  },
+  {
+   "codepoint": 115,
+   "bytes": "73",
+   "literal": "(s)",
+   "width_normal_bits": "43fa0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 116,
+   "bytes": "74",
+   "literal": "(t)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 117,
+   "bytes": "75",
+   "literal": "(u)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 118,
+   "bytes": "76",
+   "literal": "(v)",
+   "width_normal_bits": "43fa0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 119,
+   "bytes": "77",
+   "literal": "(w)",
+   "width_normal_bits": "44348000",
+   "width_bold_bits": "44428000"
+  },
+  {
+   "codepoint": 120,
+   "bytes": "78",
+   "literal": "(x)",
+   "width_normal_bits": "43fa0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 121,
+   "bytes": "79",
+   "literal": "(y)",
+   "width_normal_bits": "43fa0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 122,
+   "bytes": "7a",
+   "literal": "(z)",
+   "width_normal_bits": "43fa0000",
+   "width_bold_bits": "43fa0000"
+  },
+  {
+   "codepoint": 123,
+   "bytes": "7b",
+   "literal": "({)",
+   "width_normal_bits": "43a70000",
+   "width_bold_bits": "43c28000"
+  },
+  {
+   "codepoint": 124,
+   "bytes": "7c",
+   "literal": "(|)",
+   "width_normal_bits": "43820000",
+   "width_bold_bits": "438c0000"
+  },
+  {
+   "codepoint": 125,
+   "bytes": "7d",
+   "literal": "(})",
+   "width_normal_bits": "43a70000",
+   "width_bold_bits": "43c28000"
+  },
+  {
+   "codepoint": 126,
+   "bytes": "7e",
+   "literal": "(~)",
+   "width_normal_bits": "44120000",
+   "width_bold_bits": "44120000"
+  },
+  {
+   "codepoint": 160,
+   "bytes": "a0",
+   "literal": "(\\240)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 161,
+   "bytes": "a1",
+   "literal": "(\\241)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 162,
+   "bytes": "a2",
+   "literal": "(\\242)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 163,
+   "bytes": "a3",
+   "literal": "(\\243)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 164,
+   "bytes": "a4",
+   "literal": "(\\244)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 165,
+   "bytes": "a5",
+   "literal": "(\\245)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 166,
+   "bytes": "a6",
+   "literal": "(\\246)",
+   "width_normal_bits": "43820000",
+   "width_bold_bits": "438c0000"
+  },
+  {
+   "codepoint": 167,
+   "bytes": "a7",
+   "literal": "(\\247)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 168,
+   "bytes": "a8",
+   "literal": "(\\250)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 169,
+   "bytes": "a9",
+   "literal": "(\\251)",
+   "width_normal_bits": "44384000",
+   "width_bold_bits": "44384000"
+  },
+  {
+   "codepoint": 170,
+   "bytes": "aa",
+   "literal": "(\\252)",
+   "width_normal_bits": "43b90000",
+   "width_bold_bits": "43b90000"
+  },
+  {
+   "codepoint": 171,
+   "bytes": "ab",
+   "literal": "(\\253)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 172,
+   "bytes": "ac",
+   "literal": "(\\254)",
+   "width_normal_bits": "44120000",
+   "width_bold_bits": "44120000"
+  },
+  {
+   "codepoint": 173,
+   "bytes": "ad",
+   "literal": "(\\255)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 174,
+   "bytes": "ae",
+   "literal": "(\\256)",
+   "width_normal_bits": "44384000",
+   "width_bold_bits": "44384000"
+  },
+  {
+   "codepoint": 175,
+   "bytes": "af",
+   "literal": "(\\257)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 176,
+   "bytes": "b0",
+   "literal": "(\\260)",
+   "width_normal_bits": "43c80000",
+   "width_bold_bits": "43c80000"
+  },
+  {
+   "codepoint": 177,
+   "bytes": "b1",
+   "literal": "(\\261)",
+   "width_normal_bits": "44120000",
+   "width_bold_bits": "44120000"
+  },
+  {
+   "codepoint": 178,
+   "bytes": "b2",
+   "literal": "(\\262)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 179,
+   "bytes": "b3",
+   "literal": "(\\263)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 180,
+   "bytes": "b4",
+   "literal": "(\\264)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 181,
+   "bytes": "b5",
+   "literal": "(\\265)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 182,
+   "bytes": "b6",
+   "literal": "(\\266)",
+   "width_normal_bits": "44064000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 183,
+   "bytes": "b7",
+   "literal": "(\\267)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 184,
+   "bytes": "b8",
+   "literal": "(\\270)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 185,
+   "bytes": "b9",
+   "literal": "(\\271)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 186,
+   "bytes": "ba",
+   "literal": "(\\272)",
+   "width_normal_bits": "43b68000",
+   "width_bold_bits": "43b68000"
+  },
+  {
+   "codepoint": 187,
+   "bytes": "bb",
+   "literal": "(\\273)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 188,
+   "bytes": "bc",
+   "literal": "(\\274)",
+   "width_normal_bits": "44508000",
+   "width_bold_bits": "44508000"
+  },
+  {
+   "codepoint": 189,
+   "bytes": "bd",
+   "literal": "(\\275)",
+   "width_normal_bits": "44508000",
+   "width_bold_bits": "44508000"
+  },
+  {
+   "codepoint": 190,
+   "bytes": "be",
+   "literal": "(\\276)",
+   "width_normal_bits": "44508000",
+   "width_bold_bits": "44508000"
+  },
+  {
+   "codepoint": 191,
+   "bytes": "bf",
+   "literal": "(\\277)",
+   "width_normal_bits": "4418c000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 192,
+   "bytes": "c0",
+   "literal": "(\\300)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 193,
+   "bytes": "c1",
+   "literal": "(\\301)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 194,
+   "bytes": "c2",
+   "literal": "(\\302)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 195,
+   "bytes": "c3",
+   "literal": "(\\303)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 196,
+   "bytes": "c4",
+   "literal": "(\\304)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 197,
+   "bytes": "c5",
+   "literal": "(\\305)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 198,
+   "bytes": "c6",
+   "literal": "(\\306)",
+   "width_normal_bits": "447a0000",
+   "width_bold_bits": "447a0000"
+  },
+  {
+   "codepoint": 199,
+   "bytes": "c7",
+   "literal": "(\\307)",
+   "width_normal_bits": "44348000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 200,
+   "bytes": "c8",
+   "literal": "(\\310)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "4426c000"
+  },
+  {
+   "codepoint": 201,
+   "bytes": "c9",
+   "literal": "(\\311)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "4426c000"
+  },
+  {
+   "codepoint": 202,
+   "bytes": "ca",
+   "literal": "(\\312)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "4426c000"
+  },
+  {
+   "codepoint": 203,
+   "bytes": "cb",
+   "literal": "(\\313)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "4426c000"
+  },
+  {
+   "codepoint": 204,
+   "bytes": "cc",
+   "literal": "(\\314)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 205,
+   "bytes": "cd",
+   "literal": "(\\315)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 206,
+   "bytes": "ce",
+   "literal": "(\\316)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 207,
+   "bytes": "cf",
+   "literal": "(\\317)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 208,
+   "bytes": "d0",
+   "literal": "(\\320)",
+   "width_normal_bits": "44348000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 209,
+   "bytes": "d1",
+   "literal": "(\\321)",
+   "width_normal_bits": "44348000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 210,
+   "bytes": "d2",
+   "literal": "(\\322)",
+   "width_normal_bits": "44428000",
+   "width_bold_bits": "44428000"
+  },
+  {
+   "codepoint": 211,
+   "bytes": "d3",
+   "literal": "(\\323)",
+   "width_normal_bits": "44428000",
+   "width_bold_bits": "44428000"
+  },
+  {
+   "codepoint": 212,
+   "bytes": "d4",
+   "literal": "(\\324)",
+   "width_normal_bits": "44428000",
+   "width_bold_bits": "44428000"
+  },
+  {
+   "codepoint": 213,
+   "bytes": "d5",
+   "literal": "(\\325)",
+   "width_normal_bits": "44428000",
+   "width_bold_bits": "44428000"
+  },
+  {
+   "codepoint": 214,
+   "bytes": "d6",
+   "literal": "(\\326)",
+   "width_normal_bits": "44428000",
+   "width_bold_bits": "44428000"
+  },
+  {
+   "codepoint": 215,
+   "bytes": "d7",
+   "literal": "(\\327)",
+   "width_normal_bits": "44120000",
+   "width_bold_bits": "44120000"
+  },
+  {
+   "codepoint": 216,
+   "bytes": "d8",
+   "literal": "(\\330)",
+   "width_normal_bits": "44428000",
+   "width_bold_bits": "44428000"
+  },
+  {
+   "codepoint": 217,
+   "bytes": "d9",
+   "literal": "(\\331)",
+   "width_normal_bits": "44348000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 218,
+   "bytes": "da",
+   "literal": "(\\332)",
+   "width_normal_bits": "44348000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 219,
+   "bytes": "db",
+   "literal": "(\\333)",
+   "width_normal_bits": "44348000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 220,
+   "bytes": "dc",
+   "literal": "(\\334)",
+   "width_normal_bits": "44348000",
+   "width_bold_bits": "44348000"
+  },
+  {
+   "codepoint": 221,
+   "bytes": "dd",
+   "literal": "(\\335)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "4426c000"
+  },
+  {
+   "codepoint": 222,
+   "bytes": "de",
+   "literal": "(\\336)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "4426c000"
+  },
+  {
+   "codepoint": 223,
+   "bytes": "df",
+   "literal": "(\\337)",
+   "width_normal_bits": "4418c000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 224,
+   "bytes": "e0",
+   "literal": "(\\340)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 225,
+   "bytes": "e1",
+   "literal": "(\\341)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 226,
+   "bytes": "e2",
+   "literal": "(\\342)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 227,
+   "bytes": "e3",
+   "literal": "(\\343)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 228,
+   "bytes": "e4",
+   "literal": "(\\344)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 229,
+   "bytes": "e5",
+   "literal": "(\\345)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 230,
+   "bytes": "e6",
+   "literal": "(\\346)",
+   "width_normal_bits": "445e4000",
+   "width_bold_bits": "445e4000"
+  },
+  {
+   "codepoint": 231,
+   "bytes": "e7",
+   "literal": "(\\347)",
+   "width_normal_bits": "43fa0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 232,
+   "bytes": "e8",
+   "literal": "(\\350)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 233,
+   "bytes": "e9",
+   "literal": "(\\351)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 234,
+   "bytes": "ea",
+   "literal": "(\\352)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 235,
+   "bytes": "eb",
+   "literal": "(\\353)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 236,
+   "bytes": "ec",
+   "literal": "(\\354)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 237,
+   "bytes": "ed",
+   "literal": "(\\355)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 238,
+   "bytes": "ee",
+   "literal": "(\\356)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 239,
+   "bytes": "ef",
+   "literal": "(\\357)",
+   "width_normal_bits": "438b0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 240,
+   "bytes": "f0",
+   "literal": "(\\360)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 241,
+   "bytes": "f1",
+   "literal": "(\\361)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 242,
+   "bytes": "f2",
+   "literal": "(\\362)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 243,
+   "bytes": "f3",
+   "literal": "(\\363)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 244,
+   "bytes": "f4",
+   "literal": "(\\364)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 245,
+   "bytes": "f5",
+   "literal": "(\\365)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 246,
+   "bytes": "f6",
+   "literal": "(\\366)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 247,
+   "bytes": "f7",
+   "literal": "(\\367)",
+   "width_normal_bits": "44120000",
+   "width_bold_bits": "44120000"
+  },
+  {
+   "codepoint": 248,
+   "bytes": "f8",
+   "literal": "(\\370)",
+   "width_normal_bits": "4418c000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 249,
+   "bytes": "f9",
+   "literal": "(\\371)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 250,
+   "bytes": "fa",
+   "literal": "(\\372)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 251,
+   "bytes": "fb",
+   "literal": "(\\373)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 252,
+   "bytes": "fc",
+   "literal": "(\\374)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 253,
+   "bytes": "fd",
+   "literal": "(\\375)",
+   "width_normal_bits": "43fa0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 254,
+   "bytes": "fe",
+   "literal": "(\\376)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 255,
+   "bytes": "ff",
+   "literal": "(\\377)",
+   "width_normal_bits": "43fa0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 338,
+   "bytes": "8c",
+   "literal": "(\\214)",
+   "width_normal_bits": "447a0000",
+   "width_bold_bits": "447a0000"
+  },
+  {
+   "codepoint": 339,
+   "bytes": "9c",
+   "literal": "(\\234)",
+   "width_normal_bits": "446c0000",
+   "width_bold_bits": "446c0000"
+  },
+  {
+   "codepoint": 352,
+   "bytes": "8a",
+   "literal": "(\\212)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "4426c000"
+  },
+  {
+   "codepoint": 353,
+   "bytes": "9a",
+   "literal": "(\\232)",
+   "width_normal_bits": "43fa0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 376,
+   "bytes": "9f",
+   "literal": "(\\237)",
+   "width_normal_bits": "4426c000",
+   "width_bold_bits": "4426c000"
+  },
+  {
+   "codepoint": 381,
+   "bytes": "8e",
+   "literal": "(\\216)",
+   "width_normal_bits": "4418c000",
+   "width_bold_bits": "4418c000"
+  },
+  {
+   "codepoint": 382,
+   "bytes": "9e",
+   "literal": "(\\236)",
+   "width_normal_bits": "43fa0000",
+   "width_bold_bits": "43fa0000"
+  },
+  {
+   "codepoint": 402,
+   "bytes": "83",
+   "literal": "(\\203)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 710,
+   "bytes": "88",
+   "literal": "(\\210)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 732,
+   "bytes": "98",
+   "literal": "(\\230)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 8211,
+   "bytes": "96",
+   "literal": "(\\226)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 8212,
+   "bytes": "97",
+   "literal": "(\\227)",
+   "width_normal_bits": "447a0000",
+   "width_bold_bits": "447a0000"
+  },
+  {
+   "codepoint": 8216,
+   "bytes": "91",
+   "literal": "(\\221)",
+   "width_normal_bits": "435e0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 8217,
+   "bytes": "92",
+   "literal": "(\\222)",
+   "width_normal_bits": "435e0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 8218,
+   "bytes": "82",
+   "literal": "(\\202)",
+   "width_normal_bits": "435e0000",
+   "width_bold_bits": "438b0000"
+  },
+  {
+   "codepoint": 8220,
+   "bytes": "93",
+   "literal": "(\\223)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43fa0000"
+  },
+  {
+   "codepoint": 8221,
+   "bytes": "94",
+   "literal": "(\\224)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43fa0000"
+  },
+  {
+   "codepoint": 8222,
+   "bytes": "84",
+   "literal": "(\\204)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43fa0000"
+  },
+  {
+   "codepoint": 8224,
+   "bytes": "86",
+   "literal": "(\\206)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 8225,
+   "bytes": "87",
+   "literal": "(\\207)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 8230,
+   "bytes": "85",
+   "literal": "(\\205)",
+   "width_normal_bits": "447a0000",
+   "width_bold_bits": "447a0000"
+  },
+  {
+   "codepoint": 8240,
+   "bytes": "89",
+   "literal": "(\\211)",
+   "width_normal_bits": "447a0000",
+   "width_bold_bits": "447a0000"
+  },
+  {
+   "codepoint": 8249,
+   "bytes": "8b",
+   "literal": "(\\213)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 8250,
+   "bytes": "9b",
+   "literal": "(\\233)",
+   "width_normal_bits": "43a68000",
+   "width_bold_bits": "43a68000"
+  },
+  {
+   "codepoint": 8364,
+   "bytes": "80",
+   "literal": "(\\200)",
+   "width_normal_bits": "440b0000",
+   "width_bold_bits": "440b0000"
+  },
+  {
+   "codepoint": 8482,
+   "bytes": "99",
+   "literal": "(\\231)",
+   "width_normal_bits": "447a0000",
+   "width_bold_bits": "447a0000"
+  },
+  {
+   "codepoint": 8226,
+   "bytes": "95",
+   "literal": "(\\225)",
+   "width_normal_bits": "43af0000",
+   "width_bold_bits": "43af0000"
+  }
+ ]
+}

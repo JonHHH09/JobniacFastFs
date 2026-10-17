@@ -1,0 +1,22 @@
+{
+  "protocolVersion": "2025-11-25",
+  "capabilities": {
+    "experimental": {},
+    "prompts": {
+      "listChanged": false
+    },
+    "resources": {
+      "subscribe": false,
+      "listChanged": false
+    },
+    "tools": {
+      "listChanged": false
+    }
+  },
+  "serverInfo": {
+    "name": "Jobniac",
+    "title": "Jobniac diagnostic MCP",
+    "version": "",
+    "description": "Local STDIO diagnostics for the Jobniac desktop workspace."
+  }
+}

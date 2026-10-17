@@ -1,0 +1,2377 @@
+{
+ "safeBasename": [
+  {
+   "input": "C:\\imports\\cv.pdf",
+   "output": "cv.pdf"
+  },
+  {
+   "input": "dir/",
+   "output": "stored.pdf"
+  },
+  {
+   "input": "",
+   "output": "stored.pdf"
+  },
+  {
+   "input": "a/b/c.pdf",
+   "output": "c.pdf"
+  },
+  {
+   "input": "r\u00e9sum\u00e9.pdf",
+   "output": "r\u00e9sum\u00e9.pdf"
+  },
+  {
+   "input": "x\\y/z.pdf",
+   "output": "z.pdf"
+  },
+  {
+   "input": "/",
+   "output": "stored.pdf"
+  },
+  {
+   "input": "..",
+   "output": ".."
+  },
+  {
+   "input": "name\\",
+   "output": "stored.pdf"
+  },
+  {
+   "input": "plain.pdf",
+   "output": "plain.pdf"
+  },
+  {
+   "input": "\ud83d\ude00/cv.pdf",
+   "output": "cv.pdf"
+  }
+ ],
+ "extractionView": [
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": false,
+    "text": "Alpha\n\nBeta",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "Alpha\n\nBeta"
+     },
+     {
+      "pageNumber": 2,
+      "text": "ateB\n\nahplA"
+     }
+    ]
+   },
+   "maxCharacters": 0,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": true,
+    "text": "",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": false,
+    "text": "Alpha\n\nBeta",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "Alpha\n\nBeta"
+     },
+     {
+      "pageNumber": 2,
+      "text": "ateB\n\nahplA"
+     }
+    ]
+   },
+   "maxCharacters": 0,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": true,
+    "text": "",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": false,
+    "text": "Alpha\n\nBeta",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "Alpha\n\nBeta"
+     },
+     {
+      "pageNumber": 2,
+      "text": "ateB\n\nahplA"
+     }
+    ]
+   },
+   "maxCharacters": 1,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": true,
+    "text": "A",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "A"
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": false,
+    "text": "Alpha\n\nBeta",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "Alpha\n\nBeta"
+     },
+     {
+      "pageNumber": 2,
+      "text": "ateB\n\nahplA"
+     }
+    ]
+   },
+   "maxCharacters": 1,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": true,
+    "text": "A",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": false,
+    "text": "Alpha\n\nBeta",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "Alpha\n\nBeta"
+     },
+     {
+      "pageNumber": 2,
+      "text": "ateB\n\nahplA"
+     }
+    ]
+   },
+   "maxCharacters": 2,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": true,
+    "text": "Al",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "Al"
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": false,
+    "text": "Alpha\n\nBeta",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "Alpha\n\nBeta"
+     },
+     {
+      "pageNumber": 2,
+      "text": "ateB\n\nahplA"
+     }
+    ]
+   },
+   "maxCharacters": 2,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": true,
+    "text": "Al",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": false,
+    "text": "Alpha\n\nBeta",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "Alpha\n\nBeta"
+     },
+     {
+      "pageNumber": 2,
+      "text": "ateB\n\nahplA"
+     }
+    ]
+   },
+   "maxCharacters": 3,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": true,
+    "text": "Alp",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "Alp"
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": false,
+    "text": "Alpha\n\nBeta",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "Alpha\n\nBeta"
+     },
+     {
+      "pageNumber": 2,
+      "text": "ateB\n\nahplA"
+     }
+    ]
+   },
+   "maxCharacters": 3,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": true,
+    "text": "Alp",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": false,
+    "text": "Alpha\n\nBeta",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "Alpha\n\nBeta"
+     },
+     {
+      "pageNumber": 2,
+      "text": "ateB\n\nahplA"
+     }
+    ]
+   },
+   "maxCharacters": 5,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": true,
+    "text": "Alpha",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "Alpha"
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": false,
+    "text": "Alpha\n\nBeta",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "Alpha\n\nBeta"
+     },
+     {
+      "pageNumber": 2,
+      "text": "ateB\n\nahplA"
+     }
+    ]
+   },
+   "maxCharacters": 5,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": true,
+    "text": "Alpha",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": false,
+    "text": "Alpha\n\nBeta",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "Alpha\n\nBeta"
+     },
+     {
+      "pageNumber": 2,
+      "text": "ateB\n\nahplA"
+     }
+    ]
+   },
+   "maxCharacters": 100,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": false,
+    "text": "Alpha\n\nBeta",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "Alpha\n\nBeta"
+     },
+     {
+      "pageNumber": 2,
+      "text": "ateB\n\nahplA"
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": false,
+    "text": "Alpha\n\nBeta",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "Alpha\n\nBeta"
+     },
+     {
+      "pageNumber": 2,
+      "text": "ateB\n\nahplA"
+     }
+    ]
+   },
+   "maxCharacters": 100,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 11,
+    "truncated": false,
+    "text": "Alpha\n\nBeta",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "a\ud83d\ude00b",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "a\ud83d\ude00b"
+     },
+     {
+      "pageNumber": 2,
+      "text": "b\ud83d\ude00a"
+     }
+    ]
+   },
+   "maxCharacters": 0,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": true,
+    "text": "",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "a\ud83d\ude00b",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "a\ud83d\ude00b"
+     },
+     {
+      "pageNumber": 2,
+      "text": "b\ud83d\ude00a"
+     }
+    ]
+   },
+   "maxCharacters": 0,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": true,
+    "text": "",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "a\ud83d\ude00b",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "a\ud83d\ude00b"
+     },
+     {
+      "pageNumber": 2,
+      "text": "b\ud83d\ude00a"
+     }
+    ]
+   },
+   "maxCharacters": 1,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": true,
+    "text": "a",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "a"
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "a\ud83d\ude00b",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "a\ud83d\ude00b"
+     },
+     {
+      "pageNumber": 2,
+      "text": "b\ud83d\ude00a"
+     }
+    ]
+   },
+   "maxCharacters": 1,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": true,
+    "text": "a",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "a\ud83d\ude00b",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "a\ud83d\ude00b"
+     },
+     {
+      "pageNumber": 2,
+      "text": "b\ud83d\ude00a"
+     }
+    ]
+   },
+   "maxCharacters": 2,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": true,
+    "text": "a",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "a"
+     },
+     {
+      "pageNumber": 2,
+      "text": "b"
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "a\ud83d\ude00b",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "a\ud83d\ude00b"
+     },
+     {
+      "pageNumber": 2,
+      "text": "b\ud83d\ude00a"
+     }
+    ]
+   },
+   "maxCharacters": 2,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": true,
+    "text": "a",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "a\ud83d\ude00b",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "a\ud83d\ude00b"
+     },
+     {
+      "pageNumber": 2,
+      "text": "b\ud83d\ude00a"
+     }
+    ]
+   },
+   "maxCharacters": 3,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": true,
+    "text": "a\ud83d\ude00",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "a\ud83d\ude00"
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "a\ud83d\ude00b",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "a\ud83d\ude00b"
+     },
+     {
+      "pageNumber": 2,
+      "text": "b\ud83d\ude00a"
+     }
+    ]
+   },
+   "maxCharacters": 3,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": true,
+    "text": "a\ud83d\ude00",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "a\ud83d\ude00b",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "a\ud83d\ude00b"
+     },
+     {
+      "pageNumber": 2,
+      "text": "b\ud83d\ude00a"
+     }
+    ]
+   },
+   "maxCharacters": 5,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "a\ud83d\ude00b",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "a\ud83d\ude00b"
+     },
+     {
+      "pageNumber": 2,
+      "text": "b"
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "a\ud83d\ude00b",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "a\ud83d\ude00b"
+     },
+     {
+      "pageNumber": 2,
+      "text": "b\ud83d\ude00a"
+     }
+    ]
+   },
+   "maxCharacters": 5,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "a\ud83d\ude00b",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "a\ud83d\ude00b",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "a\ud83d\ude00b"
+     },
+     {
+      "pageNumber": 2,
+      "text": "b\ud83d\ude00a"
+     }
+    ]
+   },
+   "maxCharacters": 100,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "a\ud83d\ude00b",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "a\ud83d\ude00b"
+     },
+     {
+      "pageNumber": 2,
+      "text": "b\ud83d\ude00a"
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "a\ud83d\ude00b",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "a\ud83d\ude00b"
+     },
+     {
+      "pageNumber": 2,
+      "text": "b\ud83d\ude00a"
+     }
+    ]
+   },
+   "maxCharacters": 100,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "a\ud83d\ude00b",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": false,
+    "text": "\u00e9\u00e9\u00e9\u00e9\u00e9",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     }
+    ]
+   },
+   "maxCharacters": 0,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": true,
+    "text": "",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": false,
+    "text": "\u00e9\u00e9\u00e9\u00e9\u00e9",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     }
+    ]
+   },
+   "maxCharacters": 0,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": true,
+    "text": "",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": false,
+    "text": "\u00e9\u00e9\u00e9\u00e9\u00e9",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     }
+    ]
+   },
+   "maxCharacters": 1,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": true,
+    "text": "\u00e9",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\u00e9"
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": false,
+    "text": "\u00e9\u00e9\u00e9\u00e9\u00e9",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     }
+    ]
+   },
+   "maxCharacters": 1,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": true,
+    "text": "\u00e9",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": false,
+    "text": "\u00e9\u00e9\u00e9\u00e9\u00e9",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     }
+    ]
+   },
+   "maxCharacters": 2,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": true,
+    "text": "\u00e9\u00e9",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\u00e9\u00e9"
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": false,
+    "text": "\u00e9\u00e9\u00e9\u00e9\u00e9",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     }
+    ]
+   },
+   "maxCharacters": 2,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": true,
+    "text": "\u00e9\u00e9",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": false,
+    "text": "\u00e9\u00e9\u00e9\u00e9\u00e9",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     }
+    ]
+   },
+   "maxCharacters": 3,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": true,
+    "text": "\u00e9\u00e9\u00e9",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\u00e9\u00e9\u00e9"
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": false,
+    "text": "\u00e9\u00e9\u00e9\u00e9\u00e9",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     }
+    ]
+   },
+   "maxCharacters": 3,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": true,
+    "text": "\u00e9\u00e9\u00e9",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": false,
+    "text": "\u00e9\u00e9\u00e9\u00e9\u00e9",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     }
+    ]
+   },
+   "maxCharacters": 5,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": false,
+    "text": "\u00e9\u00e9\u00e9\u00e9\u00e9",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": false,
+    "text": "\u00e9\u00e9\u00e9\u00e9\u00e9",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     }
+    ]
+   },
+   "maxCharacters": 5,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": false,
+    "text": "\u00e9\u00e9\u00e9\u00e9\u00e9",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": false,
+    "text": "\u00e9\u00e9\u00e9\u00e9\u00e9",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     }
+    ]
+   },
+   "maxCharacters": 100,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": false,
+    "text": "\u00e9\u00e9\u00e9\u00e9\u00e9",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": false,
+    "text": "\u00e9\u00e9\u00e9\u00e9\u00e9",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\u00e9\u00e9\u00e9\u00e9\u00e9"
+     }
+    ]
+   },
+   "maxCharacters": 100,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 5,
+    "truncated": false,
+    "text": "\u00e9\u00e9\u00e9\u00e9\u00e9",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "\ud83d\ude00\ud83d\ude00",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     }
+    ]
+   },
+   "maxCharacters": 0,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": true,
+    "text": "",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "\ud83d\ude00\ud83d\ude00",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     }
+    ]
+   },
+   "maxCharacters": 0,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": true,
+    "text": "",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "\ud83d\ude00\ud83d\ude00",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     }
+    ]
+   },
+   "maxCharacters": 1,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": true,
+    "text": "",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": ""
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "\ud83d\ude00\ud83d\ude00",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     }
+    ]
+   },
+   "maxCharacters": 1,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": true,
+    "text": "",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "\ud83d\ude00\ud83d\ude00",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     }
+    ]
+   },
+   "maxCharacters": 2,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": true,
+    "text": "\ud83d\ude00",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\ud83d\ude00"
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "\ud83d\ude00\ud83d\ude00",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     }
+    ]
+   },
+   "maxCharacters": 2,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": true,
+    "text": "\ud83d\ude00",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "\ud83d\ude00\ud83d\ude00",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     }
+    ]
+   },
+   "maxCharacters": 3,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": true,
+    "text": "\ud83d\ude00",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\ud83d\ude00"
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "\ud83d\ude00\ud83d\ude00",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     }
+    ]
+   },
+   "maxCharacters": 3,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": true,
+    "text": "\ud83d\ude00",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "\ud83d\ude00\ud83d\ude00",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     }
+    ]
+   },
+   "maxCharacters": 5,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "\ud83d\ude00\ud83d\ude00",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "\ud83d\ude00\ud83d\ude00",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     }
+    ]
+   },
+   "maxCharacters": 5,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "\ud83d\ude00\ud83d\ude00",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "\ud83d\ude00\ud83d\ude00",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     }
+    ]
+   },
+   "maxCharacters": 100,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "\ud83d\ude00\ud83d\ude00",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "\ud83d\ude00\ud83d\ude00",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     },
+     {
+      "pageNumber": 2,
+      "text": "\ud83d\ude00\ud83d\ude00"
+     }
+    ]
+   },
+   "maxCharacters": 100,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 4,
+    "truncated": false,
+    "text": "\ud83d\ude00\ud83d\ude00",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": ""
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   },
+   "maxCharacters": 0,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": ""
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   },
+   "maxCharacters": 0,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": ""
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   },
+   "maxCharacters": 1,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": ""
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": ""
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   },
+   "maxCharacters": 1,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": ""
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   },
+   "maxCharacters": 2,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": ""
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": ""
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   },
+   "maxCharacters": 2,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": ""
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   },
+   "maxCharacters": 3,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": ""
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": ""
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   },
+   "maxCharacters": 3,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": ""
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   },
+   "maxCharacters": 5,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": ""
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": ""
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   },
+   "maxCharacters": 5,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": []
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": ""
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   },
+   "maxCharacters": 100,
+   "includePages": true,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": ""
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   }
+  },
+  {
+   "canonical": {
+    "fileName": "C:\\cases\\synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": [
+     {
+      "pageNumber": 1,
+      "text": ""
+     },
+     {
+      "pageNumber": 2,
+      "text": ""
+     }
+    ]
+   },
+   "maxCharacters": 100,
+   "includePages": false,
+   "view": {
+    "fileName": "synthetic.pdf",
+    "pageCount": 2,
+    "characterCount": 0,
+    "truncated": false,
+    "text": "",
+    "pages": []
+   }
+  }
+ ],
+ "validatePdfContent": [
+  {
+   "prefix": "%PDF-1.4\n",
+   "fill": 0,
+   "storage": true,
+   "result": {
+    "ok": true
+   }
+  },
+  {
+   "prefix": "%PDF-1.4\n",
+   "fill": 0,
+   "storage": false,
+   "result": {
+    "ok": true
+   }
+  },
+  {
+   "prefix": "%PDF-",
+   "fill": 0,
+   "storage": true,
+   "result": {
+    "ok": true
+   }
+  },
+  {
+   "prefix": "%PDF-",
+   "fill": 0,
+   "storage": false,
+   "result": {
+    "ok": true
+   }
+  },
+  {
+   "prefix": "plain text",
+   "fill": 0,
+   "storage": true,
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid document storage request",
+    "details": {
+     "field": "path",
+     "reason": "file must be a PDF document"
+    }
+   }
+  },
+  {
+   "prefix": "plain text",
+   "fill": 0,
+   "storage": false,
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid PDF text extraction request",
+    "details": {
+     "field": "path",
+     "reason": "file must be a PDF document"
+    }
+   }
+  },
+  {
+   "prefix": "",
+   "fill": 0,
+   "storage": true,
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid document storage request",
+    "details": {
+     "field": "path",
+     "reason": "file must not be empty"
+    }
+   }
+  },
+  {
+   "prefix": "",
+   "fill": 0,
+   "storage": false,
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid PDF text extraction request",
+    "details": {
+     "field": "path",
+     "reason": "file must be a PDF document"
+    }
+   }
+  },
+  {
+   "prefix": "%PDF-1.4\n",
+   "fill": 1,
+   "storage": true,
+   "result": {
+    "ok": true
+   }
+  },
+  {
+   "prefix": "%PDF-1.4\n",
+   "fill": 1,
+   "storage": false,
+   "result": {
+    "ok": true
+   }
+  },
+  {
+   "prefix": "",
+   "fill": 1,
+   "storage": true,
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid document storage request",
+    "details": {
+     "field": "path",
+     "reason": "file must be a PDF document"
+    }
+   }
+  },
+  {
+   "prefix": "",
+   "fill": 1,
+   "storage": false,
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid PDF text extraction request",
+    "details": {
+     "field": "path",
+     "reason": "file must be a PDF document"
+    }
+   }
+  },
+  {
+   "prefix": "%PDF-1.4\n",
+   "fill": 10485751,
+   "storage": true,
+   "result": {
+    "ok": true
+   }
+  },
+  {
+   "prefix": "%PDF-1.4\n",
+   "fill": 10485751,
+   "storage": false,
+   "result": {
+    "ok": true
+   }
+  },
+  {
+   "prefix": "%PDF-1.4\n",
+   "fill": 10485752,
+   "storage": true,
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid document storage request",
+    "details": {
+     "field": "path",
+     "reason": "file size exceeds limit of 10485760 bytes"
+    }
+   }
+  },
+  {
+   "prefix": "%PDF-1.4\n",
+   "fill": 10485752,
+   "storage": false,
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid PDF text extraction request",
+    "details": {
+     "field": "path",
+     "reason": "PDF file size exceeds limit of 10485760 bytes"
+    }
+   }
+  },
+  {
+   "prefix": "%PDF-1.4\n",
+   "fill": 10485761,
+   "storage": true,
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid document storage request",
+    "details": {
+     "field": "path",
+     "reason": "file size exceeds limit of 10485760 bytes"
+    }
+   }
+  },
+  {
+   "prefix": "%PDF-1.4\n",
+   "fill": 10485761,
+   "storage": false,
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid PDF text extraction request",
+    "details": {
+     "field": "path",
+     "reason": "PDF file size exceeds limit of 10485760 bytes"
+    }
+   }
+  }
+ ],
+ "options": [
+  {
+   "request": {},
+   "result": {
+    "ok": true,
+    "maxCharacters": 100000,
+    "includePages": true
+   }
+  },
+  {
+   "request": {
+    "maxCharacters": null
+   },
+   "result": {
+    "ok": true,
+    "maxCharacters": 100000,
+    "includePages": true
+   }
+  },
+  {
+   "request": {
+    "maxCharacters": 0
+   },
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid PDF text extraction request",
+    "details": {
+     "field": "maxCharacters",
+     "reason": "must be greater than zero"
+    }
+   }
+  },
+  {
+   "request": {
+    "maxCharacters": -1
+   },
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid PDF text extraction request",
+    "details": {
+     "field": "maxCharacters",
+     "reason": "must be greater than zero"
+    }
+   }
+  },
+  {
+   "request": {
+    "maxCharacters": 1
+   },
+   "result": {
+    "ok": true,
+    "maxCharacters": 1,
+    "includePages": true
+   }
+  },
+  {
+   "request": {
+    "maxCharacters": 100000
+   },
+   "result": {
+    "ok": true,
+    "maxCharacters": 100000,
+    "includePages": true
+   }
+  },
+  {
+   "request": {
+    "maxCharacters": 250000
+   },
+   "result": {
+    "ok": true,
+    "maxCharacters": 250000,
+    "includePages": true
+   }
+  },
+  {
+   "request": {
+    "maxCharacters": 250001
+   },
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid PDF text extraction request",
+    "details": {
+     "field": "maxCharacters",
+     "reason": "must be less than or equal to 250000"
+    }
+   }
+  },
+  {
+   "request": {
+    "maxCharacters": "5"
+   },
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid PDF text extraction request",
+    "details": {
+     "field": "maxCharacters",
+     "reason": "must be an integer"
+    }
+   }
+  },
+  {
+   "request": {
+    "maxCharacters": true
+   },
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid PDF text extraction request",
+    "details": {
+     "field": "maxCharacters",
+     "reason": "must be an integer"
+    }
+   }
+  },
+  {
+   "request": {
+    "maxCharacters": 5.0
+   },
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid PDF text extraction request",
+    "details": {
+     "field": "maxCharacters",
+     "reason": "must be an integer"
+    }
+   }
+  },
+  {
+   "request": {
+    "maxCharacters": 5,
+    "includePages": null
+   },
+   "result": {
+    "ok": true,
+    "maxCharacters": 5,
+    "includePages": true
+   }
+  },
+  {
+   "request": {
+    "maxCharacters": 5,
+    "includePages": false
+   },
+   "result": {
+    "ok": true,
+    "maxCharacters": 5,
+    "includePages": false
+   }
+  },
+  {
+   "request": {
+    "maxCharacters": 5,
+    "includePages": "x"
+   },
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid PDF text extraction request",
+    "details": {
+     "field": "includePages",
+     "reason": "must be a boolean"
+    }
+   }
+  },
+  {
+   "request": {
+    "includePages": 1
+   },
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid PDF text extraction request",
+    "details": {
+     "field": "includePages",
+     "reason": "must be a boolean"
+    }
+   }
+  },
+  {
+   "request": {
+    "maxCharacters": 0,
+    "includePages": "x"
+   },
+   "result": {
+    "ok": false,
+    "code": "validation_error",
+    "message": "Invalid PDF text extraction request",
+    "details": {
+     "field": "maxCharacters",
+     "reason": "must be greater than zero"
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,1215 @@
+{
+ "now": "2026-10-02T12:00:00.123456Z",
+ "reports": [
+  {
+   "id": "11111111-1111-4111-8111-000000000001",
+   "overallScore": 57,
+   "outcome": "PARTIAL_MATCH",
+   "blockerMismatch": false,
+   "components": [
+    {
+     "component": "TECHNICAL",
+     "earnedPoints": 24,
+     "availablePoints": 40,
+     "status": "PARTIAL"
+    },
+    {
+     "component": "EXPERIENCE_SENIORITY",
+     "earnedPoints": 13,
+     "availablePoints": 25,
+     "status": "PARTIAL"
+    },
+    {
+     "component": "DOMAIN",
+     "earnedPoints": 0,
+     "availablePoints": 15,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "DELIVERY",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "HARD_REQUIREMENTS",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    }
+   ],
+   "evidence": [
+    {
+     "component": "TECHNICAL",
+     "status": "MATCH",
+     "sourceType": "normalized_skill",
+     "fact": "java",
+     "outcomeChangingDefect": false
+    },
+    {
+     "component": "TECHNICAL",
+     "status": "MISMATCH",
+     "sourceType": "normalized_skill",
+     "fact": "kubernetes",
+     "outcomeChangingDefect": false
+    },
+    {
+     "component": "EXPERIENCE_SENIORITY",
+     "status": "PARTIAL",
+     "sourceType": "experience_dates",
+     "fact": "profile contains dated experience",
+     "outcomeChangingDefect": false
+    }
+   ]
+  },
+  {
+   "id": "11111111-1111-4111-8111-000000000002",
+   "overallScore": 100,
+   "outcome": "STRONG_MATCH",
+   "blockerMismatch": false,
+   "components": [
+    {
+     "component": "TECHNICAL",
+     "earnedPoints": 40,
+     "availablePoints": 40,
+     "status": "MATCH"
+    },
+    {
+     "component": "EXPERIENCE_SENIORITY",
+     "earnedPoints": 25,
+     "availablePoints": 25,
+     "status": "MATCH"
+    },
+    {
+     "component": "DOMAIN",
+     "earnedPoints": 0,
+     "availablePoints": 15,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "DELIVERY",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "HARD_REQUIREMENTS",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    }
+   ],
+   "evidence": [
+    {
+     "component": "TECHNICAL",
+     "status": "MATCH",
+     "sourceType": "normalized_skill",
+     "fact": "java",
+     "outcomeChangingDefect": false
+    },
+    {
+     "component": "TECHNICAL",
+     "status": "MATCH",
+     "sourceType": "normalized_skill",
+     "fact": "rust",
+     "outcomeChangingDefect": false
+    },
+    {
+     "component": "EXPERIENCE_SENIORITY",
+     "status": "MATCH",
+     "sourceType": "experience_dates",
+     "fact": "profile contains dated experience",
+     "outcomeChangingDefect": false
+    }
+   ]
+  },
+  {
+   "id": "11111111-1111-4111-8111-000000000003",
+   "overallScore": 0,
+   "outcome": "INSUFFICIENT_EVIDENCE",
+   "blockerMismatch": false,
+   "components": [
+    {
+     "component": "TECHNICAL",
+     "earnedPoints": 0,
+     "availablePoints": 40,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "EXPERIENCE_SENIORITY",
+     "earnedPoints": 0,
+     "availablePoints": 25,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "DOMAIN",
+     "earnedPoints": 0,
+     "availablePoints": 15,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "DELIVERY",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "HARD_REQUIREMENTS",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    }
+   ],
+   "evidence": []
+  },
+  {
+   "id": "11111111-1111-4111-8111-000000000004",
+   "overallScore": 50,
+   "outcome": "PARTIAL_MATCH",
+   "blockerMismatch": false,
+   "components": [
+    {
+     "component": "TECHNICAL",
+     "earnedPoints": 20,
+     "availablePoints": 40,
+     "status": "PARTIAL"
+    },
+    {
+     "component": "EXPERIENCE_SENIORITY",
+     "earnedPoints": 0,
+     "availablePoints": 25,
+     "status": "MISMATCH"
+    },
+    {
+     "component": "DOMAIN",
+     "earnedPoints": 0,
+     "availablePoints": 15,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "DELIVERY",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "HARD_REQUIREMENTS",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    }
+   ],
+   "evidence": [
+    {
+     "component": "TECHNICAL",
+     "status": "MATCH",
+     "sourceType": "notes",
+     "fact": "\uff01 full width",
+     "outcomeChangingDefect": false
+    },
+    {
+     "component": "TECHNICAL",
+     "status": "PARTIAL",
+     "sourceType": "notes",
+     "fact": "\ud83d\ude00 emoji",
+     "outcomeChangingDefect": false
+    }
+   ]
+  },
+  {
+   "id": "11111111-1111-4111-8111-000000000005",
+   "overallScore": 50,
+   "outcome": "PARTIAL_MATCH",
+   "blockerMismatch": false,
+   "components": [
+    {
+     "component": "TECHNICAL",
+     "earnedPoints": 10,
+     "availablePoints": 40,
+     "status": "PARTIAL"
+    },
+    {
+     "component": "TECHNICAL",
+     "earnedPoints": 30,
+     "availablePoints": 40,
+     "status": "MATCH"
+    },
+    {
+     "component": "EXPERIENCE_SENIORITY",
+     "earnedPoints": 13,
+     "availablePoints": 25,
+     "status": "PARTIAL"
+    },
+    {
+     "component": "DOMAIN",
+     "earnedPoints": 0,
+     "availablePoints": 15,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "DELIVERY",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "HARD_REQUIREMENTS",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    }
+   ],
+   "evidence": [
+    {
+     "component": "TECHNICAL",
+     "status": "MATCH",
+     "sourceType": "normalized_skill",
+     "fact": "java",
+     "outcomeChangingDefect": false
+    }
+   ]
+  },
+  {
+   "id": "11111111-1111-4111-8111-000000000006",
+   "overallScore": 40,
+   "outcome": "WEAK_MATCH",
+   "blockerMismatch": false,
+   "components": [
+    {
+     "component": "TECHNICAL",
+     "earnedPoints": 24,
+     "availablePoints": 40,
+     "status": "PARTIAL"
+    }
+   ],
+   "evidence": [
+    {
+     "component": "TECHNICAL",
+     "status": "PARTIAL",
+     "sourceType": "normalized_skill",
+     "fact": "java",
+     "outcomeChangingDefect": false
+    }
+   ]
+  }
+ ],
+ "reviews": [
+  {
+   "name": "base",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "384b4259-3eb5-3c9b-af17-0eb3d26549e5"
+  },
+  {
+   "name": "components reversed",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "384b4259-3eb5-3c9b-af17-0eb3d26549e5"
+  },
+  {
+   "name": "two evidence",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "status": "PARTIAL",
+      "sourceType": "experience_dates",
+      "fact": "profile contains dated experience",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "fb70c9ae-fd6a-3d3b-b69b-86e6e9c6c48d"
+  },
+  {
+   "name": "two evidence reversed",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "status": "PARTIAL",
+      "sourceType": "experience_dates",
+      "fact": "profile contains dated experience",
+      "outcomeChangingDefect": false
+     },
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "fb70c9ae-fd6a-3d3b-b69b-86e6e9c6c48d"
+  },
+  {
+   "name": "astral and bmp facts",
+   "report": "D",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000004",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "PARTIAL",
+      "sourceType": "notes",
+      "fact": "\ud83d\ude00 emoji",
+      "outcomeChangingDefect": false
+     },
+     {
+      "component": "TECHNICAL",
+      "status": "PARTIAL",
+      "sourceType": "notes",
+      "fact": "\uff01 full width",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "6572c148-4959-3356-92b1-ad1ac2531ade"
+  },
+  {
+   "name": "astral and bmp facts reversed",
+   "report": "D",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000004",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "PARTIAL",
+      "sourceType": "notes",
+      "fact": "\uff01 full width",
+      "outcomeChangingDefect": false
+     },
+     {
+      "component": "TECHNICAL",
+      "status": "PARTIAL",
+      "sourceType": "notes",
+      "fact": "\ud83d\ude00 emoji",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "6572c148-4959-3356-92b1-ad1ac2531ade"
+  },
+  {
+   "name": "duplicate names",
+   "report": "E",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000005",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 30,
+      "availablePoints": 40,
+      "status": "MATCH"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "0b9da6dd-c2f9-3c4d-a4b7-5b52839820f5"
+  },
+  {
+   "name": "duplicate names reversed",
+   "report": "E",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000005",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 30,
+      "availablePoints": 40,
+      "status": "MATCH"
+     },
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "511ffe25-412c-36df-8f92-7b10d487fff2"
+  },
+  {
+   "name": "components null",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": null,
+    "evidence": null,
+    "summary": "score_adjustment"
+   },
+   "id": "0409200f-92a8-3cbe-a9e5-3f995d012aec"
+  },
+  {
+   "name": "components and evidence empty",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [],
+    "evidence": [],
+    "summary": "score_adjustment"
+   },
+   "id": "0409200f-92a8-3cbe-a9e5-3f995d012aec"
+  },
+  {
+   "name": "one component",
+   "report": "F",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000006",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 24,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "PARTIAL",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "531c70b8-739e-31d0-beb9-b647c9131cf2"
+  },
+  {
+   "name": "five components shuffled",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "HARD_REQUIREMENTS",
+      "earnedPoints": 0,
+      "availablePoints": 10,
+      "status": "UNKNOWN"
+     },
+     {
+      "component": "DELIVERY",
+      "earnedPoints": 0,
+      "availablePoints": 10,
+      "status": "UNKNOWN"
+     },
+     {
+      "component": "DOMAIN",
+      "earnedPoints": 0,
+      "availablePoints": 15,
+      "status": "UNKNOWN"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "7d8828e5-fecb-39df-8a49-6d5c9cf290f1"
+  },
+  {
+   "name": "summary review_consistent",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "review_consistent"
+   },
+   "id": "907f2af2-0ed8-351d-af07-4640c0ee1cf9"
+  },
+  {
+   "name": "summary outcome_adjustment",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "outcome_adjustment"
+   },
+   "id": "00b40b58-5e19-39d6-90c1-d4dc932aa226"
+  },
+  {
+   "name": "summary evidence_defect_identified",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "evidence_defect_identified"
+   },
+   "id": "696742ea-151e-3fd2-955b-81d83ab0bc97"
+  },
+  {
+   "name": "reviewer padded",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": " reviewer-alpha ",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "384b4259-3eb5-3c9b-af17-0eb3d26549e5"
+  },
+  {
+   "name": "model changed",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-2",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "240af2bd-903f-3666-aced-0d2037c78fd9"
+  },
+  {
+   "name": "reviewVersion changed",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v2",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "b23a43b7-bbca-370b-a2fd-676c753322db"
+  },
+  {
+   "name": "score zero",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 0,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "f4c39838-ad02-39d8-8a6e-e01925035116"
+  },
+  {
+   "name": "score hundred",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 100,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "22b6a6c9-1d32-3e50-ba35-28e2824a422b"
+  },
+  {
+   "name": "outcome strong",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "STRONG_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "e309267f-a006-3b80-9f03-0b3aad3f107f"
+  },
+  {
+   "name": "blocker true",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": true,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "3d51e5bd-14a1-3e58-bdc5-cdcb2bbc662f"
+  },
+  {
+   "name": "defect code evidence",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "PARTIAL",
+      "sourceType": "notes",
+      "fact": "outcome_calibration_issue",
+      "outcomeChangingDefect": true
+     },
+     {
+      "component": "TECHNICAL",
+      "status": "PARTIAL",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "e7d228b9-1300-3185-8ba6-6b71e902ca2e"
+  },
+  {
+   "name": "defect flag differs",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "PARTIAL",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": true
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "id": "e8080454-5ba8-3771-a7b4-4f45b7342ee1"
+  }
+ ]
+}

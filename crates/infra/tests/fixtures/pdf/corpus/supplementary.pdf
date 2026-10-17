@@ -1,0 +1,88 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R 8 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding /ToUnicode 5 0 R >>
+endobj
+5 0 obj
+<< /Length 451 >>
+stream
+/CIDInit /ProcSet findresource begin
+12 dict begin
+begincmap
+/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def
+/CMapName /Jobniac-Synthetic-UCS def
+/CMapType 2 def
+1 begincodespacerange
+<00> <FF>
+endcodespacerange
+8 beginbfchar
+<80> <D83DDE00>
+<81> <D83DDE80>
+<82> <D83CDF89>
+<83> <D83DDCBB>
+<84> <D835DC00>
+<85> <D835DC01>
+<86> <D835DC02>
+<87> <D835DC1A>
+endbfchar
+endcmap
+CMapName currentdict /CMap defineresource pop
+end
+end
+
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 224 >>
+stream
+BT /F1 11 Tf 14 TL 72 740 Td
+(Supplementary check: emoji and mathematical letters follow.) Tj T*
+/F2 11 Tf (Ä Å Ç É) Tj T*
+/F1 11 Tf
+/F2 11 Tf (ÑÖÜ á) Tj T*
+/F1 11 Tf
+(Plain ASCII line after the supplementary text.) Tj T*
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 9 0 R >>
+endobj
+9 0 obj
+<< /Length 91 >>
+stream
+BT /F1 11 Tf 14 TL 72 740 Td
+/F2 11 Tf (Second page: Ä mixed with ASCII) Tj T*
+/F1 11 Tf
+ET
+endstream
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000127 00000 n 
+0000000224 00000 n 
+0000000338 00000 n 
+0000000840 00000 n 
+0000000976 00000 n 
+0000001251 00000 n 
+0000001387 00000 n 
+trailer
+<< /Size 10 /Root 1 0 R  >>
+startxref
+1528
+%%EOF

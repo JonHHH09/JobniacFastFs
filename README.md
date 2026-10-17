@@ -1,0 +1,168 @@
+# JobniacFast
+
+JobniacFast is a local-first desktop app and MCP server for managing candidate profiles and job
+postings, matching them deterministically, and generating tailored resume and cover-letter PDFs
+(generic, Canadian English and French, and German). It is built from a Rust core and a React and
+TypeScript user interface on Tauri 2, and stores its data in a PostgreSQL 18 database. Your data
+stays on your machine.
+
+## Status
+
+No release has been published yet. The release is being prepared: the first release will be a draft
+on GitHub Releases that the owner publishes by hand.
+
+## Requirements
+
+- Windows 11 (x64) or Linux (x64, AppImage or `.deb`).
+- PostgreSQL 18 on your machine, reachable on the loopback address (`127.0.0.1` or `::1`).
+  Server version 15 or later is needed for the schema; the health check reports `DOWN` for anything other than 18.
+- WebView2 on Windows. Windows 11 includes it; the installer installs it if it is missing.
+
+## Install
+
+Releases are published on the [GitHub Releases page](https://github.com/JonHHH09/JobniacFast/releases).
+
+**Windows:**
+
+1. Download `JobniacFast_<version>_x64-setup.exe` and `SHA256SUMS`.
+2. Check the installer before you run it:
+   ```powershell
+   Get-FileHash -Algorithm SHA256 .\JobniacFast_<version>_x64-setup.exe
+   Select-String -Path .\SHA256SUMS -Pattern 'x64-setup'
+   ```
+   The two hashes must be the same. If they differ, do not run the installer.
+3. Run the installer. It installs for your user only and does not ask for administrator rights.
+   It installs to `%LOCALAPPDATA%\JobniacFast`.
+
+**Expect a SmartScreen warning.** Until the Windows build is signed, Windows shows "Windows protected
+your PC". Click **More info**, then **Run anyway**, after you have checked the hash. The warning is
+expected for unsigned downloads.
+
+**Linux:** download the AppImage or the `.deb`, and check it against `SHA256SUMS` in the same way
+(`sha256sum -c SHA256SUMS --ignore-missing`).
+
+**Uninstall:** use Settings, Apps, JobniacFast, Uninstall, or the `uninstall.exe` in the install folder.
+
+## Set up the database
+
+Create a database and a role in PostgreSQL 18, then set these environment variables for the user
+(or pass them to the process, see below):
+
+| Variable | Meaning |
+|---|---|
+| `JOBNIAC_DB_HOST` | `127.0.0.1` or `::1`. No other host is accepted. |
+| `JOBNIAC_DB_PORT` | Port, digits only |
+| `JOBNIAC_DB_NAME` | Database name, letters, digits and underscores |
+| `JOBNIAC_DB_USER` | Role name, same rule |
+| `JOBNIAC_DB_PASSWORD` | Role password |
+
+Then apply the schema once with the command-line tool:
+
+```powershell
+& "$env:LOCALAPPDATA\JobniacFast\jobniac-cli.exe" migrate
+```
+
+The schema changes only through this command. A fresh database prints `Applied migrations: ...`;
+a database that is already current prints `Schema is current (...); nothing to apply.`
+
+## Configuration
+
+All configuration comes from environment variables. There is no `.env` file, and secrets are never
+read from command-line arguments. An option marked **exact `1`** is on only when its value is exactly
+`1`; `true`, `yes` and `01` are off.
+
+| Variable | Default | Effect |
+|---|---|---|
+| `JOBNIAC_DB_*` | none | Database connection (see above). Without it, database features report `DOWN`. |
+| `JOBNIAC_DOCUMENT_IMPORT_ROOT` | none | Absolute folder that PDFs can be imported from. |
+| `JOBNIAC_GENERATED_ROOT` | `%LOCALAPPDATA%\Jobniac\generated` | Folder for generated PDFs. Set it only to choose another folder. |
+| `JOBNIAC_GENERATED_ENABLED` | off (**exact `1`**) | Allows PDF generation and cleanup. Run `jobniac-cli setup-generated-root` once first. |
+| `JOBNIAC_LINK_FETCH_ENABLED` | off (**exact `1`**) | Allows adding a job from a web link (fetches the page). |
+| `JOBNIAC_ARBEITNOW_ENABLED` | off (**exact `1`**) | Allows scanning and importing Arbeitnow jobs. Also needs `JOBNIAC_ARBEITNOW_CANDIDATE_KEY` and a cursor secret. |
+| `JOBNIAC_ARBEITNOW_CANDIDATE_KEY` | none | Signing key for Arbeitnow candidate tokens (required when the flag is `1`). |
+| `JOBNIAC_DELETION_ENABLED` | off (**exact `1`**) | Allows deleting profiles and jobs. |
+| `JOBNIAC_DOCUMENT_ARTIFACTS_ENABLED` | off (**exact `1`**) | Allows document artifacts and export. |
+| `JOBNIAC_CURSOR_HMAC_SECRET` | random per process | Keeps paging cursors valid across restarts. 32 characters or more. |
+| `JOBNIAC_HTTP_PORT` | none | Port for the loopback HTTP MCP server (1024 to 65535). Used with `jobniac-cli http` only. |
+| `JOBNIAC_HTTP_BEARER_TOKEN` | none | Bearer token for the HTTP server: 43 to 128 characters, `A-Z a-z 0-9 - _`. |
+
+Opt-in features are off by default. Deletion and link fetching change data or reach the network, so
+turn on only what you use.
+
+## MCP client registration
+
+JobniacFast includes an MCP server. The stdio mode is started by the MCP client:
+
+```json
+{
+  "mcpServers": {
+    "jobniac": {
+      "command": "C:\\Users\\<you>\\AppData\\Local\\JobniacFast\\jobniac-cli.exe",
+      "args": ["mcp"],
+      "env": {
+        "JOBNIAC_DB_HOST": "127.0.0.1",
+        "JOBNIAC_DB_PORT": "<port>",
+        "JOBNIAC_DB_NAME": "<database>",
+        "JOBNIAC_DB_USER": "<role>",
+        "JOBNIAC_DB_PASSWORD": "<password>"
+      }
+    }
+  }
+}
+```
+
+The full guide covers Claude Desktop and Claude Code, the loopback HTTP mode with its token, and how to
+check the registration: [docs/ops/mcp-client-registration.md](docs/ops/mcp-client-registration.md).
+The default tool list has 34 tools; the opt-in flags add tools (see that guide).
+
+## Command-line tool
+
+`jobniac-cli` has these modes (exit code 0 for success, 1 for a failure with a fixed message, 2 for a usage error):
+
+| Command | Purpose |
+|---|---|
+| `mcp` | MCP server over stdio. Writes JSON-RPC only to stdout. |
+| `http` | Loopback Streamable HTTP MCP server at `http://127.0.0.1:<port>/mcp`. Needs the port and token variables. |
+| `migrate` | Applies pending schema migrations. The only command that changes the schema. |
+| `cleanup` | One bounded pass over generated files. Prints a JSON summary. |
+| `setup-generated-root` | Creates and registers the generated-files folder. Does not enable generation. |
+| `--version`, `help` | Version and usage. |
+
+## Development
+
+Requirements: Rust (stable, or the version in `rust-toolchain.toml`), Node.js 22.12 or later, pnpm, and
+the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) for your platform.
+
+```text
+pnpm install --frozen-lockfile   # install the locked UI dependencies
+pnpm tauri dev                   # run the desktop app
+pnpm build                       # type-check and build the UI
+pnpm tauri build                 # build a release bundle
+```
+
+Rust checks, from the repository root (the Cargo workspace is at the root):
+
+```text
+cargo fmt --all --check
+cargo clippy --workspace --all-targets --locked -- -D warnings
+cargo test --workspace --locked
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow and the architecture rules.
+
+## Security
+
+Report vulnerabilities privately, as described in [SECURITY.md](SECURITY.md). Do not open a public
+issue for them.
+
+## License
+
+JobniacFast is released under the [MIT License](LICENSE). Third-party components keep their own
+licences. Each release ships the notices and a software bill of materials generated by the release
+process.
+
+## Links
+
+- [CHANGELOG.md](CHANGELOG.md): what changed in each version
+- [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [docs/ops](docs/ops): clean-machine smoke checklist, MCP client registration, release owner checklist

@@ -1,0 +1,3684 @@
+[
+  {
+    "id": "error-update-profile-conflict",
+    "tool": "update_profile",
+    "arguments": {
+      "profileId": "00000000-0000-4000-8000-0000000000aa",
+      "expectedRevision": 3,
+      "request": {
+        "fullName": null,
+        "email": null,
+        "summary": null,
+        "contacts": null,
+        "links": null,
+        "skills": null,
+        "languages": null,
+        "education": null,
+        "experiences": null,
+        "projects": null
+      }
+    },
+    "service": {
+      "method": "update_profile",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "CONFLICT",
+        "message": "Profile revision changed",
+        "details": {
+          "expectedRevision": "3",
+          "currentRevision": "4"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"conflict\",\"message\":\"Profile revision changed\",\"details\":{\"expectedRevision\":\"3\",\"currentRevision\":\"4\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "conflict",
+        "message": "Profile revision changed",
+        "details": {
+          "expectedRevision": "3",
+          "currentRevision": "4"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-update-profile-persistence-constraint",
+    "tool": "update_profile",
+    "arguments": {
+      "profileId": "00000000-0000-4000-8000-0000000000aa",
+      "expectedRevision": 3,
+      "request": {
+        "fullName": null,
+        "email": null,
+        "summary": null,
+        "contacts": null,
+        "links": null,
+        "skills": null,
+        "languages": null,
+        "education": null,
+        "experiences": null,
+        "projects": null
+      }
+    },
+    "service": {
+      "method": "update_profile",
+      "outcome": "raise",
+      "error": {
+        "kind": "persistence_constraint",
+        "sqlstate": "23505",
+        "constraint": "profiles_email_key"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Request data violates a persistence constraint\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Request data violates a persistence constraint",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-get-profile-unexpected",
+    "tool": "get_profile",
+    "arguments": {
+      "profileId": "00000000-0000-4000-8000-0000000000aa"
+    },
+    "service": {
+      "method": "get_profile",
+      "outcome": "raise",
+      "error": {
+        "kind": "unexpected",
+        "message": "synthetic internal failure text"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"internal_error\",\"message\":\"Unexpected application error\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Unexpected application error",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-search-jobs-domain-value",
+    "tool": "search_jobs",
+    "arguments": {
+      "request": {
+        "query": "   "
+      }
+    },
+    "service": {
+      "method": "search_jobs",
+      "outcome": "raise",
+      "error": {
+        "kind": "domain_value",
+        "message": "  query must not be blank \n"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"query must not be blank\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "query must not be blank",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-search-jobs-validation-with-field-and-reason",
+    "tool": "search_jobs",
+    "arguments": {
+      "request": {
+        "query": "rust",
+        "limit": 5
+      }
+    },
+    "service": {
+      "method": "search_jobs",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "limit must be positive",
+        "details": {
+          "field": "limit",
+          "reason": "must be positive"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"limit must be positive\",\"details\":{\"field\":\"limit\",\"reason\":\"must be positive\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "limit must be positive",
+        "details": {
+          "field": "limit",
+          "reason": "must be positive"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-search-jobs-blank-message-falls-back",
+    "tool": "search_jobs",
+    "arguments": {
+      "request": {
+        "query": "rust"
+      }
+    },
+    "service": {
+      "method": "search_jobs",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "NOT_FOUND",
+        "message": "   ",
+        "details": {}
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"not_found\",\"message\":\"Requested resource was not found\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "not_found",
+        "message": "Requested resource was not found",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-list-profiles-database-unavailable",
+    "tool": "list_profiles",
+    "arguments": {},
+    "service": {
+      "method": "list_profiles",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "INTERNAL_ERROR",
+        "message": "Local database is unavailable",
+        "details": {}
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"internal_error\",\"message\":\"Local database is unavailable\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Local database is unavailable",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-analyze-job-match-default-separators",
+    "tool": "analyze_job_match",
+    "arguments": {
+      "request": {
+        "profileId": "00000000-0000-4000-8000-0000000000aa",
+        "jobId": "00000000-0000-4000-8000-0000000000bb"
+      }
+    },
+    "service": {
+      "method": "analyze_job_match",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "NOT_FOUND",
+        "message": "Profil nicht gefunden: M\u00fcller \ud83d\ude42",
+        "details": {
+          "profileId": "00000000-0000-4000-8000-0000000000aa"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"not_found\", \"message\": \"Profil nicht gefunden: M\\u00fcller \\ud83d\\ude42\", \"details\": {\"profileId\": \"00000000-0000-4000-8000-0000000000aa\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "not_found",
+        "message": "Profil nicht gefunden: M\u00fcller \ud83d\ude42",
+        "details": {
+          "profileId": "00000000-0000-4000-8000-0000000000aa"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-get-document-metadata-unexpected-default-separators",
+    "tool": "get_document_metadata",
+    "arguments": {
+      "documentId": "00000000-0000-4000-8000-0000000000cc"
+    },
+    "service": {
+      "method": "get_document_metadata",
+      "outcome": "raise",
+      "error": {
+        "kind": "unexpected",
+        "message": "synthetic internal failure text"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"internal_error\", \"message\": \"Unexpected application error\", \"details\": {}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Unexpected application error",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-create-profile-validation",
+    "tool": "create_profile",
+    "arguments": {
+      "request": {
+        "fullName": "Example Candidate",
+        "email": "candidate@example.test",
+        "summary": "Synthetic summary",
+        "contacts": [
+          {
+            "id": null,
+            "contactType": "email",
+            "contactValue": "candidate@example.test",
+            "label": "Work"
+          }
+        ],
+        "links": [
+          {
+            "id": null,
+            "linkType": "site",
+            "url": "https://example.test/candidate",
+            "label": "Site"
+          }
+        ],
+        "skills": [
+          {
+            "id": null,
+            "skill": "Rust",
+            "normalizedSkill": "rust",
+            "category": "Languages",
+            "displayOrder": 0
+          }
+        ],
+        "languages": [
+          {
+            "id": null,
+            "language": "German",
+            "normalizedLanguage": "german",
+            "proficiency": "Native",
+            "displayOrder": 0
+          }
+        ],
+        "education": [
+          {
+            "id": null,
+            "institution": "Example University",
+            "degree": "BSc",
+            "field": "Computing",
+            "location": "Example City",
+            "startDate": "2015-09-01",
+            "endDate": "2018-06-30",
+            "relevantFocus": null
+          }
+        ],
+        "experiences": [
+          {
+            "id": null,
+            "company": "Example Works",
+            "title": "Engineer",
+            "location": "Remote",
+            "startDate": "2019-01-01",
+            "endDate": null,
+            "description": "Synthetic duties",
+            "displayOrder": 0
+          }
+        ],
+        "projects": [
+          {
+            "id": null,
+            "name": "Demo project",
+            "url": "https://example.test/demo",
+            "description": "Synthetic project",
+            "displayOrder": 0,
+            "technologies": [
+              {
+                "id": null,
+                "technology": "Rust",
+                "normalizedTechnology": "rust",
+                "displayOrder": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "service": {
+      "method": "create_profile",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid profile write request",
+        "details": {
+          "field": "email",
+          "reason": "must be a valid email address"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid profile write request\",\"details\":{\"field\":\"email\",\"reason\":\"must be a valid email address\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid profile write request",
+        "details": {
+          "field": "email",
+          "reason": "must be a valid email address"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-create-profile-persistence-constraint",
+    "tool": "create_profile",
+    "arguments": {
+      "request": {
+        "fullName": "Example Candidate",
+        "email": "candidate@example.test",
+        "summary": "Synthetic summary",
+        "contacts": [
+          {
+            "id": null,
+            "contactType": "email",
+            "contactValue": "candidate@example.test",
+            "label": "Work"
+          }
+        ],
+        "links": [
+          {
+            "id": null,
+            "linkType": "site",
+            "url": "https://example.test/candidate",
+            "label": "Site"
+          }
+        ],
+        "skills": [
+          {
+            "id": null,
+            "skill": "Rust",
+            "normalizedSkill": "rust",
+            "category": "Languages",
+            "displayOrder": 0
+          }
+        ],
+        "languages": [
+          {
+            "id": null,
+            "language": "German",
+            "normalizedLanguage": "german",
+            "proficiency": "Native",
+            "displayOrder": 0
+          }
+        ],
+        "education": [
+          {
+            "id": null,
+            "institution": "Example University",
+            "degree": "BSc",
+            "field": "Computing",
+            "location": "Example City",
+            "startDate": "2015-09-01",
+            "endDate": "2018-06-30",
+            "relevantFocus": null
+          }
+        ],
+        "experiences": [
+          {
+            "id": null,
+            "company": "Example Works",
+            "title": "Engineer",
+            "location": "Remote",
+            "startDate": "2019-01-01",
+            "endDate": null,
+            "description": "Synthetic duties",
+            "displayOrder": 0
+          }
+        ],
+        "projects": [
+          {
+            "id": null,
+            "name": "Demo project",
+            "url": "https://example.test/demo",
+            "description": "Synthetic project",
+            "displayOrder": 0,
+            "technologies": [
+              {
+                "id": null,
+                "technology": "Rust",
+                "normalizedTechnology": "rust",
+                "displayOrder": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "service": {
+      "method": "create_profile",
+      "outcome": "raise",
+      "error": {
+        "kind": "persistence_constraint",
+        "sqlstate": "23505",
+        "constraint": "profiles_email_key"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Request data violates a persistence constraint\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Request data violates a persistence constraint",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-update-profile-project-conflict",
+    "tool": "update_profile_project",
+    "arguments": {
+      "request": {
+        "profileId": "00000000-0000-4000-8000-0000000000aa",
+        "projectId": "00000000-0000-4000-8000-0000000000a1",
+        "expectedRevision": 3,
+        "name": "Demo project",
+        "url": null,
+        "description": null,
+        "displayOrder": 2,
+        "technologies": [
+          {
+            "id": null,
+            "technology": "Rust",
+            "normalizedTechnology": "rust",
+            "displayOrder": 0
+          }
+        ]
+      }
+    },
+    "service": {
+      "method": "update_profile_project",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "CONFLICT",
+        "message": "Profile revision changed",
+        "details": {
+          "expectedRevision": "3",
+          "currentRevision": "4"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"conflict\",\"message\":\"Profile revision changed\",\"details\":{\"expectedRevision\":\"3\",\"currentRevision\":\"4\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "conflict",
+        "message": "Profile revision changed",
+        "details": {
+          "expectedRevision": "3",
+          "currentRevision": "4"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-update-profile-project-not-found",
+    "tool": "update_profile_project",
+    "arguments": {
+      "request": {
+        "profileId": "00000000-0000-4000-8000-0000000000aa",
+        "projectId": "00000000-0000-4000-8000-0000000000a1",
+        "expectedRevision": 3,
+        "name": "Demo project",
+        "url": null,
+        "description": null,
+        "displayOrder": 2,
+        "technologies": [
+          {
+            "id": null,
+            "technology": "Rust",
+            "normalizedTechnology": "rust",
+            "displayOrder": 0
+          }
+        ]
+      }
+    },
+    "service": {
+      "method": "update_profile_project",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "NOT_FOUND",
+        "message": "Profile project not found: 00000000-0000-4000-8000-0000000000a1",
+        "details": {
+          "resource": "project",
+          "profileId": "00000000-0000-4000-8000-0000000000aa",
+          "projectId": "00000000-0000-4000-8000-0000000000a1"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"not_found\",\"message\":\"Profile project not found: 00000000-0000-4000-8000-0000000000a1\",\"details\":{\"resource\":\"project\",\"profileId\":\"00000000-0000-4000-8000-0000000000aa\",\"projectId\":\"00000000-0000-4000-8000-0000000000a1\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "not_found",
+        "message": "Profile project not found: 00000000-0000-4000-8000-0000000000a1",
+        "details": {
+          "resource": "project",
+          "profileId": "00000000-0000-4000-8000-0000000000aa",
+          "projectId": "00000000-0000-4000-8000-0000000000a1"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-search-profiles-validation",
+    "tool": "search_profiles",
+    "arguments": {
+      "request": {
+        "query": "  ",
+        "limit": 5
+      }
+    },
+    "service": {
+      "method": "search_profiles",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid profile search request",
+        "details": {
+          "field": "query",
+          "reason": "must not be blank"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid profile search request\",\"details\":{\"field\":\"query\",\"reason\":\"must not be blank\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid profile search request",
+        "details": {
+          "field": "query",
+          "reason": "must not be blank"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-search-profiles-unexpected",
+    "tool": "search_profiles",
+    "arguments": {
+      "request": {
+        "query": "rust",
+        "limit": null
+      }
+    },
+    "service": {
+      "method": "search_profiles",
+      "outcome": "raise",
+      "error": {
+        "kind": "unexpected",
+        "message": "synthetic internal failure text"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"internal_error\",\"message\":\"Unexpected application error\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Unexpected application error",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-add-job-from-text-validation",
+    "tool": "add_job_from_text",
+    "arguments": {
+      "request": {
+        "text": "   "
+      }
+    },
+    "service": {
+      "method": "add_job_from_text",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job request",
+        "details": {
+          "field": "text",
+          "reason": "must not be blank"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job request\",\"details\":{\"field\":\"text\",\"reason\":\"must not be blank\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job request",
+        "details": {
+          "field": "text",
+          "reason": "must not be blank"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-add-job-from-text-persistence-constraint",
+    "tool": "add_job_from_text",
+    "arguments": {
+      "request": {
+        "text": "Synthetic posting text"
+      }
+    },
+    "service": {
+      "method": "add_job_from_text",
+      "outcome": "raise",
+      "error": {
+        "kind": "persistence_constraint",
+        "sqlstate": "23505",
+        "constraint": "jobs_canonical_fingerprint_key"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Request data violates a persistence constraint\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Request data violates a persistence constraint",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-get-job-not-found",
+    "tool": "get_job",
+    "arguments": {
+      "jobId": "00000000-0000-4000-8000-0000000000bb"
+    },
+    "service": {
+      "method": "get_job",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "NOT_FOUND",
+        "message": "Job not found: 00000000-0000-4000-8000-0000000000bb",
+        "details": {
+          "resource": "job",
+          "jobId": "00000000-0000-4000-8000-0000000000bb"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"not_found\",\"message\":\"Job not found: 00000000-0000-4000-8000-0000000000bb\",\"details\":{\"resource\":\"job\",\"jobId\":\"00000000-0000-4000-8000-0000000000bb\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "not_found",
+        "message": "Job not found: 00000000-0000-4000-8000-0000000000bb",
+        "details": {
+          "resource": "job",
+          "jobId": "00000000-0000-4000-8000-0000000000bb"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-get-job-unexpected",
+    "tool": "get_job",
+    "arguments": {
+      "jobId": "00000000-0000-4000-8000-0000000000bb"
+    },
+    "service": {
+      "method": "get_job",
+      "outcome": "raise",
+      "error": {
+        "kind": "unexpected",
+        "message": "synthetic internal failure text"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"internal_error\",\"message\":\"Unexpected application error\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Unexpected application error",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-list-jobs-validation",
+    "tool": "list_jobs",
+    "arguments": {
+      "request": {
+        "limit": 500
+      }
+    },
+    "service": {
+      "method": "list_jobs",
+      "outcome": "raise",
+      "error": {
+        "kind": "domain_value",
+        "message": "limit must be between 1 and 100"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"limit must be between 1 and 100\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "limit must be between 1 and 100",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-update-job-conflict",
+    "tool": "update_job",
+    "arguments": {
+      "request": {
+        "jobId": "00000000-0000-4000-8000-0000000000bb",
+        "expectedRevision": 3,
+        "title": "Platform engineer"
+      }
+    },
+    "service": {
+      "method": "update_job",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "CONFLICT",
+        "message": "Job revision conflict",
+        "details": {
+          "resource": "job",
+          "jobId": "00000000-0000-4000-8000-0000000000bb",
+          "expectedRevision": "3"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"conflict\",\"message\":\"Job revision conflict\",\"details\":{\"resource\":\"job\",\"jobId\":\"00000000-0000-4000-8000-0000000000bb\",\"expectedRevision\":\"3\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "conflict",
+        "message": "Job revision conflict",
+        "details": {
+          "resource": "job",
+          "jobId": "00000000-0000-4000-8000-0000000000bb",
+          "expectedRevision": "3"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-update-job-duplicate-fingerprint",
+    "tool": "update_job",
+    "arguments": {
+      "request": {
+        "jobId": "00000000-0000-4000-8000-0000000000bb",
+        "expectedRevision": 3,
+        "title": "Platform engineer"
+      }
+    },
+    "service": {
+      "method": "update_job",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job request",
+        "details": {
+          "field": "canonicalFingerprint",
+          "reason": "duplicates existing job 00000000-0000-4000-8000-0000000000b2"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job request\",\"details\":{\"field\":\"canonicalFingerprint\",\"reason\":\"duplicates existing job 00000000-0000-4000-8000-0000000000b2\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job request",
+        "details": {
+          "field": "canonicalFingerprint",
+          "reason": "duplicates existing job 00000000-0000-4000-8000-0000000000b2"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-analyze-all-job-matches-domain-value",
+    "tool": "analyze_all_job_matches",
+    "arguments": {
+      "request": {
+        "profileId": "00000000-0000-4000-8000-0000000000aa"
+      }
+    },
+    "service": {
+      "method": "analyze_all_job_matches",
+      "outcome": "raise",
+      "error": {
+        "kind": "domain_value",
+        "message": "limit must be between 1 and 100"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"validation_error\", \"message\": \"limit must be between 1 and 100\", \"details\": {}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "limit must be between 1 and 100",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-get-match-report-not-found",
+    "tool": "get_match_report",
+    "arguments": {
+      "request": {
+        "id": "00000000-0000-4000-8000-0000000000ee"
+      }
+    },
+    "service": {
+      "method": "get_match_report",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "NOT_FOUND",
+        "message": "Bericht nicht gefunden \ud83d\ude42",
+        "details": {
+          "reportId": "00000000-0000-4000-8000-0000000000ee"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"not_found\", \"message\": \"Bericht nicht gefunden \\ud83d\\ude42\", \"details\": {\"reportId\": \"00000000-0000-4000-8000-0000000000ee\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "not_found",
+        "message": "Bericht nicht gefunden \ud83d\ude42",
+        "details": {
+          "reportId": "00000000-0000-4000-8000-0000000000ee"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-list-match-reports-validation-unicode",
+    "tool": "list_match_reports",
+    "arguments": {
+      "request": {
+        "cursor": "synthetic-cursor-1"
+      }
+    },
+    "service": {
+      "method": "list_match_reports",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Ung\u00fcltiger Cursor",
+        "details": {
+          "field": "cursor",
+          "reason": "M\u00fcller"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"validation_error\", \"message\": \"Ung\\u00fcltiger Cursor\", \"details\": {\"field\": \"cursor\", \"reason\": \"M\\u00fcller\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Ung\u00fcltiger Cursor",
+        "details": {
+          "field": "cursor",
+          "reason": "M\u00fcller"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-submit-match-review-persistence-constraint",
+    "tool": "submit_match_review",
+    "arguments": {
+      "request": {
+        "reportId": "00000000-0000-4000-8000-0000000000ee",
+        "reviewer": "synthetic-reviewer",
+        "model": "synthetic-model",
+        "reviewVersion": "v1",
+        "overallScore": 80,
+        "outcome": "PARTIAL_MATCH",
+        "blockerMismatch": false,
+        "components": [
+          {
+            "component": "TECHNICAL",
+            "earnedPoints": 10,
+            "availablePoints": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "evidence": [
+          {
+            "component": "TECHNICAL",
+            "status": "MATCH",
+            "sourceType": "skill",
+            "fact": "Synthetic skill",
+            "outcomeChangingDefect": false
+          }
+        ],
+        "summary": "Synthetic summary"
+      }
+    },
+    "service": {
+      "method": "submit_match_review",
+      "outcome": "raise",
+      "error": {
+        "kind": "persistence_constraint",
+        "sqlstate": "23505",
+        "constraint": "match_reviews_fingerprint_key"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"validation_error\", \"message\": \"Request data violates a persistence constraint\", \"details\": {}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Request data violates a persistence constraint",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-link-match-disagreement-conflict",
+    "tool": "link_match_disagreement",
+    "arguments": {
+      "request": {
+        "disagreementId": "00000000-0000-4000-8000-0000000000d1",
+        "linearIssueId": "SYN-2"
+      }
+    },
+    "service": {
+      "method": "link_match_disagreement",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "CONFLICT",
+        "message": "Disagreement status changed",
+        "details": {
+          "disagreementId": "00000000-0000-4000-8000-0000000000d1"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"conflict\", \"message\": \"Disagreement status changed\", \"details\": {\"disagreementId\": \"00000000-0000-4000-8000-0000000000d1\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "conflict",
+        "message": "Disagreement status changed",
+        "details": {
+          "disagreementId": "00000000-0000-4000-8000-0000000000d1"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-get-match-review-unexpected-default-separators",
+    "tool": "get_match_review",
+    "arguments": {
+      "request": {
+        "id": "00000000-0000-4000-8000-0000000000dd"
+      }
+    },
+    "service": {
+      "method": "get_match_review",
+      "outcome": "raise",
+      "error": {
+        "kind": "unexpected",
+        "message": "synthetic internal failure text"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"internal_error\", \"message\": \"Unexpected application error\", \"details\": {}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Unexpected application error",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-store-document-file-validation",
+    "tool": "store_document_file",
+    "arguments": {
+      "request": {
+        "path": "synthetic/inbox/notes.txt",
+        "mediaType": null
+      }
+    },
+    "service": {
+      "method": "store_document_file",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid document storage request",
+        "details": {
+          "field": "path",
+          "reason": "file must be a PDF document"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"validation_error\", \"message\": \"Invalid document storage request\", \"details\": {\"field\": \"path\", \"reason\": \"file must be a PDF document\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid document storage request",
+        "details": {
+          "field": "path",
+          "reason": "file must be a PDF document"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-store-document-file-unexpected-default-separators",
+    "tool": "store_document_file",
+    "arguments": {
+      "request": {
+        "path": "synthetic/inbox/resume-synthetic.pdf",
+        "mediaType": null
+      }
+    },
+    "service": {
+      "method": "store_document_file",
+      "outcome": "raise",
+      "error": {
+        "kind": "unexpected",
+        "message": "synthetic internal failure text"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"internal_error\", \"message\": \"Unexpected application error\", \"details\": {}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Unexpected application error",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-get-document-metadata-not-found",
+    "tool": "get_document_metadata",
+    "arguments": {
+      "documentId": "00000000-0000-4000-8000-0000000000cc"
+    },
+    "service": {
+      "method": "get_document_metadata",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "NOT_FOUND",
+        "message": "Stored document was not found",
+        "details": {
+          "documentId": "00000000-0000-4000-8000-0000000000cc"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"not_found\", \"message\": \"Stored document was not found\", \"details\": {\"documentId\": \"00000000-0000-4000-8000-0000000000cc\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "not_found",
+        "message": "Stored document was not found",
+        "details": {
+          "documentId": "00000000-0000-4000-8000-0000000000cc"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-get-document-metadata-invalid-identifier",
+    "tool": "get_document_metadata",
+    "arguments": {
+      "documentId": "not-a-uuid"
+    },
+    "service": {
+      "method": "get_document_metadata",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid document storage request",
+        "details": {
+          "field": "documentId",
+          "reason": "must be a valid UUID"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"validation_error\", \"message\": \"Invalid document storage request\", \"details\": {\"field\": \"documentId\", \"reason\": \"must be a valid UUID\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid document storage request",
+        "details": {
+          "field": "documentId",
+          "reason": "must be a valid UUID"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-extract-pdf-text-validation",
+    "tool": "extract_pdf_text",
+    "arguments": {
+      "request": {
+        "path": "synthetic/inbox/notes.txt",
+        "maxCharacters": null,
+        "includePages": null
+      }
+    },
+    "service": {
+      "method": "extract_pdf_text",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid PDF text extraction request",
+        "details": {
+          "field": "path",
+          "reason": "file must be a PDF document"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"validation_error\", \"message\": \"Invalid PDF text extraction request\", \"details\": {\"field\": \"path\", \"reason\": \"file must be a PDF document\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid PDF text extraction request",
+        "details": {
+          "field": "path",
+          "reason": "file must be a PDF document"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-extract-stored-pdf-text-not-found",
+    "tool": "extract_stored_pdf_text",
+    "arguments": {
+      "request": {
+        "documentId": "00000000-0000-4000-8000-0000000000cc",
+        "maxCharacters": null,
+        "includePages": null,
+        "persistExtraction": null
+      }
+    },
+    "service": {
+      "method": "extract_stored_pdf_text",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "NOT_FOUND",
+        "message": "Stored document was not found",
+        "details": {
+          "documentId": "00000000-0000-4000-8000-0000000000cc"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"not_found\", \"message\": \"Stored document was not found\", \"details\": {\"documentId\": \"00000000-0000-4000-8000-0000000000cc\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "not_found",
+        "message": "Stored document was not found",
+        "details": {
+          "documentId": "00000000-0000-4000-8000-0000000000cc"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-extract-stored-pdf-text-integrity",
+    "tool": "extract_stored_pdf_text",
+    "arguments": {
+      "request": {
+        "documentId": "00000000-0000-4000-8000-0000000000cc",
+        "maxCharacters": null,
+        "includePages": null,
+        "persistExtraction": true
+      }
+    },
+    "service": {
+      "method": "extract_stored_pdf_text",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "INTERNAL_ERROR",
+        "message": "Stored document integrity check failed",
+        "details": {}
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"internal_error\", \"message\": \"Stored document integrity check failed\", \"details\": {}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Stored document integrity check failed",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-extract-stored-pdf-text-unexpected",
+    "tool": "extract_stored_pdf_text",
+    "arguments": {
+      "request": {
+        "documentId": "00000000-0000-4000-8000-0000000000cc",
+        "maxCharacters": null,
+        "includePages": null,
+        "persistExtraction": null
+      }
+    },
+    "service": {
+      "method": "extract_stored_pdf_text",
+      "outcome": "raise",
+      "error": {
+        "kind": "unexpected",
+        "message": "synthetic internal failure text"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"internal_error\", \"message\": \"Unexpected application error\", \"details\": {}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Unexpected application error",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-ingest-profile-from-stored-pdf-conflict",
+    "tool": "ingest_profile_from_stored_pdf",
+    "arguments": {
+      "request": {
+        "documentId": "00000000-0000-4000-8000-0000000000cc",
+        "existingProfileId": "00000000-0000-4000-8000-0000000000aa"
+      }
+    },
+    "service": {
+      "method": "ingest_profile_from_stored_pdf",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "CONFLICT",
+        "message": "Profile is already linked to a PDF extraction",
+        "details": {
+          "profileId": "00000000-0000-4000-8000-0000000000aa"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"conflict\",\"message\":\"Profile is already linked to a PDF extraction\",\"details\":{\"profileId\":\"00000000-0000-4000-8000-0000000000aa\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "conflict",
+        "message": "Profile is already linked to a PDF extraction",
+        "details": {
+          "profileId": "00000000-0000-4000-8000-0000000000aa"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-ingest-profile-from-stored-pdf-domain-value",
+    "tool": "ingest_profile_from_stored_pdf",
+    "arguments": {
+      "request": {
+        "documentId": "00000000-0000-4000-8000-0000000000cc",
+        "maxCharacters": 5
+      }
+    },
+    "service": {
+      "method": "ingest_profile_from_stored_pdf",
+      "outcome": "raise",
+      "error": {
+        "kind": "domain_value",
+        "message": "Invalid PDF text extraction request"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid PDF text extraction request\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid PDF text extraction request",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-ingest-profile-from-stored-pdf-unexpected-compact",
+    "tool": "ingest_profile_from_stored_pdf",
+    "arguments": {
+      "request": {
+        "documentId": "00000000-0000-4000-8000-0000000000cc"
+      }
+    },
+    "service": {
+      "method": "ingest_profile_from_stored_pdf",
+      "outcome": "raise",
+      "error": {
+        "kind": "unexpected",
+        "message": "synthetic internal failure text"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"internal_error\",\"message\":\"Unexpected application error\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Unexpected application error",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-get-profile-pdf-source-not-found",
+    "tool": "get_profile_pdf_source",
+    "arguments": {
+      "profileId": "00000000-0000-4000-8000-0000000000aa"
+    },
+    "service": {
+      "method": "get_profile_pdf_source",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "NOT_FOUND",
+        "message": "Profile PDF source was not found",
+        "details": {
+          "profileId": "00000000-0000-4000-8000-0000000000aa"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"not_found\",\"message\":\"Profile PDF source was not found\",\"details\":{\"profileId\":\"00000000-0000-4000-8000-0000000000aa\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "not_found",
+        "message": "Profile PDF source was not found",
+        "details": {
+          "profileId": "00000000-0000-4000-8000-0000000000aa"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-get-profile-pdf-source-unexpected-compact",
+    "tool": "get_profile_pdf_source",
+    "arguments": {
+      "profileId": "00000000-0000-4000-8000-0000000000aa"
+    },
+    "service": {
+      "method": "get_profile_pdf_source",
+      "outcome": "raise",
+      "error": {
+        "kind": "unexpected",
+        "message": "synthetic internal failure text"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"internal_error\",\"message\":\"Unexpected application error\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Unexpected application error",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-generate-pdf-resume-unavailable",
+    "tool": "generate_pdf_resume",
+    "arguments": {
+      "request": {
+        "profileId": "00000000-0000-4000-8000-0000000000aa"
+      }
+    },
+    "service": {
+      "method": "generate_pdf_resume",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "INTERNAL_ERROR",
+        "message": "Generation is not available"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"internal_error\", \"message\": \"Generation is not available\", \"details\": {}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Generation is not available",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-generate-german-cover-letter-not-found",
+    "tool": "generate_german_cover_letter",
+    "arguments": {
+      "request": {
+        "profileId": "00000000-0000-4000-8000-0000000000aa",
+        "jobId": "00000000-0000-4000-8000-0000000000bb",
+        "resumeId": "00000000-0000-4000-8000-0000000000cc"
+      }
+    },
+    "service": {
+      "method": "generate_german_cover_letter",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "NOT_FOUND",
+        "message": "Resume not found: 00000000-0000-4000-8000-0000000000cc",
+        "details": {
+          "resource": "resume",
+          "resumeId": "00000000-0000-4000-8000-0000000000cc"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"not_found\", \"message\": \"Resume not found: 00000000-0000-4000-8000-0000000000cc\", \"details\": {\"resource\": \"resume\", \"resumeId\": \"00000000-0000-4000-8000-0000000000cc\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "not_found",
+        "message": "Resume not found: 00000000-0000-4000-8000-0000000000cc",
+        "details": {
+          "resource": "resume",
+          "resumeId": "00000000-0000-4000-8000-0000000000cc"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-generate-pdf-file-unexpected",
+    "tool": "generate_pdf_file",
+    "arguments": {
+      "request": {
+        "fileName": null,
+        "title": null,
+        "body": null
+      }
+    },
+    "service": {
+      "method": "generate_pdf_file",
+      "outcome": "raise",
+      "error": {
+        "kind": "unexpected",
+        "message": "synthetic internal failure text"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"internal_error\", \"message\": \"Unexpected application error\", \"details\": {}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Unexpected application error",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-delete-profile-empty",
+    "tool": "delete_profile",
+    "arguments": {
+      "profileId": ""
+    },
+    "service": {
+      "method": "delete_profile",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid profile request",
+        "details": {
+          "field": "profileId",
+          "reason": "must be a valid UUID"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid profile request\",\"details\":{\"field\":\"profileId\",\"reason\":\"must be a valid UUID\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid profile request",
+        "details": {
+          "field": "profileId",
+          "reason": "must be a valid UUID"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-delete-profile-blank",
+    "tool": "delete_profile",
+    "arguments": {
+      "profileId": "   "
+    },
+    "service": {
+      "method": "delete_profile",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid profile request",
+        "details": {
+          "field": "profileId",
+          "reason": "must be a valid UUID"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid profile request\",\"details\":{\"field\":\"profileId\",\"reason\":\"must be a valid UUID\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid profile request",
+        "details": {
+          "field": "profileId",
+          "reason": "must be a valid UUID"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-delete-profile-not-a-uuid",
+    "tool": "delete_profile",
+    "arguments": {
+      "profileId": "not-a-uuid"
+    },
+    "service": {
+      "method": "delete_profile",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid profile request",
+        "details": {
+          "field": "profileId",
+          "reason": "must be a valid UUID"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid profile request\",\"details\":{\"field\":\"profileId\",\"reason\":\"must be a valid UUID\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid profile request",
+        "details": {
+          "field": "profileId",
+          "reason": "must be a valid UUID"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-delete-profile-unicode",
+    "tool": "delete_profile",
+    "arguments": {
+      "profileId": "Zo\u00eb-\ud83d\ude42"
+    },
+    "service": {
+      "method": "delete_profile",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid profile request",
+        "details": {
+          "field": "profileId",
+          "reason": "must be a valid UUID"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid profile request\",\"details\":{\"field\":\"profileId\",\"reason\":\"must be a valid UUID\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid profile request",
+        "details": {
+          "field": "profileId",
+          "reason": "must be a valid UUID"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-delete-profile-oversized",
+    "tool": "delete_profile",
+    "arguments": {
+      "profileId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "service": {
+      "method": "delete_profile",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid profile request",
+        "details": {
+          "field": "profileId",
+          "reason": "must be a valid UUID"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid profile request\",\"details\":{\"field\":\"profileId\",\"reason\":\"must be a valid UUID\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid profile request",
+        "details": {
+          "field": "profileId",
+          "reason": "must be a valid UUID"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-delete-profile-conflict",
+    "tool": "delete_profile",
+    "arguments": {
+      "profileId": "00000000-0000-4000-8000-0000000000aa"
+    },
+    "service": {
+      "method": "delete_profile",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "CONFLICT",
+        "message": "Generation is pending for this entity",
+        "details": {
+          "resource": "profile"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"conflict\",\"message\":\"Generation is pending for this entity\",\"details\":{\"resource\":\"profile\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "conflict",
+        "message": "Generation is pending for this entity",
+        "details": {
+          "resource": "profile"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-delete-profile-persistence-constraint",
+    "tool": "delete_profile",
+    "arguments": {
+      "profileId": "00000000-0000-4000-8000-0000000000aa"
+    },
+    "service": {
+      "method": "delete_profile",
+      "outcome": "raise",
+      "error": {
+        "kind": "persistence_constraint",
+        "sqlstate": "23503",
+        "constraint": "example_constraint"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Request data violates a persistence constraint\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Request data violates a persistence constraint",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-delete-profile-unexpected",
+    "tool": "delete_profile",
+    "arguments": {
+      "profileId": "00000000-0000-4000-8000-0000000000aa"
+    },
+    "service": {
+      "method": "delete_profile",
+      "outcome": "raise",
+      "error": {
+        "kind": "unexpected",
+        "message": "SYNTHETIC-PRIVATE-DETAIL 00000000-0000-4000-8000-0000000000aa"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"internal_error\",\"message\":\"Unexpected application error\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Unexpected application error",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-delete-job-missing-entity",
+    "tool": "delete_job",
+    "arguments": {
+      "jobId": "00000000-0000-4000-8000-0000000000bb"
+    },
+    "service": {
+      "method": "delete_job",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "NOT_FOUND",
+        "message": "Job not found: 00000000-0000-4000-8000-0000000000bb",
+        "details": {
+          "resource": "job",
+          "jobId": "00000000-0000-4000-8000-0000000000bb"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"not_found\",\"message\":\"Job not found: 00000000-0000-4000-8000-0000000000bb\",\"details\":{\"resource\":\"job\",\"jobId\":\"00000000-0000-4000-8000-0000000000bb\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "not_found",
+        "message": "Job not found: 00000000-0000-4000-8000-0000000000bb",
+        "details": {
+          "resource": "job",
+          "jobId": "00000000-0000-4000-8000-0000000000bb"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-delete-job-empty",
+    "tool": "delete_job",
+    "arguments": {
+      "jobId": ""
+    },
+    "service": {
+      "method": "delete_job",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job request",
+        "details": {
+          "field": "jobId",
+          "reason": "must be a valid UUID"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job request\",\"details\":{\"field\":\"jobId\",\"reason\":\"must be a valid UUID\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job request",
+        "details": {
+          "field": "jobId",
+          "reason": "must be a valid UUID"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-delete-job-blank",
+    "tool": "delete_job",
+    "arguments": {
+      "jobId": "   "
+    },
+    "service": {
+      "method": "delete_job",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job request",
+        "details": {
+          "field": "jobId",
+          "reason": "must be a valid UUID"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job request\",\"details\":{\"field\":\"jobId\",\"reason\":\"must be a valid UUID\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job request",
+        "details": {
+          "field": "jobId",
+          "reason": "must be a valid UUID"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-delete-job-not-a-uuid",
+    "tool": "delete_job",
+    "arguments": {
+      "jobId": "not-a-uuid"
+    },
+    "service": {
+      "method": "delete_job",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job request",
+        "details": {
+          "field": "jobId",
+          "reason": "must be a valid UUID"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job request\",\"details\":{\"field\":\"jobId\",\"reason\":\"must be a valid UUID\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job request",
+        "details": {
+          "field": "jobId",
+          "reason": "must be a valid UUID"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-delete-job-unicode",
+    "tool": "delete_job",
+    "arguments": {
+      "jobId": "Zo\u00eb-\ud83d\ude42"
+    },
+    "service": {
+      "method": "delete_job",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job request",
+        "details": {
+          "field": "jobId",
+          "reason": "must be a valid UUID"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job request\",\"details\":{\"field\":\"jobId\",\"reason\":\"must be a valid UUID\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job request",
+        "details": {
+          "field": "jobId",
+          "reason": "must be a valid UUID"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-delete-job-oversized",
+    "tool": "delete_job",
+    "arguments": {
+      "jobId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "service": {
+      "method": "delete_job",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job request",
+        "details": {
+          "field": "jobId",
+          "reason": "must be a valid UUID"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job request\",\"details\":{\"field\":\"jobId\",\"reason\":\"must be a valid UUID\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job request",
+        "details": {
+          "field": "jobId",
+          "reason": "must be a valid UUID"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-delete-job-conflict",
+    "tool": "delete_job",
+    "arguments": {
+      "jobId": "00000000-0000-4000-8000-0000000000bb"
+    },
+    "service": {
+      "method": "delete_job",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "CONFLICT",
+        "message": "Generation is pending for this entity",
+        "details": {
+          "resource": "job"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"conflict\",\"message\":\"Generation is pending for this entity\",\"details\":{\"resource\":\"job\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "conflict",
+        "message": "Generation is pending for this entity",
+        "details": {
+          "resource": "job"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-delete-job-persistence-constraint",
+    "tool": "delete_job",
+    "arguments": {
+      "jobId": "00000000-0000-4000-8000-0000000000bb"
+    },
+    "service": {
+      "method": "delete_job",
+      "outcome": "raise",
+      "error": {
+        "kind": "persistence_constraint",
+        "sqlstate": "23503",
+        "constraint": "example_constraint"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Request data violates a persistence constraint\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Request data violates a persistence constraint",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-delete-job-unexpected",
+    "tool": "delete_job",
+    "arguments": {
+      "jobId": "00000000-0000-4000-8000-0000000000bb"
+    },
+    "service": {
+      "method": "delete_job",
+      "outcome": "raise",
+      "error": {
+        "kind": "unexpected",
+        "message": "SYNTHETIC-PRIVATE-DETAIL 00000000-0000-4000-8000-0000000000bb"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"internal_error\",\"message\":\"Unexpected application error\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Unexpected application error",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-add-job-from-link-request-null-with-extra-key",
+    "tool": "add_job_from_link",
+    "arguments": {
+      "request": null,
+      "x": 1
+    },
+    "service": {
+      "method": "add_job_from_link",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job request",
+        "details": {
+          "field": "request",
+          "reason": "must not be null"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job request\",\"details\":{\"field\":\"request\",\"reason\":\"must not be null\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job request",
+        "details": {
+          "field": "request",
+          "reason": "must not be null"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-add-job-from-link-fetch-job link could not be fetched",
+    "tool": "add_job_from_link",
+    "arguments": {
+      "request": {
+        "url": "https://203.0.113.7/jobs/1"
+      }
+    },
+    "service": {
+      "method": "add_job_from_link",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job link ingestion request",
+        "details": {
+          "field": "url",
+          "reason": "job link could not be fetched"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job link ingestion request\",\"details\":{\"field\":\"url\",\"reason\":\"job link could not be fetched\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job link ingestion request",
+        "details": {
+          "field": "url",
+          "reason": "job link could not be fetched"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-add-job-from-link-fetch-job link fetch was interrupted",
+    "tool": "add_job_from_link",
+    "arguments": {
+      "request": {
+        "url": "https://203.0.113.7/jobs/1"
+      }
+    },
+    "service": {
+      "method": "add_job_from_link",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job link ingestion request",
+        "details": {
+          "field": "url",
+          "reason": "job link fetch was interrupted"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job link ingestion request\",\"details\":{\"field\":\"url\",\"reason\":\"job link fetch was interrupted\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job link ingestion request",
+        "details": {
+          "field": "url",
+          "reason": "job link fetch was interrupted"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-add-job-from-link-fetch-must be a valid absolute http(s) URL",
+    "tool": "add_job_from_link",
+    "arguments": {
+      "request": {
+        "url": "https://203.0.113.7/jobs/1"
+      }
+    },
+    "service": {
+      "method": "add_job_from_link",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job link ingestion request",
+        "details": {
+          "field": "url",
+          "reason": "must be a valid absolute http(s) URL"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job link ingestion request\",\"details\":{\"field\":\"url\",\"reason\":\"must be a valid absolute http(s) URL\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job link ingestion request",
+        "details": {
+          "field": "url",
+          "reason": "must be a valid absolute http(s) URL"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-add-job-from-link-fetch-job link redirects are not followed",
+    "tool": "add_job_from_link",
+    "arguments": {
+      "request": {
+        "url": "https://203.0.113.7/jobs/1"
+      }
+    },
+    "service": {
+      "method": "add_job_from_link",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job link ingestion request",
+        "details": {
+          "field": "url",
+          "reason": "job link redirects are not followed"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job link ingestion request\",\"details\":{\"field\":\"url\",\"reason\":\"job link redirects are not followed\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job link ingestion request",
+        "details": {
+          "field": "url",
+          "reason": "job link redirects are not followed"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-add-job-from-link-fetch-host resolves to a private or otherwise unsafe address",
+    "tool": "add_job_from_link",
+    "arguments": {
+      "request": {
+        "url": "https://203.0.113.7/jobs/1"
+      }
+    },
+    "service": {
+      "method": "add_job_from_link",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job link ingestion request",
+        "details": {
+          "field": "url",
+          "reason": "host resolves to a private or otherwise unsafe address"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job link ingestion request\",\"details\":{\"field\":\"url\",\"reason\":\"host resolves to a private or otherwise unsafe address\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job link ingestion request",
+        "details": {
+          "field": "url",
+          "reason": "host resolves to a private or otherwise unsafe address"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-add-job-from-link-fetch-job link fetch requires an IP literal so address policy is connection-bound",
+    "tool": "add_job_from_link",
+    "arguments": {
+      "request": {
+        "url": "https://203.0.113.7/jobs/1"
+      }
+    },
+    "service": {
+      "method": "add_job_from_link",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job link ingestion request",
+        "details": {
+          "field": "url",
+          "reason": "job link fetch requires an IP literal so address policy is connection-bound"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job link ingestion request\",\"details\":{\"field\":\"url\",\"reason\":\"job link fetch requires an IP literal so address policy is connection-bound\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job link ingestion request",
+        "details": {
+          "field": "url",
+          "reason": "job link fetch requires an IP literal so address policy is connection-bound"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-add-job-from-link-userinfo",
+    "tool": "add_job_from_link",
+    "arguments": {
+      "request": {
+        "url": "https://synthetic-user:synthetic-pass@203.0.113.7/jobs/1"
+      }
+    },
+    "service": {
+      "method": "add_job_from_link",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job request",
+        "details": {
+          "field": "url",
+          "reason": "must not include userinfo"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job request\",\"details\":{\"field\":\"url\",\"reason\":\"must not include userinfo\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job request",
+        "details": {
+          "field": "url",
+          "reason": "must not include userinfo"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-add-job-from-link-request-null",
+    "tool": "add_job_from_link",
+    "arguments": {
+      "request": null
+    },
+    "service": {
+      "method": "add_job_from_link",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job request",
+        "details": {
+          "field": "request",
+          "reason": "must not be null"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job request\",\"details\":{\"field\":\"request\",\"reason\":\"must not be null\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job request",
+        "details": {
+          "field": "request",
+          "reason": "must not be null"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-add-job-from-link-request-string",
+    "tool": "add_job_from_link",
+    "arguments": {
+      "request": "https://synthetic-user:synthetic-pass@203.0.113.7/jobs/1"
+    },
+    "service": {
+      "method": "add_job_from_link",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job request",
+        "details": {
+          "field": "request",
+          "reason": "must not be null"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job request\",\"details\":{\"field\":\"request\",\"reason\":\"must not be null\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job request",
+        "details": {
+          "field": "request",
+          "reason": "must not be null"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-add-job-from-link-request-list",
+    "tool": "add_job_from_link",
+    "arguments": {
+      "request": [
+        "https://synthetic-user:synthetic-pass@203.0.113.7/jobs/1"
+      ]
+    },
+    "service": {
+      "method": "add_job_from_link",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job request",
+        "details": {
+          "field": "request",
+          "reason": "must not be null"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job request\",\"details\":{\"field\":\"request\",\"reason\":\"must not be null\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job request",
+        "details": {
+          "field": "request",
+          "reason": "must not be null"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-add-job-from-link-request-empty",
+    "tool": "add_job_from_link",
+    "arguments": {
+      "request": {}
+    },
+    "service": {
+      "method": "add_job_from_link",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job request",
+        "details": {
+          "field": "url",
+          "reason": "must not be blank"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job request\",\"details\":{\"field\":\"url\",\"reason\":\"must not be blank\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job request",
+        "details": {
+          "field": "url",
+          "reason": "must not be blank"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-add-job-from-link-url-int",
+    "tool": "add_job_from_link",
+    "arguments": {
+      "request": {
+        "url": 5
+      }
+    },
+    "service": {
+      "method": "add_job_from_link",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job request",
+        "details": {
+          "field": "url",
+          "reason": "must not be blank"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job request\",\"details\":{\"field\":\"url\",\"reason\":\"must not be blank\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job request",
+        "details": {
+          "field": "url",
+          "reason": "must not be blank"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-add-job-from-link-application",
+    "tool": "add_job_from_link",
+    "arguments": {
+      "request": {
+        "url": "https://203.0.113.7/jobs/1"
+      }
+    },
+    "service": {
+      "method": "add_job_from_link",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job link ingestion request",
+        "details": {
+          "field": "url",
+          "reason": "job link could not be fetched"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job link ingestion request\",\"details\":{\"field\":\"url\",\"reason\":\"job link could not be fetched\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job link ingestion request",
+        "details": {
+          "field": "url",
+          "reason": "job link could not be fetched"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-add-job-from-link-unexpected",
+    "tool": "add_job_from_link",
+    "arguments": {
+      "request": {
+        "url": "https://203.0.113.7/jobs/1"
+      }
+    },
+    "service": {
+      "method": "add_job_from_link",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid job link ingestion request",
+        "details": {
+          "field": "url",
+          "reason": "job link could not be fetched"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid job link ingestion request\",\"details\":{\"field\":\"url\",\"reason\":\"job link could not be fetched\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid job link ingestion request",
+        "details": {
+          "field": "url",
+          "reason": "job link could not be fetched"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-get-document-artifact-not-found",
+    "tool": "get_document_artifact",
+    "arguments": {
+      "documentId": "00000000-0000-4000-8000-0000000000cc"
+    },
+    "service": {
+      "method": "get_document_artifact",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "NOT_FOUND",
+        "message": "Stored document was not found",
+        "details": {
+          "documentId": "00000000-0000-4000-8000-0000000000cc"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"not_found\", \"message\": \"Stored document was not found\", \"details\": {\"documentId\": \"00000000-0000-4000-8000-0000000000cc\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "not_found",
+        "message": "Stored document was not found",
+        "details": {
+          "documentId": "00000000-0000-4000-8000-0000000000cc"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-get-document-artifact-integrity",
+    "tool": "get_document_artifact",
+    "arguments": {
+      "documentId": "00000000-0000-4000-8000-0000000000cc"
+    },
+    "service": {
+      "method": "get_document_artifact",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "INTERNAL_ERROR",
+        "message": "Stored document integrity check failed",
+        "details": {}
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"internal_error\", \"message\": \"Stored document integrity check failed\", \"details\": {}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Stored document integrity check failed",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-get-document-artifact-not-pdf",
+    "tool": "get_document_artifact",
+    "arguments": {
+      "documentId": "00000000-0000-4000-8000-0000000000cc"
+    },
+    "service": {
+      "method": "get_document_artifact",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "INTERNAL_ERROR",
+        "message": "Stored document integrity check failed",
+        "details": {}
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"internal_error\", \"message\": \"Stored document integrity check failed\", \"details\": {}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Stored document integrity check failed",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-get-document-artifact-empty",
+    "tool": "get_document_artifact",
+    "arguments": {
+      "documentId": ""
+    },
+    "service": {
+      "method": "get_document_artifact",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid document artifact request",
+        "details": {
+          "field": "documentId",
+          "reason": "must be a valid UUID string"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"validation_error\", \"message\": \"Invalid document artifact request\", \"details\": {\"field\": \"documentId\", \"reason\": \"must be a valid UUID string\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid document artifact request",
+        "details": {
+          "field": "documentId",
+          "reason": "must be a valid UUID string"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-get-document-artifact-not-a-uuid",
+    "tool": "get_document_artifact",
+    "arguments": {
+      "documentId": "not-a-uuid"
+    },
+    "service": {
+      "method": "get_document_artifact",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid document artifact request",
+        "details": {
+          "field": "documentId",
+          "reason": "must be a valid UUID string"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"validation_error\", \"message\": \"Invalid document artifact request\", \"details\": {\"field\": \"documentId\", \"reason\": \"must be a valid UUID string\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid document artifact request",
+        "details": {
+          "field": "documentId",
+          "reason": "must be a valid UUID string"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-get-document-artifact-unicode",
+    "tool": "get_document_artifact",
+    "arguments": {
+      "documentId": "Zo\u00eb-\ud83d\ude42"
+    },
+    "service": {
+      "method": "get_document_artifact",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid document artifact request",
+        "details": {
+          "field": "documentId",
+          "reason": "must be a valid UUID string"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"validation_error\", \"message\": \"Invalid document artifact request\", \"details\": {\"field\": \"documentId\", \"reason\": \"must be a valid UUID string\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid document artifact request",
+        "details": {
+          "field": "documentId",
+          "reason": "must be a valid UUID string"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-get-document-artifact-oversized",
+    "tool": "get_document_artifact",
+    "arguments": {
+      "documentId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "service": {
+      "method": "get_document_artifact",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid document artifact request",
+        "details": {
+          "field": "documentId",
+          "reason": "must be a valid UUID string"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"validation_error\", \"message\": \"Invalid document artifact request\", \"details\": {\"field\": \"documentId\", \"reason\": \"must be a valid UUID string\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid document artifact request",
+        "details": {
+          "field": "documentId",
+          "reason": "must be a valid UUID string"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-get-document-artifact-unexpected",
+    "tool": "get_document_artifact",
+    "arguments": {
+      "documentId": "00000000-0000-4000-8000-0000000000cc"
+    },
+    "service": {
+      "method": "get_document_artifact",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "INTERNAL_ERROR",
+        "message": "Document artifact retrieval failed",
+        "details": {}
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\": \"internal_error\", \"message\": \"Document artifact retrieval failed\", \"details\": {}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Document artifact retrieval failed",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-scan-cursor-invalid",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "cursor": "not-a-cursor"
+      }
+    },
+    "service": {
+      "method": "scan",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid Arbeitnow scan cursor",
+        "details": {}
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid Arbeitnow scan cursor\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid Arbeitnow scan cursor",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-scan-limit-zero",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "limit": 0
+      }
+    },
+    "service": {
+      "method": "scan",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid Arbeitnow scan request",
+        "details": {}
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid Arbeitnow scan request\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid Arbeitnow scan request",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-scan-limit-huge",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "limit": 1000000
+      }
+    },
+    "service": {
+      "method": "scan",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid Arbeitnow scan request",
+        "details": {}
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid Arbeitnow scan request\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid Arbeitnow scan request",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-scan-max-pages-negative",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "maxPages": -1
+      }
+    },
+    "service": {
+      "method": "scan",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid Arbeitnow scan request",
+        "details": {}
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid Arbeitnow scan request\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid Arbeitnow scan request",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-scan-board-unavailable",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {},
+    "service": {
+      "method": "scan",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "UPSTREAM_UNAVAILABLE",
+        "message": "Arbeitnow job board is temporarily unavailable",
+        "details": {
+          "provider": "arbeitnow",
+          "failureCategory": "transport",
+          "retryable": "true"
+        }
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"upstream_unavailable\",\"message\":\"Arbeitnow job board is temporarily unavailable\",\"details\":{\"provider\":\"arbeitnow\",\"failureCategory\":\"transport\",\"retryable\":\"true\"}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "upstream_unavailable",
+        "message": "Arbeitnow job board is temporarily unavailable",
+        "details": {
+          "provider": "arbeitnow",
+          "failureCategory": "transport",
+          "retryable": "true"
+        }
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-scan-board-unexpected",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {},
+    "service": {
+      "method": "scan",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "INTERNAL_ERROR",
+        "message": "Unexpected application error",
+        "details": {}
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"internal_error\",\"message\":\"Unexpected application error\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "internal_error",
+        "message": "Unexpected application error",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-import-token-null-refused-by-adapter",
+    "tool": "import_arbeitnow_job",
+    "arguments": {
+      "request": {
+        "candidateToken": null
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"candidateToken is required\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "candidateToken is required",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-import-token-empty-refused-by-adapter",
+    "tool": "import_arbeitnow_job",
+    "arguments": {
+      "request": {
+        "candidateToken": ""
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"candidateToken is required\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "candidateToken is required",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-import-token-blank-refused-by-adapter",
+    "tool": "import_arbeitnow_job",
+    "arguments": {
+      "request": {
+        "candidateToken": "   "
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"candidateToken is required\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "candidateToken is required",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-import-token-tab-newline-refused-by-adapter",
+    "tool": "import_arbeitnow_job",
+    "arguments": {
+      "request": {
+        "candidateToken": "\t\n"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"candidateToken is required\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "candidateToken is required",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-import-token-forged",
+    "tool": "import_arbeitnow_job",
+    "arguments": {
+      "request": {
+        "candidateToken": "secret-payload.secret-signature"
+      }
+    },
+    "service": {
+      "method": "import_job",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid Arbeitnow candidate token",
+        "details": {}
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid Arbeitnow candidate token\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid Arbeitnow candidate token",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "error-import-token-tampered",
+    "tool": "import_arbeitnow_job",
+    "arguments": {
+      "request": {
+        "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLWJlcmxpbiIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItYmVybGluIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.dCanEfnCmDAaGxs_wEJr2FHiImBnq920aWma80WkwRA"
+      }
+    },
+    "service": {
+      "method": "import_job",
+      "outcome": "raise",
+      "error": {
+        "kind": "application",
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid Arbeitnow candidate token",
+        "details": {}
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid Arbeitnow candidate token\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid Arbeitnow candidate token",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  }
+]

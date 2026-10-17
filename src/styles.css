@@ -1,0 +1,229 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+ * The `dark:` utilities follow the same rule as the tokens: the operating system preference unless
+ * data-theme="light", or data-theme="dark" forcing it. Without this, Tailwind would key them to the
+ * media query alone and a forced theme would mix light tokens with dark utilities.
+ */
+@custom-variant dark {
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+  &:where([data-theme="dark"] *) {
+    @slot;
+  }
+}
+
+/*
+ * Design tokens. The shadcn/ui components read the semantic names (background,
+ * primary, ...). Paper-like neutrals, one evergreen primary and a highlighter marker as the single
+ * bold element. Light is the default; dark follows the operating system preference unless the page
+ * sets data-theme="light", or data-theme="dark" forces it. Every text and status pair meets WCAG AA
+ * (4.5:1 text, 3:1 for borders of controls and the focus ring) in both themes. `--input` is stronger
+ * than `--border` on purpose: the border of a field is a control boundary, the rule is decoration.
+ */
+:root {
+  color-scheme: light dark;
+  --background: #f6f7f4;
+  --foreground: #1a2421;
+  --card: #ffffff;
+  --card-foreground: #1a2421;
+  --popover: #ffffff;
+  --popover-foreground: #1a2421;
+  --surface-raised: #fbfcfa;
+  --primary: #0e6b58;
+  --primary-foreground: #ffffff;
+  --secondary: #eceeea;
+  --secondary-foreground: #1a2421;
+  --muted: #eef0ec;
+  --muted-foreground: #5b6662;
+  --accent: #e7ebe6;
+  --accent-foreground: #1a2421;
+  --destructive: #b42318;
+  --destructive-foreground: #ffffff;
+  --success: #0e6b58;
+  --warning: #8a5a00;
+  --marker: #e9f056;
+  --marker-bar: #e9f056;
+  --marker-foreground: #1a2421;
+  --border: #d5dad6;
+  --input: #7f8a85;
+  --ring: #0e6b58;
+  --radius: 0.375rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: #111816;
+    --foreground: #e7ece9;
+    --card: #18211e;
+    --card-foreground: #e7ece9;
+    --popover: #1f2a26;
+    --popover-foreground: #e7ece9;
+    --surface-raised: #1f2a26;
+    --primary: #5bd3b4;
+    --primary-foreground: #0b1512;
+    --secondary: #1f2a26;
+    --secondary-foreground: #e7ece9;
+    --muted: #1f2a26;
+    --muted-foreground: #9daaa5;
+    --accent: #26332f;
+    --accent-foreground: #e7ece9;
+    --destructive: #ff8a80;
+    --destructive-foreground: #0b1512;
+    --success: #5bd3b4;
+    --warning: #e8b04a;
+    --marker: rgba(214, 224, 74, 0.32);
+    --marker-bar: #b9c23a;
+    --marker-foreground: #e7ece9;
+    --border: #2e3b37;
+    --input: #6c7b76;
+    --ring: #5bd3b4;
+  }
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #111816;
+  --foreground: #e7ece9;
+  --card: #18211e;
+  --card-foreground: #e7ece9;
+  --popover: #1f2a26;
+  --popover-foreground: #e7ece9;
+  --surface-raised: #1f2a26;
+  --primary: #5bd3b4;
+  --primary-foreground: #0b1512;
+  --secondary: #1f2a26;
+  --secondary-foreground: #e7ece9;
+  --muted: #1f2a26;
+  --muted-foreground: #9daaa5;
+  --accent: #26332f;
+  --accent-foreground: #e7ece9;
+  --destructive: #ff8a80;
+  --destructive-foreground: #0b1512;
+  --success: #5bd3b4;
+  --warning: #e8b04a;
+  --marker: rgba(214, 224, 74, 0.32);
+  --marker-bar: #b9c23a;
+  --marker-foreground: #e7ece9;
+  --border: #2e3b37;
+  --input: #6c7b76;
+  --ring: #5bd3b4;
+}
+
+@theme inline {
+  --font-sans:
+    "Schibsted Grotesk Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-surface-raised: var(--surface-raised);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-marker: var(--marker);
+  --color-marker-foreground: var(--marker-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-panel: 0.625rem;
+  --animate-marker-sweep: marker-sweep 180ms ease-out;
+  --animate-section-in: section-in 120ms ease-out;
+}
+
+/* The only motion of the shell: the marker sweeps in, the section fades in. */
+@keyframes marker-sweep {
+  from {
+    transform: scaleX(0) rotate(-0.6deg);
+  }
+  to {
+    transform: scaleX(1) rotate(-0.6deg);
+  }
+}
+
+@keyframes section-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply min-h-screen bg-background text-sm text-foreground;
+    line-height: 1.5;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+
+  /* Numbers, counts and scores line up. */
+  [data-tabular],
+  output,
+  time {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* The highlighter: an irregular, slightly tilted block behind a label, like a marked posting. */
+  .marker-block {
+    border-radius: 0.25em 0.6em 0.35em 0.5em;
+    background-color: var(--marker);
+    transform: rotate(-0.6deg);
+  }
+
+  .marker-inline {
+    border-radius: 0.25em 0.6em 0.35em 0.5em;
+    background-color: var(--marker);
+    color: var(--marker-foreground);
+    padding-inline: 0.25em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Unlayered, so it wins over every utility and over the dialog and tooltip enter animations. */
+  *,
+  *::before,
+  *::after {
+    animation: none;
+    transition-duration: 0s;
+    scroll-behavior: auto;
+  }
+}

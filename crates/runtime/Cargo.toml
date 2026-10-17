@@ -1,0 +1,35 @@
+[package]
+name = "jobniac-runtime"
+description = "Environment configuration and composition root for Jobniac"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[dependencies]
+async-trait.workspace = true
+# The per-start MCP bearer token (mcp_server.rs): 32 random bytes.
+getrandom.workspace = true
+jobniac-core.workspace = true
+jobniac-infra.workspace = true
+secrecy.workspace = true
+# The settings file (app_settings.rs).
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+# Fixed-text diagnostics and the process subscriber (diagnostics.rs).
+tracing.workspace = true
+tracing-subscriber.workspace = true
+uuid.workspace = true
+# The PDF worker operations (worker_pdf.rs) run inside the `__worker` children of both binaries.
+image = { workspace = true }
+pdfium-render = { workspace = true, default-features = false, features = ["pdfium_7881", "image_025", "thread_safe"] }
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

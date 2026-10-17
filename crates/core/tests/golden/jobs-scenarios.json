@@ -1,0 +1,2553 @@
+{
+ "scenarios": [
+  {
+   "name": "capture minimal creates one job from the first line",
+   "steps": [
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Senior Python Developer\nRemote"
+     },
+     "expect": {
+      "result": {
+       "status": "created_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000001",
+         "sourceMethod": "text",
+         "sourceLabel": null,
+         "title": "Senior Python Developer",
+         "company": null,
+         "location": null,
+         "description": "Senior Python Developer\nRemote",
+         "experienceRequirement": null,
+         "employmentType": null,
+         "seniority": null,
+         "postedAt": null,
+         "canonicalFingerprint": "66c5d87dcd5aa1a3278537ae8377ebdaff37f70e43748b5543d5bb6e027b836f",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000002",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "sourceLabel": null,
+         "inputTextHash": "2def471e193215496815063dd99a22b086dfbf9766e433fc4f35fe9412b5f510",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "capture reuses the text hash without applying overrides",
+   "steps": [
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Senior Python Developer\nRemote"
+     },
+     "expect": {
+      "result": {
+       "status": "created_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000001",
+         "sourceMethod": "text",
+         "sourceLabel": null,
+         "title": "Senior Python Developer",
+         "company": null,
+         "location": null,
+         "description": "Senior Python Developer\nRemote",
+         "experienceRequirement": null,
+         "employmentType": null,
+         "seniority": null,
+         "postedAt": null,
+         "canonicalFingerprint": "66c5d87dcd5aa1a3278537ae8377ebdaff37f70e43748b5543d5bb6e027b836f",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000002",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "sourceLabel": null,
+         "inputTextHash": "2def471e193215496815063dd99a22b086dfbf9766e433fc4f35fe9412b5f510",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    },
+    {
+     "op": "capture",
+     "clock": "2026-09-29T10:00:00Z",
+     "request": {
+      "text": "  senior python developer\nREMOTE  ",
+      "title": "Other",
+      "company": "Zed",
+      "description": "Other"
+     },
+     "expect": {
+      "result": {
+       "status": "reused_existing_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000001",
+         "sourceMethod": "text",
+         "sourceLabel": null,
+         "title": "Senior Python Developer",
+         "company": null,
+         "location": null,
+         "description": "Senior Python Developer\nRemote",
+         "experienceRequirement": null,
+         "employmentType": null,
+         "seniority": null,
+         "postedAt": null,
+         "canonicalFingerprint": "66c5d87dcd5aa1a3278537ae8377ebdaff37f70e43748b5543d5bb6e027b836f",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000002",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "sourceLabel": null,
+         "inputTextHash": "2def471e193215496815063dd99a22b086dfbf9766e433fc4f35fe9412b5f510",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "capture reuses a canonical fingerprint decided by the repository",
+   "steps": [
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Python Developer\nBuild things"
+     },
+     "expect": {
+      "result": {
+       "status": "created_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000001",
+         "sourceMethod": "text",
+         "sourceLabel": null,
+         "title": "Python Developer",
+         "company": null,
+         "location": null,
+         "description": "Python Developer\nBuild things",
+         "experienceRequirement": null,
+         "employmentType": null,
+         "seniority": null,
+         "postedAt": null,
+         "canonicalFingerprint": "4f638169863f57bad9532760a185a7ad65c998e95bab4a6c79cbb91e3abe90ba",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000002",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "sourceLabel": null,
+         "inputTextHash": "4e6257d12b0beed5c9d959b3e85645de8ad2b856720fd7a0339626bc6c8224c2",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    },
+    {
+     "op": "capture",
+     "clock": "2026-09-29T10:00:00Z",
+     "request": {
+      "text": "Other paste body",
+      "title": "python  developer",
+      "description": "Python Developer\nBuild things"
+     },
+     "expect": {
+      "result": {
+       "status": "reused_existing_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000001",
+         "sourceMethod": "text",
+         "sourceLabel": null,
+         "title": "Python Developer",
+         "company": null,
+         "location": null,
+         "description": "Python Developer\nBuild things",
+         "experienceRequirement": null,
+         "employmentType": null,
+         "seniority": null,
+         "postedAt": null,
+         "canonicalFingerprint": "4f638169863f57bad9532760a185a7ad65c998e95bab4a6c79cbb91e3abe90ba",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000002",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "sourceLabel": null,
+         "inputTextHash": "4e6257d12b0beed5c9d959b3e85645de8ad2b856720fd7a0339626bc6c8224c2",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "capture reuse happens before optional fields are validated",
+   "steps": [
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Reused text"
+     },
+     "expect": {
+      "result": {
+       "status": "created_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000001",
+         "sourceMethod": "text",
+         "sourceLabel": null,
+         "title": "Reused text",
+         "company": null,
+         "location": null,
+         "description": "Reused text",
+         "experienceRequirement": null,
+         "employmentType": null,
+         "seniority": null,
+         "postedAt": null,
+         "canonicalFingerprint": "8313b1ca0bbfb5dd86621c701daade825b0a9c2b1fcebd27aeaf3bd8e50f8c8b",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000002",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "sourceLabel": null,
+         "inputTextHash": "70864507f6e3c606a8000a65655e611b524c9bb4382be5f884b6eab53c977343",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    },
+    {
+     "op": "capture",
+     "clock": "2026-09-29T10:00:00Z",
+     "request": {
+      "text": "Reused text",
+      "company": 7,
+      "skills": "Python"
+     },
+     "expect": {
+      "result": {
+       "status": "reused_existing_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000001",
+         "sourceMethod": "text",
+         "sourceLabel": null,
+         "title": "Reused text",
+         "company": null,
+         "location": null,
+         "description": "Reused text",
+         "experienceRequirement": null,
+         "employmentType": null,
+         "seniority": null,
+         "postedAt": null,
+         "canonicalFingerprint": "8313b1ca0bbfb5dd86621c701daade825b0a9c2b1fcebd27aeaf3bd8e50f8c8b",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000002",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "sourceLabel": null,
+         "inputTextHash": "70864507f6e3c606a8000a65655e611b524c9bb4382be5f884b6eab53c977343",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "capture rejects blank and non-text paste before any repository call",
+   "steps": [
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {},
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "text",
+        "reason": "must not be blank"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "   "
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "text",
+        "reason": "must not be blank"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": 7
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "text",
+        "reason": "must not be blank"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": false
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "text",
+        "reason": "must not be blank"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": null,
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "request",
+        "reason": "must not be null"
+       }
+      },
+      "repoCalls": []
+     }
+    }
+   ]
+  },
+  {
+   "name": "capture validates optional fields after the hash lookup",
+   "steps": [
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Fresh text",
+      "company": 7
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "company",
+        "reason": "must be a string"
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash"
+      ]
+     }
+    },
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Fresh text",
+      "skills": "Python"
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "skills",
+        "reason": "must be a list of strings"
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash"
+      ]
+     }
+    },
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Fresh text",
+      "skills": [
+       "Python",
+       7
+      ]
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "skills",
+        "reason": "must contain only strings"
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash"
+      ]
+     }
+    },
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Fresh text",
+      "postedAt": "not-a-timestamp"
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "postedAt",
+        "reason": "must be an ISO-8601 UTC timestamp"
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash"
+      ]
+     }
+    },
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Fresh text",
+      "postedAt": "2026-09-29T10:30:00"
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "postedAt",
+        "reason": "must be an ISO-8601 UTC timestamp"
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash"
+      ]
+     }
+    },
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Fresh text",
+      "postedAt": "2026-09-29T10:30:00+25:00"
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "postedAt",
+        "reason": "must be an ISO-8601 UTC timestamp"
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash"
+      ]
+     }
+    },
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Fresh text",
+      "title": 7
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "title",
+        "reason": "must be a string"
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash"
+      ]
+     }
+    },
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Fresh text",
+      "sourceLabel": [
+       "x"
+      ]
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "sourceLabel",
+        "reason": "must be a string"
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "capture maps every optional field and merges skills",
+   "steps": [
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Senior Python Developer\nRemote, EU\nWe build APIs.\nRequirements: 5+ years building APIs.",
+      "sourceLabel": "  Board  ",
+      "company": " Acme GmbH ",
+      "location": "Berlin",
+      "experienceRequirement": null,
+      "employmentType": "full-time",
+      "seniority": "   ",
+      "postedAt": "2026-10-02T12:00:00+02:00",
+      "skills": [
+       "Python, SQL",
+       "python",
+       " Docker "
+      ]
+     },
+     "expect": {
+      "result": {
+       "status": "created_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000001",
+         "sourceMethod": "text",
+         "sourceLabel": "Board",
+         "title": "Senior Python Developer",
+         "company": "Acme GmbH",
+         "location": "Berlin",
+         "description": "Senior Python Developer\nRemote, EU\nWe build APIs.\nRequirements: 5+ years building APIs.",
+         "experienceRequirement": "5+ years building APIs.",
+         "employmentType": "full-time",
+         "seniority": null,
+         "postedAt": "2026-10-02T10:00:00Z",
+         "canonicalFingerprint": "562c3f260997ac732abd9432c2ae3ba69a316fde86215671c83d2704c1aac632",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [
+         {
+          "id": "00000000-0000-0000-0000-000000000002",
+          "jobId": "00000000-0000-0000-0000-000000000001",
+          "skill": "Python",
+          "normalizedSkill": "python",
+          "required": true,
+          "displayOrder": 0,
+          "createdAt": "2026-09-28T12:30:15.123Z"
+         },
+         {
+          "id": "00000000-0000-0000-0000-000000000003",
+          "jobId": "00000000-0000-0000-0000-000000000001",
+          "skill": "SQL",
+          "normalizedSkill": "sql",
+          "required": true,
+          "displayOrder": 1,
+          "createdAt": "2026-09-28T12:30:15.123Z"
+         },
+         {
+          "id": "00000000-0000-0000-0000-000000000004",
+          "jobId": "00000000-0000-0000-0000-000000000001",
+          "skill": "Docker",
+          "normalizedSkill": "docker",
+          "required": true,
+          "displayOrder": 2,
+          "createdAt": "2026-09-28T12:30:15.123Z"
+         }
+        ],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000005",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "sourceLabel": "Board",
+         "inputTextHash": "f05c30dbfd53679cb10680b889920019013ba907e73ec527a7990f96d0227c05",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    },
+    {
+     "op": "get",
+     "clock": "2026-09-29T10:00:00Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001"
+     },
+     "expect": {
+      "result": {
+       "job": {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "sourceMethod": "text",
+        "sourceLabel": "Board",
+        "title": "Senior Python Developer",
+        "company": "Acme GmbH",
+        "location": "Berlin",
+        "description": "Senior Python Developer\nRemote, EU\nWe build APIs.\nRequirements: 5+ years building APIs.",
+        "experienceRequirement": "5+ years building APIs.",
+        "employmentType": "full-time",
+        "seniority": null,
+        "postedAt": "2026-10-02T10:00:00Z",
+        "canonicalFingerprint": "562c3f260997ac732abd9432c2ae3ba69a316fde86215671c83d2704c1aac632",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-000000000002",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "skill": "Python",
+         "normalizedSkill": "python",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        },
+        {
+         "id": "00000000-0000-0000-0000-000000000003",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "skill": "SQL",
+         "normalizedSkill": "sql",
+         "required": true,
+         "displayOrder": 1,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        },
+        {
+         "id": "00000000-0000-0000-0000-000000000004",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "skill": "Docker",
+         "normalizedSkill": "docker",
+         "required": true,
+         "displayOrder": 2,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "linkIngestion": null,
+       "textIngestion": {
+        "id": "00000000-0000-0000-0000-000000000005",
+        "jobId": "00000000-0000-0000-0000-000000000001",
+        "sourceLabel": "Board",
+        "inputTextHash": "f05c30dbfd53679cb10680b889920019013ba907e73ec527a7990f96d0227c05",
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      },
+      "repoCalls": [
+       "get_job"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "capture extracts experience and skills from the description",
+   "steps": [
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Backend Engineer\nSkills: Rust; Go\nExperience: 5+ years building APIs\nWe like Java."
+     },
+     "expect": {
+      "result": {
+       "status": "created_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000001",
+         "sourceMethod": "text",
+         "sourceLabel": null,
+         "title": "Backend Engineer",
+         "company": null,
+         "location": null,
+         "description": "Backend Engineer\nSkills: Rust; Go\nExperience: 5+ years building APIs\nWe like Java.",
+         "experienceRequirement": "5+ years building APIs",
+         "employmentType": null,
+         "seniority": null,
+         "postedAt": null,
+         "canonicalFingerprint": "9044e154440ea49525cb36237001667c86626eef810174d0df0fa43b8f34e235",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [
+         {
+          "id": "00000000-0000-0000-0000-000000000002",
+          "jobId": "00000000-0000-0000-0000-000000000001",
+          "skill": "Rust",
+          "normalizedSkill": "rust",
+          "required": true,
+          "displayOrder": 0,
+          "createdAt": "2026-09-28T12:30:15.123Z"
+         },
+         {
+          "id": "00000000-0000-0000-0000-000000000003",
+          "jobId": "00000000-0000-0000-0000-000000000001",
+          "skill": "Go",
+          "normalizedSkill": "go",
+          "required": true,
+          "displayOrder": 1,
+          "createdAt": "2026-09-28T12:30:15.123Z"
+         }
+        ],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000004",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "sourceLabel": null,
+         "inputTextHash": "06e6cb005eddf71cd368f6e47dc6c0c3fd62fe5eba8259d4045860789fd04c78",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    },
+    {
+     "op": "capture",
+     "clock": "2026-09-29T10:00:00Z",
+     "request": {
+      "text": "Prose only without label"
+     },
+     "expect": {
+      "result": {
+       "status": "created_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000005",
+         "sourceMethod": "text",
+         "sourceLabel": null,
+         "title": "Prose only without label",
+         "company": null,
+         "location": null,
+         "description": "Prose only without label",
+         "experienceRequirement": null,
+         "employmentType": null,
+         "seniority": null,
+         "postedAt": null,
+         "canonicalFingerprint": "f1ae7a093e82200acecde238ffbdcb77f4239805a4f9e4c2c23b141d2ec9cee0",
+         "createdAt": "2026-09-29T10:00:00Z",
+         "updatedAt": "2026-09-29T10:00:00Z",
+         "revision": 0
+        },
+        "skills": [],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000006",
+         "jobId": "00000000-0000-0000-0000-000000000005",
+         "sourceLabel": null,
+         "inputTextHash": "b91854b9df2c12c0b4cc2b3358699c52ae123d1d3f0593ae7be945f28114fe5c",
+         "createdAt": "2026-09-29T10:00:00Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "capture derives the title fallback and keeps a blank description on the text",
+   "steps": [
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy\n  \nzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz\nlast"
+     },
+     "expect": {
+      "result": {
+       "status": "created_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000001",
+         "sourceMethod": "text",
+         "sourceLabel": null,
+         "title": "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+         "company": null,
+         "location": null,
+         "description": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy\n  \nzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz\nlast",
+         "experienceRequirement": null,
+         "employmentType": null,
+         "seniority": null,
+         "postedAt": null,
+         "canonicalFingerprint": "872ee7eb02431a93b1d9f32da87abf42e50fc4b4f7995879d71828491653c651",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000002",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "sourceLabel": null,
+         "inputTextHash": "34c528cfdf1904572b8db4f7afa3894e16e2506f52c78f3ba90a1251e688a0f5",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    },
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Blank description case",
+      "description": "  \n "
+     },
+     "expect": {
+      "result": {
+       "status": "created_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000003",
+         "sourceMethod": "text",
+         "sourceLabel": null,
+         "title": "Blank description case",
+         "company": null,
+         "location": null,
+         "description": "Blank description case",
+         "experienceRequirement": null,
+         "employmentType": null,
+         "seniority": null,
+         "postedAt": null,
+         "canonicalFingerprint": "d87774df8da6dd37b132888b5ccdf501ce35302ae012837f88deba0effedf437",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000004",
+         "jobId": "00000000-0000-0000-0000-000000000003",
+         "sourceLabel": null,
+         "inputTextHash": "9565f0f557b69c2d6d878fc98762a9420b3ac07a7f3336677dabba230e7eaf3c",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "update clears blank nullable fields and keeps omitted and null fields",
+   "steps": [
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Senior Python Developer\nRemote, EU\nWe build APIs.\nRequirements: 5+ years building APIs.",
+      "sourceLabel": "  Board  ",
+      "company": " Acme GmbH ",
+      "location": "Berlin",
+      "experienceRequirement": null,
+      "employmentType": "full-time",
+      "seniority": "   ",
+      "postedAt": "2026-10-02T12:00:00+02:00",
+      "skills": [
+       "Python, SQL",
+       "python",
+       " Docker "
+      ]
+     },
+     "expect": {
+      "result": {
+       "status": "created_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000001",
+         "sourceMethod": "text",
+         "sourceLabel": "Board",
+         "title": "Senior Python Developer",
+         "company": "Acme GmbH",
+         "location": "Berlin",
+         "description": "Senior Python Developer\nRemote, EU\nWe build APIs.\nRequirements: 5+ years building APIs.",
+         "experienceRequirement": "5+ years building APIs.",
+         "employmentType": "full-time",
+         "seniority": null,
+         "postedAt": "2026-10-02T10:00:00Z",
+         "canonicalFingerprint": "562c3f260997ac732abd9432c2ae3ba69a316fde86215671c83d2704c1aac632",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [
+         {
+          "id": "00000000-0000-0000-0000-000000000002",
+          "jobId": "00000000-0000-0000-0000-000000000001",
+          "skill": "Python",
+          "normalizedSkill": "python",
+          "required": true,
+          "displayOrder": 0,
+          "createdAt": "2026-09-28T12:30:15.123Z"
+         },
+         {
+          "id": "00000000-0000-0000-0000-000000000003",
+          "jobId": "00000000-0000-0000-0000-000000000001",
+          "skill": "SQL",
+          "normalizedSkill": "sql",
+          "required": true,
+          "displayOrder": 1,
+          "createdAt": "2026-09-28T12:30:15.123Z"
+         },
+         {
+          "id": "00000000-0000-0000-0000-000000000004",
+          "jobId": "00000000-0000-0000-0000-000000000001",
+          "skill": "Docker",
+          "normalizedSkill": "docker",
+          "required": true,
+          "displayOrder": 2,
+          "createdAt": "2026-09-28T12:30:15.123Z"
+         }
+        ],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000005",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "sourceLabel": "Board",
+         "inputTextHash": "f05c30dbfd53679cb10680b889920019013ba907e73ec527a7990f96d0227c05",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-29T10:00:00Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": 0,
+      "sourceLabel": "  New label ",
+      "company": "  ",
+      "location": null,
+      "experienceRequirement": "",
+      "seniority": " \u00a0 ",
+      "employmentType": " contract ",
+      "postedAt": "2026-10-02T12:00:00.5+02:00"
+     },
+     "expect": {
+      "result": {
+       "job": {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "sourceMethod": "text",
+        "sourceLabel": "New label",
+        "title": "Senior Python Developer",
+        "company": null,
+        "location": "Berlin",
+        "description": "Senior Python Developer\nRemote, EU\nWe build APIs.\nRequirements: 5+ years building APIs.",
+        "experienceRequirement": null,
+        "employmentType": "contract",
+        "seniority": "\u00a0",
+        "postedAt": "2026-10-02T10:00:00.500Z",
+        "canonicalFingerprint": "597ef87abcdf36e4d570e64c8fdc379c168855d1f336352f2b0a0a840efc59d9",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-29T10:00:00Z",
+        "revision": 1
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-000000000002",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "skill": "Python",
+         "normalizedSkill": "python",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        },
+        {
+         "id": "00000000-0000-0000-0000-000000000003",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "skill": "SQL",
+         "normalizedSkill": "sql",
+         "required": true,
+         "displayOrder": 1,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        },
+        {
+         "id": "00000000-0000-0000-0000-000000000004",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "skill": "Docker",
+         "normalizedSkill": "docker",
+         "required": true,
+         "displayOrder": 2,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "linkIngestion": null,
+       "textIngestion": {
+        "id": "00000000-0000-0000-0000-000000000005",
+        "jobId": "00000000-0000-0000-0000-000000000001",
+        "sourceLabel": "Board",
+        "inputTextHash": "f05c30dbfd53679cb10680b889920019013ba907e73ec527a7990f96d0227c05",
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      },
+      "repoCalls": [
+       "get_job",
+       "find_by_canonical_fingerprint",
+       "update_job_aggregate"
+      ]
+     }
+    },
+    {
+     "op": "get",
+     "clock": "2026-09-29T10:00:00Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001"
+     },
+     "expect": {
+      "result": {
+       "job": {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "sourceMethod": "text",
+        "sourceLabel": "New label",
+        "title": "Senior Python Developer",
+        "company": null,
+        "location": "Berlin",
+        "description": "Senior Python Developer\nRemote, EU\nWe build APIs.\nRequirements: 5+ years building APIs.",
+        "experienceRequirement": null,
+        "employmentType": "contract",
+        "seniority": "\u00a0",
+        "postedAt": "2026-10-02T10:00:00.500Z",
+        "canonicalFingerprint": "597ef87abcdf36e4d570e64c8fdc379c168855d1f336352f2b0a0a840efc59d9",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-29T10:00:00Z",
+        "revision": 1
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-000000000002",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "skill": "Python",
+         "normalizedSkill": "python",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        },
+        {
+         "id": "00000000-0000-0000-0000-000000000003",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "skill": "SQL",
+         "normalizedSkill": "sql",
+         "required": true,
+         "displayOrder": 1,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        },
+        {
+         "id": "00000000-0000-0000-0000-000000000004",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "skill": "Docker",
+         "normalizedSkill": "docker",
+         "required": true,
+         "displayOrder": 2,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "linkIngestion": null,
+       "textIngestion": {
+        "id": "00000000-0000-0000-0000-000000000005",
+        "jobId": "00000000-0000-0000-0000-000000000001",
+        "sourceLabel": "Board",
+        "inputTextHash": "f05c30dbfd53679cb10680b889920019013ba907e73ec527a7990f96d0227c05",
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      },
+      "repoCalls": [
+       "get_job"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "update with supplied skills replaces them with first normalized occurrence",
+   "steps": [
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Senior Python Developer\nRemote, EU\nWe build APIs.\nRequirements: 5+ years building APIs.",
+      "sourceLabel": "  Board  ",
+      "company": " Acme GmbH ",
+      "location": "Berlin",
+      "experienceRequirement": null,
+      "employmentType": "full-time",
+      "seniority": "   ",
+      "postedAt": "2026-10-02T12:00:00+02:00",
+      "skills": [
+       "Python, SQL",
+       "python",
+       " Docker "
+      ]
+     },
+     "expect": {
+      "result": {
+       "status": "created_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000001",
+         "sourceMethod": "text",
+         "sourceLabel": "Board",
+         "title": "Senior Python Developer",
+         "company": "Acme GmbH",
+         "location": "Berlin",
+         "description": "Senior Python Developer\nRemote, EU\nWe build APIs.\nRequirements: 5+ years building APIs.",
+         "experienceRequirement": "5+ years building APIs.",
+         "employmentType": "full-time",
+         "seniority": null,
+         "postedAt": "2026-10-02T10:00:00Z",
+         "canonicalFingerprint": "562c3f260997ac732abd9432c2ae3ba69a316fde86215671c83d2704c1aac632",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [
+         {
+          "id": "00000000-0000-0000-0000-000000000002",
+          "jobId": "00000000-0000-0000-0000-000000000001",
+          "skill": "Python",
+          "normalizedSkill": "python",
+          "required": true,
+          "displayOrder": 0,
+          "createdAt": "2026-09-28T12:30:15.123Z"
+         },
+         {
+          "id": "00000000-0000-0000-0000-000000000003",
+          "jobId": "00000000-0000-0000-0000-000000000001",
+          "skill": "SQL",
+          "normalizedSkill": "sql",
+          "required": true,
+          "displayOrder": 1,
+          "createdAt": "2026-09-28T12:30:15.123Z"
+         },
+         {
+          "id": "00000000-0000-0000-0000-000000000004",
+          "jobId": "00000000-0000-0000-0000-000000000001",
+          "skill": "Docker",
+          "normalizedSkill": "docker",
+          "required": true,
+          "displayOrder": 2,
+          "createdAt": "2026-09-28T12:30:15.123Z"
+         }
+        ],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000005",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "sourceLabel": "Board",
+         "inputTextHash": "f05c30dbfd53679cb10680b889920019013ba907e73ec527a7990f96d0227c05",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-29T10:00:00Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": 0,
+      "skills": [
+       "Caf\u00e9",
+       "cafe",
+       null,
+       "Go, Go;Rust"
+      ]
+     },
+     "expect": {
+      "result": {
+       "job": {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "sourceMethod": "text",
+        "sourceLabel": "Board",
+        "title": "Senior Python Developer",
+        "company": "Acme GmbH",
+        "location": "Berlin",
+        "description": "Senior Python Developer\nRemote, EU\nWe build APIs.\nRequirements: 5+ years building APIs.",
+        "experienceRequirement": "5+ years building APIs.",
+        "employmentType": "full-time",
+        "seniority": null,
+        "postedAt": "2026-10-02T10:00:00Z",
+        "canonicalFingerprint": "562c3f260997ac732abd9432c2ae3ba69a316fde86215671c83d2704c1aac632",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-29T10:00:00Z",
+        "revision": 1
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-000000000006",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "skill": "Caf\u00e9",
+         "normalizedSkill": "cafe",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-29T10:00:00Z"
+        },
+        {
+         "id": "00000000-0000-0000-0000-000000000007",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "skill": "Go",
+         "normalizedSkill": "go",
+         "required": true,
+         "displayOrder": 1,
+         "createdAt": "2026-09-29T10:00:00Z"
+        },
+        {
+         "id": "00000000-0000-0000-0000-000000000008",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "skill": "Rust",
+         "normalizedSkill": "rust",
+         "required": true,
+         "displayOrder": 2,
+         "createdAt": "2026-09-29T10:00:00Z"
+        }
+       ],
+       "linkIngestion": null,
+       "textIngestion": {
+        "id": "00000000-0000-0000-0000-000000000005",
+        "jobId": "00000000-0000-0000-0000-000000000001",
+        "sourceLabel": "Board",
+        "inputTextHash": "f05c30dbfd53679cb10680b889920019013ba907e73ec527a7990f96d0227c05",
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      },
+      "repoCalls": [
+       "get_job",
+       "find_by_canonical_fingerprint",
+       "update_job_aggregate"
+      ]
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-30T08:15:00.5Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": 1,
+      "skills": []
+     },
+     "expect": {
+      "result": {
+       "job": {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "sourceMethod": "text",
+        "sourceLabel": "Board",
+        "title": "Senior Python Developer",
+        "company": "Acme GmbH",
+        "location": "Berlin",
+        "description": "Senior Python Developer\nRemote, EU\nWe build APIs.\nRequirements: 5+ years building APIs.",
+        "experienceRequirement": "5+ years building APIs.",
+        "employmentType": "full-time",
+        "seniority": null,
+        "postedAt": "2026-10-02T10:00:00Z",
+        "canonicalFingerprint": "562c3f260997ac732abd9432c2ae3ba69a316fde86215671c83d2704c1aac632",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-30T08:15:00.500Z",
+        "revision": 2
+       },
+       "skills": [],
+       "linkIngestion": null,
+       "textIngestion": {
+        "id": "00000000-0000-0000-0000-000000000005",
+        "jobId": "00000000-0000-0000-0000-000000000001",
+        "sourceLabel": "Board",
+        "inputTextHash": "f05c30dbfd53679cb10680b889920019013ba907e73ec527a7990f96d0227c05",
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      },
+      "repoCalls": [
+       "get_job",
+       "find_by_canonical_fingerprint",
+       "update_job_aggregate"
+      ]
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-30T08:15:00.5Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": 2,
+      "title": "Renamed"
+     },
+     "expect": {
+      "result": {
+       "job": {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "sourceMethod": "text",
+        "sourceLabel": "Board",
+        "title": "Renamed",
+        "company": "Acme GmbH",
+        "location": "Berlin",
+        "description": "Senior Python Developer\nRemote, EU\nWe build APIs.\nRequirements: 5+ years building APIs.",
+        "experienceRequirement": "5+ years building APIs.",
+        "employmentType": "full-time",
+        "seniority": null,
+        "postedAt": "2026-10-02T10:00:00Z",
+        "canonicalFingerprint": "55d6a7e9cfd1e4986f0458d8dc11e2c7e46737060ced8c0a7780437454bb6b11",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-30T08:15:00.500Z",
+        "revision": 3
+       },
+       "skills": [],
+       "linkIngestion": null,
+       "textIngestion": {
+        "id": "00000000-0000-0000-0000-000000000005",
+        "jobId": "00000000-0000-0000-0000-000000000001",
+        "sourceLabel": "Board",
+        "inputTextHash": "f05c30dbfd53679cb10680b889920019013ba907e73ec527a7990f96d0227c05",
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      },
+      "repoCalls": [
+       "get_job",
+       "find_by_canonical_fingerprint",
+       "update_job_aggregate"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "update with empty skills clears them without re-extracting from the description",
+   "steps": [
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Backend Engineer\nRemote\nSkills: Java"
+     },
+     "expect": {
+      "result": {
+       "status": "created_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000001",
+         "sourceMethod": "text",
+         "sourceLabel": null,
+         "title": "Backend Engineer",
+         "company": null,
+         "location": null,
+         "description": "Backend Engineer\nRemote\nSkills: Java",
+         "experienceRequirement": null,
+         "employmentType": null,
+         "seniority": null,
+         "postedAt": null,
+         "canonicalFingerprint": "c9f6465117e19bcd2f1ca2c0652a7528f37c98bfdae4104de8f5ebdb9bc03276",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [
+         {
+          "id": "00000000-0000-0000-0000-000000000002",
+          "jobId": "00000000-0000-0000-0000-000000000001",
+          "skill": "Java",
+          "normalizedSkill": "java",
+          "required": true,
+          "displayOrder": 0,
+          "createdAt": "2026-09-28T12:30:15.123Z"
+         }
+        ],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000003",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "sourceLabel": null,
+         "inputTextHash": "049ec0701d1ea32e417d9e8ae90598c19e8d4006b69d0a47100d767e4a3455cf",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-29T10:00:00Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": 0,
+      "skills": []
+     },
+     "expect": {
+      "result": {
+       "job": {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "title": "Backend Engineer",
+        "company": null,
+        "location": null,
+        "description": "Backend Engineer\nRemote\nSkills: Java",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "c9f6465117e19bcd2f1ca2c0652a7528f37c98bfdae4104de8f5ebdb9bc03276",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-29T10:00:00Z",
+        "revision": 1
+       },
+       "skills": [],
+       "linkIngestion": null,
+       "textIngestion": {
+        "id": "00000000-0000-0000-0000-000000000003",
+        "jobId": "00000000-0000-0000-0000-000000000001",
+        "sourceLabel": null,
+        "inputTextHash": "049ec0701d1ea32e417d9e8ae90598c19e8d4006b69d0a47100d767e4a3455cf",
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      },
+      "repoCalls": [
+       "get_job",
+       "find_by_canonical_fingerprint",
+       "update_job_aggregate"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "update rejects a stale revision after the read",
+   "steps": [
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Senior Python Developer\nRemote, EU\nWe build APIs.\nRequirements: 5+ years building APIs.",
+      "sourceLabel": "  Board  ",
+      "company": " Acme GmbH ",
+      "location": "Berlin",
+      "experienceRequirement": null,
+      "employmentType": "full-time",
+      "seniority": "   ",
+      "postedAt": "2026-10-02T12:00:00+02:00",
+      "skills": [
+       "Python, SQL",
+       "python",
+       " Docker "
+      ]
+     },
+     "expect": {
+      "result": {
+       "status": "created_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000001",
+         "sourceMethod": "text",
+         "sourceLabel": "Board",
+         "title": "Senior Python Developer",
+         "company": "Acme GmbH",
+         "location": "Berlin",
+         "description": "Senior Python Developer\nRemote, EU\nWe build APIs.\nRequirements: 5+ years building APIs.",
+         "experienceRequirement": "5+ years building APIs.",
+         "employmentType": "full-time",
+         "seniority": null,
+         "postedAt": "2026-10-02T10:00:00Z",
+         "canonicalFingerprint": "562c3f260997ac732abd9432c2ae3ba69a316fde86215671c83d2704c1aac632",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [
+         {
+          "id": "00000000-0000-0000-0000-000000000002",
+          "jobId": "00000000-0000-0000-0000-000000000001",
+          "skill": "Python",
+          "normalizedSkill": "python",
+          "required": true,
+          "displayOrder": 0,
+          "createdAt": "2026-09-28T12:30:15.123Z"
+         },
+         {
+          "id": "00000000-0000-0000-0000-000000000003",
+          "jobId": "00000000-0000-0000-0000-000000000001",
+          "skill": "SQL",
+          "normalizedSkill": "sql",
+          "required": true,
+          "displayOrder": 1,
+          "createdAt": "2026-09-28T12:30:15.123Z"
+         },
+         {
+          "id": "00000000-0000-0000-0000-000000000004",
+          "jobId": "00000000-0000-0000-0000-000000000001",
+          "skill": "Docker",
+          "normalizedSkill": "docker",
+          "required": true,
+          "displayOrder": 2,
+          "createdAt": "2026-09-28T12:30:15.123Z"
+         }
+        ],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000005",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "sourceLabel": "Board",
+         "inputTextHash": "f05c30dbfd53679cb10680b889920019013ba907e73ec527a7990f96d0227c05",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-29T10:00:00Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": 5,
+      "title": "Stale"
+     },
+     "expect": {
+      "error": {
+       "code": "conflict",
+       "message": "Job revision conflict",
+       "details": {
+        "resource": "job",
+        "jobId": "00000000-0000-0000-0000-000000000001",
+        "expectedRevision": "5"
+       }
+      },
+      "repoCalls": [
+       "get_job"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "update reports a lost compare-and-set race as a conflict",
+   "steps": [
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Senior Python Developer\nRemote, EU\nWe build APIs.\nRequirements: 5+ years building APIs.",
+      "sourceLabel": "  Board  ",
+      "company": " Acme GmbH ",
+      "location": "Berlin",
+      "experienceRequirement": null,
+      "employmentType": "full-time",
+      "seniority": "   ",
+      "postedAt": "2026-10-02T12:00:00+02:00",
+      "skills": [
+       "Python, SQL",
+       "python",
+       " Docker "
+      ]
+     },
+     "expect": {
+      "result": {
+       "status": "created_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000001",
+         "sourceMethod": "text",
+         "sourceLabel": "Board",
+         "title": "Senior Python Developer",
+         "company": "Acme GmbH",
+         "location": "Berlin",
+         "description": "Senior Python Developer\nRemote, EU\nWe build APIs.\nRequirements: 5+ years building APIs.",
+         "experienceRequirement": "5+ years building APIs.",
+         "employmentType": "full-time",
+         "seniority": null,
+         "postedAt": "2026-10-02T10:00:00Z",
+         "canonicalFingerprint": "562c3f260997ac732abd9432c2ae3ba69a316fde86215671c83d2704c1aac632",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [
+         {
+          "id": "00000000-0000-0000-0000-000000000002",
+          "jobId": "00000000-0000-0000-0000-000000000001",
+          "skill": "Python",
+          "normalizedSkill": "python",
+          "required": true,
+          "displayOrder": 0,
+          "createdAt": "2026-09-28T12:30:15.123Z"
+         },
+         {
+          "id": "00000000-0000-0000-0000-000000000003",
+          "jobId": "00000000-0000-0000-0000-000000000001",
+          "skill": "SQL",
+          "normalizedSkill": "sql",
+          "required": true,
+          "displayOrder": 1,
+          "createdAt": "2026-09-28T12:30:15.123Z"
+         },
+         {
+          "id": "00000000-0000-0000-0000-000000000004",
+          "jobId": "00000000-0000-0000-0000-000000000001",
+          "skill": "Docker",
+          "normalizedSkill": "docker",
+          "required": true,
+          "displayOrder": 2,
+          "createdAt": "2026-09-28T12:30:15.123Z"
+         }
+        ],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000005",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "sourceLabel": "Board",
+         "inputTextHash": "f05c30dbfd53679cb10680b889920019013ba907e73ec527a7990f96d0227c05",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-29T10:00:00Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": 0,
+      "title": "Raced"
+     },
+     "loseRace": true,
+     "expect": {
+      "error": {
+       "code": "conflict",
+       "message": "Job revision conflict",
+       "details": {
+        "resource": "job",
+        "jobId": "00000000-0000-0000-0000-000000000001",
+        "expectedRevision": "0"
+       }
+      },
+      "repoCalls": [
+       "get_job",
+       "find_by_canonical_fingerprint",
+       "update_job_aggregate"
+      ]
+     }
+    },
+    {
+     "op": "get",
+     "clock": "2026-09-29T10:00:00Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001"
+     },
+     "expect": {
+      "result": {
+       "job": {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "sourceMethod": "text",
+        "sourceLabel": "Board",
+        "title": "Senior Python Developer",
+        "company": "Acme GmbH",
+        "location": "Berlin",
+        "description": "Senior Python Developer\nRemote, EU\nWe build APIs.\nRequirements: 5+ years building APIs.",
+        "experienceRequirement": "5+ years building APIs.",
+        "employmentType": "full-time",
+        "seniority": null,
+        "postedAt": "2026-10-02T10:00:00Z",
+        "canonicalFingerprint": "562c3f260997ac732abd9432c2ae3ba69a316fde86215671c83d2704c1aac632",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 1
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-000000000002",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "skill": "Python",
+         "normalizedSkill": "python",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        },
+        {
+         "id": "00000000-0000-0000-0000-000000000003",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "skill": "SQL",
+         "normalizedSkill": "sql",
+         "required": true,
+         "displayOrder": 1,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        },
+        {
+         "id": "00000000-0000-0000-0000-000000000004",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "skill": "Docker",
+         "normalizedSkill": "docker",
+         "required": true,
+         "displayOrder": 2,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "linkIngestion": null,
+       "textIngestion": {
+        "id": "00000000-0000-0000-0000-000000000005",
+        "jobId": "00000000-0000-0000-0000-000000000001",
+        "sourceLabel": "Board",
+        "inputTextHash": "f05c30dbfd53679cb10680b889920019013ba907e73ec527a7990f96d0227c05",
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      },
+      "repoCalls": [
+       "get_job"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "update rejects a duplicate canonical fingerprint before writing",
+   "steps": [
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Alpha role\nSame body"
+     },
+     "expect": {
+      "result": {
+       "status": "created_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000001",
+         "sourceMethod": "text",
+         "sourceLabel": null,
+         "title": "Alpha role",
+         "company": null,
+         "location": null,
+         "description": "Alpha role\nSame body",
+         "experienceRequirement": null,
+         "employmentType": null,
+         "seniority": null,
+         "postedAt": null,
+         "canonicalFingerprint": "3b8cd48e1570be11462066da19a37cce30cf1870738e30114ec0788d3763ab36",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000002",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "sourceLabel": null,
+         "inputTextHash": "0db306173b76238bbbf4dc2c2797eb52df024ff00978a099bf7780279f273bc6",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    },
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Beta role\nOther body"
+     },
+     "expect": {
+      "result": {
+       "status": "created_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000003",
+         "sourceMethod": "text",
+         "sourceLabel": null,
+         "title": "Beta role",
+         "company": null,
+         "location": null,
+         "description": "Beta role\nOther body",
+         "experienceRequirement": null,
+         "employmentType": null,
+         "seniority": null,
+         "postedAt": null,
+         "canonicalFingerprint": "d0e72596647fb550a28ff7e549b3a2db3fa601f13b5ed4b6f1c02fdefb4ab6a8",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000004",
+         "jobId": "00000000-0000-0000-0000-000000000003",
+         "sourceLabel": null,
+         "inputTextHash": "432f492fdf42bd81036b8ef6c7b40f3ce93578352102e8b92ae9b844b8180ad8",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-29T10:00:00Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000003",
+      "expectedRevision": 0,
+      "title": "Alpha role",
+      "description": "Alpha role\nSame body"
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "canonicalFingerprint",
+        "reason": "duplicates existing job 00000000-0000-0000-0000-000000000001"
+       }
+      },
+      "repoCalls": [
+       "get_job",
+       "find_by_canonical_fingerprint"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "update keeps an unchanged own fingerprint",
+   "steps": [
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Alpha role\nSame body"
+     },
+     "expect": {
+      "result": {
+       "status": "created_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000001",
+         "sourceMethod": "text",
+         "sourceLabel": null,
+         "title": "Alpha role",
+         "company": null,
+         "location": null,
+         "description": "Alpha role\nSame body",
+         "experienceRequirement": null,
+         "employmentType": null,
+         "seniority": null,
+         "postedAt": null,
+         "canonicalFingerprint": "3b8cd48e1570be11462066da19a37cce30cf1870738e30114ec0788d3763ab36",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000002",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "sourceLabel": null,
+         "inputTextHash": "0db306173b76238bbbf4dc2c2797eb52df024ff00978a099bf7780279f273bc6",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-29T10:00:00Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": 0,
+      "title": "Alpha role",
+      "description": "Alpha role\nSame   body"
+     },
+     "expect": {
+      "result": {
+       "job": {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "title": "Alpha role",
+        "company": null,
+        "location": null,
+        "description": "Alpha role\nSame   body",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "3b8cd48e1570be11462066da19a37cce30cf1870738e30114ec0788d3763ab36",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-29T10:00:00Z",
+        "revision": 1
+       },
+       "skills": [],
+       "linkIngestion": null,
+       "textIngestion": {
+        "id": "00000000-0000-0000-0000-000000000002",
+        "jobId": "00000000-0000-0000-0000-000000000001",
+        "sourceLabel": null,
+        "inputTextHash": "0db306173b76238bbbf4dc2c2797eb52df024ff00978a099bf7780279f273bc6",
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      },
+      "repoCalls": [
+       "get_job",
+       "find_by_canonical_fingerprint",
+       "update_job_aggregate"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "update validates its request before any repository call",
+   "steps": [
+    {
+     "op": "update",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": null,
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "request",
+        "reason": "must not be null"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "expectedRevision": 0
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "jobId",
+        "reason": "must not be null"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": null,
+      "expectedRevision": 0
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "jobId",
+        "reason": "must not be null"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": "25",
+      "expectedRevision": 0
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "jobId",
+        "reason": "must be a valid UUID"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": 25,
+      "expectedRevision": 0
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "jobId",
+        "reason": "must be a valid UUID"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": null
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "expectedRevision",
+        "reason": "must not be null"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": true
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "expectedRevision",
+        "reason": "must be an integer"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": "0"
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "expectedRevision",
+        "reason": "must be an integer"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": 0.0
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "expectedRevision",
+        "reason": "must be an integer"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": -1
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "expectedRevision",
+        "reason": "must not be negative"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": 9223372036854775808
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "expectedRevision",
+        "reason": "exceeds the supported revision range"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": 0,
+      "title": " "
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "title",
+        "reason": "must not be blank"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": 0,
+      "description": "\n"
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "description",
+        "reason": "must not be blank"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": 0,
+      "company": 1
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "company",
+        "reason": "must be a string"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": 0,
+      "skills": "Java"
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "skills",
+        "reason": "must be a list of strings"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": 0,
+      "skills": [
+       true
+      ]
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "skills",
+        "reason": "must contain only strings"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "update",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001",
+      "expectedRevision": 0,
+      "postedAt": "tomorrow"
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "postedAt",
+        "reason": "must be an ISO-8601 UTC timestamp"
+       }
+      },
+      "repoCalls": []
+     }
+    }
+   ]
+  },
+  {
+   "name": "update reports a missing job with a sanitized not-found envelope",
+   "steps": [
+    {
+     "op": "update",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": "99999999-9999-9999-9999-999999999999",
+      "expectedRevision": 0,
+      "title": "Missing"
+     },
+     "expect": {
+      "error": {
+       "code": "not_found",
+       "message": "Job not found: 99999999-9999-9999-9999-999999999999",
+       "details": {
+        "resource": "job",
+        "jobId": "99999999-9999-9999-9999-999999999999"
+       }
+      },
+      "repoCalls": [
+       "get_job"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "get validates the identifier and reports a missing job",
+   "steps": [
+    {
+     "op": "capture",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "text": "Alpha role"
+     },
+     "expect": {
+      "result": {
+       "status": "created_job",
+       "job": {
+        "job": {
+         "id": "00000000-0000-0000-0000-000000000001",
+         "sourceMethod": "text",
+         "sourceLabel": null,
+         "title": "Alpha role",
+         "company": null,
+         "location": null,
+         "description": "Alpha role",
+         "experienceRequirement": null,
+         "employmentType": null,
+         "seniority": null,
+         "postedAt": null,
+         "canonicalFingerprint": "50f84cb6beda9ee19f65ecd3b28b27dd2629347d777df0d235fa130af94bfdfb",
+         "createdAt": "2026-09-28T12:30:15.123Z",
+         "updatedAt": "2026-09-28T12:30:15.123Z",
+         "revision": 0
+        },
+        "skills": [],
+        "linkIngestion": null,
+        "textIngestion": {
+         "id": "00000000-0000-0000-0000-000000000002",
+         "jobId": "00000000-0000-0000-0000-000000000001",
+         "sourceLabel": null,
+         "inputTextHash": "ee70383a583706120f2ca6c5d078365324810f13c3fa99e8275d46648d19d863",
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       }
+      },
+      "repoCalls": [
+       "find_by_text_hash",
+       "create_text_job"
+      ]
+     }
+    },
+    {
+     "op": "get",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": "not-a-uuid"
+     },
+     "expect": {
+      "error": {
+       "code": "validation_error",
+       "message": "Invalid job request",
+       "details": {
+        "field": "jobId",
+        "reason": "must be a valid UUID"
+       }
+      },
+      "repoCalls": []
+     }
+    },
+    {
+     "op": "get",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": "99999999-9999-9999-9999-999999999999"
+     },
+     "expect": {
+      "error": {
+       "code": "not_found",
+       "message": "Job not found: 99999999-9999-9999-9999-999999999999",
+       "details": {
+        "resource": "job",
+        "jobId": "99999999-9999-9999-9999-999999999999"
+       }
+      },
+      "repoCalls": [
+       "get_job"
+      ]
+     }
+    },
+    {
+     "op": "get",
+     "clock": "2026-09-28T12:30:15.123Z",
+     "request": {
+      "jobId": "00000000-0000-0000-0000-000000000001"
+     },
+     "expect": {
+      "result": {
+       "job": {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "title": "Alpha role",
+        "company": null,
+        "location": null,
+        "description": "Alpha role",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "50f84cb6beda9ee19f65ecd3b28b27dd2629347d777df0d235fa130af94bfdfb",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0
+       },
+       "skills": [],
+       "linkIngestion": null,
+       "textIngestion": {
+        "id": "00000000-0000-0000-0000-000000000002",
+        "jobId": "00000000-0000-0000-0000-000000000001",
+        "sourceLabel": null,
+        "inputTextHash": "ee70383a583706120f2ca6c5d078365324810f13c3fa99e8275d46648d19d863",
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      },
+      "repoCalls": [
+       "get_job"
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

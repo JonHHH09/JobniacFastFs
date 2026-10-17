@@ -1,0 +1,367 @@
+# Flathub
+
+> Source: https://v2.tauri.app/distribute/flatpak/ (tauri-docs `4b74da6`, 2026-10-13). Local copy; site components flattened, links point to the live site.
+
+**Open Source:**
+
+1. Get your required tools.
+```sh
+git submodule add https://github.com/flatpak/flatpak-builder-tools.git
+cd flatpak-builder-tools/node/flatpak_node_generator
+pipx install . # Change this to your prefered installation method
+```
+2. Generate your sources
+
+**Yarn:**
+
+```sh
+# Generate your Node Sources
+flatpak-node-generator --no-requests-cache -o node-sources.json yarn /path/to/your/lock/file/yarn.lock
+
+# Generate your cargo sources
+
+python3 flatpak-builder-tools/cargo/flatpak-cargo-generator.py -o cargo-sources.json src-tauri/Cargo.lock
+
+````
+
+**NPM:**
+
+```sh
+# Generate your Node Sources
+flatpak-node-generator --no-requests-cache -o node-sources.json npm /path/to/your/lock/file/package-lock.json
+
+# Generate your cargo sources
+python3 flatpak-builder-tools/cargo/flatpak-cargo-generator.py -o cargo-sources.json src-tauri/Cargo.lock
+````
+
+3. Create your metainfo
+Make sure to replace the relevant fields.
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>org.your.id</id>
+    <launchable type="desktop-id">org.your.id.desktop</launchable>
+    <name>Your Apps Name</name>
+    <developer id="io.github.roseblume.rosemusic">
+        <name>Your Name</name>
+    </developer>
+    <content_rating type="oars-1.1">
+    </content_rating>
+    <keywords>
+        <keyword>Keyword1</keyword>
+        <keyword>Keyword2</keyword>
+    </keywords>
+    <branding>
+        <color type="primary" scheme_preference="light">#00ffff</color>
+        <color type="primary" scheme_preference="dark">#0c9aff</color>
+    </branding>
+    <recommends>
+        <display_length compare="ge">360</display_length>
+    </recommends>
+    <summary>Your Summary</summary>
+
+    <metadata_license>MIT</metadata_license>
+    <project_license>MIT</project_license>
+    <url type="homepage">https://github.com/Your-Username/Your-Repo</url>
+
+    <supports>
+        <control>pointing</control>
+        <control>keyboard</control>
+        <control>touch</control>
+    </supports>
+
+    <description>
+        <p>
+            Your Description
+        </p>
+    </description>
+    <screenshots>
+        <screenshot type="default">
+            <image>https://site.com/your-image.png</image>
+            <caption>Your Caption</caption>
+        </screenshot>
+    </screenshots>
+    <releases>
+        <release version="1.0.0" date="2024-11-02" >
+            <description>
+            <ul>
+                <li>Updated UI</li>
+                <li>Added Electronic Genre</li>
+            </ul>
+            </description>
+        </release>
+    </releases>
+    <update_contact>your-email@place.com</update_contact>
+
+</component>
+```
+Your metadata is recommended to be included into your debian bundle although it is not required. This can be done by adjusting your bundle configuration like so.
+```json
+"linux": {
+      "deb": {
+        "files": {
+          "/usr/share/metainfo/org.your.id.metainfo.xml": "relative/path/from/your/tauri.conf.json/to/your/org.your.id.metainfo.xml"
+        }
+      }
+    }
+```
+4. Create your manifest
+```yaml
+id: org.your.id
+
+runtime: org.gnome.Platform
+runtime-version: '47'
+sdk: org.gnome.Sdk
+
+command: tauri-app
+finish-args:
+
+- --socket=wayland # Permission needed to show the window
+- --socket=fallback-x11 # Permission needed to show the window on legacy windowing systems
+- --device=dri # OpenGL, not necessary for all projects
+- --share=ipc
+  sdk-extensions:
+- org.freedesktop.Sdk.Extension.node20
+- org.freedesktop.Sdk.Extension.rust-stable
+  build-options:
+  append-path: /usr/lib/sdk/node20/bin:/usr/lib/sdk/rust-stable/bin
+
+modules:
+
+- name: your-command
+  buildsystem: simple
+  env:
+  HOME: /run/build/your-module
+  CARGO_HOME: /run/build/your-module/src-tauri
+  XDG_CACHE_HOME: /run/build/your-module/flatpak-node/cache
+  yarn_config_offline: 'true'
+  yarn_config_cache: /run/build/your-module/flatpak-node/yarn-cache
+  sources:
+  - type: git
+    url: https://github.com/Your-Github-Username/Your-Git-Repo.git
+    tag: v1.2.2
+  - cargo-sources.json
+  - node-sources.json
+    build-commands:
+  - echo -e 'yarn-offline-mirror "/run/build/your-module/flatpak-node/yarn-mirror"\nyarn-offline-mirror-pruning true' > /run/build/your-module/.yarnrc
+  - mkdir -p src-tauri/.cargo && echo -e '[source.crates-io]\nreplace-with = "vendored-sources"\n\n[source.vendored-sources]\ndirectory = "/run/build/your-module/cargo/vendor"' > src-tauri/.cargo/config.toml
+  - yarn install --offline --immutable --immutable-cache --inline-builds
+  - yarn run tauri build -- -b deb
+  - ar -x src-tauri/target/release/bundle/deb/\*.deb
+  - tar -xf src-tauri/target/release/bundle/deb/your-app/data.tar.gz
+  - install -Dm755 src-tauri/target/release/bundle/deb/your-app/data/usr/bin/your-command /app/bin/your-command
+  - install -Dm644 src-tauri/target/release/bundle/deb/your-app/data/usr/share/applications/your-app.desktop /app/share/applications/org.your.id.desktop
+  - install -Dm644 src-tauri/target/release/bundle/deb/your-app/data/usr/share/icons/hicolor/128x128/apps/your-app.png /app/share/icons/hicolor/128x128/apps/your-app.png
+  - install -Dm644 src-tauri/target/release/bundle/deb/your-app/data/usr/share/icons/hicolor/32x32/apps/your-app.png /app/share/icons/hicolor/32x32/apps/your-app.png
+  - install -Dm644 src-tauri/target/release/bundle/deb/your-app/data/usr/share/icons/hicolor/256x256@2/apps/your-app.png /app/share/icons/hicolor/512x512/apps/your-app.png
+  - install -Dm644 src-tauri/target/release/bundle/deb/your-app/data/usr/share/icons/hicolor/scalable/apps/your-app.svg /app/share/icons/hicolor/scalable/apps/your-app.svg
+
+  - install -Dm644 src-tauri/target/release/bundle/deb/your-app/data/usr/share/metainfo/org.your.id /app/share/metainfo/org.your.id
+
+````
+## Submitting To Flathub
+**_1. Fork The [Flathub Repository](https://github.com/flathub/flathub/fork)_**
+
+**_2. Clone the Fork_**
+
+```shell
+git clone --branch=new-pr git@github.com:your_github_username/flathub.git
+````
+
+**_3. Enter the repository_**
+
+```shell
+cd flathub
+```
+
+**_4. Create a new branch_**
+
+```shell
+git checkout -b your_app_name
+```
+
+**_5. Open a pull request against the `new-pr` branch on github_**
+
+**_6. Your app will now enter the review process in which you may be asked to make changes to your project._**
+
+**Closed Source:**
+
+For detailed information on how Flatpak works, you can read [Building your first Flatpak](https://docs.flatpak.org/en/latest/first-build.html)
+
+This guide assumes you want to distribute your Flatpak via [Flathub](https://flathub.org/), the most commonly used platform for Flatpak distribution. If you plan on using other platforms, please consult their documentation instead.
+
+## Prerequisites
+
+To test your app inside the Flatpak runtime you can build the Flatpak locally first before uploading your app to Flathub. This can also be helpful if you want to quickly share development builds.
+
+**1. Install `flatpak` and `flatpak-builder`**
+
+To build Flatpaks locally you need the `flatpak` and `flatpak-builder` tools. For example on Ubuntu you can run this command:
+
+**Debian:**
+
+```sh
+sudo apt install flatpak flatpak-builder
+```
+
+**Arch:**
+
+```sh
+sudo pacman -S --needed flatpak flatpak-builder
+```
+
+**Fedora:**
+
+```sh
+sudo dnf install flatpak flatpak-builder
+```
+
+**Gentoo:**
+
+```sh
+sudo emerge --ask \
+sys-apps/flatpak \
+dev-util/flatpak-builder
+```
+
+**2. Install the Flatpak Runtime**
+
+```shell
+flatpak install flathub org.gnome.Platform//46 org.gnome.Sdk//46
+```
+
+**3. [Build the .deb of your tauri-app](https://v2.tauri.app/reference/config/#bundleconfig)**
+
+**4. [Create an AppStream MetaInfo file](https://www.freedesktop.org/software/appstream/metainfocreator/#/guiapp)**
+
+**5. Create the flatpak manifest**
+
+```yaml
+# flatpak-builder.yaml
+id: <identifier>
+
+runtime: org.gnome.Platform
+runtime-version: '47'
+sdk: org.gnome.Sdk
+
+command: <main_binary_name>
+finish-args:
+  - --socket=wayland # Permission needed to show the window
+  - --socket=fallback-x11 # Permission needed to show the window
+  - --device=dri # OpenGL, not necessary for all projects
+  - --share=ipc
+  - --talk-name=org.kde.StatusNotifierWatcher # Optional: needed only if your app uses the tray icon
+  - --filesystem=xdg-run/tray-icon:create # Optional: needed only if your app uses the tray icon - see an alternative way below
+  # - --env=WEBKIT_DISABLE_COMPOSITING_MODE=1 # Optional: may solve some issues with black webviews on Wayland
+
+modules:
+  - name: binary
+    buildsystem: simple
+
+    sources:
+      # A reference to the previously generated flatpak metainfo file
+      - type: file
+        path: flatpak.metainfo.xml
+      # If you use GitHub releases, you can target an existing remote file
+      - type: file
+        url: https://github.com/your_username/your_repository/releases/download/v1.0.1/yourapp_1.0.1_amd64.deb
+        sha256: 08305b5521e2cf0622e084f2b8f7f31f8a989fc7f407a7050fa3649facd61469 # This is required if you are using a remote source
+        only-arches: [x86_64] # This source is only used on x86_64 Computers
+      # You can also use a local file for testing
+      # - type: file
+      #   path: yourapp_1.0.1_amd64.deb
+    build-commands:
+      - set -e
+
+      # Extract the deb package
+      - mkdir deb-extract
+      - ar -x *.deb --output deb-extract
+      - tar -C deb-extract -xf deb-extract/data.tar.gz
+
+      # Copy binary
+      - 'install -Dm755 deb-extract/usr/bin/<executable_name> /app/bin/<executable_name>'
+
+      # If you bundle files with additional resources, you should copy them:
+      - mkdir -p /app/lib/<product_name>
+      - cp -r deb-extract/usr/lib/<product_name>/. /app/lib/<product_name>
+      - find /app/lib/<product_name> -type f -exec chmod 644 {} \;
+
+      # Copy desktop file + ensure the right icon is set
+      - sed -i 's/^Icon=.*/Icon=<identifier>/' deb-extract/usr/share/applications/<product_name>.desktop
+      - install -Dm644 deb-extract/usr/share/applications/<product_name>.desktop /app/share/applications/<identifier>.desktop
+
+      # Copy icons
+      - install -Dm644 deb-extract/usr/share/icons/hicolor/128x128/apps/<main_binary_name>.png /app/share/icons/hicolor/128x128/apps/<identifier>.png
+      - install -Dm644 deb-extract/usr/share/icons/hicolor/32x32/apps/<main_binary_name>.png /app/share/icons/hicolor/32x32/apps/<identifier>.png
+      - install -Dm644 deb-extract/usr/share/icons/hicolor/256x256@2/apps/<main_binary_name>.png /app/share/icons/hicolor/256x256@2/apps/<identifier>.png
+      - install -Dm644 flatpak.metainfo.xml /app/share/metainfo/<identifier>.metainfo.xml
+```
+
+The Gnome 46 runtime includes all dependencies of the standard Tauri app with their correct versions.
+
+:::note[Using tray-icon without changing the Flatpak manifest]
+If you prefer not opening access from your app to $XDG_RUNTIME_DIR (where tray-icon is saved on linux), you can change the path tauri saves the tray image:
+
+```rust
+TrayIconBuilder::new()
+  .icon(app.default_window_icon().unwrap().clone())
+  .temp_dir_path(app.path().app_cache_dir().unwrap()) // will save to the cache folder ($XDG_CACHE_HOME) where the app already has permission
+  .build()
+  .unwrap();
+```
+
+:::
+
+**5. Install, and Test the app**
+
+```shell
+
+# Install the flatpak
+flatpak-builder --force-clean --user --disable-cache --repo flatpak-repo flatpak flatpak-builder.yaml
+
+# Run it
+flatpak run <your flatpak id> # or via your desktop environment
+
+# Update it
+flatpak -y --user update <your flatpak id>
+```
+
+## Adding additional libraries
+
+If your final binary requires more libraries than the default tauri app, you need to add them in your flatpak manifest.
+There are two ways to do this. For fast local development, it may work to simply include the already built library file (`.so`) from your local system.
+However, this is not recommended for the final build of the flatpak, as your local library file is not built for the flatpak runtime environment.
+This can introduce various bugs that can be very hard to find.
+Therefore, it is recommended to build the library your program depends on from source inside the flatpak as a build step.
+
+## Submitting to flathub
+
+**_1. Fork The [Flathub Repository](https://github.com/flathub/flathub/fork)_**
+
+**_2. Clone the Fork_**
+
+```shell
+git clone --branch=new-pr git@github.com:your_github_username/flathub.git
+```
+
+**_3. Enter the repository_**
+
+```shell
+cd flathub
+```
+
+**_4. Create a new branch_**
+
+```shell
+git checkout -b your_app_name
+```
+
+**_5. Add your apps manifest to the branch. Commit your changes, and then push them._**
+
+**_6. Open a pull request against the `new-pr` branch on github_**
+
+**_7. Your app will now enter the review process in which you may be asked to make changes to your project._**
+
+When your pull request is approved then you will receive an invitation to edit your apps repository. From here on you can update your app continuously.
+
+You can read more about this [in the flatpak documentation](https://docs.flatpak.org/en/latest/dependencies.html#bundling)

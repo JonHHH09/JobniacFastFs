@@ -1,0 +1,920 @@
+[
+  {
+    "id": "success-control-default",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {},
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"source\": \"arbeitnow\",\n  \"sourceDocsUrl\": \"https://www.arbeitnow.com/api/job-board-api\",\n  \"jobs\": [\n    {\n      \"slug\": \"rust-engineer-berlin\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/rust-engineer-berlin\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Berlin\",\n      \"remote\": true,\n      \"postedAt\": \"2026-10-09T12:00:00Z\",\n      \"tags\": [\n        \"Rust\",\n        \"SQL\"\n      ],\n      \"jobTypes\": [\n        \"Full Time\"\n      ],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLWJlcmxpbiIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItYmVybGluIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.dCanEfnCmDAaGxs_wEJr2FHiImBnq920aWma80WkwRg\"\n    },\n    {\n      \"slug\": \"sql-analyst-remote\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/sql-analyst-remote\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Berlin\",\n      \"remote\": false,\n      \"postedAt\": null,\n      \"tags\": [],\n      \"jobTypes\": [],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJzcWwtYW5hbHlzdC1yZW1vdGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9zcWwtYW5hbHlzdC1yZW1vdGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOmZhbHNlLCJwb3N0ZWRBdCI6bnVsbCwidGFncyI6W10sImpvYlR5cGVzIjpbXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.oahGL3QhfjCqjKFY9vreTIk7g1cA8V8SQZ5JTEGS0P8\"\n    },\n    {\n      \"slug\": \"far-future-role\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/far-future-role\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Berlin\",\n      \"remote\": true,\n      \"postedAt\": \"+10000-01-01T00:00:00Z\",\n      \"tags\": [\n        \"Rust\",\n        \"SQL\"\n      ],\n      \"jobTypes\": [\n        \"Full Time\"\n      ],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJmYXItZnV0dXJlLXJvbGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9mYXItZnV0dXJlLXJvbGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOnRydWUsInBvc3RlZEF0IjoyNTM0MDIzMDA4MDAsInRhZ3MiOlsiUnVzdCIsIlNRTCJdLCJqb2JUeXBlcyI6WyJGdWxsIFRpbWUiXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.XenosltBn4jZzl-JCDqUK_NTDIgacCR6sEv7qpjTiCI\"\n    }\n  ],\n  \"pagesScanned\": 1,\n  \"recordsInspected\": 3,\n  \"nextCursor\": \"MjowOmM3NzAxOGVhZGU5YTg0MDYzZGMxYjVjMDRhODQ3MjE0NjRmOGRkMTM4M2Y0OTUxNTgwNDczODI5YjM1OTJhOTk6cXY3Y3U3cF84U1phTkVadGVYZXEtRTNjdWxtdVpRWkkxX1IxRVR6S2tTWQ\",\n  \"consistencyNotice\": \"Upstream results are mutable; this scan is not a snapshot.\"\n}"
+        }
+      ],
+      "structuredContent": {
+        "source": "arbeitnow",
+        "sourceDocsUrl": "https://www.arbeitnow.com/api/job-board-api",
+        "jobs": [
+          {
+            "slug": "rust-engineer-berlin",
+            "canonicalUrl": "https://arbeitnow.com/view/rust-engineer-berlin",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Berlin",
+            "remote": true,
+            "postedAt": "2026-10-09T12:00:00Z",
+            "tags": [
+              "Rust",
+              "SQL"
+            ],
+            "jobTypes": [
+              "Full Time"
+            ],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLWJlcmxpbiIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItYmVybGluIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.dCanEfnCmDAaGxs_wEJr2FHiImBnq920aWma80WkwRg"
+          },
+          {
+            "slug": "sql-analyst-remote",
+            "canonicalUrl": "https://arbeitnow.com/view/sql-analyst-remote",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Berlin",
+            "remote": false,
+            "postedAt": null,
+            "tags": [],
+            "jobTypes": [],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJzcWwtYW5hbHlzdC1yZW1vdGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9zcWwtYW5hbHlzdC1yZW1vdGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOmZhbHNlLCJwb3N0ZWRBdCI6bnVsbCwidGFncyI6W10sImpvYlR5cGVzIjpbXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.oahGL3QhfjCqjKFY9vreTIk7g1cA8V8SQZ5JTEGS0P8"
+          },
+          {
+            "slug": "far-future-role",
+            "canonicalUrl": "https://arbeitnow.com/view/far-future-role",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Berlin",
+            "remote": true,
+            "postedAt": "+10000-01-01T00:00:00Z",
+            "tags": [
+              "Rust",
+              "SQL"
+            ],
+            "jobTypes": [
+              "Full Time"
+            ],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJmYXItZnV0dXJlLXJvbGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9mYXItZnV0dXJlLXJvbGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOnRydWUsInBvc3RlZEF0IjoyNTM0MDIzMDA4MDAsInRhZ3MiOlsiUnVzdCIsIlNRTCJdLCJqb2JUeXBlcyI6WyJGdWxsIFRpbWUiXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.XenosltBn4jZzl-JCDqUK_NTDIgacCR6sEv7qpjTiCI"
+          }
+        ],
+        "pagesScanned": 1,
+        "recordsInspected": 3,
+        "nextCursor": "MjowOmM3NzAxOGVhZGU5YTg0MDYzZGMxYjVjMDRhODQ3MjE0NjRmOGRkMTM4M2Y0OTUxNTgwNDczODI5YjM1OTJhOTk6cXY3Y3U3cF84U1phTkVadGVYZXEtRTNjdWxtdVpRWkkxX1IxRVR6S2tTWQ",
+        "consistencyNotice": "Upstream results are mutable; this scan is not a snapshot."
+      },
+      "isError": false,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "success-control-limit-one",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "limit": 1
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"source\": \"arbeitnow\",\n  \"sourceDocsUrl\": \"https://www.arbeitnow.com/api/job-board-api\",\n  \"jobs\": [\n    {\n      \"slug\": \"rust-engineer-berlin\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/rust-engineer-berlin\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Berlin\",\n      \"remote\": true,\n      \"postedAt\": \"2026-10-09T12:00:00Z\",\n      \"tags\": [\n        \"Rust\",\n        \"SQL\"\n      ],\n      \"jobTypes\": [\n        \"Full Time\"\n      ],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLWJlcmxpbiIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItYmVybGluIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.dCanEfnCmDAaGxs_wEJr2FHiImBnq920aWma80WkwRg\"\n    }\n  ],\n  \"pagesScanned\": 1,\n  \"recordsInspected\": 3,\n  \"nextCursor\": \"MToxOmM3NzAxOGVhZGU5YTg0MDYzZGMxYjVjMDRhODQ3MjE0NjRmOGRkMTM4M2Y0OTUxNTgwNDczODI5YjM1OTJhOTk6eXlaMjdYdkVnSGFNdDZBQVg1RXBCS0l6d0JZbXZDQ2Vkb1hCaU9qcXBfZw\",\n  \"consistencyNotice\": \"Upstream results are mutable; this scan is not a snapshot.\"\n}"
+        }
+      ],
+      "structuredContent": {
+        "source": "arbeitnow",
+        "sourceDocsUrl": "https://www.arbeitnow.com/api/job-board-api",
+        "jobs": [
+          {
+            "slug": "rust-engineer-berlin",
+            "canonicalUrl": "https://arbeitnow.com/view/rust-engineer-berlin",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Berlin",
+            "remote": true,
+            "postedAt": "2026-10-09T12:00:00Z",
+            "tags": [
+              "Rust",
+              "SQL"
+            ],
+            "jobTypes": [
+              "Full Time"
+            ],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLWJlcmxpbiIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItYmVybGluIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.dCanEfnCmDAaGxs_wEJr2FHiImBnq920aWma80WkwRg"
+          }
+        ],
+        "pagesScanned": 1,
+        "recordsInspected": 3,
+        "nextCursor": "MToxOmM3NzAxOGVhZGU5YTg0MDYzZGMxYjVjMDRhODQ3MjE0NjRmOGRkMTM4M2Y0OTUxNTgwNDczODI5YjM1OTJhOTk6eXlaMjdYdkVnSGFNdDZBQVg1RXBCS0l6d0JZbXZDQ2Vkb1hCaU9qcXBfZw",
+        "consistencyNotice": "Upstream results are mutable; this scan is not a snapshot."
+      },
+      "isError": false,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "success-control-max-pages-five",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "maxPages": 5
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"source\": \"arbeitnow\",\n  \"sourceDocsUrl\": \"https://www.arbeitnow.com/api/job-board-api\",\n  \"jobs\": [\n    {\n      \"slug\": \"rust-engineer-berlin\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/rust-engineer-berlin\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Berlin\",\n      \"remote\": true,\n      \"postedAt\": \"2026-10-09T12:00:00Z\",\n      \"tags\": [\n        \"Rust\",\n        \"SQL\"\n      ],\n      \"jobTypes\": [\n        \"Full Time\"\n      ],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLWJlcmxpbiIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItYmVybGluIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.dCanEfnCmDAaGxs_wEJr2FHiImBnq920aWma80WkwRg\"\n    },\n    {\n      \"slug\": \"sql-analyst-remote\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/sql-analyst-remote\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Berlin\",\n      \"remote\": false,\n      \"postedAt\": null,\n      \"tags\": [],\n      \"jobTypes\": [],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJzcWwtYW5hbHlzdC1yZW1vdGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9zcWwtYW5hbHlzdC1yZW1vdGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOmZhbHNlLCJwb3N0ZWRBdCI6bnVsbCwidGFncyI6W10sImpvYlR5cGVzIjpbXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.oahGL3QhfjCqjKFY9vreTIk7g1cA8V8SQZ5JTEGS0P8\"\n    },\n    {\n      \"slug\": \"far-future-role\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/far-future-role\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Berlin\",\n      \"remote\": true,\n      \"postedAt\": \"+10000-01-01T00:00:00Z\",\n      \"tags\": [\n        \"Rust\",\n        \"SQL\"\n      ],\n      \"jobTypes\": [\n        \"Full Time\"\n      ],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJmYXItZnV0dXJlLXJvbGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9mYXItZnV0dXJlLXJvbGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOnRydWUsInBvc3RlZEF0IjoyNTM0MDIzMDA4MDAsInRhZ3MiOlsiUnVzdCIsIlNRTCJdLCJqb2JUeXBlcyI6WyJGdWxsIFRpbWUiXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.XenosltBn4jZzl-JCDqUK_NTDIgacCR6sEv7qpjTiCI\"\n    },\n    {\n      \"slug\": \"rust-engineer-munich\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/rust-engineer-munich\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Munich\",\n      \"remote\": true,\n      \"postedAt\": \"2026-10-09T12:00:00Z\",\n      \"tags\": [\n        \"Rust\",\n        \"SQL\"\n      ],\n      \"jobTypes\": [\n        \"Full Time\"\n      ],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLW11bmljaCIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItbXVuaWNoIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiTXVuaWNoIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.wiCjWM6-hNqJCW0o3juwhtvNacaiex5UoyooF86SrWw\"\n    }\n  ],\n  \"pagesScanned\": 2,\n  \"recordsInspected\": 4,\n  \"nextCursor\": null,\n  \"consistencyNotice\": \"Upstream results are mutable; this scan is not a snapshot.\"\n}"
+        }
+      ],
+      "structuredContent": {
+        "source": "arbeitnow",
+        "sourceDocsUrl": "https://www.arbeitnow.com/api/job-board-api",
+        "jobs": [
+          {
+            "slug": "rust-engineer-berlin",
+            "canonicalUrl": "https://arbeitnow.com/view/rust-engineer-berlin",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Berlin",
+            "remote": true,
+            "postedAt": "2026-10-09T12:00:00Z",
+            "tags": [
+              "Rust",
+              "SQL"
+            ],
+            "jobTypes": [
+              "Full Time"
+            ],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLWJlcmxpbiIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItYmVybGluIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.dCanEfnCmDAaGxs_wEJr2FHiImBnq920aWma80WkwRg"
+          },
+          {
+            "slug": "sql-analyst-remote",
+            "canonicalUrl": "https://arbeitnow.com/view/sql-analyst-remote",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Berlin",
+            "remote": false,
+            "postedAt": null,
+            "tags": [],
+            "jobTypes": [],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJzcWwtYW5hbHlzdC1yZW1vdGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9zcWwtYW5hbHlzdC1yZW1vdGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOmZhbHNlLCJwb3N0ZWRBdCI6bnVsbCwidGFncyI6W10sImpvYlR5cGVzIjpbXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.oahGL3QhfjCqjKFY9vreTIk7g1cA8V8SQZ5JTEGS0P8"
+          },
+          {
+            "slug": "far-future-role",
+            "canonicalUrl": "https://arbeitnow.com/view/far-future-role",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Berlin",
+            "remote": true,
+            "postedAt": "+10000-01-01T00:00:00Z",
+            "tags": [
+              "Rust",
+              "SQL"
+            ],
+            "jobTypes": [
+              "Full Time"
+            ],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJmYXItZnV0dXJlLXJvbGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9mYXItZnV0dXJlLXJvbGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOnRydWUsInBvc3RlZEF0IjoyNTM0MDIzMDA4MDAsInRhZ3MiOlsiUnVzdCIsIlNRTCJdLCJqb2JUeXBlcyI6WyJGdWxsIFRpbWUiXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.XenosltBn4jZzl-JCDqUK_NTDIgacCR6sEv7qpjTiCI"
+          },
+          {
+            "slug": "rust-engineer-munich",
+            "canonicalUrl": "https://arbeitnow.com/view/rust-engineer-munich",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Munich",
+            "remote": true,
+            "postedAt": "2026-10-09T12:00:00Z",
+            "tags": [
+              "Rust",
+              "SQL"
+            ],
+            "jobTypes": [
+              "Full Time"
+            ],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLW11bmljaCIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItbXVuaWNoIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiTXVuaWNoIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.wiCjWM6-hNqJCW0o3juwhtvNacaiex5UoyooF86SrWw"
+          }
+        ],
+        "pagesScanned": 2,
+        "recordsInspected": 4,
+        "nextCursor": null,
+        "consistencyNotice": "Upstream results are mutable; this scan is not a snapshot."
+      },
+      "isError": false,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "limit-zero",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "limit": 0
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid Arbeitnow scan request\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid Arbeitnow scan request",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "limit-minus-one",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "limit": -1
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid Arbeitnow scan request\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid Arbeitnow scan request",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "limit-one",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "limit": 1
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"source\": \"arbeitnow\",\n  \"sourceDocsUrl\": \"https://www.arbeitnow.com/api/job-board-api\",\n  \"jobs\": [\n    {\n      \"slug\": \"rust-engineer-berlin\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/rust-engineer-berlin\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Berlin\",\n      \"remote\": true,\n      \"postedAt\": \"2026-10-09T12:00:00Z\",\n      \"tags\": [\n        \"Rust\",\n        \"SQL\"\n      ],\n      \"jobTypes\": [\n        \"Full Time\"\n      ],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLWJlcmxpbiIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItYmVybGluIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.dCanEfnCmDAaGxs_wEJr2FHiImBnq920aWma80WkwRg\"\n    }\n  ],\n  \"pagesScanned\": 1,\n  \"recordsInspected\": 3,\n  \"nextCursor\": \"MToxOmM3NzAxOGVhZGU5YTg0MDYzZGMxYjVjMDRhODQ3MjE0NjRmOGRkMTM4M2Y0OTUxNTgwNDczODI5YjM1OTJhOTk6eXlaMjdYdkVnSGFNdDZBQVg1RXBCS0l6d0JZbXZDQ2Vkb1hCaU9qcXBfZw\",\n  \"consistencyNotice\": \"Upstream results are mutable; this scan is not a snapshot.\"\n}"
+        }
+      ],
+      "structuredContent": {
+        "source": "arbeitnow",
+        "sourceDocsUrl": "https://www.arbeitnow.com/api/job-board-api",
+        "jobs": [
+          {
+            "slug": "rust-engineer-berlin",
+            "canonicalUrl": "https://arbeitnow.com/view/rust-engineer-berlin",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Berlin",
+            "remote": true,
+            "postedAt": "2026-10-09T12:00:00Z",
+            "tags": [
+              "Rust",
+              "SQL"
+            ],
+            "jobTypes": [
+              "Full Time"
+            ],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLWJlcmxpbiIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItYmVybGluIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.dCanEfnCmDAaGxs_wEJr2FHiImBnq920aWma80WkwRg"
+          }
+        ],
+        "pagesScanned": 1,
+        "recordsInspected": 3,
+        "nextCursor": "MToxOmM3NzAxOGVhZGU5YTg0MDYzZGMxYjVjMDRhODQ3MjE0NjRmOGRkMTM4M2Y0OTUxNTgwNDczODI5YjM1OTJhOTk6eXlaMjdYdkVnSGFNdDZBQVg1RXBCS0l6d0JZbXZDQ2Vkb1hCaU9qcXBfZw",
+        "consistencyNotice": "Upstream results are mutable; this scan is not a snapshot."
+      },
+      "isError": false,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "limit-hundred",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "limit": 100
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"source\": \"arbeitnow\",\n  \"sourceDocsUrl\": \"https://www.arbeitnow.com/api/job-board-api\",\n  \"jobs\": [\n    {\n      \"slug\": \"rust-engineer-berlin\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/rust-engineer-berlin\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Berlin\",\n      \"remote\": true,\n      \"postedAt\": \"2026-10-09T12:00:00Z\",\n      \"tags\": [\n        \"Rust\",\n        \"SQL\"\n      ],\n      \"jobTypes\": [\n        \"Full Time\"\n      ],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLWJlcmxpbiIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItYmVybGluIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.dCanEfnCmDAaGxs_wEJr2FHiImBnq920aWma80WkwRg\"\n    },\n    {\n      \"slug\": \"sql-analyst-remote\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/sql-analyst-remote\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Berlin\",\n      \"remote\": false,\n      \"postedAt\": null,\n      \"tags\": [],\n      \"jobTypes\": [],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJzcWwtYW5hbHlzdC1yZW1vdGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9zcWwtYW5hbHlzdC1yZW1vdGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOmZhbHNlLCJwb3N0ZWRBdCI6bnVsbCwidGFncyI6W10sImpvYlR5cGVzIjpbXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.oahGL3QhfjCqjKFY9vreTIk7g1cA8V8SQZ5JTEGS0P8\"\n    },\n    {\n      \"slug\": \"far-future-role\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/far-future-role\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Berlin\",\n      \"remote\": true,\n      \"postedAt\": \"+10000-01-01T00:00:00Z\",\n      \"tags\": [\n        \"Rust\",\n        \"SQL\"\n      ],\n      \"jobTypes\": [\n        \"Full Time\"\n      ],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJmYXItZnV0dXJlLXJvbGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9mYXItZnV0dXJlLXJvbGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOnRydWUsInBvc3RlZEF0IjoyNTM0MDIzMDA4MDAsInRhZ3MiOlsiUnVzdCIsIlNRTCJdLCJqb2JUeXBlcyI6WyJGdWxsIFRpbWUiXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.XenosltBn4jZzl-JCDqUK_NTDIgacCR6sEv7qpjTiCI\"\n    }\n  ],\n  \"pagesScanned\": 1,\n  \"recordsInspected\": 3,\n  \"nextCursor\": \"MjowOmM3NzAxOGVhZGU5YTg0MDYzZGMxYjVjMDRhODQ3MjE0NjRmOGRkMTM4M2Y0OTUxNTgwNDczODI5YjM1OTJhOTk6cXY3Y3U3cF84U1phTkVadGVYZXEtRTNjdWxtdVpRWkkxX1IxRVR6S2tTWQ\",\n  \"consistencyNotice\": \"Upstream results are mutable; this scan is not a snapshot.\"\n}"
+        }
+      ],
+      "structuredContent": {
+        "source": "arbeitnow",
+        "sourceDocsUrl": "https://www.arbeitnow.com/api/job-board-api",
+        "jobs": [
+          {
+            "slug": "rust-engineer-berlin",
+            "canonicalUrl": "https://arbeitnow.com/view/rust-engineer-berlin",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Berlin",
+            "remote": true,
+            "postedAt": "2026-10-09T12:00:00Z",
+            "tags": [
+              "Rust",
+              "SQL"
+            ],
+            "jobTypes": [
+              "Full Time"
+            ],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLWJlcmxpbiIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItYmVybGluIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.dCanEfnCmDAaGxs_wEJr2FHiImBnq920aWma80WkwRg"
+          },
+          {
+            "slug": "sql-analyst-remote",
+            "canonicalUrl": "https://arbeitnow.com/view/sql-analyst-remote",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Berlin",
+            "remote": false,
+            "postedAt": null,
+            "tags": [],
+            "jobTypes": [],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJzcWwtYW5hbHlzdC1yZW1vdGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9zcWwtYW5hbHlzdC1yZW1vdGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOmZhbHNlLCJwb3N0ZWRBdCI6bnVsbCwidGFncyI6W10sImpvYlR5cGVzIjpbXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.oahGL3QhfjCqjKFY9vreTIk7g1cA8V8SQZ5JTEGS0P8"
+          },
+          {
+            "slug": "far-future-role",
+            "canonicalUrl": "https://arbeitnow.com/view/far-future-role",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Berlin",
+            "remote": true,
+            "postedAt": "+10000-01-01T00:00:00Z",
+            "tags": [
+              "Rust",
+              "SQL"
+            ],
+            "jobTypes": [
+              "Full Time"
+            ],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJmYXItZnV0dXJlLXJvbGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9mYXItZnV0dXJlLXJvbGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOnRydWUsInBvc3RlZEF0IjoyNTM0MDIzMDA4MDAsInRhZ3MiOlsiUnVzdCIsIlNRTCJdLCJqb2JUeXBlcyI6WyJGdWxsIFRpbWUiXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.XenosltBn4jZzl-JCDqUK_NTDIgacCR6sEv7qpjTiCI"
+          }
+        ],
+        "pagesScanned": 1,
+        "recordsInspected": 3,
+        "nextCursor": "MjowOmM3NzAxOGVhZGU5YTg0MDYzZGMxYjVjMDRhODQ3MjE0NjRmOGRkMTM4M2Y0OTUxNTgwNDczODI5YjM1OTJhOTk6cXY3Y3U3cF84U1phTkVadGVYZXEtRTNjdWxtdVpRWkkxX1IxRVR6S2tTWQ",
+        "consistencyNotice": "Upstream results are mutable; this scan is not a snapshot."
+      },
+      "isError": false,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "limit-hundred-one",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "limit": 101
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid Arbeitnow scan request\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid Arbeitnow scan request",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "limit-i64-max",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "limit": 9223372036854775807
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid Arbeitnow scan request\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid Arbeitnow scan request",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "limit-i64-max-plus-one",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "limit": 9223372036854775808
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid Arbeitnow scan request\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid Arbeitnow scan request",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "limit-ten-pow-thirty",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "limit": 1000000000000000000000000000000
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid Arbeitnow scan request\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid Arbeitnow scan request",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "limit-float-one",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "limit": 1.0
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool scan_arbeitnow_jobs: 1 validation error for scan_arbeitnow_jobsArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "limit-bool-true",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "limit": true
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool scan_arbeitnow_jobs: 1 validation error for scan_arbeitnow_jobsArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "limit-string-five",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "limit": "5"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool scan_arbeitnow_jobs: 1 validation error for scan_arbeitnow_jobsArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "max-pages-zero",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "maxPages": 0
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid Arbeitnow scan request\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid Arbeitnow scan request",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "max-pages-minus-one",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "maxPages": -1
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid Arbeitnow scan request\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid Arbeitnow scan request",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "max-pages-one",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "maxPages": 1
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"source\": \"arbeitnow\",\n  \"sourceDocsUrl\": \"https://www.arbeitnow.com/api/job-board-api\",\n  \"jobs\": [\n    {\n      \"slug\": \"rust-engineer-berlin\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/rust-engineer-berlin\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Berlin\",\n      \"remote\": true,\n      \"postedAt\": \"2026-10-09T12:00:00Z\",\n      \"tags\": [\n        \"Rust\",\n        \"SQL\"\n      ],\n      \"jobTypes\": [\n        \"Full Time\"\n      ],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLWJlcmxpbiIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItYmVybGluIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.dCanEfnCmDAaGxs_wEJr2FHiImBnq920aWma80WkwRg\"\n    },\n    {\n      \"slug\": \"sql-analyst-remote\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/sql-analyst-remote\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Berlin\",\n      \"remote\": false,\n      \"postedAt\": null,\n      \"tags\": [],\n      \"jobTypes\": [],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJzcWwtYW5hbHlzdC1yZW1vdGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9zcWwtYW5hbHlzdC1yZW1vdGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOmZhbHNlLCJwb3N0ZWRBdCI6bnVsbCwidGFncyI6W10sImpvYlR5cGVzIjpbXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.oahGL3QhfjCqjKFY9vreTIk7g1cA8V8SQZ5JTEGS0P8\"\n    },\n    {\n      \"slug\": \"far-future-role\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/far-future-role\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Berlin\",\n      \"remote\": true,\n      \"postedAt\": \"+10000-01-01T00:00:00Z\",\n      \"tags\": [\n        \"Rust\",\n        \"SQL\"\n      ],\n      \"jobTypes\": [\n        \"Full Time\"\n      ],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJmYXItZnV0dXJlLXJvbGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9mYXItZnV0dXJlLXJvbGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOnRydWUsInBvc3RlZEF0IjoyNTM0MDIzMDA4MDAsInRhZ3MiOlsiUnVzdCIsIlNRTCJdLCJqb2JUeXBlcyI6WyJGdWxsIFRpbWUiXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.XenosltBn4jZzl-JCDqUK_NTDIgacCR6sEv7qpjTiCI\"\n    }\n  ],\n  \"pagesScanned\": 1,\n  \"recordsInspected\": 3,\n  \"nextCursor\": \"MjowOmM3NzAxOGVhZGU5YTg0MDYzZGMxYjVjMDRhODQ3MjE0NjRmOGRkMTM4M2Y0OTUxNTgwNDczODI5YjM1OTJhOTk6cXY3Y3U3cF84U1phTkVadGVYZXEtRTNjdWxtdVpRWkkxX1IxRVR6S2tTWQ\",\n  \"consistencyNotice\": \"Upstream results are mutable; this scan is not a snapshot.\"\n}"
+        }
+      ],
+      "structuredContent": {
+        "source": "arbeitnow",
+        "sourceDocsUrl": "https://www.arbeitnow.com/api/job-board-api",
+        "jobs": [
+          {
+            "slug": "rust-engineer-berlin",
+            "canonicalUrl": "https://arbeitnow.com/view/rust-engineer-berlin",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Berlin",
+            "remote": true,
+            "postedAt": "2026-10-09T12:00:00Z",
+            "tags": [
+              "Rust",
+              "SQL"
+            ],
+            "jobTypes": [
+              "Full Time"
+            ],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLWJlcmxpbiIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItYmVybGluIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.dCanEfnCmDAaGxs_wEJr2FHiImBnq920aWma80WkwRg"
+          },
+          {
+            "slug": "sql-analyst-remote",
+            "canonicalUrl": "https://arbeitnow.com/view/sql-analyst-remote",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Berlin",
+            "remote": false,
+            "postedAt": null,
+            "tags": [],
+            "jobTypes": [],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJzcWwtYW5hbHlzdC1yZW1vdGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9zcWwtYW5hbHlzdC1yZW1vdGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOmZhbHNlLCJwb3N0ZWRBdCI6bnVsbCwidGFncyI6W10sImpvYlR5cGVzIjpbXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.oahGL3QhfjCqjKFY9vreTIk7g1cA8V8SQZ5JTEGS0P8"
+          },
+          {
+            "slug": "far-future-role",
+            "canonicalUrl": "https://arbeitnow.com/view/far-future-role",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Berlin",
+            "remote": true,
+            "postedAt": "+10000-01-01T00:00:00Z",
+            "tags": [
+              "Rust",
+              "SQL"
+            ],
+            "jobTypes": [
+              "Full Time"
+            ],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJmYXItZnV0dXJlLXJvbGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9mYXItZnV0dXJlLXJvbGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOnRydWUsInBvc3RlZEF0IjoyNTM0MDIzMDA4MDAsInRhZ3MiOlsiUnVzdCIsIlNRTCJdLCJqb2JUeXBlcyI6WyJGdWxsIFRpbWUiXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.XenosltBn4jZzl-JCDqUK_NTDIgacCR6sEv7qpjTiCI"
+          }
+        ],
+        "pagesScanned": 1,
+        "recordsInspected": 3,
+        "nextCursor": "MjowOmM3NzAxOGVhZGU5YTg0MDYzZGMxYjVjMDRhODQ3MjE0NjRmOGRkMTM4M2Y0OTUxNTgwNDczODI5YjM1OTJhOTk6cXY3Y3U3cF84U1phTkVadGVYZXEtRTNjdWxtdVpRWkkxX1IxRVR6S2tTWQ",
+        "consistencyNotice": "Upstream results are mutable; this scan is not a snapshot."
+      },
+      "isError": false,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "max-pages-five",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "maxPages": 5
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"source\": \"arbeitnow\",\n  \"sourceDocsUrl\": \"https://www.arbeitnow.com/api/job-board-api\",\n  \"jobs\": [\n    {\n      \"slug\": \"rust-engineer-berlin\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/rust-engineer-berlin\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Berlin\",\n      \"remote\": true,\n      \"postedAt\": \"2026-10-09T12:00:00Z\",\n      \"tags\": [\n        \"Rust\",\n        \"SQL\"\n      ],\n      \"jobTypes\": [\n        \"Full Time\"\n      ],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLWJlcmxpbiIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItYmVybGluIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.dCanEfnCmDAaGxs_wEJr2FHiImBnq920aWma80WkwRg\"\n    },\n    {\n      \"slug\": \"sql-analyst-remote\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/sql-analyst-remote\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Berlin\",\n      \"remote\": false,\n      \"postedAt\": null,\n      \"tags\": [],\n      \"jobTypes\": [],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJzcWwtYW5hbHlzdC1yZW1vdGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9zcWwtYW5hbHlzdC1yZW1vdGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOmZhbHNlLCJwb3N0ZWRBdCI6bnVsbCwidGFncyI6W10sImpvYlR5cGVzIjpbXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.oahGL3QhfjCqjKFY9vreTIk7g1cA8V8SQZ5JTEGS0P8\"\n    },\n    {\n      \"slug\": \"far-future-role\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/far-future-role\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Berlin\",\n      \"remote\": true,\n      \"postedAt\": \"+10000-01-01T00:00:00Z\",\n      \"tags\": [\n        \"Rust\",\n        \"SQL\"\n      ],\n      \"jobTypes\": [\n        \"Full Time\"\n      ],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJmYXItZnV0dXJlLXJvbGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9mYXItZnV0dXJlLXJvbGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOnRydWUsInBvc3RlZEF0IjoyNTM0MDIzMDA4MDAsInRhZ3MiOlsiUnVzdCIsIlNRTCJdLCJqb2JUeXBlcyI6WyJGdWxsIFRpbWUiXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.XenosltBn4jZzl-JCDqUK_NTDIgacCR6sEv7qpjTiCI\"\n    },\n    {\n      \"slug\": \"rust-engineer-munich\",\n      \"canonicalUrl\": \"https://arbeitnow.com/view/rust-engineer-munich\",\n      \"company\": \"Example GmbH\",\n      \"title\": \"Rust Engineer\",\n      \"location\": \"Munich\",\n      \"remote\": true,\n      \"postedAt\": \"2026-10-09T12:00:00Z\",\n      \"tags\": [\n        \"Rust\",\n        \"SQL\"\n      ],\n      \"jobTypes\": [\n        \"Full Time\"\n      ],\n      \"descriptionExcerpt\": \"Build synthetic things.\",\n      \"candidateToken\": \"eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLW11bmljaCIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItbXVuaWNoIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiTXVuaWNoIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.wiCjWM6-hNqJCW0o3juwhtvNacaiex5UoyooF86SrWw\"\n    }\n  ],\n  \"pagesScanned\": 2,\n  \"recordsInspected\": 4,\n  \"nextCursor\": null,\n  \"consistencyNotice\": \"Upstream results are mutable; this scan is not a snapshot.\"\n}"
+        }
+      ],
+      "structuredContent": {
+        "source": "arbeitnow",
+        "sourceDocsUrl": "https://www.arbeitnow.com/api/job-board-api",
+        "jobs": [
+          {
+            "slug": "rust-engineer-berlin",
+            "canonicalUrl": "https://arbeitnow.com/view/rust-engineer-berlin",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Berlin",
+            "remote": true,
+            "postedAt": "2026-10-09T12:00:00Z",
+            "tags": [
+              "Rust",
+              "SQL"
+            ],
+            "jobTypes": [
+              "Full Time"
+            ],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLWJlcmxpbiIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItYmVybGluIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.dCanEfnCmDAaGxs_wEJr2FHiImBnq920aWma80WkwRg"
+          },
+          {
+            "slug": "sql-analyst-remote",
+            "canonicalUrl": "https://arbeitnow.com/view/sql-analyst-remote",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Berlin",
+            "remote": false,
+            "postedAt": null,
+            "tags": [],
+            "jobTypes": [],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJzcWwtYW5hbHlzdC1yZW1vdGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9zcWwtYW5hbHlzdC1yZW1vdGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOmZhbHNlLCJwb3N0ZWRBdCI6bnVsbCwidGFncyI6W10sImpvYlR5cGVzIjpbXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.oahGL3QhfjCqjKFY9vreTIk7g1cA8V8SQZ5JTEGS0P8"
+          },
+          {
+            "slug": "far-future-role",
+            "canonicalUrl": "https://arbeitnow.com/view/far-future-role",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Berlin",
+            "remote": true,
+            "postedAt": "+10000-01-01T00:00:00Z",
+            "tags": [
+              "Rust",
+              "SQL"
+            ],
+            "jobTypes": [
+              "Full Time"
+            ],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJmYXItZnV0dXJlLXJvbGUiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9mYXItZnV0dXJlLXJvbGUiLCJjb21wYW55IjoiRXhhbXBsZSBHbWJIIiwidGl0bGUiOiJSdXN0IEVuZ2luZWVyIiwibG9jYXRpb24iOiJCZXJsaW4iLCJyZW1vdGUiOnRydWUsInBvc3RlZEF0IjoyNTM0MDIzMDA4MDAsInRhZ3MiOlsiUnVzdCIsIlNRTCJdLCJqb2JUeXBlcyI6WyJGdWxsIFRpbWUiXSwiZGVzY3JpcHRpb25FeGNlcnB0IjoiQnVpbGQgc3ludGhldGljIHRoaW5ncy4ifQ.XenosltBn4jZzl-JCDqUK_NTDIgacCR6sEv7qpjTiCI"
+          },
+          {
+            "slug": "rust-engineer-munich",
+            "canonicalUrl": "https://arbeitnow.com/view/rust-engineer-munich",
+            "company": "Example GmbH",
+            "title": "Rust Engineer",
+            "location": "Munich",
+            "remote": true,
+            "postedAt": "2026-10-09T12:00:00Z",
+            "tags": [
+              "Rust",
+              "SQL"
+            ],
+            "jobTypes": [
+              "Full Time"
+            ],
+            "descriptionExcerpt": "Build synthetic things.",
+            "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLW11bmljaCIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItbXVuaWNoIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiTXVuaWNoIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.wiCjWM6-hNqJCW0o3juwhtvNacaiex5UoyooF86SrWw"
+          }
+        ],
+        "pagesScanned": 2,
+        "recordsInspected": 4,
+        "nextCursor": null,
+        "consistencyNotice": "Upstream results are mutable; this scan is not a snapshot."
+      },
+      "isError": false,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "max-pages-six",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "maxPages": 6
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid Arbeitnow scan request\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid Arbeitnow scan request",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "max-pages-i64-max",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "maxPages": 9223372036854775807
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid Arbeitnow scan request\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid Arbeitnow scan request",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "max-pages-i64-max-plus-one",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "maxPages": 9223372036854775808
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid Arbeitnow scan request\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid Arbeitnow scan request",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "max-pages-ten-pow-thirty",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "maxPages": 1000000000000000000000000000000
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"code\":\"validation_error\",\"message\":\"Invalid Arbeitnow scan request\",\"details\":{}}"
+        }
+      ],
+      "structuredContent": {
+        "code": "validation_error",
+        "message": "Invalid Arbeitnow scan request",
+        "details": {}
+      },
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "max-pages-float-one",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "maxPages": 1.0
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool scan_arbeitnow_jobs: 1 validation error for scan_arbeitnow_jobsArguments\nrequest.maxPages\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "max-pages-bool-true",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "maxPages": true
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool scan_arbeitnow_jobs: 1 validation error for scan_arbeitnow_jobsArguments\nrequest.maxPages\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "max-pages-string-two",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "maxPages": "2"
+      }
+    },
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool scan_arbeitnow_jobs: 1 validation error for scan_arbeitnow_jobsArguments\nrequest.maxPages\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  }
+]

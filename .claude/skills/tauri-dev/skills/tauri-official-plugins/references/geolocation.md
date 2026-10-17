@@ -1,0 +1,335 @@
+# Geolocation
+
+> Source: https://v2.tauri.app/plugin/geolocation/ (tauri-docs `4b74da6`, 2026-10-13). Local copy; site components flattened, links point to the live site.
+>
+> Get and track the device's current position, including information about altitude, heading, and speed (if available).
+
+Get and track the device's current position, including information about altitude, heading, and speed (if available).
+
+## Supported Platforms
+
+> Platform support table is generated on the site: https://v2.tauri.app/plugin/geolocation/
+
+## Setup
+
+Install the geolocation plugin to get started.
+
+**Automatic:**
+
+    Use your project's package manager to add the dependency:
+
+    {' '}
+
+```sh
+# npm
+npm run tauri add geolocation
+# yarn
+yarn run tauri add geolocation
+# pnpm
+pnpm tauri add geolocation
+# deno
+deno task tauri add geolocation
+# bun
+bun tauri add geolocation
+# cargo
+cargo tauri add geolocation
+```
+
+**Manual:**
+
+      1.  Run the following command in the `src-tauri` folder to add the plugin to the project's dependencies in `Cargo.toml`:
+
+          ```sh frame=none
+          cargo add tauri-plugin-geolocation --target 'cfg(any(target_os = "android", target_os = "ios"))'
+          ```
+
+      2.  Modify `lib.rs` to initialize the plugin:
+
+          ```rust title="src-tauri/src/lib.rs" ins={5-6}
+          #[cfg_attr(mobile, tauri::mobile_entry_point)]
+          pub fn run() {
+              tauri::Builder::default()
+                  .setup(|app| {
+                      #[cfg(mobile)]
+                      app.handle().plugin(tauri_plugin_geolocation::init());
+                      Ok(())
+                  })
+                  .run(tauri::generate_context!())
+                  .expect("error while running tauri application");
+          }
+          ```
+
+      3.  Install the JavaScript Guest bindings using your preferred JavaScript package manager:
+
+```sh
+# npm
+npm install @tauri-apps/plugin-geolocation
+# yarn
+yarn add @tauri-apps/plugin-geolocation
+# pnpm
+pnpm add @tauri-apps/plugin-geolocation
+# deno
+deno add npm:@tauri-apps/plugin-geolocation
+# bun
+bun add @tauri-apps/plugin-geolocation
+```
+
+## Configuration
+
+### iOS
+
+Apple requires privacy descriptions to be specified in Info.plist for location information, where you should describe why your app needs to access it. Illustrated below is an example description:
+
+```xml {6-7}
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>NSLocationWhenInUseUsageDescription</key>
+        <string>Required to do XY</string>
+    </dict>
+</plist>
+```
+
+### Android
+
+This plugin automatically adds the following permissions to your `AndroidManifest.xml` file:
+
+```xml
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+```
+
+If your app requires GPS functionality to function, you should add the following to your `AndroidManifest.xml` file:
+
+```xml
+<uses-feature android:name="android.hardware.location.gps" android:required="true" />
+```
+
+The Google Play Store uses this property to decide whether it should show the app to devices without GPS capabilities.
+
+## Usage
+
+The geolocation plugin is available in JavaScript.
+
+```javascript
+import {
+  checkPermissions,
+  requestPermissions,
+  getCurrentPosition,
+  watchPosition,
+} from '@tauri-apps/plugin-geolocation';
+
+let permissions = await checkPermissions();
+if (
+  permissions.location === 'prompt' ||
+  permissions.location === 'prompt-with-rationale'
+) {
+  permissions = await requestPermissions(['location']);
+}
+
+if (permissions.location === 'granted') {
+  const pos = await getCurrentPosition();
+
+  await watchPosition(
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+    (pos) => {
+      console.log(pos);
+    }
+  );
+}
+```
+
+## Permissions
+
+By default all potentially dangerous plugin commands and scopes are blocked and cannot be accessed. You must modify the permissions in your `capabilities` configuration to enable these.
+
+See the [Capabilities Overview](https://v2.tauri.app/security/capabilities/) for more information and the [step by step guide](https://v2.tauri.app/learn/security/using-plugin-permissions/) to use plugin permissions.
+
+```json title="src-tauri/capabilities/mobile.json" ins={7-11}
+{
+  "$schema": "../gen/schemas/mobile-schema.json",
+  "identifier": "mobile-capability",
+  "windows": ["main"],
+  "platforms": ["iOS", "android"],
+  "permissions": [
+    "core:default",
+    "geolocation:allow-check-permissions",
+    "geolocation:allow-request-permissions",
+    "geolocation:allow-get-current-position",
+    "geolocation:allow-watch-position"
+  ]
+}
+```
+
+See **Permission reference** at the end of this file (generated from the plugin's `permissions/autogenerated/reference.md`).
+
+## Permission reference
+
+> Source: tauri-apps/plugins-workspace `plugins/geolocation/permissions/autogenerated/reference.md`
+
+## Permission Table
+
+<table>
+<tr>
+<th>Identifier</th>
+<th>Description</th>
+</tr>
+
+
+<tr>
+<td>
+
+`geolocation:allow-check-permissions`
+
+</td>
+<td>
+
+Enables the check_permissions command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`geolocation:deny-check-permissions`
+
+</td>
+<td>
+
+Denies the check_permissions command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`geolocation:allow-clear-permissions`
+
+</td>
+<td>
+
+Enables the clear_permissions command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`geolocation:deny-clear-permissions`
+
+</td>
+<td>
+
+Denies the clear_permissions command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`geolocation:allow-clear-watch`
+
+</td>
+<td>
+
+Enables the clear_watch command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`geolocation:deny-clear-watch`
+
+</td>
+<td>
+
+Denies the clear_watch command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`geolocation:allow-get-current-position`
+
+</td>
+<td>
+
+Enables the get_current_position command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`geolocation:deny-get-current-position`
+
+</td>
+<td>
+
+Denies the get_current_position command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`geolocation:allow-request-permissions`
+
+</td>
+<td>
+
+Enables the request_permissions command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`geolocation:deny-request-permissions`
+
+</td>
+<td>
+
+Denies the request_permissions command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`geolocation:allow-watch-position`
+
+</td>
+<td>
+
+Enables the watch_position command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`geolocation:deny-watch-position`
+
+</td>
+<td>
+
+Denies the watch_position command without any pre-configured scope.
+
+</td>
+</tr>
+</table>

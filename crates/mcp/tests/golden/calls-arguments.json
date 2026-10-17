@@ -1,0 +1,4497 @@
+[
+  {
+    "id": "argument-list-profiles-limit-string",
+    "tool": "list_profiles",
+    "arguments": {
+      "request": {
+        "limit": "5"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_profiles: 1 validation error for list_profilesArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-profiles-limit-bool",
+    "tool": "list_profiles",
+    "arguments": {
+      "request": {
+        "limit": true
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_profiles: 1 validation error for list_profilesArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-profiles-limit-float",
+    "tool": "list_profiles",
+    "arguments": {
+      "request": {
+        "limit": 1.0
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_profiles: 1 validation error for list_profilesArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-profiles-request-string",
+    "tool": "list_profiles",
+    "arguments": {
+      "request": "abc"
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_profiles: 1 validation error for list_profilesArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-profile-missing-key",
+    "tool": "get_profile",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_profile: 1 validation error for get_profileArguments\nprofileId\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-profile-integer-id",
+    "tool": "get_profile",
+    "arguments": {
+      "profileId": 12345
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_profile: 1 validation error for get_profileArguments\nprofileId\n  UUID input should be a string, bytes or UUID object [type=uuid_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/uuid_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-profile-null-id",
+    "tool": "get_profile",
+    "arguments": {
+      "profileId": null
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_profile: 1 validation error for get_profileArguments\nprofileId\n  UUID input should be a string, bytes or UUID object [type=uuid_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/uuid_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-profile-revision-string",
+    "tool": "update_profile",
+    "arguments": {
+      "profileId": "00000000-0000-4000-8000-0000000000aa",
+      "expectedRevision": "3",
+      "request": {
+        "fullName": null,
+        "email": null,
+        "summary": null,
+        "contacts": null,
+        "links": null,
+        "skills": null,
+        "languages": null,
+        "education": null,
+        "experiences": null,
+        "projects": null
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_profile: 1 validation error for update_profileArguments\nexpectedRevision\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-profile-revision-null",
+    "tool": "update_profile",
+    "arguments": {
+      "profileId": "00000000-0000-4000-8000-0000000000aa",
+      "expectedRevision": null,
+      "request": {
+        "fullName": null,
+        "email": null,
+        "summary": null,
+        "contacts": null,
+        "links": null,
+        "skills": null,
+        "languages": null,
+        "education": null,
+        "experiences": null,
+        "projects": null
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_profile: 1 validation error for update_profileArguments\nexpectedRevision\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-profile-missing-request",
+    "tool": "update_profile",
+    "arguments": {
+      "profileId": "00000000-0000-4000-8000-0000000000aa",
+      "expectedRevision": 3
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_profile: 1 validation error for update_profileArguments\nrequest\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-profile-missing-nullable-key",
+    "tool": "update_profile",
+    "arguments": {
+      "profileId": "00000000-0000-4000-8000-0000000000aa",
+      "expectedRevision": 3,
+      "request": {
+        "fullName": null,
+        "email": null,
+        "summary": null,
+        "contacts": null,
+        "links": null,
+        "skills": null,
+        "languages": null,
+        "education": null,
+        "experiences": null
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_profile: 1 validation error for update_profileArguments\nrequest.projects\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-profile-several-errors",
+    "tool": "update_profile",
+    "arguments": {
+      "profileId": "00000000-0000-4000-8000-0000000000aa",
+      "expectedRevision": true,
+      "request": {
+        "fullName": 5,
+        "email": null,
+        "summary": null,
+        "contacts": null,
+        "links": null,
+        "skills": null,
+        "languages": null,
+        "education": null,
+        "experiences": null
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_profile: 3 validation errors for update_profileArguments\nexpectedRevision\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type\nrequest.fullName\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\nrequest.projects\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-search-jobs-missing-request",
+    "tool": "search_jobs",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool search_jobs: 1 validation error for search_jobsArguments\nrequest\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-search-jobs-missing-query",
+    "tool": "search_jobs",
+    "arguments": {
+      "request": {
+        "limit": 5
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool search_jobs: 1 validation error for search_jobsArguments\nrequest.query\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-search-jobs-query-null",
+    "tool": "search_jobs",
+    "arguments": {
+      "request": {
+        "query": null
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool search_jobs: 1 validation error for search_jobsArguments\nrequest.query\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-search-jobs-two-errors",
+    "tool": "search_jobs",
+    "arguments": {
+      "request": {
+        "query": 5,
+        "limit": "5"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool search_jobs: 2 validation errors for search_jobsArguments\nrequest.query\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-search-jobs-limit-bool",
+    "tool": "search_jobs",
+    "arguments": {
+      "request": {
+        "query": "x",
+        "limit": false
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool search_jobs: 1 validation error for search_jobsArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-profiles-cursor-integer",
+    "tool": "list_profiles",
+    "arguments": {
+      "request": {
+        "cursor": 7
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_profiles: 1 validation error for list_profilesArguments\nrequest.cursor\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-create-profile-missing-request",
+    "tool": "create_profile",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool create_profile: 1 validation error for create_profileArguments\nrequest\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-create-profile-request-null",
+    "tool": "create_profile",
+    "arguments": {
+      "request": null
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool create_profile: 1 validation error for create_profileArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-create-profile-request-list",
+    "tool": "create_profile",
+    "arguments": {
+      "request": []
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool create_profile: 1 validation error for create_profileArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-create-profile-missing-keys",
+    "tool": "create_profile",
+    "arguments": {
+      "request": {
+        "fullName": "Example Candidate"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool create_profile: 9 validation errors for create_profileArguments\nrequest.email\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.summary\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.contacts\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.links\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.skills\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.languages\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.education\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.experiences\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.projects\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-create-profile-nested-missing-id",
+    "tool": "create_profile",
+    "arguments": {
+      "request": {
+        "fullName": "Example Candidate",
+        "email": "candidate@example.test",
+        "summary": "Synthetic summary",
+        "contacts": [
+          {
+            "contactType": "email",
+            "contactValue": null,
+            "label": null
+          }
+        ],
+        "links": [
+          {
+            "id": null,
+            "linkType": "site",
+            "url": "https://example.test/candidate",
+            "label": "Site"
+          }
+        ],
+        "skills": [
+          {
+            "id": null,
+            "skill": "Rust",
+            "normalizedSkill": "rust",
+            "category": "Languages",
+            "displayOrder": 0
+          }
+        ],
+        "languages": [
+          {
+            "id": null,
+            "language": "German",
+            "normalizedLanguage": "german",
+            "proficiency": "Native",
+            "displayOrder": 0
+          }
+        ],
+        "education": [
+          {
+            "id": null,
+            "institution": "Example University",
+            "degree": "BSc",
+            "field": "Computing",
+            "location": "Example City",
+            "startDate": "2015-09-01",
+            "endDate": "2018-06-30",
+            "relevantFocus": null
+          }
+        ],
+        "experiences": [
+          {
+            "id": null,
+            "company": "Example Works",
+            "title": "Engineer",
+            "location": "Remote",
+            "startDate": "2019-01-01",
+            "endDate": null,
+            "description": "Synthetic duties",
+            "displayOrder": 0
+          }
+        ],
+        "projects": [
+          {
+            "id": null,
+            "name": "Demo project",
+            "url": "https://example.test/demo",
+            "description": "Synthetic project",
+            "displayOrder": 0,
+            "technologies": [
+              {
+                "id": null,
+                "technology": "Rust",
+                "normalizedTechnology": "rust",
+                "displayOrder": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool create_profile: 1 validation error for create_profileArguments\nrequest.contacts.0.id\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-create-profile-nested-skill-display-null",
+    "tool": "create_profile",
+    "arguments": {
+      "request": {
+        "fullName": "Example Candidate",
+        "email": "candidate@example.test",
+        "summary": "Synthetic summary",
+        "contacts": [
+          {
+            "id": null,
+            "contactType": "email",
+            "contactValue": "candidate@example.test",
+            "label": "Work"
+          }
+        ],
+        "links": [
+          {
+            "id": null,
+            "linkType": "site",
+            "url": "https://example.test/candidate",
+            "label": "Site"
+          }
+        ],
+        "skills": [
+          {
+            "id": null,
+            "skill": "Rust",
+            "normalizedSkill": null,
+            "category": null,
+            "displayOrder": null
+          }
+        ],
+        "languages": [
+          {
+            "id": null,
+            "language": "German",
+            "normalizedLanguage": "german",
+            "proficiency": "Native",
+            "displayOrder": 0
+          }
+        ],
+        "education": [
+          {
+            "id": null,
+            "institution": "Example University",
+            "degree": "BSc",
+            "field": "Computing",
+            "location": "Example City",
+            "startDate": "2015-09-01",
+            "endDate": "2018-06-30",
+            "relevantFocus": null
+          }
+        ],
+        "experiences": [
+          {
+            "id": null,
+            "company": "Example Works",
+            "title": "Engineer",
+            "location": "Remote",
+            "startDate": "2019-01-01",
+            "endDate": null,
+            "description": "Synthetic duties",
+            "displayOrder": 0
+          }
+        ],
+        "projects": [
+          {
+            "id": null,
+            "name": "Demo project",
+            "url": "https://example.test/demo",
+            "description": "Synthetic project",
+            "displayOrder": 0,
+            "technologies": [
+              {
+                "id": null,
+                "technology": "Rust",
+                "normalizedTechnology": "rust",
+                "displayOrder": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool create_profile: 1 validation error for create_profileArguments\nrequest.skills.0.displayOrder\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-create-profile-list-not-list",
+    "tool": "create_profile",
+    "arguments": {
+      "request": {
+        "fullName": "Example Candidate",
+        "email": "candidate@example.test",
+        "summary": "Synthetic summary",
+        "contacts": "x",
+        "links": [
+          {
+            "id": null,
+            "linkType": "site",
+            "url": "https://example.test/candidate",
+            "label": "Site"
+          }
+        ],
+        "skills": [
+          {
+            "id": null,
+            "skill": "Rust",
+            "normalizedSkill": "rust",
+            "category": "Languages",
+            "displayOrder": 0
+          }
+        ],
+        "languages": [
+          {
+            "id": null,
+            "language": "German",
+            "normalizedLanguage": "german",
+            "proficiency": "Native",
+            "displayOrder": 0
+          }
+        ],
+        "education": [
+          {
+            "id": null,
+            "institution": "Example University",
+            "degree": "BSc",
+            "field": "Computing",
+            "location": "Example City",
+            "startDate": "2015-09-01",
+            "endDate": "2018-06-30",
+            "relevantFocus": null
+          }
+        ],
+        "experiences": [
+          {
+            "id": null,
+            "company": "Example Works",
+            "title": "Engineer",
+            "location": "Remote",
+            "startDate": "2019-01-01",
+            "endDate": null,
+            "description": "Synthetic duties",
+            "displayOrder": 0
+          }
+        ],
+        "projects": [
+          {
+            "id": null,
+            "name": "Demo project",
+            "url": "https://example.test/demo",
+            "description": "Synthetic project",
+            "displayOrder": 0,
+            "technologies": [
+              {
+                "id": null,
+                "technology": "Rust",
+                "normalizedTechnology": "rust",
+                "displayOrder": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool create_profile: 1 validation error for create_profileArguments\nrequest.contacts\n  Input should be a valid list [type=list_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/list_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-create-profile-item-not-dict",
+    "tool": "create_profile",
+    "arguments": {
+      "request": {
+        "fullName": "Example Candidate",
+        "email": "candidate@example.test",
+        "summary": "Synthetic summary",
+        "contacts": [
+          {
+            "id": null,
+            "contactType": "email",
+            "contactValue": "candidate@example.test",
+            "label": "Work"
+          }
+        ],
+        "links": [
+          5
+        ],
+        "skills": [
+          {
+            "id": null,
+            "skill": "Rust",
+            "normalizedSkill": "rust",
+            "category": "Languages",
+            "displayOrder": 0
+          }
+        ],
+        "languages": [
+          {
+            "id": null,
+            "language": "German",
+            "normalizedLanguage": "german",
+            "proficiency": "Native",
+            "displayOrder": 0
+          }
+        ],
+        "education": [
+          {
+            "id": null,
+            "institution": "Example University",
+            "degree": "BSc",
+            "field": "Computing",
+            "location": "Example City",
+            "startDate": "2015-09-01",
+            "endDate": "2018-06-30",
+            "relevantFocus": null
+          }
+        ],
+        "experiences": [
+          {
+            "id": null,
+            "company": "Example Works",
+            "title": "Engineer",
+            "location": "Remote",
+            "startDate": "2019-01-01",
+            "endDate": null,
+            "description": "Synthetic duties",
+            "displayOrder": 0
+          }
+        ],
+        "projects": [
+          {
+            "id": null,
+            "name": "Demo project",
+            "url": "https://example.test/demo",
+            "description": "Synthetic project",
+            "displayOrder": 0,
+            "technologies": [
+              {
+                "id": null,
+                "technology": "Rust",
+                "normalizedTechnology": "rust",
+                "displayOrder": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool create_profile: 1 validation error for create_profileArguments\nrequest.links.0\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-create-profile-technology-not-dict",
+    "tool": "create_profile",
+    "arguments": {
+      "request": {
+        "fullName": "Example Candidate",
+        "email": "candidate@example.test",
+        "summary": "Synthetic summary",
+        "contacts": [
+          {
+            "id": null,
+            "contactType": "email",
+            "contactValue": "candidate@example.test",
+            "label": "Work"
+          }
+        ],
+        "links": [
+          {
+            "id": null,
+            "linkType": "site",
+            "url": "https://example.test/candidate",
+            "label": "Site"
+          }
+        ],
+        "skills": [
+          {
+            "id": null,
+            "skill": "Rust",
+            "normalizedSkill": "rust",
+            "category": "Languages",
+            "displayOrder": 0
+          }
+        ],
+        "languages": [
+          {
+            "id": null,
+            "language": "German",
+            "normalizedLanguage": "german",
+            "proficiency": "Native",
+            "displayOrder": 0
+          }
+        ],
+        "education": [
+          {
+            "id": null,
+            "institution": "Example University",
+            "degree": "BSc",
+            "field": "Computing",
+            "location": "Example City",
+            "startDate": "2015-09-01",
+            "endDate": "2018-06-30",
+            "relevantFocus": null
+          }
+        ],
+        "experiences": [
+          {
+            "id": null,
+            "company": "Example Works",
+            "title": "Engineer",
+            "location": "Remote",
+            "startDate": "2019-01-01",
+            "endDate": null,
+            "description": "Synthetic duties",
+            "displayOrder": 0
+          }
+        ],
+        "projects": [
+          {
+            "id": null,
+            "name": null,
+            "url": null,
+            "description": null,
+            "displayOrder": 0,
+            "technologies": [
+              "Rust"
+            ]
+          }
+        ]
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool create_profile: 1 validation error for create_profileArguments\nrequest.projects.0.technologies.0\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-create-profile-date-not-string",
+    "tool": "create_profile",
+    "arguments": {
+      "request": {
+        "fullName": "Example Candidate",
+        "email": "candidate@example.test",
+        "summary": "Synthetic summary",
+        "contacts": [
+          {
+            "id": null,
+            "contactType": "email",
+            "contactValue": "candidate@example.test",
+            "label": "Work"
+          }
+        ],
+        "links": [
+          {
+            "id": null,
+            "linkType": "site",
+            "url": "https://example.test/candidate",
+            "label": "Site"
+          }
+        ],
+        "skills": [
+          {
+            "id": null,
+            "skill": "Rust",
+            "normalizedSkill": "rust",
+            "category": "Languages",
+            "displayOrder": 0
+          }
+        ],
+        "languages": [
+          {
+            "id": null,
+            "language": "German",
+            "normalizedLanguage": "german",
+            "proficiency": "Native",
+            "displayOrder": 0
+          }
+        ],
+        "education": [
+          {
+            "id": null,
+            "institution": null,
+            "degree": null,
+            "field": null,
+            "location": null,
+            "startDate": 2015,
+            "endDate": null,
+            "relevantFocus": null
+          }
+        ],
+        "experiences": [
+          {
+            "id": null,
+            "company": "Example Works",
+            "title": "Engineer",
+            "location": "Remote",
+            "startDate": "2019-01-01",
+            "endDate": null,
+            "description": "Synthetic duties",
+            "displayOrder": 0
+          }
+        ],
+        "projects": [
+          {
+            "id": null,
+            "name": "Demo project",
+            "url": "https://example.test/demo",
+            "description": "Synthetic project",
+            "displayOrder": 0,
+            "technologies": [
+              {
+                "id": null,
+                "technology": "Rust",
+                "normalizedTechnology": "rust",
+                "displayOrder": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool create_profile: 1 validation error for create_profileArguments\nrequest.education.0.startDate\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-create-profile-several-errors",
+    "tool": "create_profile",
+    "arguments": {
+      "request": {
+        "fullName": "Example Candidate",
+        "email": 5,
+        "summary": "Synthetic summary",
+        "contacts": [
+          {
+            "id": null,
+            "contactType": "email",
+            "contactValue": "candidate@example.test",
+            "label": "Work"
+          }
+        ],
+        "links": [
+          {
+            "id": null,
+            "linkType": "site",
+            "url": "https://example.test/candidate",
+            "label": "Site"
+          }
+        ],
+        "skills": [
+          {
+            "id": null,
+            "skill": "Rust",
+            "normalizedSkill": "rust",
+            "category": "Languages",
+            "displayOrder": 0
+          }
+        ],
+        "languages": [
+          {
+            "id": null,
+            "language": "German",
+            "normalizedLanguage": "german",
+            "proficiency": "Native",
+            "displayOrder": 0
+          }
+        ],
+        "education": [
+          {
+            "id": null,
+            "institution": "Example University",
+            "degree": "BSc",
+            "field": "Computing",
+            "location": "Example City",
+            "startDate": "2015-09-01",
+            "endDate": "2018-06-30",
+            "relevantFocus": null
+          }
+        ],
+        "experiences": [
+          {
+            "id": null,
+            "company": null,
+            "title": null,
+            "location": null,
+            "startDate": null,
+            "endDate": null,
+            "description": null,
+            "displayOrder": true
+          }
+        ],
+        "projects": [
+          {
+            "id": null,
+            "name": "Demo project",
+            "url": "https://example.test/demo",
+            "description": "Synthetic project",
+            "displayOrder": 0,
+            "technologies": [
+              {
+                "id": null,
+                "technology": "Rust",
+                "normalizedTechnology": "rust",
+                "displayOrder": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool create_profile: 2 validation errors for create_profileArguments\nrequest.email\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\nrequest.experiences.0.displayOrder\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-profile-nested-skill-display-string",
+    "tool": "update_profile",
+    "arguments": {
+      "profileId": "00000000-0000-4000-8000-0000000000aa",
+      "expectedRevision": 3,
+      "request": {
+        "fullName": null,
+        "email": null,
+        "summary": null,
+        "contacts": null,
+        "links": null,
+        "skills": [
+          {
+            "id": null,
+            "skill": "Rust",
+            "normalizedSkill": null,
+            "category": null,
+            "displayOrder": "1"
+          }
+        ],
+        "languages": null,
+        "education": null,
+        "experiences": null,
+        "projects": null
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_profile: 1 validation error for update_profileArguments\nrequest.skills.0.displayOrder\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-profile-project-missing-request",
+    "tool": "update_profile_project",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_profile_project: 1 validation error for update_profile_projectArguments\nrequest\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-profile-project-missing-required",
+    "tool": "update_profile_project",
+    "arguments": {
+      "request": {
+        "name": "Demo project"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_profile_project: 3 validation errors for update_profile_projectArguments\nrequest.profileId\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.projectId\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.expectedRevision\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-profile-project-revision-null",
+    "tool": "update_profile_project",
+    "arguments": {
+      "request": {
+        "profileId": "00000000-0000-4000-8000-0000000000aa",
+        "projectId": "00000000-0000-4000-8000-0000000000a1",
+        "expectedRevision": null,
+        "name": "Demo project",
+        "url": null,
+        "description": null,
+        "displayOrder": 2,
+        "technologies": [
+          {
+            "id": null,
+            "technology": "Rust",
+            "normalizedTechnology": "rust",
+            "displayOrder": 0
+          }
+        ]
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_profile_project: 1 validation error for update_profile_projectArguments\nrequest.expectedRevision\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-profile-project-profile-id-integer",
+    "tool": "update_profile_project",
+    "arguments": {
+      "request": {
+        "profileId": 12,
+        "projectId": "00000000-0000-4000-8000-0000000000a1",
+        "expectedRevision": 3,
+        "name": "Demo project",
+        "url": null,
+        "description": null,
+        "displayOrder": 2,
+        "technologies": [
+          {
+            "id": null,
+            "technology": "Rust",
+            "normalizedTechnology": "rust",
+            "displayOrder": 0
+          }
+        ]
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_profile_project: 1 validation error for update_profile_projectArguments\nrequest.profileId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-profile-project-technologies-string",
+    "tool": "update_profile_project",
+    "arguments": {
+      "request": {
+        "profileId": "00000000-0000-4000-8000-0000000000aa",
+        "projectId": "00000000-0000-4000-8000-0000000000a1",
+        "expectedRevision": 3,
+        "name": 5,
+        "url": null,
+        "description": null,
+        "displayOrder": 2,
+        "technologies": "Rust"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_profile_project: 2 validation errors for update_profile_projectArguments\nrequest.name\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\nrequest.technologies\n  Input should be a valid list [type=list_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/list_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-search-profiles-missing-request",
+    "tool": "search_profiles",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool search_profiles: 1 validation error for search_profilesArguments\nrequest\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-search-profiles-empty-request",
+    "tool": "search_profiles",
+    "arguments": {
+      "request": {}
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool search_profiles: 2 validation errors for search_profilesArguments\nrequest.query\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.limit\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-search-profiles-limit-string",
+    "tool": "search_profiles",
+    "arguments": {
+      "request": {
+        "query": "ada",
+        "limit": "5"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool search_profiles: 1 validation error for search_profilesArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-add-job-from-text-missing-request",
+    "tool": "add_job_from_text",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool add_job_from_text: 1 validation error for add_job_from_textArguments\nrequest\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-add-job-from-text-request-null",
+    "tool": "add_job_from_text",
+    "arguments": {
+      "request": null
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool add_job_from_text: 1 validation error for add_job_from_textArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-add-job-from-text-missing-text",
+    "tool": "add_job_from_text",
+    "arguments": {
+      "request": {
+        "title": "Backend engineer"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool add_job_from_text: 1 validation error for add_job_from_textArguments\nrequest.text\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-add-job-from-text-text-null",
+    "tool": "add_job_from_text",
+    "arguments": {
+      "request": {
+        "text": null
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool add_job_from_text: 1 validation error for add_job_from_textArguments\nrequest.text\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-add-job-from-text-skills-not-list",
+    "tool": "add_job_from_text",
+    "arguments": {
+      "request": {
+        "text": "Synthetic posting text",
+        "skills": "Rust"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool add_job_from_text: 1 validation error for add_job_from_textArguments\nrequest.skills\n  Input should be a valid list [type=list_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/list_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-add-job-from-text-skill-item-not-string",
+    "tool": "add_job_from_text",
+    "arguments": {
+      "request": {
+        "text": "Synthetic posting text",
+        "skills": [
+          "Rust",
+          5
+        ]
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool add_job_from_text: 1 validation error for add_job_from_textArguments\nrequest.skills.1\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-add-job-from-text-several-errors",
+    "tool": "add_job_from_text",
+    "arguments": {
+      "request": {
+        "text": 5,
+        "title": null,
+        "postedAt": true
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool add_job_from_text: 2 validation errors for add_job_from_textArguments\nrequest.text\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\nrequest.postedAt\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-job-missing-id",
+    "tool": "get_job",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_job: 1 validation error for get_jobArguments\njobId\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-job-integer-id",
+    "tool": "get_job",
+    "arguments": {
+      "jobId": 12
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_job: 1 validation error for get_jobArguments\njobId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-job-null-id",
+    "tool": "get_job",
+    "arguments": {
+      "jobId": null
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_job: 1 validation error for get_jobArguments\njobId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-jobs-limit-string",
+    "tool": "list_jobs",
+    "arguments": {
+      "request": {
+        "limit": "5"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_jobs: 1 validation error for list_jobsArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-jobs-limit-float",
+    "tool": "list_jobs",
+    "arguments": {
+      "request": {
+        "limit": 1.0
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_jobs: 1 validation error for list_jobsArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-jobs-cursor-integer",
+    "tool": "list_jobs",
+    "arguments": {
+      "request": {
+        "cursor": 7
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_jobs: 1 validation error for list_jobsArguments\nrequest.cursor\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-jobs-request-list",
+    "tool": "list_jobs",
+    "arguments": {
+      "request": []
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_jobs: 1 validation error for list_jobsArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-job-missing-request",
+    "tool": "update_job",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_job: 1 validation error for update_jobArguments\nrequest\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-job-request-null",
+    "tool": "update_job",
+    "arguments": {
+      "request": null
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_job: 1 validation error for update_jobArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-job-job-id-null",
+    "tool": "update_job",
+    "arguments": {
+      "request": {
+        "jobId": null,
+        "expectedRevision": 3
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_job: 1 validation error for update_jobArguments\nrequest.jobId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-job-revision-null",
+    "tool": "update_job",
+    "arguments": {
+      "request": {
+        "jobId": "00000000-0000-4000-8000-0000000000bb",
+        "expectedRevision": null
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_job: 1 validation error for update_jobArguments\nrequest.expectedRevision\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-job-revision-bool",
+    "tool": "update_job",
+    "arguments": {
+      "request": {
+        "jobId": "00000000-0000-4000-8000-0000000000bb",
+        "expectedRevision": true
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_job: 1 validation error for update_jobArguments\nrequest.expectedRevision\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-job-revision-float",
+    "tool": "update_job",
+    "arguments": {
+      "request": {
+        "jobId": "00000000-0000-4000-8000-0000000000bb",
+        "expectedRevision": 0.0
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_job: 1 validation error for update_jobArguments\nrequest.expectedRevision\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-job-skills-not-list",
+    "tool": "update_job",
+    "arguments": {
+      "request": {
+        "jobId": "00000000-0000-4000-8000-0000000000bb",
+        "expectedRevision": 3,
+        "skills": "Java"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_job: 1 validation error for update_jobArguments\nrequest.skills\n  Input should be a valid list [type=list_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/list_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-job-missing-required",
+    "tool": "update_job",
+    "arguments": {
+      "request": {
+        "title": "Backend engineer"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_job: 2 validation errors for update_jobArguments\nrequest.jobId\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.expectedRevision\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-job-revision-string",
+    "tool": "update_job",
+    "arguments": {
+      "request": {
+        "jobId": "00000000-0000-4000-8000-0000000000bb",
+        "expectedRevision": "3"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_job: 1 validation error for update_jobArguments\nrequest.expectedRevision\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-job-job-id-integer",
+    "tool": "update_job",
+    "arguments": {
+      "request": {
+        "jobId": 12,
+        "expectedRevision": 3
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_job: 1 validation error for update_jobArguments\nrequest.jobId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-job-skills-item-not-string",
+    "tool": "update_job",
+    "arguments": {
+      "request": {
+        "jobId": "00000000-0000-4000-8000-0000000000bb",
+        "expectedRevision": 3,
+        "skills": [
+          null,
+          5
+        ]
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_job: 1 validation error for update_jobArguments\nrequest.skills.1\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-update-job-several-errors",
+    "tool": "update_job",
+    "arguments": {
+      "request": {
+        "jobId": null,
+        "expectedRevision": true,
+        "title": 5
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool update_job: 3 validation errors for update_jobArguments\nrequest.jobId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\nrequest.expectedRevision\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type\nrequest.title\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-analyze-job-match-missing-request",
+    "tool": "analyze_job_match",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool analyze_job_match: 1 validation error for analyze_job_matchArguments\nrequest\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-analyze-job-match-job-id-missing",
+    "tool": "analyze_job_match",
+    "arguments": {
+      "request": {
+        "profileId": "00000000-0000-4000-8000-0000000000aa"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool analyze_job_match: 1 validation error for analyze_job_matchArguments\nrequest.jobId\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-analyze-job-match-profile-id-integer",
+    "tool": "analyze_job_match",
+    "arguments": {
+      "request": {
+        "profileId": 5,
+        "jobId": "00000000-0000-4000-8000-0000000000bb"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool analyze_job_match: 1 validation error for analyze_job_matchArguments\nrequest.profileId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-analyze-all-job-matches-profile-id-missing",
+    "tool": "analyze_all_job_matches",
+    "arguments": {
+      "request": {
+        "limit": 5
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool analyze_all_job_matches: 1 validation error for analyze_all_job_matchesArguments\nrequest.profileId\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-analyze-all-job-matches-profile-id-null",
+    "tool": "analyze_all_job_matches",
+    "arguments": {
+      "request": {
+        "profileId": null
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool analyze_all_job_matches: 1 validation error for analyze_all_job_matchesArguments\nrequest.profileId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-analyze-all-job-matches-limit-string",
+    "tool": "analyze_all_job_matches",
+    "arguments": {
+      "request": {
+        "profileId": "00000000-0000-4000-8000-0000000000aa",
+        "limit": "5"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool analyze_all_job_matches: 1 validation error for analyze_all_job_matchesArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-analyze-all-job-matches-cursor-integer",
+    "tool": "analyze_all_job_matches",
+    "arguments": {
+      "request": {
+        "profileId": "00000000-0000-4000-8000-0000000000aa",
+        "cursor": 7
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool analyze_all_job_matches: 1 validation error for analyze_all_job_matchesArguments\nrequest.cursor\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-match-report-missing-request",
+    "tool": "get_match_report",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_match_report: 1 validation error for get_match_reportArguments\nrequest\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-match-report-id-missing",
+    "tool": "get_match_report",
+    "arguments": {
+      "request": {}
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_match_report: 1 validation error for get_match_reportArguments\nrequest.id\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-match-report-id-integer",
+    "tool": "get_match_report",
+    "arguments": {
+      "request": {
+        "id": 12
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_match_report: 1 validation error for get_match_reportArguments\nrequest.id\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-match-reports-request-null",
+    "tool": "list_match_reports",
+    "arguments": {
+      "request": null
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_match_reports: 1 validation error for list_match_reportsArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-match-reports-limit-bool",
+    "tool": "list_match_reports",
+    "arguments": {
+      "request": {
+        "limit": true
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_match_reports: 1 validation error for list_match_reportsArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-submit-match-review-missing-request",
+    "tool": "submit_match_review",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool submit_match_review: 1 validation error for submit_match_reviewArguments\nrequest\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-submit-match-review-empty-request",
+    "tool": "submit_match_review",
+    "arguments": {
+      "request": {}
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool submit_match_review: 10 validation errors for submit_match_reviewArguments\nrequest.reportId\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.reviewer\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.model\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.reviewVersion\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.overallScore\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.outcome\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.blockerMismatch\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.components\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.evidence\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.summary\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-submit-match-review-outcome-unknown",
+    "tool": "submit_match_review",
+    "arguments": {
+      "request": {
+        "reportId": "00000000-0000-4000-8000-0000000000ee",
+        "reviewer": "synthetic-reviewer",
+        "model": "synthetic-model",
+        "reviewVersion": "v1",
+        "overallScore": 80,
+        "outcome": "WEAK",
+        "blockerMismatch": false,
+        "components": [
+          {
+            "component": "TECHNICAL",
+            "earnedPoints": 10,
+            "availablePoints": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "evidence": [
+          {
+            "component": "TECHNICAL",
+            "status": "MATCH",
+            "sourceType": "skill",
+            "fact": "Synthetic skill",
+            "outcomeChangingDefect": false
+          }
+        ],
+        "summary": "Synthetic summary"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool submit_match_review: 1 validation error for submit_match_reviewArguments\nrequest.outcome\n  Input should be 'STRONG_MATCH', 'PARTIAL_MATCH', 'WEAK_MATCH' or 'INSUFFICIENT_EVIDENCE' [type=literal_error]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-submit-match-review-outcome-integer",
+    "tool": "submit_match_review",
+    "arguments": {
+      "request": {
+        "reportId": "00000000-0000-4000-8000-0000000000ee",
+        "reviewer": "synthetic-reviewer",
+        "model": "synthetic-model",
+        "reviewVersion": "v1",
+        "overallScore": 80,
+        "outcome": 3,
+        "blockerMismatch": false,
+        "components": [
+          {
+            "component": "TECHNICAL",
+            "earnedPoints": 10,
+            "availablePoints": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "evidence": [
+          {
+            "component": "TECHNICAL",
+            "status": "MATCH",
+            "sourceType": "skill",
+            "fact": "Synthetic skill",
+            "outcomeChangingDefect": false
+          }
+        ],
+        "summary": "Synthetic summary"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool submit_match_review: 1 validation error for submit_match_reviewArguments\nrequest.outcome\n  Input should be 'STRONG_MATCH', 'PARTIAL_MATCH', 'WEAK_MATCH' or 'INSUFFICIENT_EVIDENCE' [type=literal_error]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-submit-match-review-blocker-integer",
+    "tool": "submit_match_review",
+    "arguments": {
+      "request": {
+        "reportId": "00000000-0000-4000-8000-0000000000ee",
+        "reviewer": "synthetic-reviewer",
+        "model": "synthetic-model",
+        "reviewVersion": "v1",
+        "overallScore": 80,
+        "outcome": "PARTIAL_MATCH",
+        "blockerMismatch": 0,
+        "components": [
+          {
+            "component": "TECHNICAL",
+            "earnedPoints": 10,
+            "availablePoints": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "evidence": [
+          {
+            "component": "TECHNICAL",
+            "status": "MATCH",
+            "sourceType": "skill",
+            "fact": "Synthetic skill",
+            "outcomeChangingDefect": false
+          }
+        ],
+        "summary": "Synthetic summary"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool submit_match_review: 1 validation error for submit_match_reviewArguments\nrequest.blockerMismatch\n  Input should be a valid boolean [type=bool_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/bool_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-submit-match-review-score-string",
+    "tool": "submit_match_review",
+    "arguments": {
+      "request": {
+        "reportId": "00000000-0000-4000-8000-0000000000ee",
+        "reviewer": "synthetic-reviewer",
+        "model": "synthetic-model",
+        "reviewVersion": "v1",
+        "overallScore": "80",
+        "outcome": "PARTIAL_MATCH",
+        "blockerMismatch": false,
+        "components": [
+          {
+            "component": "TECHNICAL",
+            "earnedPoints": 10,
+            "availablePoints": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "evidence": [
+          {
+            "component": "TECHNICAL",
+            "status": "MATCH",
+            "sourceType": "skill",
+            "fact": "Synthetic skill",
+            "outcomeChangingDefect": false
+          }
+        ],
+        "summary": "Synthetic summary"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool submit_match_review: 1 validation error for submit_match_reviewArguments\nrequest.overallScore\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-submit-match-review-components-not-list",
+    "tool": "submit_match_review",
+    "arguments": {
+      "request": {
+        "reportId": "00000000-0000-4000-8000-0000000000ee",
+        "reviewer": "synthetic-reviewer",
+        "model": "synthetic-model",
+        "reviewVersion": "v1",
+        "overallScore": 80,
+        "outcome": "PARTIAL_MATCH",
+        "blockerMismatch": false,
+        "components": "TECHNICAL",
+        "evidence": [
+          {
+            "component": "TECHNICAL",
+            "status": "MATCH",
+            "sourceType": "skill",
+            "fact": "Synthetic skill",
+            "outcomeChangingDefect": false
+          }
+        ],
+        "summary": "Synthetic summary"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool submit_match_review: 1 validation error for submit_match_reviewArguments\nrequest.components\n  Input should be a valid list [type=list_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/list_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-submit-match-review-component-unknown",
+    "tool": "submit_match_review",
+    "arguments": {
+      "request": {
+        "reportId": "00000000-0000-4000-8000-0000000000ee",
+        "reviewer": "synthetic-reviewer",
+        "model": "synthetic-model",
+        "reviewVersion": "v1",
+        "overallScore": 80,
+        "outcome": "PARTIAL_MATCH",
+        "blockerMismatch": false,
+        "components": [
+          {
+            "component": "SALARY",
+            "earnedPoints": 1,
+            "availablePoints": 2,
+            "status": "MATCH"
+          }
+        ],
+        "evidence": [
+          {
+            "component": "TECHNICAL",
+            "status": "MATCH",
+            "sourceType": "skill",
+            "fact": "Synthetic skill",
+            "outcomeChangingDefect": false
+          }
+        ],
+        "summary": "Synthetic summary"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool submit_match_review: 1 validation error for submit_match_reviewArguments\nrequest.components.0.component\n  Input should be 'TECHNICAL', 'EXPERIENCE_SENIORITY', 'DOMAIN', 'DELIVERY' or 'HARD_REQUIREMENTS' [type=literal_error]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-submit-match-review-evidence-item-missing-key",
+    "tool": "submit_match_review",
+    "arguments": {
+      "request": {
+        "reportId": "00000000-0000-4000-8000-0000000000ee",
+        "reviewer": "synthetic-reviewer",
+        "model": "synthetic-model",
+        "reviewVersion": "v1",
+        "overallScore": 80,
+        "outcome": "PARTIAL_MATCH",
+        "blockerMismatch": false,
+        "components": [
+          {
+            "component": "TECHNICAL",
+            "earnedPoints": 10,
+            "availablePoints": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "evidence": [
+          {
+            "component": "DOMAIN",
+            "status": "MATCH",
+            "sourceType": "skill",
+            "outcomeChangingDefect": false
+          },
+          {
+            "component": "DOMAIN",
+            "status": "MAYBE",
+            "sourceType": "skill",
+            "fact": "Synthetic skill",
+            "outcomeChangingDefect": "no"
+          }
+        ],
+        "summary": "Synthetic summary"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool submit_match_review: 3 validation errors for submit_match_reviewArguments\nrequest.evidence.0.fact\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.evidence.1.status\n  Input should be 'MATCH', 'PARTIAL', 'MISMATCH' or 'UNKNOWN' [type=literal_error]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error\nrequest.evidence.1.outcomeChangingDefect\n  Input should be a valid boolean [type=bool_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/bool_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-submit-match-review-several-errors",
+    "tool": "submit_match_review",
+    "arguments": {
+      "request": {
+        "reportId": "00000000-0000-4000-8000-0000000000ee",
+        "reviewer": "synthetic-reviewer",
+        "model": "synthetic-model",
+        "reviewVersion": "v1",
+        "overallScore": 80,
+        "outcome": "WEAK",
+        "blockerMismatch": "no",
+        "components": [
+          {
+            "component": "TECHNICAL",
+            "earnedPoints": 10,
+            "availablePoints": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "evidence": [
+          {
+            "component": "TECHNICAL",
+            "status": "MATCH",
+            "sourceType": "skill",
+            "fact": "Synthetic skill",
+            "outcomeChangingDefect": false
+          }
+        ],
+        "summary": 5
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool submit_match_review: 3 validation errors for submit_match_reviewArguments\nrequest.outcome\n  Input should be 'STRONG_MATCH', 'PARTIAL_MATCH', 'WEAK_MATCH' or 'INSUFFICIENT_EVIDENCE' [type=literal_error]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error\nrequest.blockerMismatch\n  Input should be a valid boolean [type=bool_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/bool_type\nrequest.summary\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-match-review-missing-request",
+    "tool": "get_match_review",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_match_review: 1 validation error for get_match_reviewArguments\nrequest\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-match-review-id-missing",
+    "tool": "get_match_review",
+    "arguments": {
+      "request": {}
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_match_review: 1 validation error for get_match_reviewArguments\nrequest.id\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-match-review-id-integer",
+    "tool": "get_match_review",
+    "arguments": {
+      "request": {
+        "id": 3
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_match_review: 1 validation error for get_match_reviewArguments\nrequest.id\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-match-reviews-limit-string",
+    "tool": "list_match_reviews",
+    "arguments": {
+      "request": {
+        "limit": "5"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_match_reviews: 1 validation error for list_match_reviewsArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-match-disagreements-report-id-integer",
+    "tool": "list_match_disagreements",
+    "arguments": {
+      "request": {
+        "reportId": 7
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_match_disagreements: 1 validation error for list_match_disagreementsArguments\nrequest.reportId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-match-disagreements-request-missing",
+    "tool": "list_match_disagreements",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_match_disagreements: 1 validation error for list_match_disagreementsArguments\nrequest\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-acknowledge-match-disagreement-issue-missing",
+    "tool": "acknowledge_match_disagreement",
+    "arguments": {
+      "request": {
+        "disagreementId": "00000000-0000-4000-8000-0000000000d1"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool acknowledge_match_disagreement: 1 validation error for acknowledge_match_disagreementArguments\nrequest.linearIssueId\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-link-match-disagreement-request-null",
+    "tool": "link_match_disagreement",
+    "arguments": {
+      "request": null
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool link_match_disagreement: 1 validation error for link_match_disagreementArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-link-match-disagreement-id-bool",
+    "tool": "link_match_disagreement",
+    "arguments": {
+      "request": {
+        "disagreementId": true,
+        "linearIssueId": "SYN-3"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool link_match_disagreement: 1 validation error for link_match_disagreementArguments\nrequest.disagreementId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-analyze-all-job-matches-limit-float",
+    "tool": "analyze_all_job_matches",
+    "arguments": {
+      "request": {
+        "profileId": "00000000-0000-4000-8000-0000000000aa",
+        "limit": 20.0
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool analyze_all_job_matches: 1 validation error for analyze_all_job_matchesArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-match-reports-limit-float",
+    "tool": "list_match_reports",
+    "arguments": {
+      "request": {
+        "limit": 20.0
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_match_reports: 1 validation error for list_match_reportsArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-match-reviews-limit-float",
+    "tool": "list_match_reviews",
+    "arguments": {
+      "request": {
+        "limit": 20.0
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_match_reviews: 1 validation error for list_match_reviewsArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-submit-match-review-score-bool",
+    "tool": "submit_match_review",
+    "arguments": {
+      "request": {
+        "reportId": "00000000-0000-4000-8000-0000000000ee",
+        "reviewer": "synthetic-reviewer",
+        "model": "synthetic-model",
+        "reviewVersion": "v1",
+        "overallScore": true,
+        "outcome": "PARTIAL_MATCH",
+        "blockerMismatch": false,
+        "components": [
+          {
+            "component": "TECHNICAL",
+            "earnedPoints": 10,
+            "availablePoints": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "evidence": [
+          {
+            "component": "TECHNICAL",
+            "status": "MATCH",
+            "sourceType": "skill",
+            "fact": "Synthetic skill",
+            "outcomeChangingDefect": false
+          }
+        ],
+        "summary": "Synthetic summary"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool submit_match_review: 1 validation error for submit_match_reviewArguments\nrequest.overallScore\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-submit-match-review-score-float",
+    "tool": "submit_match_review",
+    "arguments": {
+      "request": {
+        "reportId": "00000000-0000-4000-8000-0000000000ee",
+        "reviewer": "synthetic-reviewer",
+        "model": "synthetic-model",
+        "reviewVersion": "v1",
+        "overallScore": 50.0,
+        "outcome": "PARTIAL_MATCH",
+        "blockerMismatch": false,
+        "components": [
+          {
+            "component": "TECHNICAL",
+            "earnedPoints": 10,
+            "availablePoints": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "evidence": [
+          {
+            "component": "TECHNICAL",
+            "status": "MATCH",
+            "sourceType": "skill",
+            "fact": "Synthetic skill",
+            "outcomeChangingDefect": false
+          }
+        ],
+        "summary": "Synthetic summary"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool submit_match_review: 1 validation error for submit_match_reviewArguments\nrequest.overallScore\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-analyze_job_match-request-list",
+    "tool": "analyze_job_match",
+    "arguments": {
+      "request": []
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool analyze_job_match: 1 validation error for analyze_job_matchArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-analyze_all_job_matches-request-list",
+    "tool": "analyze_all_job_matches",
+    "arguments": {
+      "request": []
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool analyze_all_job_matches: 1 validation error for analyze_all_job_matchesArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get_match_report-request-list",
+    "tool": "get_match_report",
+    "arguments": {
+      "request": []
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_match_report: 1 validation error for get_match_reportArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list_match_reports-request-list",
+    "tool": "list_match_reports",
+    "arguments": {
+      "request": []
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_match_reports: 1 validation error for list_match_reportsArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-submit_match_review-request-list",
+    "tool": "submit_match_review",
+    "arguments": {
+      "request": []
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool submit_match_review: 1 validation error for submit_match_reviewArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get_match_review-request-list",
+    "tool": "get_match_review",
+    "arguments": {
+      "request": []
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_match_review: 1 validation error for get_match_reviewArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list_match_reviews-request-list",
+    "tool": "list_match_reviews",
+    "arguments": {
+      "request": []
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_match_reviews: 1 validation error for list_match_reviewsArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list_match_disagreements-request-list",
+    "tool": "list_match_disagreements",
+    "arguments": {
+      "request": []
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_match_disagreements: 1 validation error for list_match_disagreementsArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-acknowledge_match_disagreement-request-list",
+    "tool": "acknowledge_match_disagreement",
+    "arguments": {
+      "request": []
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool acknowledge_match_disagreement: 1 validation error for acknowledge_match_disagreementArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-link_match_disagreement-request-list",
+    "tool": "link_match_disagreement",
+    "arguments": {
+      "request": []
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool link_match_disagreement: 1 validation error for link_match_disagreementArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-analyze-all-job-matches-limit-bool",
+    "tool": "analyze_all_job_matches",
+    "arguments": {
+      "request": {
+        "profileId": "00000000-0000-4000-8000-0000000000aa",
+        "limit": true
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool analyze_all_job_matches: 1 validation error for analyze_all_job_matchesArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-match-reports-limit-string",
+    "tool": "list_match_reports",
+    "arguments": {
+      "request": {
+        "limit": "20"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_match_reports: 1 validation error for list_match_reportsArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-match-reviews-limit-bool",
+    "tool": "list_match_reviews",
+    "arguments": {
+      "request": {
+        "limit": true
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_match_reviews: 1 validation error for list_match_reviewsArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-match-disagreements-limit-bool",
+    "tool": "list_match_disagreements",
+    "arguments": {
+      "request": {
+        "limit": true
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_match_disagreements: 1 validation error for list_match_disagreementsArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-match-disagreements-limit-string",
+    "tool": "list_match_disagreements",
+    "arguments": {
+      "request": {
+        "limit": "20"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_match_disagreements: 1 validation error for list_match_disagreementsArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-list-match-disagreements-limit-float",
+    "tool": "list_match_disagreements",
+    "arguments": {
+      "request": {
+        "limit": 20.0
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool list_match_disagreements: 1 validation error for list_match_disagreementsArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-submit-match-review-blocker-string",
+    "tool": "submit_match_review",
+    "arguments": {
+      "request": {
+        "reportId": "00000000-0000-4000-8000-0000000000ee",
+        "reviewer": "synthetic-reviewer",
+        "model": "synthetic-model",
+        "reviewVersion": "v1",
+        "overallScore": 80,
+        "outcome": "PARTIAL_MATCH",
+        "blockerMismatch": "false",
+        "components": [
+          {
+            "component": "TECHNICAL",
+            "earnedPoints": 10,
+            "availablePoints": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "evidence": [
+          {
+            "component": "TECHNICAL",
+            "status": "MATCH",
+            "sourceType": "skill",
+            "fact": "Synthetic skill",
+            "outcomeChangingDefect": false
+          }
+        ],
+        "summary": "Synthetic summary"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool submit_match_review: 1 validation error for submit_match_reviewArguments\nrequest.blockerMismatch\n  Input should be a valid boolean [type=bool_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/bool_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-store-document-file-missing-request",
+    "tool": "store_document_file",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool store_document_file: 1 validation error for store_document_fileArguments\nrequest\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-store-document-file-request-missing-keys",
+    "tool": "store_document_file",
+    "arguments": {
+      "request": {}
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool store_document_file: 2 validation errors for store_document_fileArguments\nrequest.path\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.mediaType\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-store-document-file-path-integer",
+    "tool": "store_document_file",
+    "arguments": {
+      "request": {
+        "path": 5,
+        "mediaType": null
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool store_document_file: 1 validation error for store_document_fileArguments\nrequest.path\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-store-document-file-several-errors",
+    "tool": "store_document_file",
+    "arguments": {
+      "request": {
+        "path": 5,
+        "mediaType": 3
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool store_document_file: 2 validation errors for store_document_fileArguments\nrequest.path\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\nrequest.mediaType\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-store-document-file-request-not-object",
+    "tool": "store_document_file",
+    "arguments": {
+      "request": "synthetic/inbox/resume-synthetic.pdf"
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool store_document_file: 1 validation error for store_document_fileArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-extract-pdf-text-max-characters-string",
+    "tool": "extract_pdf_text",
+    "arguments": {
+      "request": {
+        "path": "x.pdf",
+        "maxCharacters": "10",
+        "includePages": null
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool extract_pdf_text: 1 validation error for extract_pdf_textArguments\nrequest.maxCharacters\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-extract-pdf-text-include-pages-string",
+    "tool": "extract_pdf_text",
+    "arguments": {
+      "request": {
+        "path": "x.pdf",
+        "maxCharacters": null,
+        "includePages": "yes"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool extract_pdf_text: 1 validation error for extract_pdf_textArguments\nrequest.includePages\n  Input should be a valid boolean [type=bool_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/bool_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-extract-stored-pdf-text-document-id-integer",
+    "tool": "extract_stored_pdf_text",
+    "arguments": {
+      "request": {
+        "documentId": 12,
+        "maxCharacters": null,
+        "includePages": null,
+        "persistExtraction": null
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool extract_stored_pdf_text: 1 validation error for extract_stored_pdf_textArguments\nrequest.documentId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-extract-stored-pdf-text-persist-integer",
+    "tool": "extract_stored_pdf_text",
+    "arguments": {
+      "request": {
+        "documentId": "00000000-0000-4000-8000-0000000000cc",
+        "maxCharacters": null,
+        "includePages": null,
+        "persistExtraction": 1
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool extract_stored_pdf_text: 1 validation error for extract_stored_pdf_textArguments\nrequest.persistExtraction\n  Input should be a valid boolean [type=bool_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/bool_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-document-metadata-missing",
+    "tool": "get_document_metadata",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_document_metadata: 1 validation error for get_document_metadataArguments\ndocumentId\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-document-metadata-id-integer",
+    "tool": "get_document_metadata",
+    "arguments": {
+      "documentId": 12
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_document_metadata: 1 validation error for get_document_metadataArguments\ndocumentId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-ingest-profile-missing-document-id",
+    "tool": "ingest_profile_from_stored_pdf",
+    "arguments": {
+      "request": {}
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool ingest_profile_from_stored_pdf: 1 validation error for ingest_profile_from_stored_pdfArguments\nrequest.documentId\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-ingest-profile-document-id-null",
+    "tool": "ingest_profile_from_stored_pdf",
+    "arguments": {
+      "request": {
+        "documentId": null
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool ingest_profile_from_stored_pdf: 1 validation error for ingest_profile_from_stored_pdfArguments\nrequest.documentId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-ingest-profile-expected-revision-float",
+    "tool": "ingest_profile_from_stored_pdf",
+    "arguments": {
+      "request": {
+        "documentId": "00000000-0000-4000-8000-0000000000cc",
+        "expectedRevision": 2.0
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool ingest_profile_from_stored_pdf: 1 validation error for ingest_profile_from_stored_pdfArguments\nrequest.expectedRevision\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-ingest-profile-overwrite-string",
+    "tool": "ingest_profile_from_stored_pdf",
+    "arguments": {
+      "request": {
+        "documentId": "00000000-0000-4000-8000-0000000000cc",
+        "overwriteExistingProfile": "true"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool ingest_profile_from_stored_pdf: 1 validation error for ingest_profile_from_stored_pdfArguments\nrequest.overwriteExistingProfile\n  Input should be a valid boolean [type=bool_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/bool_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-ingest-profile-existing-id-integer",
+    "tool": "ingest_profile_from_stored_pdf",
+    "arguments": {
+      "request": {
+        "documentId": "00000000-0000-4000-8000-0000000000cc",
+        "existingProfileId": 5
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool ingest_profile_from_stored_pdf: 1 validation error for ingest_profile_from_stored_pdfArguments\nrequest.existingProfileId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-ingest-profile-several-errors",
+    "tool": "ingest_profile_from_stored_pdf",
+    "arguments": {
+      "request": {
+        "documentId": 5,
+        "overwriteExistingProfile": "x",
+        "maxCharacters": "y"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool ingest_profile_from_stored_pdf: 3 validation errors for ingest_profile_from_stored_pdfArguments\nrequest.documentId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type\nrequest.overwriteExistingProfile\n  Input should be a valid boolean [type=bool_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/bool_type\nrequest.maxCharacters\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-profile-pdf-source-missing",
+    "tool": "get_profile_pdf_source",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_profile_pdf_source: 1 validation error for get_profile_pdf_sourceArguments\nprofileId\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-profile-pdf-source-id-boolean",
+    "tool": "get_profile_pdf_source",
+    "arguments": {
+      "profileId": true
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_profile_pdf_source: 1 validation error for get_profile_pdf_sourceArguments\nprofileId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-generate-pdf-file-non-string-title",
+    "tool": "generate_pdf_file",
+    "arguments": {
+      "request": {
+        "fileName": null,
+        "title": 7,
+        "body": null
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool generate_pdf_file: 1 validation error for generate_pdf_fileArguments\nrequest.title\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-generate-pdf-file-missing-keys",
+    "tool": "generate_pdf_file",
+    "arguments": {
+      "request": {
+        "title": null
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool generate_pdf_file: 2 validation errors for generate_pdf_fileArguments\nrequest.fileName\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\nrequest.body\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-generate-pdf-resume-null-request",
+    "tool": "generate_pdf_resume",
+    "arguments": {
+      "request": null
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool generate_pdf_resume: 1 validation error for generate_pdf_resumeArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-generate-canadian-pdf-resume-integer-profile",
+    "tool": "generate_canadian_pdf_resume",
+    "arguments": {
+      "request": {
+        "profileId": 12
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool generate_canadian_pdf_resume: 1 validation error for generate_canadian_pdf_resumeArguments\nrequest.profileId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-generate-german-tailored-resume-integer-flag",
+    "tool": "generate_german_tailored_resume",
+    "arguments": {
+      "request": {
+        "profileId": "00000000-0000-4000-8000-0000000000aa",
+        "jobId": "00000000-0000-4000-8000-0000000000bb",
+        "includeProjects": 1
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool generate_german_tailored_resume: 1 validation error for generate_german_tailored_resumeArguments\nrequest.includeProjects\n  Input should be a valid boolean [type=bool_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/bool_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-generate-german-tailored-resume-missing-job",
+    "tool": "generate_german_tailored_resume",
+    "arguments": {
+      "request": {
+        "profileId": "00000000-0000-4000-8000-0000000000aa",
+        "includeProjects": null
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool generate_german_tailored_resume: 1 validation error for generate_german_tailored_resumeArguments\nrequest.jobId\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-generate-german-cover-letter-non-string-resume",
+    "tool": "generate_german_cover_letter",
+    "arguments": {
+      "request": {
+        "profileId": "00000000-0000-4000-8000-0000000000aa",
+        "jobId": "00000000-0000-4000-8000-0000000000bb",
+        "resumeId": 3
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool generate_german_cover_letter: 1 validation error for generate_german_cover_letterArguments\nrequest.resumeId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-delete-profile-missing",
+    "tool": "delete_profile",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool delete_profile: 1 validation error for delete_profileArguments\nprofileId\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-delete-profile-null",
+    "tool": "delete_profile",
+    "arguments": {
+      "profileId": null
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool delete_profile: 1 validation error for delete_profileArguments\nprofileId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-delete-profile-int",
+    "tool": "delete_profile",
+    "arguments": {
+      "profileId": 5
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool delete_profile: 1 validation error for delete_profileArguments\nprofileId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-delete-profile-bool",
+    "tool": "delete_profile",
+    "arguments": {
+      "profileId": true
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool delete_profile: 1 validation error for delete_profileArguments\nprofileId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-delete-profile-float",
+    "tool": "delete_profile",
+    "arguments": {
+      "profileId": 1.5
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool delete_profile: 1 validation error for delete_profileArguments\nprofileId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-delete-profile-list",
+    "tool": "delete_profile",
+    "arguments": {
+      "profileId": [
+        "https://203.0.113.7/jobs/1"
+      ]
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool delete_profile: 1 validation error for delete_profileArguments\nprofileId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-delete-profile-object",
+    "tool": "delete_profile",
+    "arguments": {
+      "profileId": {
+        "id": "x"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool delete_profile: 1 validation error for delete_profileArguments\nprofileId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-delete-job-missing",
+    "tool": "delete_job",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool delete_job: 1 validation error for delete_jobArguments\njobId\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-delete-job-null",
+    "tool": "delete_job",
+    "arguments": {
+      "jobId": null
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool delete_job: 1 validation error for delete_jobArguments\njobId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-delete-job-int",
+    "tool": "delete_job",
+    "arguments": {
+      "jobId": 5
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool delete_job: 1 validation error for delete_jobArguments\njobId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-delete-job-bool",
+    "tool": "delete_job",
+    "arguments": {
+      "jobId": true
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool delete_job: 1 validation error for delete_jobArguments\njobId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-delete-job-float",
+    "tool": "delete_job",
+    "arguments": {
+      "jobId": 1.5
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool delete_job: 1 validation error for delete_jobArguments\njobId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-delete-job-list",
+    "tool": "delete_job",
+    "arguments": {
+      "jobId": [
+        "https://203.0.113.7/jobs/1"
+      ]
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool delete_job: 1 validation error for delete_jobArguments\njobId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-delete-job-object",
+    "tool": "delete_job",
+    "arguments": {
+      "jobId": {
+        "id": "x"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool delete_job: 1 validation error for delete_jobArguments\njobId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-add-job-from-link-missing-request",
+    "tool": "add_job_from_link",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool add_job_from_link: 1 validation error for add_job_from_linkArguments\nrequest\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-add-job-from-link-url-at-top-level",
+    "tool": "add_job_from_link",
+    "arguments": {
+      "url": "https://203.0.113.7/jobs/1"
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool add_job_from_link: 1 validation error for add_job_from_linkArguments\nrequest\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-document-artifact-missing",
+    "tool": "get_document_artifact",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_document_artifact: 1 validation error for get_document_artifactArguments\ndocumentId\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-document-artifact-null",
+    "tool": "get_document_artifact",
+    "arguments": {
+      "documentId": null
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_document_artifact: 1 validation error for get_document_artifactArguments\ndocumentId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-document-artifact-int",
+    "tool": "get_document_artifact",
+    "arguments": {
+      "documentId": 5
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_document_artifact: 1 validation error for get_document_artifactArguments\ndocumentId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-document-artifact-bool",
+    "tool": "get_document_artifact",
+    "arguments": {
+      "documentId": true
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_document_artifact: 1 validation error for get_document_artifactArguments\ndocumentId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-document-artifact-float",
+    "tool": "get_document_artifact",
+    "arguments": {
+      "documentId": 1.5
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_document_artifact: 1 validation error for get_document_artifactArguments\ndocumentId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-document-artifact-list",
+    "tool": "get_document_artifact",
+    "arguments": {
+      "documentId": [
+        "https://203.0.113.7/jobs/1"
+      ]
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_document_artifact: 1 validation error for get_document_artifactArguments\ndocumentId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-get-document-artifact-object",
+    "tool": "get_document_artifact",
+    "arguments": {
+      "documentId": {
+        "id": "x"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool get_document_artifact: 1 validation error for get_document_artifactArguments\ndocumentId\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-scan-limit-string",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "limit": "5"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool scan_arbeitnow_jobs: 1 validation error for scan_arbeitnow_jobsArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-scan-limit-bool",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "limit": true
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool scan_arbeitnow_jobs: 1 validation error for scan_arbeitnow_jobsArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-scan-limit-float",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "limit": 2.5
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool scan_arbeitnow_jobs: 1 validation error for scan_arbeitnow_jobsArguments\nrequest.limit\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-scan-remote-string",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "remoteOnly": "true"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool scan_arbeitnow_jobs: 1 validation error for scan_arbeitnow_jobsArguments\nrequest.remoteOnly\n  Input should be a valid boolean [type=bool_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/bool_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-scan-visa-int",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "visaSponsorship": 1
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool scan_arbeitnow_jobs: 1 validation error for scan_arbeitnow_jobsArguments\nrequest.visaSponsorship\n  Input should be a valid boolean [type=bool_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/bool_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-scan-max-pages-string",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "maxPages": "2"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool scan_arbeitnow_jobs: 1 validation error for scan_arbeitnow_jobsArguments\nrequest.maxPages\n  Input should be a valid integer [type=int_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-scan-query-int",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "query": 5
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool scan_arbeitnow_jobs: 1 validation error for scan_arbeitnow_jobsArguments\nrequest.query\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-scan-tags-string",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "tags": "Rust"
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool scan_arbeitnow_jobs: 1 validation error for scan_arbeitnow_jobsArguments\nrequest.tags\n  Input should be a valid list [type=list_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/list_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-scan-tags-item-int",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "tags": [
+          "Rust",
+          3
+        ]
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool scan_arbeitnow_jobs: 1 validation error for scan_arbeitnow_jobsArguments\nrequest.tags.1\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-scan-job-types-item-null",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": {
+        "jobTypes": [
+          null
+        ]
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool scan_arbeitnow_jobs: 1 validation error for scan_arbeitnow_jobsArguments\nrequest.jobTypes.0\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-scan-request-string",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": "Rust"
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool scan_arbeitnow_jobs: 1 validation error for scan_arbeitnow_jobsArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-scan-request-list",
+    "tool": "scan_arbeitnow_jobs",
+    "arguments": {
+      "request": []
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool scan_arbeitnow_jobs: 1 validation error for scan_arbeitnow_jobsArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-import-missing-request",
+    "tool": "import_arbeitnow_job",
+    "arguments": {},
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool import_arbeitnow_job: 1 validation error for import_arbeitnow_jobArguments\nrequest\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-import-request-null",
+    "tool": "import_arbeitnow_job",
+    "arguments": {
+      "request": null
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool import_arbeitnow_job: 1 validation error for import_arbeitnow_jobArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-import-request-string",
+    "tool": "import_arbeitnow_job",
+    "arguments": {
+      "request": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLWJlcmxpbiIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItYmVybGluIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.dCanEfnCmDAaGxs_wEJr2FHiImBnq920aWma80WkwRg"
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool import_arbeitnow_job: 1 validation error for import_arbeitnow_jobArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-import-request-list",
+    "tool": "import_arbeitnow_job",
+    "arguments": {
+      "request": [
+        "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLWJlcmxpbiIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItYmVybGluIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.dCanEfnCmDAaGxs_wEJr2FHiImBnq920aWma80WkwRg"
+      ]
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool import_arbeitnow_job: 1 validation error for import_arbeitnow_jobArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-import-request-int",
+    "tool": "import_arbeitnow_job",
+    "arguments": {
+      "request": 5
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool import_arbeitnow_job: 1 validation error for import_arbeitnow_jobArguments\nrequest\n  Input should be a valid dictionary [type=dict_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/dict_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-import-token-missing",
+    "tool": "import_arbeitnow_job",
+    "arguments": {
+      "request": {}
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool import_arbeitnow_job: 1 validation error for import_arbeitnow_jobArguments\nrequest.candidateToken\n  Field required [type=missing]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-import-token-int",
+    "tool": "import_arbeitnow_job",
+    "arguments": {
+      "request": {
+        "candidateToken": 5
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool import_arbeitnow_job: 1 validation error for import_arbeitnow_jobArguments\nrequest.candidateToken\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-import-token-list",
+    "tool": "import_arbeitnow_job",
+    "arguments": {
+      "request": {
+        "candidateToken": [
+          "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxNzkxNTQ3MjAwLCJleHBpcmVzQXQiOjE3OTE1NDgxMDAsInNsdWciOiJydXN0LWVuZ2luZWVyLWJlcmxpbiIsImNhbm9uaWNhbFVybCI6Imh0dHBzOi8vYXJiZWl0bm93LmNvbS92aWV3L3J1c3QtZW5naW5lZXItYmVybGluIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTc5MTU0NzIwMCwidGFncyI6WyJSdXN0IiwiU1FMIl0sImpvYlR5cGVzIjpbIkZ1bGwgVGltZSJdLCJkZXNjcmlwdGlvbkV4Y2VycHQiOiJCdWlsZCBzeW50aGV0aWMgdGhpbmdzLiJ9.dCanEfnCmDAaGxs_wEJr2FHiImBnq920aWma80WkwRg"
+        ]
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool import_arbeitnow_job: 1 validation error for import_arbeitnow_jobArguments\nrequest.candidateToken\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  },
+  {
+    "id": "argument-import-token-bool",
+    "tool": "import_arbeitnow_job",
+    "arguments": {
+      "request": {
+        "candidateToken": false
+      }
+    },
+    "service": null,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Error executing tool import_arbeitnow_job: 1 validation error for import_arbeitnow_jobArguments\nrequest.candidateToken\n  Input should be a valid string [type=string_type]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+        }
+      ],
+      "isError": true,
+      "resultType": "complete"
+    }
+  }
+]

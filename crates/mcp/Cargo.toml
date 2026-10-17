@@ -1,0 +1,38 @@
+[package]
+name = "jobniac-mcp"
+description = "MCP tool catalog and transports for Jobniac"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[dependencies]
+async-trait.workspace = true
+bytes.workspace = true
+http.workspace = true
+http-body.workspace = true
+http-body-util.workspace = true
+hyper.workspace = true
+hyper-util.workspace = true
+jobniac-core.workspace = true
+jobniac-text.workspace = true
+rmcp.workspace = true
+secrecy.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
+tokio = { workspace = true, features = ["net"] }
+tower-service.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+indexmap.workspace = true
+rmcp = { workspace = true, features = ["client"] }
+time.workspace = true
+tokio.workspace = true
+
+[lints]
+workspace = true

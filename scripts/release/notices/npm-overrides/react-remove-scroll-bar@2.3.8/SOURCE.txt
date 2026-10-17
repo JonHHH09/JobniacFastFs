@@ -1,0 +1,4 @@
+Override licence text for react-remove-scroll-bar@2.3.8 (npm, MIT).
+The npm package ships no licence file; its package.json declares MIT and its README repeats it.
+The LICENSE file here is copied verbatim from the upstream repository theKashey/react-remove-scroll-bar
+(default branch, blob 7c08c3990396ecefd90f99ff5d9a34f26f5b5616, 1093 bytes). Re-check when the version changes.

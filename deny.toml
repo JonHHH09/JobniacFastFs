@@ -1,0 +1,68 @@
+# cargo-deny policy for the locked Cargo graph.
+# Run from the repository root: `cargo deny check` (CI job `supply-chain`).
+
+[graph]
+# Check the platforms the desktop app and the CLI ship on.
+targets = [
+    "x86_64-pc-windows-msvc",
+    "x86_64-unknown-linux-gnu",
+]
+all-features = true
+
+[advisories]
+version = 2
+yanked = "deny"
+# The first two entries are "unmaintained" notices, not vulnerabilities, for build-time proc-macro
+# helpers that this repository does not depend on directly. The third is an unsoundness notice in an
+# API of the GTK3 stack that no code here calls. Re-check when specta or Tauri move on.
+ignore = [
+    { id = "RUSTSEC-2024-0436", reason = "paste is unmaintained; pulled only by specta 2.0.0-rc.25 (typed IPC bindings generator, pinned in the root Cargo.toml); a proc-macro with no runtime code" },
+    { id = "RUSTSEC-2024-0370", reason = "proc-macro-error is unmaintained; pulled only by glib-macros and gtk3-macros of the Tauri 2 Linux GTK3 stack; compile-time only" },
+    { id = "RUSTSEC-2024-0429", reason = "glib 0.18 VariantStrIter unsoundness; glib comes only from the Tauri 2 Linux GTK3 stack, no code in this repository uses glib or VariantStrIter, and the fixed glib 0.20 needs a Tauri move off GTK3" },
+]
+
+[licenses]
+version = 2
+confidence-threshold = 0.9
+# Only permissive licences and the file-level copyleft licence needed by the
+# Tauri tree are allowed. Anything not listed fails the check.
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Unicode-3.0",
+    "Zlib",
+    "CC0-1.0",
+    "0BSD",
+    "BSL-1.0",
+    # File-level weak copyleft. Required by the Tauri 2 tree (cssparser,
+    # selectors, option-ext, dtoa-short). It applies only to modified MPL
+    # files, and this project does not modify those crates.
+    "MPL-2.0",
+]
+# Everything that is not listed above is refused, so the strong copyleft
+# families (GPL, AGPL, LGPL, SSPL) can never enter the graph.
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+# Path dependencies inside this workspace may use wildcard requirements.
+allow-wildcard-paths = true
+# The outbound TLS stack is rustls-only. OpenSSL and native-tls are denied.
+deny = [
+    { name = "openssl" },
+    { name = "openssl-sys" },
+    { name = "native-tls" },
+    # MuPDF is AGPL-3.0 and rejected.
+    { name = "mupdf" },
+    { name = "mupdf-sys" },
+]
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

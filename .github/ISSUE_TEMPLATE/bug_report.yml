@@ -1,0 +1,60 @@
+name: Bug report
+description: Report a reproducible problem. For security issues use private vulnerability reporting (Security tab), not this form.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not report security vulnerabilities here; use private vulnerability reporting (see SECURITY.md).
+
+        Do not include secrets, tokens, database connection strings, local paths or real personal data (resumes, contact details).
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows 11 x64
+        - Linux x64
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where does it happen?
+      options:
+        - Desktop app
+        - MCP (STDIO)
+        - MCP (loopback HTTP)
+        - CLI command
+        - Build or installer
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output
+      description: Sanitized messages only. Remove anything personal or secret.
+      render: text

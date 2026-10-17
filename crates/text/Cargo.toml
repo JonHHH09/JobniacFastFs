@@ -1,0 +1,21 @@
+[package]
+name = "jobniac-text"
+description = "Java and Unicode text semantics for Jobniac (UTF-16, whitespace, case, segmentation)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[dependencies]
+unicode-general-category.workspace = true
+unicode-normalization.workspace = true
+unicode-segmentation.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[lints]
+workspace = true

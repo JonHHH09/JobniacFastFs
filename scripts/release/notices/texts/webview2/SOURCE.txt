@@ -1,0 +1,9 @@
+Source of EULA.txt (Microsoft Edge WebView2 Runtime terms, en-us)
+
+Retrieved: 2026-10-16
+Origin: https://developer.microsoft.com/microsoft-edge/api/eula/webview2 (the WebView2 EULA endpoint of developer.microsoft.com; the JSON field "evergreenHtml" holds the Evergreen terms)
+Page the endpoint serves the terms for: https://developer.microsoft.com/en-us/microsoft-edge/webview2/
+Method: the HTML of "evergreenHtml" was read as UTF-8 and converted to plain text. Markup was removed and the line breaks inside each paragraph were joined. The word sequence was compared with the HTML text (identical, 2562 words). No wording was changed.
+SHA-256 of EULA.txt: ea872143d6deec90961d3fcfe303c199b3c8fcbe168fed5a6447ce916e37aa53
+
+Re-check when the terms change: fetch the endpoint again, repeat the comparison and update this file and EULA.txt in one change.

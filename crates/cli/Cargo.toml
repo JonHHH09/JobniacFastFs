@@ -1,0 +1,51 @@
+[package]
+name = "jobniac-cli"
+description = "Jobniac console binary: MCP, migrations, maintenance and workers"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "jobniac-cli"
+path = "src/main.rs"
+
+[features]
+# Gates the PostgreSQL test files that fail closed on CI without a server (see jobniac-infra).
+postgres-tests = []
+
+[dependencies]
+async-trait.workspace = true
+clap.workspace = true
+# PDFium child operations. The features are set here, not in the workspace entry, so the
+# binding matches the pinned library fetched by scripts/fetch-pdfium.* (chromium/7881).
+image = { workspace = true }
+pdfium-render = { workspace = true, default-features = false, features = ["pdfium_7881", "image_025", "thread_safe"] }
+jobniac-core.workspace = true
+jobniac-infra.workspace = true
+jobniac-mcp.workspace = true
+jobniac-runtime.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tracing-subscriber.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+jobniac-testkit.workspace = true
+tempfile.workspace = true
+# The sandbox operation of the probe worker kind exists only when asked for; the tests ask.
+jobniac-infra = { workspace = true, features = ["worker-probe"] }
+
+[[test]]
+name = "generation_cli_success"
+required-features = ["postgres-tests"]
+
+[[test]]
+name = "generated_root_setup_pg"
+required-features = ["postgres-tests"]
+
+[lints]
+workspace = true

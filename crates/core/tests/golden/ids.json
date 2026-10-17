@@ -1,0 +1,580 @@
+{
+ "format": 1,
+ "notes": [
+  "Every string is valid Unicode. Lone surrogates are excluded.",
+  "Admission follows the canonical pattern at request boundaries."
+ ],
+ "admissionField": "jobId",
+ "admissionMessage": "Invalid job request",
+ "admission": [
+  {
+   "value": "0f0e0d0c-0b0a-4908-8706-050403020100",
+   "ok": true,
+   "id": "0f0e0d0c-0b0a-4908-8706-050403020100"
+  },
+  {
+   "value": "0F0E0D0C-0B0A-4908-8706-050403020100",
+   "ok": true,
+   "id": "0f0e0d0c-0b0a-4908-8706-050403020100"
+  },
+  {
+   "value": "0f0E0d0C-0b0A-4908-8706-050403020100",
+   "ok": true,
+   "id": "0f0e0d0c-0b0a-4908-8706-050403020100"
+  },
+  {
+   "value": "00000000-0000-0000-0000-000000000000",
+   "ok": true,
+   "id": "00000000-0000-0000-0000-000000000000"
+  },
+  {
+   "value": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+   "ok": true,
+   "id": "ffffffff-ffff-ffff-ffff-ffffffffffff"
+  },
+  {
+   "value": "{0f0e0d0c-0b0a-4908-8706-050403020100}",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "value": "urn:uuid:0f0e0d0c-0b0a-4908-8706-050403020100",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "value": "0f0e0d0c0b0a49088706050403020100",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "value": "0f0e0d0c_0b0a_4908_8706_050403020100",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "value": " 0f0e0d0c-0b0a-4908-8706-050403020100",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "value": "0f0e0d0c-0b0a-4908-8706-050403020100 ",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "value": "0f0e0d0c-0b0a-4908-8706-050403020100\n",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "value": "0f0e0d0c-0b0a-4908-8706-05040302010",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "value": "0f0e0d0c-0b0a-4908-8706-0504030201000",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "value": "0f0e0d0c-0b0a-4908-8706-05040302010g",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "value": "0f0e0d0c0-0b0a-4908-8706-050403020100",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "value": "0f0e0d0c-0b0a-4908-8706-05040302010-0",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "value": "0f0e0d0c-0b0a-4908-870-6050403020100",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "value": "0f0e0d0c-0b0a-4908-8706-05040302010\u0661",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "value": "\u0660f0e0d0c-0b0a-4908-8706-050403020100",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "value": "0f0e0d0c-0b0a-4908-8706-050403020100\u200b",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "value": "not-a-uuid",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "value": "",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  }
+ ],
+ "boundaries": [
+  {
+   "boundary": "entityDeletion",
+   "value": null,
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "boundary": "entityDeletion",
+   "value": "0f0e0d0c-0b0a-4908-8706-050403020100",
+   "ok": true,
+   "id": "0f0e0d0c-0b0a-4908-8706-050403020100"
+  },
+  {
+   "boundary": "entityDeletion",
+   "value": "0F0E0D0C-0B0A-4908-8706-050403020100",
+   "ok": true,
+   "id": "0f0e0d0c-0b0a-4908-8706-050403020100"
+  },
+  {
+   "boundary": "entityDeletion",
+   "value": "{0f0e0d0c-0b0a-4908-8706-050403020100}",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "boundary": "entityDeletion",
+   "value": "0f0e0d0c0b0a49088706050403020100",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "boundary": "entityDeletion",
+   "value": "not-a-uuid",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "boundary": "entityDeletion",
+   "value": "",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "boundary": "entityDeletion",
+   "value": " 0f0e0d0c-0b0a-4908-8706-050403020100",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "boundary": "entityDeletion",
+   "value": "0f0e0d0c-0b0a-4908-8706-05040302010\u0661",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "boundary": "matchingRequiredId",
+   "value": null,
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "jobId must not be null",
+    "details": {}
+   }
+  },
+  {
+   "boundary": "matchingRequiredId",
+   "value": "0f0e0d0c-0b0a-4908-8706-050403020100",
+   "ok": true,
+   "id": "0f0e0d0c-0b0a-4908-8706-050403020100"
+  },
+  {
+   "boundary": "matchingRequiredId",
+   "value": "0F0E0D0C-0B0A-4908-8706-050403020100",
+   "ok": true,
+   "id": "0f0e0d0c-0b0a-4908-8706-050403020100"
+  },
+  {
+   "boundary": "matchingRequiredId",
+   "value": "{0f0e0d0c-0b0a-4908-8706-050403020100}",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "jobId must be a valid UUID",
+    "details": {}
+   }
+  },
+  {
+   "boundary": "matchingRequiredId",
+   "value": "0f0e0d0c0b0a49088706050403020100",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "jobId must be a valid UUID",
+    "details": {}
+   }
+  },
+  {
+   "boundary": "matchingRequiredId",
+   "value": "not-a-uuid",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "jobId must be a valid UUID",
+    "details": {}
+   }
+  },
+  {
+   "boundary": "matchingRequiredId",
+   "value": "",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "jobId must be a valid UUID",
+    "details": {}
+   }
+  },
+  {
+   "boundary": "matchingRequiredId",
+   "value": " 0f0e0d0c-0b0a-4908-8706-050403020100",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "jobId must be a valid UUID",
+    "details": {}
+   }
+  },
+  {
+   "boundary": "matchingRequiredId",
+   "value": "0f0e0d0c-0b0a-4908-8706-05040302010\u0661",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "jobId must be a valid UUID",
+    "details": {}
+   }
+  },
+  {
+   "boundary": "generationIdentity",
+   "value": null,
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must not be null"
+    }
+   }
+  },
+  {
+   "boundary": "generationIdentity",
+   "value": "0f0e0d0c-0b0a-4908-8706-050403020100",
+   "ok": true,
+   "id": "0f0e0d0c-0b0a-4908-8706-050403020100"
+  },
+  {
+   "boundary": "generationIdentity",
+   "value": "0F0E0D0C-0B0A-4908-8706-050403020100",
+   "ok": true,
+   "id": "0f0e0d0c-0b0a-4908-8706-050403020100"
+  },
+  {
+   "boundary": "generationIdentity",
+   "value": "{0f0e0d0c-0b0a-4908-8706-050403020100}",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "boundary": "generationIdentity",
+   "value": "0f0e0d0c0b0a49088706050403020100",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "boundary": "generationIdentity",
+   "value": "not-a-uuid",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "boundary": "generationIdentity",
+   "value": "",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "boundary": "generationIdentity",
+   "value": " 0f0e0d0c-0b0a-4908-8706-050403020100",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  },
+  {
+   "boundary": "generationIdentity",
+   "value": "0f0e0d0c-0b0a-4908-8706-05040302010\u0661",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "jobId",
+     "reason": "must be a valid UUID"
+    }
+   }
+  }
+ ],
+ "nameUuid": [
+  {
+   "identity": "deterministic-v1|0f0e0d0c-0b0a-4908-8706-050403020100|2026-09-22T19:26:28.717138Z|00000000-0000-4000-8000-000000000001|2026-09-21T10:00:00Z",
+   "id": "cc7a62ec-7ce3-34f8-9317-6b93a54d21bb"
+  },
+  {
+   "identity": "deterministic-v1|00000000-0000-4000-8000-000000000002|2026-09-22T19:26:28Z|00000000-0000-4000-8000-000000000003|2026-09-22T19:26:28.500Z",
+   "id": "46e6c817-a038-3fec-9732-555b31b90d9d"
+  },
+  {
+   "identity": "deterministic-v1|00000000-0000-4000-8000-000000000002|2026-09-22T19:26:28Z|00000000-0000-4000-8000-000000000003|2026-09-22T19:26:28.500Z|extra",
+   "id": "ae20029d-6c9a-3baf-97f5-e84b1e0e4a5a"
+  },
+  {
+   "identity": "",
+   "id": "d41d8cd9-8f00-3204-a980-0998ecf8427e"
+  },
+  {
+   "identity": "reportId|policyVersion|[]|[]",
+   "id": "86c2f2fd-7e17-38c5-9456-715d9a788578"
+  },
+  {
+   "identity": "identit\u00e4t|\u00fc|\ud83d\ude42",
+   "id": "5da3c976-cb5f-310d-840f-9eb8f1ef50ee"
+  },
+  {
+   "identity": "\u00a0\u2028 spaced \u2029\u001c",
+   "id": "42f9f96a-3909-3743-b8d4-02ba2d0ecb65"
+  },
+  {
+   "identity": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "id": "398533d4-8111-39f6-a4b1-f64cb10c4b63"
+  },
+  {
+   "identity": "Stra\u00dfe|\u01c5|\u0130|\u0131|\u03a3",
+   "id": "e07721b0-c47d-33b9-a497-a0174487afbd"
+  }
+ ]
+}

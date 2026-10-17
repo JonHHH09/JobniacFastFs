@@ -1,0 +1,8 @@
+# Normalize text to LF in the repository and in working copies, so SQL migrations, golden
+# fixtures and snapshots are byte-identical on every platform.
+* text=auto eol=lf
+
+*.png binary
+*.ico binary
+*.icns binary
+*.pdf binary

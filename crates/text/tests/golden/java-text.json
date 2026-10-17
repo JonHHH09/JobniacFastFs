@@ -1,0 +1,1104 @@
+{
+ "source": {
+  "unicode": "16.0.0"
+ },
+ "excluded": "surrogates U+D800..U+DFFF (not representable in Rust)",
+ "whitespace": {
+  "description": "Java whitespace over every code point (single characters)",
+  "ranges": [
+   "0009-000D",
+   "001C-0020",
+   "1680",
+   "2000-2006",
+   "2008-200A",
+   "2028-2029",
+   "205F",
+   "3000"
+  ]
+ },
+ "strip": [
+  {
+   "input": "",
+   "output": ""
+  },
+  {
+   "input": " ",
+   "output": ""
+  },
+  {
+   "input": "a",
+   "output": "a"
+  },
+  {
+   "input": "plain ascii",
+   "output": "plain ascii"
+  },
+  {
+   "input": "\t\n\u000b\f\r\u001c\u001d\u001e\u001f ",
+   "output": ""
+  },
+  {
+   "input": "  a  ",
+   "output": "a"
+  },
+  {
+   "input": "\t x \t",
+   "output": "x"
+  },
+  {
+   "input": "\u00a0a\u00a0",
+   "output": "\u00a0a\u00a0"
+  },
+  {
+   "input": "\u2007a\u202f",
+   "output": "\u2007a\u202f"
+  },
+  {
+   "input": "\u0085a\u0085",
+   "output": "\u0085a\u0085"
+  },
+  {
+   "input": "\u1680a\u3000",
+   "output": "a"
+  },
+  {
+   "input": "\u2000\u2006\u2008\u200a\u2028\u2029\u205f",
+   "output": ""
+  },
+  {
+   "input": "\u2028line\u2029sep",
+   "output": "line\u2029sep"
+  },
+  {
+   "input": "a\u0000b\u0000",
+   "output": "a\u0000b\u0000"
+  },
+  {
+   "input": "\u0000a\b\u000e\u001b",
+   "output": "\u0000a\b\u000e\u001b"
+  },
+  {
+   "input": " \u0000",
+   "output": "\u0000"
+  },
+  {
+   "input": "x\u180ex",
+   "output": "x\u180ex"
+  },
+  {
+   "input": "\u200bx\u200b",
+   "output": "\u200bx\u200b"
+  },
+  {
+   "input": "\ufeffx",
+   "output": "\ufeffx"
+  },
+  {
+   "input": "\u001cone\u001ftwo\u001e",
+   "output": "one\u001ftwo"
+  },
+  {
+   "input": "\r\n",
+   "output": ""
+  },
+  {
+   "input": "\n",
+   "output": ""
+  },
+  {
+   "input": "\r",
+   "output": ""
+  },
+  {
+   "input": "\n\r",
+   "output": ""
+  },
+  {
+   "input": "\r\r\n\n",
+   "output": ""
+  },
+  {
+   "input": "a\nb",
+   "output": "a\nb"
+  },
+  {
+   "input": "a\rb\nc\r\nd",
+   "output": "a\rb\nc\r\nd"
+  },
+  {
+   "input": "a\n\rb",
+   "output": "a\n\rb"
+  },
+  {
+   "input": "x\n\n",
+   "output": "x"
+  },
+  {
+   "input": "a\r\n\r\nb",
+   "output": "a\r\n\r\nb"
+  },
+  {
+   "input": "\ud83d\ude00\ud83d\ude00 ",
+   "output": "\ud83d\ude00\ud83d\ude00"
+  },
+  {
+   "input": "\ud83d\ude00",
+   "output": "\ud83d\ude00"
+  },
+  {
+   "input": "e\u0301 \u0301",
+   "output": "e\u0301 \u0301"
+  },
+  {
+   "input": "\u0301",
+   "output": "\u0301"
+  },
+  {
+   "input": "a\u0130b",
+   "output": "a\u0130b"
+  },
+  {
+   "input": "i\u0131I",
+   "output": "i\u0131I"
+  },
+  {
+   "input": "\u03a3\u03b1\u03c3",
+   "output": "\u03a3\u03b1\u03c3"
+  },
+  {
+   "input": "\u0391\u03a3",
+   "output": "\u0391\u03a3"
+  },
+  {
+   "input": "stra\u00dfe",
+   "output": "stra\u00dfe"
+  },
+  {
+   "input": "\ufb01le",
+   "output": "\ufb01le"
+  },
+  {
+   "input": "\uff21\uff22\u3000",
+   "output": "\uff21\uff22"
+  },
+  {
+   "input": "\ufffd",
+   "output": "\ufffd"
+  },
+  {
+   "input": "\ue000",
+   "output": "\ue000"
+  },
+  {
+   "input": "\uffff",
+   "output": "\uffff"
+  },
+  {
+   "input": "\ud7ff",
+   "output": "\ud7ff"
+  },
+  {
+   "input": "tail\u2029",
+   "output": "tail"
+  },
+  {
+   "input": "e\u000bf\fg",
+   "output": "e\u000bf\fg"
+  }
+ ],
+ "is_blank": [
+  {
+   "input": "",
+   "result": true
+  },
+  {
+   "input": " ",
+   "result": true
+  },
+  {
+   "input": "a",
+   "result": false
+  },
+  {
+   "input": "plain ascii",
+   "result": false
+  },
+  {
+   "input": "\t\n\u000b\f\r\u001c\u001d\u001e\u001f ",
+   "result": true
+  },
+  {
+   "input": "  a  ",
+   "result": false
+  },
+  {
+   "input": "\t x \t",
+   "result": false
+  },
+  {
+   "input": "\u00a0a\u00a0",
+   "result": false
+  },
+  {
+   "input": "\u2007a\u202f",
+   "result": false
+  },
+  {
+   "input": "\u0085a\u0085",
+   "result": false
+  },
+  {
+   "input": "\u1680a\u3000",
+   "result": false
+  },
+  {
+   "input": "\u2000\u2006\u2008\u200a\u2028\u2029\u205f",
+   "result": true
+  },
+  {
+   "input": "\u2028line\u2029sep",
+   "result": false
+  },
+  {
+   "input": "a\u0000b\u0000",
+   "result": false
+  },
+  {
+   "input": "\u0000a\b\u000e\u001b",
+   "result": false
+  },
+  {
+   "input": " \u0000",
+   "result": false
+  },
+  {
+   "input": "x\u180ex",
+   "result": false
+  },
+  {
+   "input": "\u200bx\u200b",
+   "result": false
+  },
+  {
+   "input": "\ufeffx",
+   "result": false
+  },
+  {
+   "input": "\u001cone\u001ftwo\u001e",
+   "result": false
+  },
+  {
+   "input": "\r\n",
+   "result": true
+  },
+  {
+   "input": "\n",
+   "result": true
+  },
+  {
+   "input": "\r",
+   "result": true
+  },
+  {
+   "input": "\n\r",
+   "result": true
+  },
+  {
+   "input": "\r\r\n\n",
+   "result": true
+  },
+  {
+   "input": "a\nb",
+   "result": false
+  },
+  {
+   "input": "a\rb\nc\r\nd",
+   "result": false
+  },
+  {
+   "input": "a\n\rb",
+   "result": false
+  },
+  {
+   "input": "x\n\n",
+   "result": false
+  },
+  {
+   "input": "a\r\n\r\nb",
+   "result": false
+  },
+  {
+   "input": "\ud83d\ude00\ud83d\ude00 ",
+   "result": false
+  },
+  {
+   "input": "\ud83d\ude00",
+   "result": false
+  },
+  {
+   "input": "e\u0301 \u0301",
+   "result": false
+  },
+  {
+   "input": "\u0301",
+   "result": false
+  },
+  {
+   "input": "a\u0130b",
+   "result": false
+  },
+  {
+   "input": "i\u0131I",
+   "result": false
+  },
+  {
+   "input": "\u03a3\u03b1\u03c3",
+   "result": false
+  },
+  {
+   "input": "\u0391\u03a3",
+   "result": false
+  },
+  {
+   "input": "stra\u00dfe",
+   "result": false
+  },
+  {
+   "input": "\ufb01le",
+   "result": false
+  },
+  {
+   "input": "\uff21\uff22\u3000",
+   "result": false
+  },
+  {
+   "input": "\ufffd",
+   "result": false
+  },
+  {
+   "input": "\ue000",
+   "result": false
+  },
+  {
+   "input": "\uffff",
+   "result": false
+  },
+  {
+   "input": "\ud7ff",
+   "result": false
+  },
+  {
+   "input": "tail\u2029",
+   "result": false
+  },
+  {
+   "input": "e\u000bf\fg",
+   "result": false
+  }
+ ],
+ "lines": [
+  {
+   "input": "",
+   "lines": []
+  },
+  {
+   "input": " ",
+   "lines": [
+    " "
+   ]
+  },
+  {
+   "input": "a",
+   "lines": [
+    "a"
+   ]
+  },
+  {
+   "input": "plain ascii",
+   "lines": [
+    "plain ascii"
+   ]
+  },
+  {
+   "input": "\t\n\u000b\f\r\u001c\u001d\u001e\u001f ",
+   "lines": [
+    "\t",
+    "\u000b\f",
+    "\u001c\u001d\u001e\u001f "
+   ]
+  },
+  {
+   "input": "  a  ",
+   "lines": [
+    "  a  "
+   ]
+  },
+  {
+   "input": "\t x \t",
+   "lines": [
+    "\t x \t"
+   ]
+  },
+  {
+   "input": "\u00a0a\u00a0",
+   "lines": [
+    "\u00a0a\u00a0"
+   ]
+  },
+  {
+   "input": "\u2007a\u202f",
+   "lines": [
+    "\u2007a\u202f"
+   ]
+  },
+  {
+   "input": "\u0085a\u0085",
+   "lines": [
+    "\u0085a\u0085"
+   ]
+  },
+  {
+   "input": "\u1680a\u3000",
+   "lines": [
+    "\u1680a\u3000"
+   ]
+  },
+  {
+   "input": "\u2000\u2006\u2008\u200a\u2028\u2029\u205f",
+   "lines": [
+    "\u2000\u2006\u2008\u200a\u2028\u2029\u205f"
+   ]
+  },
+  {
+   "input": "\u2028line\u2029sep",
+   "lines": [
+    "\u2028line\u2029sep"
+   ]
+  },
+  {
+   "input": "a\u0000b\u0000",
+   "lines": [
+    "a\u0000b\u0000"
+   ]
+  },
+  {
+   "input": "\u0000a\b\u000e\u001b",
+   "lines": [
+    "\u0000a\b\u000e\u001b"
+   ]
+  },
+  {
+   "input": " \u0000",
+   "lines": [
+    " \u0000"
+   ]
+  },
+  {
+   "input": "x\u180ex",
+   "lines": [
+    "x\u180ex"
+   ]
+  },
+  {
+   "input": "\u200bx\u200b",
+   "lines": [
+    "\u200bx\u200b"
+   ]
+  },
+  {
+   "input": "\ufeffx",
+   "lines": [
+    "\ufeffx"
+   ]
+  },
+  {
+   "input": "\u001cone\u001ftwo\u001e",
+   "lines": [
+    "\u001cone\u001ftwo\u001e"
+   ]
+  },
+  {
+   "input": "\r\n",
+   "lines": [
+    ""
+   ]
+  },
+  {
+   "input": "\n",
+   "lines": [
+    ""
+   ]
+  },
+  {
+   "input": "\r",
+   "lines": [
+    ""
+   ]
+  },
+  {
+   "input": "\n\r",
+   "lines": [
+    "",
+    ""
+   ]
+  },
+  {
+   "input": "\r\r\n\n",
+   "lines": [
+    "",
+    "",
+    ""
+   ]
+  },
+  {
+   "input": "a\nb",
+   "lines": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "input": "a\rb\nc\r\nd",
+   "lines": [
+    "a",
+    "b",
+    "c",
+    "d"
+   ]
+  },
+  {
+   "input": "a\n\rb",
+   "lines": [
+    "a",
+    "",
+    "b"
+   ]
+  },
+  {
+   "input": "x\n\n",
+   "lines": [
+    "x",
+    ""
+   ]
+  },
+  {
+   "input": "a\r\n\r\nb",
+   "lines": [
+    "a",
+    "",
+    "b"
+   ]
+  },
+  {
+   "input": "\ud83d\ude00\ud83d\ude00 ",
+   "lines": [
+    "\ud83d\ude00\ud83d\ude00 "
+   ]
+  },
+  {
+   "input": "\ud83d\ude00",
+   "lines": [
+    "\ud83d\ude00"
+   ]
+  },
+  {
+   "input": "e\u0301 \u0301",
+   "lines": [
+    "e\u0301 \u0301"
+   ]
+  },
+  {
+   "input": "\u0301",
+   "lines": [
+    "\u0301"
+   ]
+  },
+  {
+   "input": "a\u0130b",
+   "lines": [
+    "a\u0130b"
+   ]
+  },
+  {
+   "input": "i\u0131I",
+   "lines": [
+    "i\u0131I"
+   ]
+  },
+  {
+   "input": "\u03a3\u03b1\u03c3",
+   "lines": [
+    "\u03a3\u03b1\u03c3"
+   ]
+  },
+  {
+   "input": "\u0391\u03a3",
+   "lines": [
+    "\u0391\u03a3"
+   ]
+  },
+  {
+   "input": "stra\u00dfe",
+   "lines": [
+    "stra\u00dfe"
+   ]
+  },
+  {
+   "input": "\ufb01le",
+   "lines": [
+    "\ufb01le"
+   ]
+  },
+  {
+   "input": "\uff21\uff22\u3000",
+   "lines": [
+    "\uff21\uff22\u3000"
+   ]
+  },
+  {
+   "input": "\ufffd",
+   "lines": [
+    "\ufffd"
+   ]
+  },
+  {
+   "input": "\ue000",
+   "lines": [
+    "\ue000"
+   ]
+  },
+  {
+   "input": "\uffff",
+   "lines": [
+    "\uffff"
+   ]
+  },
+  {
+   "input": "\ud7ff",
+   "lines": [
+    "\ud7ff"
+   ]
+  },
+  {
+   "input": "tail\u2029",
+   "lines": [
+    "tail\u2029"
+   ]
+  },
+  {
+   "input": "e\u000bf\fg",
+   "lines": [
+    "e\u000bf\fg"
+   ]
+  }
+ ],
+ "utf16_length": [
+  {
+   "input": "",
+   "units": 0
+  },
+  {
+   "input": " ",
+   "units": 1
+  },
+  {
+   "input": "a",
+   "units": 1
+  },
+  {
+   "input": "plain ascii",
+   "units": 11
+  },
+  {
+   "input": "\t\n\u000b\f\r\u001c\u001d\u001e\u001f ",
+   "units": 10
+  },
+  {
+   "input": "  a  ",
+   "units": 5
+  },
+  {
+   "input": "\t x \t",
+   "units": 5
+  },
+  {
+   "input": "\u00a0a\u00a0",
+   "units": 3
+  },
+  {
+   "input": "\u2007a\u202f",
+   "units": 3
+  },
+  {
+   "input": "\u0085a\u0085",
+   "units": 3
+  },
+  {
+   "input": "\u1680a\u3000",
+   "units": 3
+  },
+  {
+   "input": "\u2000\u2006\u2008\u200a\u2028\u2029\u205f",
+   "units": 7
+  },
+  {
+   "input": "\u2028line\u2029sep",
+   "units": 9
+  },
+  {
+   "input": "a\u0000b\u0000",
+   "units": 4
+  },
+  {
+   "input": "\u0000a\b\u000e\u001b",
+   "units": 5
+  },
+  {
+   "input": " \u0000",
+   "units": 2
+  },
+  {
+   "input": "x\u180ex",
+   "units": 3
+  },
+  {
+   "input": "\u200bx\u200b",
+   "units": 3
+  },
+  {
+   "input": "\ufeffx",
+   "units": 2
+  },
+  {
+   "input": "\u001cone\u001ftwo\u001e",
+   "units": 9
+  },
+  {
+   "input": "\r\n",
+   "units": 2
+  },
+  {
+   "input": "\n",
+   "units": 1
+  },
+  {
+   "input": "\r",
+   "units": 1
+  },
+  {
+   "input": "\n\r",
+   "units": 2
+  },
+  {
+   "input": "\r\r\n\n",
+   "units": 4
+  },
+  {
+   "input": "a\nb",
+   "units": 3
+  },
+  {
+   "input": "a\rb\nc\r\nd",
+   "units": 8
+  },
+  {
+   "input": "a\n\rb",
+   "units": 4
+  },
+  {
+   "input": "x\n\n",
+   "units": 3
+  },
+  {
+   "input": "a\r\n\r\nb",
+   "units": 6
+  },
+  {
+   "input": "\ud83d\ude00\ud83d\ude00 ",
+   "units": 5
+  },
+  {
+   "input": "\ud83d\ude00",
+   "units": 2
+  },
+  {
+   "input": "e\u0301 \u0301",
+   "units": 4
+  },
+  {
+   "input": "\u0301",
+   "units": 1
+  },
+  {
+   "input": "a\u0130b",
+   "units": 3
+  },
+  {
+   "input": "i\u0131I",
+   "units": 3
+  },
+  {
+   "input": "\u03a3\u03b1\u03c3",
+   "units": 3
+  },
+  {
+   "input": "\u0391\u03a3",
+   "units": 2
+  },
+  {
+   "input": "stra\u00dfe",
+   "units": 6
+  },
+  {
+   "input": "\ufb01le",
+   "units": 3
+  },
+  {
+   "input": "\uff21\uff22\u3000",
+   "units": 3
+  },
+  {
+   "input": "\ufffd",
+   "units": 1
+  },
+  {
+   "input": "\ue000",
+   "units": 1
+  },
+  {
+   "input": "\uffff",
+   "units": 1
+  },
+  {
+   "input": "\ud7ff",
+   "units": 1
+  },
+  {
+   "input": "tail\u2029",
+   "units": 5
+  },
+  {
+   "input": "e\u000bf\fg",
+   "units": 5
+  }
+ ],
+ "string_key": [
+  {
+   "input": "\ud83d\ude00",
+   "utf16be_hex": "d83dde00"
+  },
+  {
+   "input": "\ue000",
+   "utf16be_hex": "e000"
+  },
+  {
+   "input": "\ufffd",
+   "utf16be_hex": "fffd"
+  },
+  {
+   "input": "\uffff",
+   "utf16be_hex": "ffff"
+  },
+  {
+   "input": "\ud800\udc00",
+   "utf16be_hex": "d800dc00"
+  },
+  {
+   "input": "a",
+   "utf16be_hex": "0061"
+  },
+  {
+   "input": "A",
+   "utf16be_hex": "0041"
+  },
+  {
+   "input": "\u00e9",
+   "utf16be_hex": "00e9"
+  },
+  {
+   "input": "e\u0301",
+   "utf16be_hex": "00650301"
+  },
+  {
+   "input": "\u3000",
+   "utf16be_hex": "3000"
+  },
+  {
+   "input": "",
+   "utf16be_hex": ""
+  },
+  {
+   "input": "ab",
+   "utf16be_hex": "00610062"
+  },
+  {
+   "input": "a\u0000",
+   "utf16be_hex": "00610000"
+  },
+  {
+   "input": "a\ud83d\ude00",
+   "utf16be_hex": "0061d83dde00"
+  },
+  {
+   "input": "\u0130",
+   "utf16be_hex": "0130"
+  }
+ ],
+ "order": {
+  "description": "ORDER_SAMPLES sorted by java_string_key (UTF-16 code-unit order)",
+  "sorted": [
+   "",
+   "A",
+   "a",
+   "a\u0000",
+   "ab",
+   "a\ud83d\ude00",
+   "e\u0301",
+   "\u00e9",
+   "\u0130",
+   "\u3000",
+   "\ud800\udc00",
+   "\ud83d\ude00",
+   "\ue000",
+   "\ufffd",
+   "\uffff"
+  ]
+ },
+ "truncate_utf16": [
+  {
+   "input": "",
+   "maximum": 0,
+   "output": ""
+  },
+  {
+   "input": "",
+   "maximum": 1,
+   "output": ""
+  },
+  {
+   "input": "a",
+   "maximum": 0,
+   "output": ""
+  },
+  {
+   "input": "a",
+   "maximum": 1,
+   "output": "a"
+  },
+  {
+   "input": "a\ud83d\ude00b",
+   "maximum": 0,
+   "output": ""
+  },
+  {
+   "input": "a\ud83d\ude00b",
+   "maximum": 1,
+   "output": "a"
+  },
+  {
+   "input": "a\ud83d\ude00b",
+   "maximum": 2,
+   "output": "a"
+  },
+  {
+   "input": "a\ud83d\ude00b",
+   "maximum": 3,
+   "output": "a\ud83d\ude00"
+  },
+  {
+   "input": "a\ud83d\ude00b",
+   "maximum": 4,
+   "output": "a\ud83d\ude00b"
+  },
+  {
+   "input": "a\ud83d\ude00b",
+   "maximum": 5,
+   "output": "a\ud83d\ude00b"
+  },
+  {
+   "input": "a\ud83d\ude00b",
+   "maximum": 6,
+   "output": "a\ud83d\ude00b"
+  },
+  {
+   "input": "\ud83d\ude00\ud83d\ude00",
+   "maximum": 0,
+   "output": ""
+  },
+  {
+   "input": "\ud83d\ude00\ud83d\ude00",
+   "maximum": 1,
+   "output": ""
+  },
+  {
+   "input": "\ud83d\ude00\ud83d\ude00",
+   "maximum": 2,
+   "output": "\ud83d\ude00"
+  },
+  {
+   "input": "\ud83d\ude00\ud83d\ude00",
+   "maximum": 3,
+   "output": "\ud83d\ude00"
+  },
+  {
+   "input": "\ud83d\ude00\ud83d\ude00",
+   "maximum": 4,
+   "output": "\ud83d\ude00\ud83d\ude00"
+  },
+  {
+   "input": "\ud83d\ude00\ud83d\ude00",
+   "maximum": 5,
+   "output": "\ud83d\ude00\ud83d\ude00"
+  },
+  {
+   "input": "abc",
+   "maximum": 2,
+   "output": "ab"
+  },
+  {
+   "input": "abc",
+   "maximum": 10,
+   "output": "abc"
+  },
+  {
+   "input": "e\u0301x",
+   "maximum": 1,
+   "output": "e"
+  },
+  {
+   "input": "e\u0301x",
+   "maximum": 2,
+   "output": "e\u0301"
+  },
+  {
+   "input": "stra\u00dfe",
+   "maximum": 5,
+   "output": "stra\u00df"
+  },
+  {
+   "input": "\u00a0 \u2007\u202f",
+   "maximum": 2,
+   "output": "\u00a0 "
+  },
+  {
+   "input": "\uff21\uff22",
+   "maximum": 3,
+   "output": "\uff21\uff22"
+  },
+  {
+   "input": "ab\u0085",
+   "maximum": 2,
+   "output": "ab"
+  },
+  {
+   "input": "\u0000\u001f",
+   "maximum": 1,
+   "output": "\u0000"
+  },
+  {
+   "input": "\ud83d\ude00\ud83d\ude00\ud83d\ude00x",
+   "maximum": 1000000,
+   "output": "\ud83d\ude00\ud83d\ude00\ud83d\ude00x"
+  }
+ ]
+}

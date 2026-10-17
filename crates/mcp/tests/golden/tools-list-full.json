@@ -1,0 +1,2530 @@
+[
+  {
+    "name": "health",
+    "title": "Application health",
+    "description": "Return the current local Jobniac health envelope.",
+    "inputSchema": {
+      "properties": {},
+      "type": "object",
+      "title": "healthArguments"
+    },
+    "outputSchema": {
+      "properties": {
+        "status": {
+          "enum": ["UP", "DOWN"],
+          "title": "Status",
+          "type": "string"
+        },
+        "errorCategory": {
+          "title": "Errorcategory",
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/HealthMetadata"
+        },
+        "generatedResumeCleanup": {
+          "$ref": "#/$defs/GeneratedResumeCleanup"
+        }
+      },
+      "required": ["status", "errorCategory", "metadata", "generatedResumeCleanup"],
+      "type": "object",
+      "$defs": {
+        "GeneratedResumeCleanup": {
+          "description": "Public shape for observed generated-output cleanup health.",
+          "properties": {
+            "status": {
+              "enum": ["UNKNOWN", "DEGRADED", "HEALTHY"],
+              "title": "Status",
+              "type": "string"
+            },
+            "pendingCount": {
+              "title": "Pendingcount",
+              "type": "integer"
+            },
+            "processingCount": {
+              "title": "Processingcount",
+              "type": "integer"
+            },
+            "expiredCompletedCount": {
+              "title": "Expiredcompletedcount",
+              "type": "integer"
+            },
+            "oldestDueAgeSeconds": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Oldestdueageseconds"
+            },
+            "repeatedFailure": {
+              "title": "Repeatedfailure",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "status",
+            "pendingCount",
+            "processingCount",
+            "expiredCompletedCount",
+            "oldestDueAgeSeconds",
+            "repeatedFailure"
+          ],
+          "title": "GeneratedResumeCleanup",
+          "type": "object"
+        },
+        "HealthMetadata": {
+          "description": "Public metadata shape preserved from the health use case.",
+          "properties": {
+            "checkedAt": {
+              "title": "Checkedat",
+              "type": "string"
+            },
+            "totalChecks": {
+              "title": "Totalchecks",
+              "type": "integer"
+            },
+            "successfulChecks": {
+              "title": "Successfulchecks",
+              "type": "integer"
+            },
+            "failedChecks": {
+              "title": "Failedchecks",
+              "type": "integer"
+            }
+          },
+          "required": ["checkedAt", "totalChecks", "successfulChecks", "failedChecks"],
+          "title": "HealthMetadata",
+          "type": "object"
+        }
+      },
+      "description": "Stable structured result returned by the ``health`` MCP tool.",
+      "title": "HealthResponse"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "list_profiles",
+    "title": "List profiles",
+    "description": "List a bounded page of profile identities without returning raw resume text or private credentials.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "description": "Optional legacy pagination arguments for ``list_profiles``.",
+          "properties": {
+            "limit": {
+              "title": "Limit",
+              "format": "int32",
+              "type": "integer"
+            },
+            "cursor": {
+              "title": "Cursor",
+              "type": "string"
+            }
+          },
+          "title": "ProfileListRequest",
+          "type": "object"
+        }
+      },
+      "type": "object",
+      "title": "list_profilesArguments"
+    },
+    "outputSchema": {
+      "properties": {
+        "profiles": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Profiles",
+          "type": "array"
+        },
+        "nextCursor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nextcursor"
+        }
+      },
+      "required": ["profiles", "nextCursor"],
+      "type": "object",
+      "description": "Stable structured page envelope returned by ``list_profiles``.",
+      "title": "ProfileListResponse"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_profile",
+    "description": "Get a normalized profile aggregate by profile UUID.",
+    "inputSchema": {
+      "properties": {
+        "profileId": {
+          "format": "uuid",
+          "title": "Profileid",
+          "type": "string"
+        }
+      },
+      "required": ["profileId"],
+      "type": "object",
+      "title": "get_profileArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "get_profileDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "create_profile",
+    "description": "Create a normalized profile aggregate and return the persisted profile graph.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "fullName": {
+              "title": "Fullname",
+              "type": "string"
+            },
+            "email": {
+              "title": "Email",
+              "type": "string"
+            },
+            "summary": {
+              "title": "Summary",
+              "type": "string"
+            },
+            "contacts": {
+              "title": "Contacts",
+              "items": {
+                "properties": {
+                  "id": {
+                    "title": "Id",
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "contactType": {
+                    "title": "Contacttype",
+                    "type": "string"
+                  },
+                  "contactValue": {
+                    "title": "Contactvalue",
+                    "type": "string"
+                  },
+                  "label": {
+                    "title": "Label",
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "contactType", "contactValue", "label"],
+                "title": "ContactWrite",
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "links": {
+              "title": "Links",
+              "items": {
+                "properties": {
+                  "id": {
+                    "title": "Id",
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "linkType": {
+                    "title": "Linktype",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "Url",
+                    "type": "string"
+                  },
+                  "label": {
+                    "title": "Label",
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "linkType", "url", "label"],
+                "title": "LinkWrite",
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "skills": {
+              "title": "Skills",
+              "items": {
+                "properties": {
+                  "id": {
+                    "title": "Id",
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "skill": {
+                    "title": "Skill",
+                    "type": "string"
+                  },
+                  "normalizedSkill": {
+                    "title": "Normalizedskill",
+                    "type": "string"
+                  },
+                  "category": {
+                    "title": "Category",
+                    "type": "string"
+                  },
+                  "displayOrder": {
+                    "format": "int32",
+                    "title": "Displayorder",
+                    "type": "integer"
+                  }
+                },
+                "required": ["id", "skill", "normalizedSkill", "category", "displayOrder"],
+                "title": "SkillWrite",
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "languages": {
+              "title": "Languages",
+              "items": {
+                "properties": {
+                  "id": {
+                    "title": "Id",
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "language": {
+                    "title": "Language",
+                    "type": "string"
+                  },
+                  "normalizedLanguage": {
+                    "title": "Normalizedlanguage",
+                    "type": "string"
+                  },
+                  "proficiency": {
+                    "title": "Proficiency",
+                    "type": "string"
+                  },
+                  "displayOrder": {
+                    "format": "int32",
+                    "title": "Displayorder",
+                    "type": "integer"
+                  }
+                },
+                "required": ["id", "language", "normalizedLanguage", "proficiency", "displayOrder"],
+                "title": "LanguageWrite",
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "education": {
+              "title": "Education",
+              "items": {
+                "properties": {
+                  "id": {
+                    "title": "Id",
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "institution": {
+                    "title": "Institution",
+                    "type": "string"
+                  },
+                  "degree": {
+                    "title": "Degree",
+                    "type": "string"
+                  },
+                  "field": {
+                    "title": "Field",
+                    "type": "string"
+                  },
+                  "location": {
+                    "title": "Location",
+                    "type": "string"
+                  },
+                  "startDate": {
+                    "title": "Startdate",
+                    "format": "date",
+                    "type": "string"
+                  },
+                  "endDate": {
+                    "title": "Enddate",
+                    "format": "date",
+                    "type": "string"
+                  },
+                  "relevantFocus": {
+                    "title": "Relevantfocus",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "institution",
+                  "degree",
+                  "field",
+                  "location",
+                  "startDate",
+                  "endDate",
+                  "relevantFocus"
+                ],
+                "title": "EducationWrite",
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "experiences": {
+              "title": "Experiences",
+              "items": {
+                "properties": {
+                  "id": {
+                    "title": "Id",
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "company": {
+                    "title": "Company",
+                    "type": "string"
+                  },
+                  "title": {
+                    "title": "Title",
+                    "type": "string"
+                  },
+                  "location": {
+                    "title": "Location",
+                    "type": "string"
+                  },
+                  "startDate": {
+                    "title": "Startdate",
+                    "format": "date",
+                    "type": "string"
+                  },
+                  "endDate": {
+                    "title": "Enddate",
+                    "format": "date",
+                    "type": "string"
+                  },
+                  "description": {
+                    "title": "Description",
+                    "type": "string"
+                  },
+                  "displayOrder": {
+                    "format": "int32",
+                    "title": "Displayorder",
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "id",
+                  "company",
+                  "title",
+                  "location",
+                  "startDate",
+                  "endDate",
+                  "description",
+                  "displayOrder"
+                ],
+                "title": "ExperienceWrite",
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "projects": {
+              "title": "Projects",
+              "items": {
+                "properties": {
+                  "id": {
+                    "title": "Id",
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "Url",
+                    "type": "string"
+                  },
+                  "description": {
+                    "title": "Description",
+                    "type": "string"
+                  },
+                  "displayOrder": {
+                    "format": "int32",
+                    "title": "Displayorder",
+                    "type": "integer"
+                  },
+                  "technologies": {
+                    "title": "Technologies",
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "title": "Id",
+                          "format": "uuid",
+                          "type": "string"
+                        },
+                        "technology": {
+                          "title": "Technology",
+                          "type": "string"
+                        },
+                        "normalizedTechnology": {
+                          "title": "Normalizedtechnology",
+                          "type": "string"
+                        },
+                        "displayOrder": {
+                          "format": "int32",
+                          "title": "Displayorder",
+                          "type": "integer"
+                        }
+                      },
+                      "required": ["id", "technology", "normalizedTechnology", "displayOrder"],
+                      "title": "TechnologyWrite",
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": ["id", "name", "url", "description", "displayOrder", "technologies"],
+                "title": "ProjectWrite",
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "fullName",
+            "email",
+            "summary",
+            "contacts",
+            "links",
+            "skills",
+            "languages",
+            "education",
+            "experiences",
+            "projects"
+          ],
+          "title": "ProfileWriteRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "create_profileArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "create_profileDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "update_profile",
+    "description": "Replace a normalized profile aggregate using its latest revision.",
+    "inputSchema": {
+      "properties": {
+        "profileId": {
+          "format": "uuid",
+          "title": "Profileid",
+          "type": "string"
+        },
+        "expectedRevision": {
+          "format": "int64",
+          "title": "Expectedrevision",
+          "type": "integer"
+        },
+        "request": {
+          "properties": {
+            "fullName": {
+              "title": "Fullname",
+              "type": "string"
+            },
+            "email": {
+              "title": "Email",
+              "type": "string"
+            },
+            "summary": {
+              "title": "Summary",
+              "type": "string"
+            },
+            "contacts": {
+              "title": "Contacts",
+              "items": {
+                "properties": {
+                  "id": {
+                    "title": "Id",
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "contactType": {
+                    "title": "Contacttype",
+                    "type": "string"
+                  },
+                  "contactValue": {
+                    "title": "Contactvalue",
+                    "type": "string"
+                  },
+                  "label": {
+                    "title": "Label",
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "contactType", "contactValue", "label"],
+                "title": "ContactWrite",
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "links": {
+              "title": "Links",
+              "items": {
+                "properties": {
+                  "id": {
+                    "title": "Id",
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "linkType": {
+                    "title": "Linktype",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "Url",
+                    "type": "string"
+                  },
+                  "label": {
+                    "title": "Label",
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "linkType", "url", "label"],
+                "title": "LinkWrite",
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "skills": {
+              "title": "Skills",
+              "items": {
+                "properties": {
+                  "id": {
+                    "title": "Id",
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "skill": {
+                    "title": "Skill",
+                    "type": "string"
+                  },
+                  "normalizedSkill": {
+                    "title": "Normalizedskill",
+                    "type": "string"
+                  },
+                  "category": {
+                    "title": "Category",
+                    "type": "string"
+                  },
+                  "displayOrder": {
+                    "format": "int32",
+                    "title": "Displayorder",
+                    "type": "integer"
+                  }
+                },
+                "required": ["id", "skill", "normalizedSkill", "category", "displayOrder"],
+                "title": "SkillWrite",
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "languages": {
+              "title": "Languages",
+              "items": {
+                "properties": {
+                  "id": {
+                    "title": "Id",
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "language": {
+                    "title": "Language",
+                    "type": "string"
+                  },
+                  "normalizedLanguage": {
+                    "title": "Normalizedlanguage",
+                    "type": "string"
+                  },
+                  "proficiency": {
+                    "title": "Proficiency",
+                    "type": "string"
+                  },
+                  "displayOrder": {
+                    "format": "int32",
+                    "title": "Displayorder",
+                    "type": "integer"
+                  }
+                },
+                "required": ["id", "language", "normalizedLanguage", "proficiency", "displayOrder"],
+                "title": "LanguageWrite",
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "education": {
+              "title": "Education",
+              "items": {
+                "properties": {
+                  "id": {
+                    "title": "Id",
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "institution": {
+                    "title": "Institution",
+                    "type": "string"
+                  },
+                  "degree": {
+                    "title": "Degree",
+                    "type": "string"
+                  },
+                  "field": {
+                    "title": "Field",
+                    "type": "string"
+                  },
+                  "location": {
+                    "title": "Location",
+                    "type": "string"
+                  },
+                  "startDate": {
+                    "title": "Startdate",
+                    "format": "date",
+                    "type": "string"
+                  },
+                  "endDate": {
+                    "title": "Enddate",
+                    "format": "date",
+                    "type": "string"
+                  },
+                  "relevantFocus": {
+                    "title": "Relevantfocus",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "institution",
+                  "degree",
+                  "field",
+                  "location",
+                  "startDate",
+                  "endDate",
+                  "relevantFocus"
+                ],
+                "title": "EducationWrite",
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "experiences": {
+              "title": "Experiences",
+              "items": {
+                "properties": {
+                  "id": {
+                    "title": "Id",
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "company": {
+                    "title": "Company",
+                    "type": "string"
+                  },
+                  "title": {
+                    "title": "Title",
+                    "type": "string"
+                  },
+                  "location": {
+                    "title": "Location",
+                    "type": "string"
+                  },
+                  "startDate": {
+                    "title": "Startdate",
+                    "format": "date",
+                    "type": "string"
+                  },
+                  "endDate": {
+                    "title": "Enddate",
+                    "format": "date",
+                    "type": "string"
+                  },
+                  "description": {
+                    "title": "Description",
+                    "type": "string"
+                  },
+                  "displayOrder": {
+                    "format": "int32",
+                    "title": "Displayorder",
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "id",
+                  "company",
+                  "title",
+                  "location",
+                  "startDate",
+                  "endDate",
+                  "description",
+                  "displayOrder"
+                ],
+                "title": "ExperienceWrite",
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "projects": {
+              "title": "Projects",
+              "items": {
+                "properties": {
+                  "id": {
+                    "title": "Id",
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "Url",
+                    "type": "string"
+                  },
+                  "description": {
+                    "title": "Description",
+                    "type": "string"
+                  },
+                  "displayOrder": {
+                    "format": "int32",
+                    "title": "Displayorder",
+                    "type": "integer"
+                  },
+                  "technologies": {
+                    "title": "Technologies",
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "title": "Id",
+                          "format": "uuid",
+                          "type": "string"
+                        },
+                        "technology": {
+                          "title": "Technology",
+                          "type": "string"
+                        },
+                        "normalizedTechnology": {
+                          "title": "Normalizedtechnology",
+                          "type": "string"
+                        },
+                        "displayOrder": {
+                          "format": "int32",
+                          "title": "Displayorder",
+                          "type": "integer"
+                        }
+                      },
+                      "required": ["id", "technology", "normalizedTechnology", "displayOrder"],
+                      "title": "TechnologyWrite",
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": ["id", "name", "url", "description", "displayOrder", "technologies"],
+                "title": "ProjectWrite",
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "fullName",
+            "email",
+            "summary",
+            "contacts",
+            "links",
+            "skills",
+            "languages",
+            "education",
+            "experiences",
+            "projects"
+          ],
+          "title": "ProfileWriteRequest",
+          "type": "object"
+        }
+      },
+      "required": ["profileId", "expectedRevision", "request"],
+      "type": "object",
+      "title": "update_profileArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "update_profileDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "update_profile_project",
+    "description": "Partially update one profile project using the current profile revision; omitted fields are preserved and supplied technologies replace that project technologies.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "profileId": {
+              "format": "uuid",
+              "title": "Profileid",
+              "type": "string"
+            },
+            "projectId": {
+              "format": "uuid",
+              "title": "Projectid",
+              "type": "string"
+            },
+            "expectedRevision": {
+              "format": "int64",
+              "title": "Expectedrevision",
+              "type": "integer"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "url": {
+              "title": "Url",
+              "type": "string"
+            },
+            "description": {
+              "title": "Description",
+              "type": "string"
+            },
+            "displayOrder": {
+              "title": "Displayorder",
+              "format": "int32",
+              "type": "integer"
+            },
+            "technologies": {
+              "title": "Technologies",
+              "items": {
+                "properties": {
+                  "id": {
+                    "title": "Id",
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "technology": {
+                    "title": "Technology",
+                    "type": "string"
+                  },
+                  "normalizedTechnology": {
+                    "title": "Normalizedtechnology",
+                    "type": "string"
+                  },
+                  "displayOrder": {
+                    "format": "int32",
+                    "title": "Displayorder",
+                    "type": "integer"
+                  }
+                },
+                "required": ["id", "technology", "normalizedTechnology", "displayOrder"],
+                "title": "TechnologyWrite",
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": ["profileId", "projectId", "expectedRevision"],
+          "title": "ProjectUpdateRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "update_profile_projectArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "update_profile_projectDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "search_profiles",
+    "description": "Search normalized profile fields with bounded deterministic ranking.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "query": {
+              "title": "Query",
+              "type": "string"
+            },
+            "limit": {
+              "title": "Limit",
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          "required": ["query", "limit"],
+          "title": "ProfileSearchRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "search_profilesArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "search_profilesDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "search_jobs",
+    "description": "Search stored jobs using bounded indexed terms and deterministic ranking.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "query": {
+              "title": "Query",
+              "type": "string"
+            },
+            "limit": {
+              "title": "Limit",
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          "required": ["query"],
+          "title": "JobSearchRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "search_jobsArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "search_jobsDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "update_job",
+    "description": "Partially update a stored job using its expected revision. Omitted or null fields preserve existing values; provided skills replace existing skills.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "jobId": {
+              "format": "uuid",
+              "title": "Jobid",
+              "type": "string"
+            },
+            "expectedRevision": {
+              "format": "int64",
+              "title": "Expectedrevision",
+              "type": "integer"
+            },
+            "sourceLabel": {
+              "title": "Sourcelabel",
+              "type": "string"
+            },
+            "title": {
+              "title": "Title",
+              "type": "string"
+            },
+            "company": {
+              "title": "Company",
+              "type": "string"
+            },
+            "location": {
+              "title": "Location",
+              "type": "string"
+            },
+            "description": {
+              "title": "Description",
+              "type": "string"
+            },
+            "skills": {
+              "title": "Skills",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "experienceRequirement": {
+              "title": "Experiencerequirement",
+              "type": "string"
+            },
+            "employmentType": {
+              "title": "Employmenttype",
+              "type": "string"
+            },
+            "seniority": {
+              "title": "Seniority",
+              "type": "string"
+            },
+            "postedAt": {
+              "title": "Postedat",
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          "required": ["jobId", "expectedRevision"],
+          "title": "JobUpdateRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "update_jobArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "update_jobDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "list_jobs",
+    "description": "List a bounded page of stored job postings.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "limit": {
+              "title": "Limit",
+              "format": "int32",
+              "type": "integer"
+            },
+            "cursor": {
+              "title": "Cursor",
+              "type": "string"
+            }
+          },
+          "title": "JobListRequest",
+          "type": "object"
+        }
+      },
+      "type": "object",
+      "title": "list_jobsArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "list_jobsDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_job",
+    "description": "Get a stored job aggregate by UUID, including source provenance.",
+    "inputSchema": {
+      "properties": {
+        "jobId": {
+          "format": "uuid",
+          "title": "Jobid",
+          "type": "string"
+        }
+      },
+      "required": ["jobId"],
+      "type": "object",
+      "title": "get_jobArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "get_jobDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "add_job_from_text",
+    "description": "Insert a job from pasted text with idempotent source tracking.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "text": {
+              "title": "Text",
+              "type": "string"
+            },
+            "sourceLabel": {
+              "title": "Sourcelabel",
+              "type": "string"
+            },
+            "title": {
+              "title": "Title",
+              "type": "string"
+            },
+            "company": {
+              "title": "Company",
+              "type": "string"
+            },
+            "location": {
+              "title": "Location",
+              "type": "string"
+            },
+            "description": {
+              "title": "Description",
+              "type": "string"
+            },
+            "skills": {
+              "title": "Skills",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "experienceRequirement": {
+              "title": "Experiencerequirement",
+              "type": "string"
+            },
+            "employmentType": {
+              "title": "Employmenttype",
+              "type": "string"
+            },
+            "seniority": {
+              "title": "Seniority",
+              "type": "string"
+            },
+            "postedAt": {
+              "title": "Postedat",
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          "required": ["text"],
+          "title": "JobTextRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "add_job_from_textArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "add_job_from_textDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "analyze_job_match",
+    "description": "Create or reuse an immutable deterministic profile-to-job match report.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "profileId": {
+              "title": "Profileid",
+              "format": "uuid",
+              "type": "string"
+            },
+            "jobId": {
+              "title": "Jobid",
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          "required": ["profileId", "jobId"],
+          "title": "AnalyzeRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "analyze_job_matchArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "analyze_job_matchDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "analyze_all_job_matches",
+    "description": "Analyze one bounded page of jobs; pair failures do not stop the page.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "profileId": {
+              "format": "uuid",
+              "title": "Profileid",
+              "type": "string"
+            },
+            "limit": {
+              "title": "Limit",
+              "format": "int32",
+              "type": "integer"
+            },
+            "cursor": {
+              "title": "Cursor",
+              "type": "string"
+            }
+          },
+          "required": ["profileId"],
+          "title": "BatchRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "analyze_all_job_matchesArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "analyze_all_job_matchesDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_match_report",
+    "description": "Get an immutable report with current source-revision staleness.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "id": {
+              "title": "Id",
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          "required": ["id"],
+          "title": "ReportRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "get_match_reportArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "get_match_reportDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "list_match_reports",
+    "description": "List one bounded page of reports with optional profile and job filters.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "profileId": {
+              "title": "Profileid",
+              "format": "uuid",
+              "type": "string"
+            },
+            "jobId": {
+              "title": "Jobid",
+              "format": "uuid",
+              "type": "string"
+            },
+            "limit": {
+              "title": "Limit",
+              "format": "int32",
+              "type": "integer"
+            },
+            "cursor": {
+              "title": "Cursor",
+              "type": "string"
+            }
+          },
+          "title": "ReportFilter",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "list_match_reportsArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "list_match_reportsDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "submit_match_review",
+    "description": "Persist a separate advisory review and deduplicated divergence disagreement.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "reportId": {
+              "title": "Reportid",
+              "format": "uuid",
+              "type": "string"
+            },
+            "reviewer": {
+              "title": "Reviewer",
+              "type": "string"
+            },
+            "model": {
+              "title": "Model",
+              "type": "string"
+            },
+            "reviewVersion": {
+              "title": "Reviewversion",
+              "type": "string"
+            },
+            "overallScore": {
+              "title": "Overallscore",
+              "format": "int32",
+              "type": "integer"
+            },
+            "outcome": {
+              "title": "Outcome",
+              "enum": ["STRONG_MATCH", "PARTIAL_MATCH", "WEAK_MATCH", "INSUFFICIENT_EVIDENCE"],
+              "type": "string"
+            },
+            "blockerMismatch": {
+              "title": "Blockermismatch",
+              "type": "boolean"
+            },
+            "components": {
+              "title": "Components",
+              "items": {
+                "properties": {
+                  "component": {
+                    "title": "Component",
+                    "enum": [
+                      "TECHNICAL",
+                      "EXPERIENCE_SENIORITY",
+                      "DOMAIN",
+                      "DELIVERY",
+                      "HARD_REQUIREMENTS"
+                    ],
+                    "type": "string"
+                  },
+                  "earnedPoints": {
+                    "title": "Earnedpoints",
+                    "format": "int32",
+                    "type": "integer"
+                  },
+                  "availablePoints": {
+                    "title": "Availablepoints",
+                    "format": "int32",
+                    "type": "integer"
+                  },
+                  "status": {
+                    "title": "Status",
+                    "enum": ["MATCH", "PARTIAL", "MISMATCH", "UNKNOWN"],
+                    "type": "string"
+                  }
+                },
+                "required": ["component", "earnedPoints", "availablePoints", "status"],
+                "title": "ComponentInput",
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "evidence": {
+              "title": "Evidence",
+              "items": {
+                "properties": {
+                  "component": {
+                    "title": "Component",
+                    "enum": [
+                      "TECHNICAL",
+                      "EXPERIENCE_SENIORITY",
+                      "DOMAIN",
+                      "DELIVERY",
+                      "HARD_REQUIREMENTS"
+                    ],
+                    "type": "string"
+                  },
+                  "status": {
+                    "title": "Status",
+                    "enum": ["MATCH", "PARTIAL", "MISMATCH", "UNKNOWN"],
+                    "type": "string"
+                  },
+                  "sourceType": {
+                    "title": "Sourcetype",
+                    "type": "string"
+                  },
+                  "fact": {
+                    "title": "Fact",
+                    "type": "string"
+                  },
+                  "outcomeChangingDefect": {
+                    "title": "Outcomechangingdefect",
+                    "type": "boolean"
+                  }
+                },
+                "required": ["component", "status", "sourceType", "fact", "outcomeChangingDefect"],
+                "title": "EvidenceInput",
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "summary": {
+              "title": "Summary",
+              "type": "string"
+            }
+          },
+          "required": [
+            "reportId",
+            "reviewer",
+            "model",
+            "reviewVersion",
+            "overallScore",
+            "outcome",
+            "blockerMismatch",
+            "components",
+            "evidence",
+            "summary"
+          ],
+          "title": "ReviewRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "submit_match_reviewArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "submit_match_reviewDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_match_review",
+    "description": "Get one immutable advisory review.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "id": {
+              "title": "Id",
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          "required": ["id"],
+          "title": "IdRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "get_match_reviewArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "get_match_reviewDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "list_match_reviews",
+    "description": "List one bounded page of advisory reviews.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "reportId": {
+              "title": "Reportid",
+              "format": "uuid",
+              "type": "string"
+            },
+            "limit": {
+              "title": "Limit",
+              "format": "int32",
+              "type": "integer"
+            },
+            "cursor": {
+              "title": "Cursor",
+              "type": "string"
+            }
+          },
+          "title": "ReviewFilter",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "list_match_reviewsArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "list_match_reviewsDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "list_match_disagreements",
+    "description": "List one bounded page of disagreements.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "reportId": {
+              "title": "Reportid",
+              "format": "uuid",
+              "type": "string"
+            },
+            "limit": {
+              "title": "Limit",
+              "format": "int32",
+              "type": "integer"
+            },
+            "cursor": {
+              "title": "Cursor",
+              "type": "string"
+            }
+          },
+          "title": "ReviewFilter",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "list_match_disagreementsArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "list_match_disagreementsDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "acknowledge_match_disagreement",
+    "description": "Acknowledge a disagreement with an optional existing issue reference.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "disagreementId": {
+              "title": "Disagreementid",
+              "format": "uuid",
+              "type": "string"
+            },
+            "linearIssueId": {
+              "title": "Linearissueid",
+              "type": "string"
+            }
+          },
+          "required": ["disagreementId", "linearIssueId"],
+          "title": "DisagreementRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "acknowledge_match_disagreementArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "acknowledge_match_disagreementDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "link_match_disagreement",
+    "description": "Link a disagreement to an existing issue without contacting its provider.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "disagreementId": {
+              "title": "Disagreementid",
+              "format": "uuid",
+              "type": "string"
+            },
+            "linearIssueId": {
+              "title": "Linearissueid",
+              "type": "string"
+            }
+          },
+          "required": ["disagreementId", "linearIssueId"],
+          "title": "DisagreementRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "link_match_disagreementArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "link_match_disagreementDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "store_document_file",
+    "description": "Store an allowed local PDF in PostgreSQL and return metadata only.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "path": {
+              "title": "Path",
+              "type": "string"
+            },
+            "mediaType": {
+              "title": "Mediatype",
+              "type": "string"
+            }
+          },
+          "required": ["path", "mediaType"],
+          "title": "StoreRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "store_document_fileArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "store_document_fileDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_document_metadata",
+    "description": "Get stored document metadata by UUID without returning original bytes.",
+    "inputSchema": {
+      "properties": {
+        "documentId": {
+          "format": "uuid",
+          "title": "Documentid",
+          "type": "string"
+        }
+      },
+      "required": ["documentId"],
+      "type": "object",
+      "title": "get_document_metadataArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "get_document_metadataDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "extract_pdf_text",
+    "description": "Preview bounded local PDF text as untrusted data without storing it.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "path": {
+              "title": "Path",
+              "type": "string"
+            },
+            "maxCharacters": {
+              "title": "Maxcharacters",
+              "format": "int32",
+              "type": "integer"
+            },
+            "includePages": {
+              "title": "Includepages",
+              "type": "boolean"
+            }
+          },
+          "required": ["path", "maxCharacters", "includePages"],
+          "title": "ExtractRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "extract_pdf_textArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "extract_pdf_textDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "extract_stored_pdf_text",
+    "description": "Extract bounded text from a stored PDF, optionally persisting provenance.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "documentId": {
+              "title": "Documentid",
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxCharacters": {
+              "title": "Maxcharacters",
+              "format": "int32",
+              "type": "integer"
+            },
+            "includePages": {
+              "title": "Includepages",
+              "type": "boolean"
+            },
+            "persistExtraction": {
+              "title": "Persistextraction",
+              "type": "boolean"
+            }
+          },
+          "required": ["documentId", "maxCharacters", "includePages", "persistExtraction"],
+          "title": "StoredExtractRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "extract_stored_pdf_textArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "extract_stored_pdf_textDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "ingest_profile_from_stored_pdf",
+    "description": "Populate the normalized profile schema from a stored PDF extraction and link the profile to that extraction.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "documentId": {
+              "format": "uuid",
+              "title": "Documentid",
+              "type": "string"
+            },
+            "existingProfileId": {
+              "title": "Existingprofileid",
+              "format": "uuid",
+              "type": "string"
+            },
+            "overwriteExistingProfile": {
+              "title": "Overwriteexistingprofile",
+              "type": "boolean"
+            },
+            "maxCharacters": {
+              "title": "Maxcharacters",
+              "format": "int32",
+              "type": "integer"
+            },
+            "expectedRevision": {
+              "title": "Expectedrevision",
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          "required": ["documentId"],
+          "title": "ProfilePdfRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "ingest_profile_from_stored_pdfArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "ingest_profile_from_stored_pdfDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_profile_pdf_source",
+    "description": "Get the one-to-one PDF extraction source link for a profile.",
+    "inputSchema": {
+      "properties": {
+        "profileId": {
+          "format": "uuid",
+          "title": "Profileid",
+          "type": "string"
+        }
+      },
+      "required": ["profileId"],
+      "type": "object",
+      "title": "get_profile_pdf_sourceArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "get_profile_pdf_sourceDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "generate_pdf_file",
+    "description": "Generate a standalone stored PDF and return committed file metadata.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "fileName": {
+              "title": "Filename",
+              "type": "string"
+            },
+            "title": {
+              "title": "Title",
+              "type": "string"
+            },
+            "body": {
+              "title": "Body",
+              "type": "string"
+            }
+          },
+          "required": ["fileName", "title", "body"],
+          "title": "PdfFileRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "generate_pdf_fileArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "generate_pdf_fileDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "generate_pdf_resume",
+    "description": "Generate and link the current profile master resume PDF.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "profileId": {
+              "title": "Profileid",
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          "required": ["profileId"],
+          "title": "ProfileResumeRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "generate_pdf_resumeArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "generate_pdf_resumeDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "generate_canadian_pdf_resume",
+    "description": "Generate and link the current Canadian profile resume PDF.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "profileId": {
+              "title": "Profileid",
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          "required": ["profileId"],
+          "title": "ProfileResumeRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "generate_canadian_pdf_resumeArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "generate_canadian_pdf_resumeDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "generate_canadian_french_pdf_resume",
+    "description": "Generate and link the current French Canadian profile resume PDF.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "profileId": {
+              "title": "Profileid",
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          "required": ["profileId"],
+          "title": "ProfileResumeRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "generate_canadian_french_pdf_resumeArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "generate_canadian_french_pdf_resumeDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "generate_german_tailored_resume",
+    "description": "Generate the current job-specific English and German resume variants.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "profileId": {
+              "title": "Profileid",
+              "format": "uuid",
+              "type": "string"
+            },
+            "jobId": {
+              "title": "Jobid",
+              "format": "uuid",
+              "type": "string"
+            },
+            "includeProjects": {
+              "title": "Includeprojects",
+              "type": "boolean"
+            }
+          },
+          "required": ["profileId", "jobId", "includeProjects"],
+          "title": "GermanResumeRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "generate_german_tailored_resumeArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "generate_german_tailored_resumeDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "generate_german_cover_letter",
+    "description": "Generate a German cover letter for the exact selected current resume.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "profileId": {
+              "title": "Profileid",
+              "format": "uuid",
+              "type": "string"
+            },
+            "jobId": {
+              "title": "Jobid",
+              "format": "uuid",
+              "type": "string"
+            },
+            "resumeId": {
+              "title": "Resumeid",
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          "required": ["profileId", "jobId", "resumeId"],
+          "title": "GermanCoverLetterRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "generate_german_cover_letterArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "generate_german_cover_letterDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "get_document_artifact",
+    "description": "Retrieve a verified stored PDF up to 1 MiB as metadata and Base64 content.",
+    "inputSchema": {
+      "properties": {
+        "documentId": {
+          "format": "uuid",
+          "title": "Documentid",
+          "type": "string"
+        }
+      },
+      "required": ["documentId"],
+      "type": "object",
+      "title": "get_document_artifactArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "get_document_artifactDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "scan_arbeitnow_jobs",
+    "description": "Read-only scan of the Arbeitnow public job-board API. Results are mutable and are not a snapshot.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "query": {
+              "title": "Query",
+              "type": "string"
+            },
+            "location": {
+              "title": "Location",
+              "type": "string"
+            },
+            "remoteOnly": {
+              "title": "Remoteonly",
+              "type": "boolean"
+            },
+            "visaSponsorship": {
+              "title": "Visasponsorship",
+              "type": "boolean"
+            },
+            "tags": {
+              "title": "Tags",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "jobTypes": {
+              "title": "Jobtypes",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "limit": {
+              "title": "Limit",
+              "format": "int32",
+              "type": "integer"
+            },
+            "maxPages": {
+              "title": "Maxpages",
+              "format": "int32",
+              "type": "integer"
+            },
+            "cursor": {
+              "title": "Cursor",
+              "type": "string"
+            }
+          },
+          "title": "ArbeitnowScanRequest",
+          "type": "object"
+        }
+      },
+      "type": "object",
+      "title": "scan_arbeitnow_jobsArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "scan_arbeitnow_jobsDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "openWorldHint": true
+    }
+  },
+  {
+    "name": "import_arbeitnow_job",
+    "description": "Import one signed, short-lived Arbeitnow scan candidate without refetching it.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "candidateToken": {
+              "title": "Candidatetoken",
+              "type": "string"
+            }
+          },
+          "required": ["candidateToken"],
+          "title": "ArbeitnowImportRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "import_arbeitnow_jobArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "import_arbeitnow_jobDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "delete_profile",
+    "description": "Delete a profile aggregate by profile UUID. Child profile data is removed by database cascade.",
+    "inputSchema": {
+      "properties": {
+        "profileId": {
+          "format": "uuid",
+          "title": "Profileid",
+          "type": "string"
+        }
+      },
+      "required": ["profileId"],
+      "type": "object",
+      "title": "delete_profileArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "delete_profileDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "delete_job",
+    "description": "Hard delete a stored job by UUID.",
+    "inputSchema": {
+      "properties": {
+        "jobId": {
+          "format": "uuid",
+          "title": "Jobid",
+          "type": "string"
+        }
+      },
+      "required": ["jobId"],
+      "type": "object",
+      "title": "delete_jobArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "delete_jobDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "add_job_from_link",
+    "description": "Insert a job from a URL by fetching the link and combining extracted page text with optional structured fields. The full retrieval URL is used only for the fetch; persisted and MCP-visible provenance is redacted.",
+    "inputSchema": {
+      "properties": {
+        "request": {
+          "properties": {
+            "url": {
+              "title": "Url",
+              "type": "string"
+            },
+            "sourceLabel": {
+              "title": "Sourcelabel",
+              "type": "string"
+            },
+            "title": {
+              "title": "Title",
+              "type": "string"
+            },
+            "company": {
+              "title": "Company",
+              "type": "string"
+            },
+            "location": {
+              "title": "Location",
+              "type": "string"
+            },
+            "description": {
+              "title": "Description",
+              "type": "string"
+            },
+            "skills": {
+              "title": "Skills",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "experienceRequirement": {
+              "title": "Experiencerequirement",
+              "type": "string"
+            },
+            "employmentType": {
+              "title": "Employmenttype",
+              "type": "string"
+            },
+            "seniority": {
+              "title": "Seniority",
+              "type": "string"
+            },
+            "postedAt": {
+              "title": "Postedat",
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          "required": ["url"],
+          "title": "JobLinkRequest",
+          "type": "object"
+        }
+      },
+      "required": ["request"],
+      "type": "object",
+      "title": "add_job_from_linkArguments"
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": true,
+      "title": "add_job_from_linkDictOutput"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true
+    }
+  }
+]

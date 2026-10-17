@@ -1,0 +1,4975 @@
+{
+ "format": "jobniac-sentences",
+ "version": 1,
+ "unit": "code points",
+ "reference_unicode_version": "16.0.0",
+ "rng_seed": 20261013,
+ "count": 500,
+ "excluded_lone_surrogate": 2,
+ "cases": [
+  {
+   "id": "abbreviation-0000",
+   "category": "abbreviation",
+   "text": "Worked with Dr. Vale on the rollout of the billing service.",
+   "boundaries": [
+    0,
+    16,
+    59
+   ]
+  },
+  {
+   "id": "abbreviation-0001",
+   "category": "abbreviation",
+   "text": "Supported U.S. customers across three regions.",
+   "boundaries": [
+    0,
+    46
+   ]
+  },
+  {
+   "id": "abbreviation-0002",
+   "category": "abbreviation",
+   "text": "Reduced latency by 30%, i.e. from 200 ms to 140 ms.",
+   "boundaries": [
+    0,
+    51
+   ]
+  },
+  {
+   "id": "abbreviation-0003",
+   "category": "abbreviation",
+   "text": "Used tools such as Git, Docker, etc. every day.",
+   "boundaries": [
+    0,
+    47
+   ]
+  },
+  {
+   "id": "abbreviation-0004",
+   "category": "abbreviation",
+   "text": "Acme Inc. signed the pilot in March and renewed it in June.",
+   "boundaries": [
+    0,
+    59
+   ]
+  },
+  {
+   "id": "abbreviation-0005",
+   "category": "abbreviation",
+   "text": "Closed ticket No. 4411 within one working day.",
+   "boundaries": [
+    0,
+    46
+   ]
+  },
+  {
+   "id": "abbreviation-0006",
+   "category": "abbreviation",
+   "text": "Mentored, e.g. two junior engineers, through their first release.",
+   "boundaries": [
+    0,
+    65
+   ]
+  },
+  {
+   "id": "abbreviation-0007",
+   "category": "abbreviation",
+   "text": "Delivered the quarterly report vs. the plan, approved by the board.",
+   "boundaries": [
+    0,
+    67
+   ]
+  },
+  {
+   "id": "abbreviation-0008",
+   "category": "abbreviation",
+   "text": "Managed the office move for St. Hollis staff.",
+   "boundaries": [
+    0,
+    32,
+    45
+   ]
+  },
+  {
+   "id": "abbreviation-0009",
+   "category": "abbreviation",
+   "text": "Prepared approx. 12 slides for the steering group.",
+   "boundaries": [
+    0,
+    50
+   ]
+  },
+  {
+   "id": "abbreviation-0010",
+   "category": "abbreviation",
+   "text": "Ran ca. 40 interviews across the team.",
+   "boundaries": [
+    0,
+    38
+   ]
+  },
+  {
+   "id": "abbreviation-0011",
+   "category": "abbreviation",
+   "text": "Kept the runbook current (see Sec. 4.2 for details).",
+   "boundaries": [
+    0,
+    52
+   ]
+  },
+  {
+   "id": "abbreviation-0012",
+   "category": "abbreviation",
+   "text": "Wrote the spec, incl. edge cases, and reviewed it.",
+   "boundaries": [
+    0,
+    50
+   ]
+  },
+  {
+   "id": "abbreviation-0013",
+   "category": "abbreviation",
+   "text": "Migrated 3 services, etc. and retired the legacy cron jobs.",
+   "boundaries": [
+    0,
+    59
+   ]
+  },
+  {
+   "id": "abbreviation-0014",
+   "category": "abbreviation",
+   "text": "Vice Pres. approved the budget after review.",
+   "boundaries": [
+    0,
+    44
+   ]
+  },
+  {
+   "id": "abbreviation-0015",
+   "category": "abbreviation",
+   "text": "Coordinated with Prof. Lind on the pilot design.",
+   "boundaries": [
+    0,
+    23,
+    48
+   ]
+  },
+  {
+   "id": "abbreviation-0016",
+   "category": "abbreviation",
+   "text": "Presented at Conf. Alpha in spring.",
+   "boundaries": [
+    0,
+    19,
+    35
+   ]
+  },
+  {
+   "id": "abbreviation-0017",
+   "category": "abbreviation",
+   "text": "Reviewed the Jan. 2024 incident and wrote the Feb. 3 report.",
+   "boundaries": [
+    0,
+    60
+   ]
+  },
+  {
+   "id": "abbreviation-0018",
+   "category": "abbreviation",
+   "text": "Led U.S. and U.K. teams. Shipped in Q3.",
+   "boundaries": [
+    0,
+    25,
+    39
+   ]
+  },
+  {
+   "id": "abbreviation-0019",
+   "category": "abbreviation",
+   "text": "Hired from Ph.D. programs. Then trained them.",
+   "boundaries": [
+    0,
+    27,
+    45
+   ]
+  },
+  {
+   "id": "abbreviation-0020",
+   "category": "abbreviation",
+   "text": "Jan. 2020 to Dec. 2021 on the platform.",
+   "boundaries": [
+    0,
+    39
+   ]
+  },
+  {
+   "id": "abbreviation-0021",
+   "category": "abbreviation",
+   "text": "Sept. 3 release shipped. Oct. 12 follow-up.",
+   "boundaries": [
+    0,
+    25,
+    43
+   ]
+  },
+  {
+   "id": "abbreviation-0022",
+   "category": "abbreviation",
+   "text": "Built a CI/CD pipeline. Ran QA weekly.",
+   "boundaries": [
+    0,
+    24,
+    38
+   ]
+  },
+  {
+   "id": "abbreviation-0023",
+   "category": "abbreviation",
+   "text": "Used A.B.C. methods. Then D.E.F. tests.",
+   "boundaries": [
+    0,
+    21,
+    39
+   ]
+  },
+  {
+   "id": "abbreviation-0024",
+   "category": "abbreviation",
+   "text": "Worked on CRM and ERP integrations. Delivered both.",
+   "boundaries": [
+    0,
+    36,
+    51
+   ]
+  },
+  {
+   "id": "abbreviation-0025",
+   "category": "abbreviation",
+   "text": "ACME Corp. Retained the contract. Renewed in June.",
+   "boundaries": [
+    0,
+    11,
+    34,
+    50
+   ]
+  },
+  {
+   "id": "decimal-0026",
+   "category": "decimal",
+   "text": "Improved throughput by 3.5 times over the baseline.",
+   "boundaries": [
+    0,
+    51
+   ]
+  },
+  {
+   "id": "decimal-0027",
+   "category": "decimal",
+   "text": "Measured a p95 latency of 4.75 ms on the test rig.",
+   "boundaries": [
+    0,
+    50
+   ]
+  },
+  {
+   "id": "decimal-0028",
+   "category": "decimal",
+   "text": "Reached 99.9 percent uptime. The next target is 99.95.",
+   "boundaries": [
+    0,
+    29,
+    54
+   ]
+  },
+  {
+   "id": "decimal-0029",
+   "category": "decimal",
+   "text": "Cut the bundle to 1.2 MB. Load time fell by 0.4 s.",
+   "boundaries": [
+    0,
+    26,
+    50
+   ]
+  },
+  {
+   "id": "decimal-0030",
+   "category": "decimal",
+   "text": "Scored 4.5 out of 5 in the team survey.",
+   "boundaries": [
+    0,
+    39
+   ]
+  },
+  {
+   "id": "decimal-0031",
+   "category": "decimal",
+   "text": "Grew the pilot from 2.1 to 3.7 million records in two years.",
+   "boundaries": [
+    0,
+    60
+   ]
+  },
+  {
+   "id": "decimal-0032",
+   "category": "decimal",
+   "text": "Kept the error rate under 0.05. Reviewed it weekly.",
+   "boundaries": [
+    0,
+    32,
+    51
+   ]
+  },
+  {
+   "id": "decimal-0033",
+   "category": "decimal",
+   "text": "Ran 3.14 load tests and logged the results.",
+   "boundaries": [
+    0,
+    43
+   ]
+  },
+  {
+   "id": "decimal-0034",
+   "category": "decimal",
+   "text": "Saved 1,200 hours. Cut 3,4 percent of waste.",
+   "boundaries": [
+    0,
+    19,
+    44
+   ]
+  },
+  {
+   "id": "version-0035",
+   "category": "version",
+   "text": "Released v2.1 and v3.0.1 of the SDK in one cycle.",
+   "boundaries": [
+    0,
+    49
+   ]
+  },
+  {
+   "id": "version-0036",
+   "category": "version",
+   "text": "Upgraded the service to Python 3.14. Kept the build green.",
+   "boundaries": [
+    0,
+    37,
+    58
+   ]
+  },
+  {
+   "id": "version-0037",
+   "category": "version",
+   "text": "Shipped release 1.0. Then shipped 1.1 with fixes.",
+   "boundaries": [
+    0,
+    21,
+    49
+   ]
+  },
+  {
+   "id": "version-0038",
+   "category": "version",
+   "text": "Migrated the API from v1 to v2. Retired v1 in May.",
+   "boundaries": [
+    0,
+    32,
+    50
+   ]
+  },
+  {
+   "id": "version-0039",
+   "category": "version",
+   "text": "Maintained the 2.x branch (LTS). Backported two fixes.",
+   "boundaries": [
+    0,
+    33,
+    54
+   ]
+  },
+  {
+   "id": "version-0040",
+   "category": "version",
+   "text": "Used C++ and C#. Also node.js and .NET.",
+   "boundaries": [
+    0,
+    17,
+    39
+   ]
+  },
+  {
+   "id": "version-0041",
+   "category": "version",
+   "text": "Used c++ 17. Then moved to C# 12.",
+   "boundaries": [
+    0,
+    13,
+    33
+   ]
+  },
+  {
+   "id": "version-0042",
+   "category": "version",
+   "text": "Reviewed the A/B test. Results: positive.",
+   "boundaries": [
+    0,
+    23,
+    41
+   ]
+  },
+  {
+   "id": "url-0043",
+   "category": "url",
+   "text": "Published the guide at https://docs.example.com/guide. Linked it in the wiki.",
+   "boundaries": [
+    0,
+    55,
+    77
+   ]
+  },
+  {
+   "id": "url-0044",
+   "category": "url",
+   "text": "Documented the endpoint at https://api.example.org/v2/items?id=7. QA reviewed it.",
+   "boundaries": [
+    0,
+    60,
+    66,
+    81
+   ]
+  },
+  {
+   "id": "url-0045",
+   "category": "url",
+   "text": "See www.example.com/path. Then update the index.",
+   "boundaries": [
+    0,
+    26,
+    48
+   ]
+  },
+  {
+   "id": "url-0046",
+   "category": "url",
+   "text": "Moved links to https://example.net/a/b. Verified them after the move.",
+   "boundaries": [
+    0,
+    40,
+    69
+   ]
+  },
+  {
+   "id": "url-0047",
+   "category": "url",
+   "text": "Source: https://example.com/project/readme.md. Kept it current.",
+   "boundaries": [
+    0,
+    47,
+    63
+   ]
+  },
+  {
+   "id": "email-0048",
+   "category": "email",
+   "text": "Contact team@example.com for references. Thanks.",
+   "boundaries": [
+    0,
+    41,
+    48
+   ]
+  },
+  {
+   "id": "email-0049",
+   "category": "email",
+   "text": "Sent updates to jane.doe@example.com. Replies came within a day.",
+   "boundaries": [
+    0,
+    38,
+    64
+   ]
+  },
+  {
+   "id": "email-0050",
+   "category": "email",
+   "text": "Listed support@example.com as the contact. Monitored the queue.",
+   "boundaries": [
+    0,
+    43,
+    63
+   ]
+  },
+  {
+   "id": "email-0051",
+   "category": "email",
+   "text": "Shared the draft with ops-team@example.com. Collected feedback.",
+   "boundaries": [
+    0,
+    44,
+    63
+   ]
+  },
+  {
+   "id": "ellipsis-0052",
+   "category": "ellipsis",
+   "text": "Planned the roadmap... then shipped it.",
+   "boundaries": [
+    0,
+    39
+   ]
+  },
+  {
+   "id": "ellipsis-0053",
+   "category": "ellipsis",
+   "text": "Waited for approval ... and the release went out.",
+   "boundaries": [
+    0,
+    49
+   ]
+  },
+  {
+   "id": "ellipsis-0054",
+   "category": "ellipsis",
+   "text": "Built the pipeline... tested it... and handed it over.",
+   "boundaries": [
+    0,
+    54
+   ]
+  },
+  {
+   "id": "ellipsis-0055",
+   "category": "ellipsis",
+   "text": "Investigated the outage\u2026 found the root cause.",
+   "boundaries": [
+    0,
+    46
+   ]
+  },
+  {
+   "id": "ellipsis-0056",
+   "category": "ellipsis",
+   "text": "Migrated data\u2026 etc. Done.",
+   "boundaries": [
+    0,
+    20,
+    25
+   ]
+  },
+  {
+   "id": "quote-0057",
+   "category": "quote",
+   "text": "Named the project \"Blue Harbor.\" It launched in June.",
+   "boundaries": [
+    0,
+    33,
+    53
+   ]
+  },
+  {
+   "id": "quote-0058",
+   "category": "quote",
+   "text": "Coined the phrase \"fast path.\" The team adopted it.",
+   "boundaries": [
+    0,
+    31,
+    51
+   ]
+  },
+  {
+   "id": "quote-0059",
+   "category": "quote",
+   "text": "Wrote a memo titled 'Next steps.' It was accepted.",
+   "boundaries": [
+    0,
+    34,
+    50
+   ]
+  },
+  {
+   "id": "quote-0060",
+   "category": "quote",
+   "text": "Presented the idea as \u201cbold.\u201d Leadership agreed.",
+   "boundaries": [
+    0,
+    30,
+    48
+   ]
+  },
+  {
+   "id": "quote-0061",
+   "category": "quote",
+   "text": "He said \u201cdone.\u201d Next, we started testing.",
+   "boundaries": [
+    0,
+    16,
+    41
+   ]
+  },
+  {
+   "id": "quote-0062",
+   "category": "quote",
+   "text": "He wrote \"done.\" Next, the team tested it.",
+   "boundaries": [
+    0,
+    17,
+    42
+   ]
+  },
+  {
+   "id": "quote-0063",
+   "category": "quote",
+   "text": "Result was \"ok\". Then shipped.",
+   "boundaries": [
+    0,
+    17,
+    30
+   ]
+  },
+  {
+   "id": "parenthesis-0064",
+   "category": "parenthesis",
+   "text": "Managed the vendor (three contracts.) Renewed them.",
+   "boundaries": [
+    0,
+    38,
+    51
+   ]
+  },
+  {
+   "id": "parenthesis-0065",
+   "category": "parenthesis",
+   "text": "Led a team (five engineers). Shipped on time.",
+   "boundaries": [
+    0,
+    29,
+    45
+   ]
+  },
+  {
+   "id": "parenthesis-0066",
+   "category": "parenthesis",
+   "text": "Rebuilt the pipeline (CI/CD). Cut build time by half.",
+   "boundaries": [
+    0,
+    30,
+    53
+   ]
+  },
+  {
+   "id": "parenthesis-0067",
+   "category": "parenthesis",
+   "text": "Ran the audit (internal). Filed the findings.",
+   "boundaries": [
+    0,
+    26,
+    45
+   ]
+  },
+  {
+   "id": "parenthesis-0068",
+   "category": "parenthesis",
+   "text": "Supported the rollout (phase 1). Phase 2 followed.",
+   "boundaries": [
+    0,
+    33,
+    50
+   ]
+  },
+  {
+   "id": "parenthesis-0069",
+   "category": "parenthesis",
+   "text": "Led the team (2019-2021). Then joined the platform group.",
+   "boundaries": [
+    0,
+    26,
+    57
+   ]
+  },
+  {
+   "id": "spaces-0070",
+   "category": "spaces",
+   "text": "Led  the team.  Shipped   the release.",
+   "boundaries": [
+    0,
+    16,
+    38
+   ]
+  },
+  {
+   "id": "spaces-0071",
+   "category": "spaces",
+   "text": "Built   the API.    Wrote  tests.",
+   "boundaries": [
+    0,
+    20,
+    33
+   ]
+  },
+  {
+   "id": "spaces-0072",
+   "category": "spaces",
+   "text": "Coordinated   vendors .  Closed the contract.",
+   "boundaries": [
+    0,
+    25,
+    45
+   ]
+  },
+  {
+   "id": "newline-0073",
+   "category": "newline",
+   "text": "Built the parser.\nWrote the docs.",
+   "boundaries": [
+    0,
+    18,
+    33
+   ]
+  },
+  {
+   "id": "newline-0074",
+   "category": "newline",
+   "text": "Built the parser\nand wrote the docs.",
+   "boundaries": [
+    0,
+    36
+   ]
+  },
+  {
+   "id": "newline-0075",
+   "category": "newline",
+   "text": "First line of the bullet\nSecond line starts here. Third.",
+   "boundaries": [
+    0,
+    50,
+    56
+   ]
+  },
+  {
+   "id": "newline-0076",
+   "category": "newline",
+   "text": "Led the team.\n\nShipped the release.",
+   "boundaries": [
+    0,
+    15,
+    35
+   ]
+  },
+  {
+   "id": "newline-0077",
+   "category": "newline",
+   "text": "Led the team.\r\nShipped the release.",
+   "boundaries": [
+    0,
+    15,
+    35
+   ]
+  },
+  {
+   "id": "newline-0078",
+   "category": "newline",
+   "text": "Led the team.\rShipped the release.",
+   "boundaries": [
+    0,
+    14,
+    34
+   ]
+  },
+  {
+   "id": "newline-0079",
+   "category": "newline",
+   "text": "Led the team.\r\n\r\nShipped the release.\n",
+   "boundaries": [
+    0,
+    17,
+    38
+   ]
+  },
+  {
+   "id": "newline-0080",
+   "category": "newline",
+   "text": "A line\n\tindented continuation. Done.",
+   "boundaries": [
+    0,
+    31,
+    36
+   ]
+  },
+  {
+   "id": "newline-0081",
+   "category": "newline",
+   "text": "Led the team.\r\n",
+   "boundaries": [
+    0,
+    15
+   ]
+  },
+  {
+   "id": "newline-0082",
+   "category": "newline",
+   "text": "\n\nLed the team.",
+   "boundaries": [
+    0,
+    15
+   ]
+  },
+  {
+   "id": "bullet-0083",
+   "category": "bullet",
+   "text": "\u2022 Built the API. \u2022 Wrote the tests.",
+   "boundaries": [
+    0,
+    35
+   ]
+  },
+  {
+   "id": "bullet-0084",
+   "category": "bullet",
+   "text": "- Built the API.\n- Wrote the tests.",
+   "boundaries": [
+    0,
+    35
+   ]
+  },
+  {
+   "id": "bullet-0085",
+   "category": "bullet",
+   "text": "* Built the API.\n* Wrote the tests.",
+   "boundaries": [
+    0,
+    35
+   ]
+  },
+  {
+   "id": "bullet-0086",
+   "category": "bullet",
+   "text": "1. Built the API. 2. Wrote the tests.",
+   "boundaries": [
+    0,
+    3,
+    21,
+    37
+   ]
+  },
+  {
+   "id": "bullet-0087",
+   "category": "bullet",
+   "text": "\u2022\tBuilt the API.\tWrote the tests.",
+   "boundaries": [
+    0,
+    17,
+    33
+   ]
+  },
+  {
+   "id": "bullet-0088",
+   "category": "bullet",
+   "text": "\u2022 Built the API.\n\u2022 Wrote the tests.",
+   "boundaries": [
+    0,
+    35
+   ]
+  },
+  {
+   "id": "colon-0089",
+   "category": "colon",
+   "text": "Skills: Python, Rust. Languages: English.",
+   "boundaries": [
+    0,
+    22,
+    41
+   ]
+  },
+  {
+   "id": "colon-0090",
+   "category": "colon",
+   "text": "Results: cut costs. Owned the roadmap.",
+   "boundaries": [
+    0,
+    20,
+    38
+   ]
+  },
+  {
+   "id": "colon-0091",
+   "category": "colon",
+   "text": "Scope: backend services. Team: four engineers.",
+   "boundaries": [
+    0,
+    25,
+    46
+   ]
+  },
+  {
+   "id": "colon-0092",
+   "category": "colon",
+   "text": "Built the API: REST and gRPC. Tested both.",
+   "boundaries": [
+    0,
+    30,
+    42
+   ]
+  },
+  {
+   "id": "colon-0093",
+   "category": "colon",
+   "text": "Note: see the wiki. Also: the runbook.",
+   "boundaries": [
+    0,
+    20,
+    38
+   ]
+  },
+  {
+   "id": "semicolon-0094",
+   "category": "semicolon",
+   "text": "Cut costs; improved uptime. Led hiring.",
+   "boundaries": [
+    0,
+    28,
+    39
+   ]
+  },
+  {
+   "id": "semicolon-0095",
+   "category": "semicolon",
+   "text": "Designed the schema; wrote the migrations; ran the tests.",
+   "boundaries": [
+    0,
+    57
+   ]
+  },
+  {
+   "id": "semicolon-0096",
+   "category": "semicolon",
+   "text": "Owned billing; supported support; trained staff.",
+   "boundaries": [
+    0,
+    48
+   ]
+  },
+  {
+   "id": "upper-after-period-0097",
+   "category": "upper-after-period",
+   "text": "Built the API. Then Wrote the tests.",
+   "boundaries": [
+    0,
+    15,
+    36
+   ]
+  },
+  {
+   "id": "upper-after-period-0098",
+   "category": "upper-after-period",
+   "text": "Built the API.Then wrote the tests.",
+   "boundaries": [
+    0,
+    35
+   ]
+  },
+  {
+   "id": "upper-after-period-0099",
+   "category": "upper-after-period",
+   "text": "The launch was in May. The team grew. Costs fell.",
+   "boundaries": [
+    0,
+    23,
+    38,
+    49
+   ]
+  },
+  {
+   "id": "upper-after-period-0100",
+   "category": "upper-after-period",
+   "text": "Joined in 2019. Led the Platform group. Left in 2021.",
+   "boundaries": [
+    0,
+    16,
+    40,
+    53
+   ]
+  },
+  {
+   "id": "digit-after-period-0101",
+   "category": "digit-after-period",
+   "text": "Built the API. 2 new services shipped.",
+   "boundaries": [
+    0,
+    38
+   ]
+  },
+  {
+   "id": "digit-after-period-0102",
+   "category": "digit-after-period",
+   "text": "Released it in 2019. 3 teams adopted it.",
+   "boundaries": [
+    0,
+    40
+   ]
+  },
+  {
+   "id": "digit-after-period-0103",
+   "category": "digit-after-period",
+   "text": "Cut the cost by 20. 4 regions followed.",
+   "boundaries": [
+    0,
+    39
+   ]
+  },
+  {
+   "id": "digit-after-period-0104",
+   "category": "digit-after-period",
+   "text": "Trained staff. 12 people completed the course.",
+   "boundaries": [
+    0,
+    46
+   ]
+  },
+  {
+   "id": "digit-after-period-0105",
+   "category": "digit-after-period",
+   "text": "The pilot ended. 5 metrics improved.",
+   "boundaries": [
+    0,
+    36
+   ]
+  },
+  {
+   "id": "lowercase-after-period-0106",
+   "category": "lowercase-after-period",
+   "text": "built the API. then wrote tests.",
+   "boundaries": [
+    0,
+    32
+   ]
+  },
+  {
+   "id": "lowercase-after-period-0107",
+   "category": "lowercase-after-period",
+   "text": "reduced costs. improved uptime.",
+   "boundaries": [
+    0,
+    31
+   ]
+  },
+  {
+   "id": "nbsp-0108",
+   "category": "nbsp",
+   "text": "Led\u00a0the team.\u00a0Shipped\u00a0the release.",
+   "boundaries": [
+    0,
+    14,
+    34
+   ]
+  },
+  {
+   "id": "nbsp-0109",
+   "category": "nbsp",
+   "text": "Costs\u2007fell.\u2007Users grew.",
+   "boundaries": [
+    0,
+    12,
+    23
+   ]
+  },
+  {
+   "id": "nbsp-0110",
+   "category": "nbsp",
+   "text": "Managed 5\u202fM budget. Done.",
+   "boundaries": [
+    0,
+    20,
+    25
+   ]
+  },
+  {
+   "id": "nbsp-0111",
+   "category": "nbsp",
+   "text": "Built it.\u0085Tested it.",
+   "boundaries": [
+    0,
+    9,
+    20
+   ]
+  },
+  {
+   "id": "nbsp-0112",
+   "category": "nbsp",
+   "text": "Built it.\u2028Tested it.",
+   "boundaries": [
+    0,
+    10,
+    20
+   ]
+  },
+  {
+   "id": "nbsp-0113",
+   "category": "nbsp",
+   "text": "Built it.\u2029Tested it.",
+   "boundaries": [
+    0,
+    10,
+    20
+   ]
+  },
+  {
+   "id": "nbsp-0114",
+   "category": "nbsp",
+   "text": "Built\u001cthe team. Done.",
+   "boundaries": [
+    0,
+    16,
+    21
+   ]
+  },
+  {
+   "id": "nbsp-0115",
+   "category": "nbsp",
+   "text": "Built\u001dthe team. Done.",
+   "boundaries": [
+    0,
+    16,
+    21
+   ]
+  },
+  {
+   "id": "nbsp-0116",
+   "category": "nbsp",
+   "text": "Built\u001ethe team.\u001fDone.",
+   "boundaries": [
+    0,
+    15,
+    21
+   ]
+  },
+  {
+   "id": "nbsp-0117",
+   "category": "nbsp",
+   "text": "Led the team.\u00a0\u00a0Shipped the release.",
+   "boundaries": [
+    0,
+    15,
+    35
+   ]
+  },
+  {
+   "id": "nbsp-0118",
+   "category": "nbsp",
+   "text": "Led the team.\u3000Shipped the release.",
+   "boundaries": [
+    0,
+    14,
+    34
+   ]
+  },
+  {
+   "id": "nbsp-0119",
+   "category": "nbsp",
+   "text": "Built\u00a0API v2.1. Wrote tests\u00a0etc.\u00a0Ok.",
+   "boundaries": [
+    0,
+    16,
+    33,
+    36
+   ]
+  },
+  {
+   "id": "french-0120",
+   "category": "french",
+   "text": "Dirig\u00e9 l\u2019\u00e9quipe de cinq personnes. Livr\u00e9 la version 2.1 en juin.",
+   "boundaries": [
+    0,
+    35,
+    64
+   ]
+  },
+  {
+   "id": "french-0121",
+   "category": "french",
+   "text": "Pilotage du projet\u00a0: planification, suivi et livraison.",
+   "boundaries": [
+    0,
+    55
+   ]
+  },
+  {
+   "id": "french-0122",
+   "category": "french",
+   "text": "Gestion des comptes clients\u00a0; am\u00e9lioration du taux de r\u00e9ponse.",
+   "boundaries": [
+    0,
+    62
+   ]
+  },
+  {
+   "id": "french-0123",
+   "category": "french",
+   "text": "Responsable de la plateforme\u00a0: int\u00e9gration, tests et d\u00e9ploiement.",
+   "boundaries": [
+    0,
+    65
+   ]
+  },
+  {
+   "id": "french-0124",
+   "category": "french",
+   "text": "R\u00e9sultats\u00a0: \u221220\u00a0% de d\u00e9lais\u00a0; satisfaction en hausse.",
+   "boundaries": [
+    0,
+    53
+   ]
+  },
+  {
+   "id": "french-0125",
+   "category": "french",
+   "text": "Form\u00e9 les \u00e9quipes\u00a0! Document\u00e9 les processus.",
+   "boundaries": [
+    0,
+    20,
+    44
+   ]
+  },
+  {
+   "id": "french-0126",
+   "category": "french",
+   "text": "Qu\u2019a-t-on livr\u00e9\u00a0? Une API stable.",
+   "boundaries": [
+    0,
+    18,
+    33
+   ]
+  },
+  {
+   "id": "french-0127",
+   "category": "french",
+   "text": "M. Exemple a valid\u00e9 le plan. Mme Test a suivi le projet.",
+   "boundaries": [
+    0,
+    3,
+    29,
+    56
+   ]
+  },
+  {
+   "id": "french-0128",
+   "category": "french",
+   "text": "Con\u00e7u un outil (prototype) puis industrialis\u00e9.",
+   "boundaries": [
+    0,
+    46
+   ]
+  },
+  {
+   "id": "french-0129",
+   "category": "french",
+   "text": "Lanc\u00e9 le service etc. et clos le dossier.",
+   "boundaries": [
+    0,
+    41
+   ]
+  },
+  {
+   "id": "french-0130",
+   "category": "french",
+   "text": "L\u2019\u00e9quipe a livr\u00e9 en avril. Elle a ensuite \u00e9largi le p\u00e9rim\u00e8tre.",
+   "boundaries": [
+    0,
+    27,
+    62
+   ]
+  },
+  {
+   "id": "french-0131",
+   "category": "french",
+   "text": "R\u00e9duit les co\u00fbts de 15\u00a0%. 3 sites ont adopt\u00e9 la solution.",
+   "boundaries": [
+    0,
+    57
+   ]
+  },
+  {
+   "id": "french-0132",
+   "category": "french",
+   "text": "Mis en place une revue de code\u00a0; r\u00e9dig\u00e9 le guide.",
+   "boundaries": [
+    0,
+    49
+   ]
+  },
+  {
+   "id": "french-0133",
+   "category": "french",
+   "text": "Voir le document c.-\u00e0-d. la note 4.2. Puis valider.",
+   "boundaries": [
+    0,
+    19,
+    38,
+    51
+   ]
+  },
+  {
+   "id": "french-0134",
+   "category": "french",
+   "text": "Dirig\u00e9 l\u2019int\u00e9gration \u00ab\u00a0rapidement\u00a0\u00bb. R\u00e9sultat valid\u00e9.",
+   "boundaries": [
+    0,
+    37,
+    53
+   ]
+  },
+  {
+   "id": "french-0135",
+   "category": "french",
+   "text": "Livr\u00e9 en mai\u202f; test\u00e9 en juin\u202f! Bilan positif\u202f?",
+   "boundaries": [
+    0,
+    31,
+    46
+   ]
+  },
+  {
+   "id": "french-0136",
+   "category": "french",
+   "text": "Ma\u00eetris\u00e9 Python et SQL. Form\u00e9 deux stagiaires.",
+   "boundaries": [
+    0,
+    24,
+    46
+   ]
+  },
+  {
+   "id": "astral-0137",
+   "category": "astral",
+   "text": "Shipped the \ud83d\ude80 launch. Users loved it \ud83d\ude00.",
+   "boundaries": [
+    0,
+    22,
+    39
+   ]
+  },
+  {
+   "id": "astral-0138",
+   "category": "astral",
+   "text": "Team \ud83d\udc69\u200d\ud83d\udcbb shipped the API. Done.",
+   "boundaries": [
+    0,
+    26,
+    31
+   ]
+  },
+  {
+   "id": "astral-0139",
+   "category": "astral",
+   "text": "Supplementary CJK \ud840\udc00 appears here. Next sentence.",
+   "boundaries": [
+    0,
+    34,
+    48
+   ]
+  },
+  {
+   "id": "astral-0140",
+   "category": "astral",
+   "text": "Wrote notes \ud83d\udcdd. Reviewed them \ud83d\udd0d with the team.",
+   "boundaries": [
+    0,
+    15,
+    45
+   ]
+  },
+  {
+   "id": "astral-0141",
+   "category": "astral",
+   "text": "Emoji after period.\ud83d\ude00 Then a capital letter.",
+   "boundaries": [
+    0,
+    43
+   ]
+  },
+  {
+   "id": "astral-0142",
+   "category": "astral",
+   "text": "Mathematical \ud835\udc00 letters. Then a lowercase tail.",
+   "boundaries": [
+    0,
+    24,
+    46
+   ]
+  },
+  {
+   "id": "combining-0143",
+   "category": "combining",
+   "text": "Cafe\u0301 team led. Naive\u0308 design shipped.",
+   "boundaries": [
+    0,
+    16,
+    38
+   ]
+  },
+  {
+   "id": "combining-0144",
+   "category": "combining",
+   "text": "Re\u0301sume\u0301 builder improved. Users thanked us.",
+   "boundaries": [
+    0,
+    27,
+    44
+   ]
+  },
+  {
+   "id": "combining-0145",
+   "category": "combining",
+   "text": "Ta\u0302che done. Next task started.",
+   "boundaries": [
+    0,
+    13,
+    31
+   ]
+  },
+  {
+   "id": "combining-0146",
+   "category": "combining",
+   "text": "e\u0301\u0301 stacked marks. Next sentence.",
+   "boundaries": [
+    0,
+    19,
+    33
+   ]
+  },
+  {
+   "id": "greek-sigma-0147",
+   "category": "greek-sigma",
+   "text": "\u039f\u0394\u039f\u03a3 \u03a4\u0395\u03a3\u03a4. \u039f \u039b\u039f\u0393\u039f\u03a3 \u03a3\u0391\u03a3.",
+   "boundaries": [
+    0,
+    11,
+    23
+   ]
+  },
+  {
+   "id": "greek-sigma-0148",
+   "category": "greek-sigma",
+   "text": "\u03a3\u03bf\u03c6\u03cc\u03c2 \u03b7\u03b3\u03ad\u03c4\u03b7\u03c2. \u03a3\u039f\u03a6\u039f\u03a3 \u039a\u0391\u0399 \u03a3\u0399\u0393\u039c\u0391.",
+   "boundaries": [
+    0,
+    14,
+    30
+   ]
+  },
+  {
+   "id": "greek-sigma-0149",
+   "category": "greek-sigma",
+   "text": "\u0397 \u039f\u0394\u039f\u03a3. \u0391\u03a3 \u0394\u039f\u039a\u0399\u039c\u0391\u03a3\u03a9\u039c\u0395\u039d.",
+   "boundaries": [
+    0,
+    8,
+    23
+   ]
+  },
+  {
+   "id": "turkish-0150",
+   "category": "turkish",
+   "text": "\u0130letim hatt\u0131 kuruldu. Irmak ekibi destekledi.",
+   "boundaries": [
+    0,
+    22,
+    45
+   ]
+  },
+  {
+   "id": "turkish-0151",
+   "category": "turkish",
+   "text": "\u0131\u015f\u0131k ve \u0130\u015f ak\u0131\u015f\u0131 birle\u015ftirildi. Ekip memnun.",
+   "boundaries": [
+    0,
+    32,
+    44
+   ]
+  },
+  {
+   "id": "turkish-0152",
+   "category": "turkish",
+   "text": "I \u0131 \u0130 i casing check. Done.",
+   "boundaries": [
+    0,
+    22,
+    27
+   ]
+  },
+  {
+   "id": "german-0153",
+   "category": "german",
+   "text": "Ma\u00dfnahmen wurden umgesetzt. Gro\u00df angelegt und getestet.",
+   "boundaries": [
+    0,
+    28,
+    55
+   ]
+  },
+  {
+   "id": "german-0154",
+   "category": "german",
+   "text": "Die Stra\u00dfe der Projekte wurde gepr\u00fcft. Gr\u00f6\u00dfe ist gleich.",
+   "boundaries": [
+    0,
+    39,
+    56
+   ]
+  },
+  {
+   "id": "ligature-0155",
+   "category": "ligature",
+   "text": "Of\ufb01ce \ufb01les and \ufb02ow reviews. Ligatures \ufb00 \ufb03 \ufb04 \ufb05 \ufb06.",
+   "boundaries": [
+    0,
+    28,
+    48
+   ]
+  },
+  {
+   "id": "ligature-0156",
+   "category": "ligature",
+   "text": "The \ufb01rst release shipped. The \ufb02ow was simple.",
+   "boundaries": [
+    0,
+    26,
+    45
+   ]
+  },
+  {
+   "id": "fullwidth-0157",
+   "category": "fullwidth",
+   "text": "\uff2c\uff45\uff44 \uff54\uff48\uff45 \uff54\uff45\uff41\uff4d\uff0e\uff33\uff48\uff49\uff50\uff50\uff45\uff44 \uff49\uff54\uff0e",
+   "boundaries": [
+    0,
+    24
+   ]
+  },
+  {
+   "id": "fullwidth-0158",
+   "category": "fullwidth",
+   "text": "\uff2c\uff45\uff44\u3002\uff33\uff48\uff49\uff50\uff50\uff45\uff44\u3002 \uff24\uff4f\uff4e\uff45\uff01",
+   "boundaries": [
+    0,
+    4,
+    13,
+    18
+   ]
+  },
+  {
+   "id": "fullwidth-0159",
+   "category": "fullwidth",
+   "text": "Fullwidth digits \uff11\uff12\uff13\uff0e\uff14\uff15\uff16 and text\uff0eDone\uff0e",
+   "boundaries": [
+    0,
+    39
+   ]
+  },
+  {
+   "id": "terminator-0160",
+   "category": "terminator",
+   "text": "Really?! Yes. The team agreed!",
+   "boundaries": [
+    0,
+    9,
+    14,
+    30
+   ]
+  },
+  {
+   "id": "terminator-0161",
+   "category": "terminator",
+   "text": "Did it work? Yes. Good!",
+   "boundaries": [
+    0,
+    13,
+    18,
+    23
+   ]
+  },
+  {
+   "id": "terminator-0162",
+   "category": "terminator",
+   "text": "Shipped the release\u203d Yes.",
+   "boundaries": [
+    0,
+    25
+   ]
+  },
+  {
+   "id": "terminator-0163",
+   "category": "terminator",
+   "text": "Shipped it\u2026 and then? Nothing.",
+   "boundaries": [
+    0,
+    22,
+    30
+   ]
+  },
+  {
+   "id": "terminator-0164",
+   "category": "terminator",
+   "text": "Shipped it... ?! Then it was done.",
+   "boundaries": [
+    0,
+    17,
+    34
+   ]
+  },
+  {
+   "id": "no-terminator-0165",
+   "category": "no-terminator",
+   "text": "Led the team and shipped the release without a terminator",
+   "boundaries": [
+    0,
+    57
+   ]
+  },
+  {
+   "id": "no-terminator-0166",
+   "category": "no-terminator",
+   "text": "Built the API and wrote the tests and ran the migration",
+   "boundaries": [
+    0,
+    55
+   ]
+  },
+  {
+   "id": "empty-0167",
+   "category": "empty",
+   "text": "",
+   "boundaries": [
+    0
+   ]
+  },
+  {
+   "id": "empty-0168",
+   "category": "empty",
+   "text": " ",
+   "boundaries": [
+    0,
+    1
+   ]
+  },
+  {
+   "id": "empty-0169",
+   "category": "empty",
+   "text": "\n",
+   "boundaries": [
+    0,
+    1
+   ]
+  },
+  {
+   "id": "empty-0170",
+   "category": "empty",
+   "text": "\t",
+   "boundaries": [
+    0,
+    1
+   ]
+  },
+  {
+   "id": "punctuation-only-0171",
+   "category": "punctuation-only",
+   "text": "...",
+   "boundaries": [
+    0,
+    3
+   ]
+  },
+  {
+   "id": "punctuation-only-0172",
+   "category": "punctuation-only",
+   "text": "!!!",
+   "boundaries": [
+    0,
+    3
+   ]
+  },
+  {
+   "id": "punctuation-only-0173",
+   "category": "punctuation-only",
+   "text": ".",
+   "boundaries": [
+    0,
+    1
+   ]
+  },
+  {
+   "id": "punctuation-only-0174",
+   "category": "punctuation-only",
+   "text": "?",
+   "boundaries": [
+    0,
+    1
+   ]
+  },
+  {
+   "id": "symbols-0175",
+   "category": "symbols",
+   "text": "Owned the A|B pipeline. Also the C/D stage.",
+   "boundaries": [
+    0,
+    24,
+    43
+   ]
+  },
+  {
+   "id": "symbols-0176",
+   "category": "symbols",
+   "text": "Used # tags and @mentions in reports. Then shipped.",
+   "boundaries": [
+    0,
+    38,
+    51
+   ]
+  },
+  {
+   "id": "zero-width-0177",
+   "category": "zero-width",
+   "text": "Built\u200b the API. Wrote\u200d the tests.",
+   "boundaries": [
+    0,
+    16,
+    33
+   ]
+  },
+  {
+   "id": "zero-width-0178",
+   "category": "zero-width",
+   "text": "Built\u200ethe API. Wrote\u200fthe tests.",
+   "boundaries": [
+    0,
+    15,
+    31
+   ]
+  },
+  {
+   "id": "astral-0181",
+   "category": "astral",
+   "text": "Escaped pair \ud83d\ude00 is one scalar. Next sentence.",
+   "boundaries": [
+    0,
+    30,
+    44
+   ]
+  },
+  {
+   "id": "generated-en-0182",
+   "category": "generated-en",
+   "text": "Shipped the API gateway at version v2.1.  Launched the onboarding flow for the U.S. market.. Migrated the data warehouse to 4.75 ms p95; Designed the release process to 2.1 s.",
+   "boundaries": [
+    0,
+    42,
+    93,
+    175
+   ]
+  },
+  {
+   "id": "generated-en-0183",
+   "category": "generated-en",
+   "text": "Shipped the test suite for 5 regions.\tDesigned the data warehouse for the U.S. market\r\nCoached the reporting pipeline to 2.1 ms p95; Automated the test suite in Q5!",
+   "boundaries": [
+    0,
+    38,
+    164
+   ]
+  },
+  {
+   "id": "generated-en-0184",
+   "category": "generated-en",
+   "text": "Migrated the search index at version v1.0.\u00a0Migrated the API gateway for the U.S. market.\u00a0Migrated the onboarding flow in Q4",
+   "boundaries": [
+    0,
+    43,
+    89,
+    123
+   ]
+  },
+  {
+   "id": "generated-en-0185",
+   "category": "generated-en",
+   "text": "Migrated the billing service with a team of 11 engineers.\tReviewed the billing service etc.. Launched the API gateway with a team of 11 engineers.; Designed the API gateway etc.",
+   "boundaries": [
+    0,
+    58,
+    93,
+    177
+   ]
+  },
+  {
+   "id": "generated-en-0186",
+   "category": "generated-en",
+   "text": "Coached the search index via team@example.com.",
+   "boundaries": [
+    0,
+    46
+   ]
+  },
+  {
+   "id": "generated-en-0187",
+   "category": "generated-en",
+   "text": "Led the billing service to 3.5 s!\r\nReviewed the test suite across 6 sites!. Reviewed the data warehouse for Acme Inc..\tBuilt the billing service via ops@example.com.",
+   "boundaries": [
+    0,
+    35,
+    76,
+    119,
+    165
+   ]
+  },
+  {
+   "id": "generated-en-0188",
+   "category": "generated-en",
+   "text": "Shipped the data warehouse at version v2.1.  Automated the reporting pipeline with e.g. 8 reviewers!; Led the billing service for 5 regions!",
+   "boundaries": [
+    0,
+    45,
+    100,
+    140
+   ]
+  },
+  {
+   "id": "generated-en-0189",
+   "category": "generated-en",
+   "text": "Owned the reporting pipeline etc.\tReduced the reporting pipeline in Q2.; Coached the release process in Q2.",
+   "boundaries": [
+    0,
+    34,
+    107
+   ]
+  },
+  {
+   "id": "generated-en-0190",
+   "category": "generated-en",
+   "text": "Designed the test suite for 3 regions!",
+   "boundaries": [
+    0,
+    38
+   ]
+  },
+  {
+   "id": "generated-en-0191",
+   "category": "generated-en",
+   "text": "Shipped the release process for Acme Inc.;\nReduced the billing service for Acme Inc.. Led the release process by 2.1 percent.. Designed the search index in 12 weeks",
+   "boundaries": [
+    0,
+    86,
+    127,
+    164
+   ]
+  },
+  {
+   "id": "generated-en-0192",
+   "category": "generated-en",
+   "text": "Reduced the test suite via ops@example.com.\u00a0Coached the release process to 0.4 s; \u2022 Reduced the onboarding flow etc.;",
+   "boundaries": [
+    0,
+    44,
+    115,
+    116,
+    117
+   ]
+  },
+  {
+   "id": "generated-en-0193",
+   "category": "generated-en",
+   "text": "Migrated the release process for Acme Inc. Built the data warehouse across 12 sites",
+   "boundaries": [
+    0,
+    43,
+    83
+   ]
+  },
+  {
+   "id": "generated-en-0194",
+   "category": "generated-en",
+   "text": "Automated the billing service to 4.75 s!\tBuilt the billing service etc.!",
+   "boundaries": [
+    0,
+    41,
+    72
+   ]
+  },
+  {
+   "id": "generated-en-0195",
+   "category": "generated-en",
+   "text": "Reduced the test suite for Dr. Lind.\tCoached the data warehouse for Acme Inc..\u00a0Built the onboarding flow for 5 regions.",
+   "boundaries": [
+    0,
+    31,
+    37,
+    79,
+    119
+   ]
+  },
+  {
+   "id": "generated-en-0196",
+   "category": "generated-en",
+   "text": "Migrated the test suite across 7 sites.",
+   "boundaries": [
+    0,
+    39
+   ]
+  },
+  {
+   "id": "generated-en-0197",
+   "category": "generated-en",
+   "text": "Coached the data warehouse to 0.4 s \u2022 Owned the search index with e.g. 5 reviewers.\nAutomated the test suite at version v3.0.1!",
+   "boundaries": [
+    0,
+    84,
+    127
+   ]
+  },
+  {
+   "id": "generated-en-0198",
+   "category": "generated-en",
+   "text": "Designed the billing service by 4.75 percent.\r\nShipped the data warehouse to 99.9 s.",
+   "boundaries": [
+    0,
+    47,
+    84
+   ]
+  },
+  {
+   "id": "generated-en-0199",
+   "category": "generated-en",
+   "text": "Reviewed the reporting pipeline to 3.5 ms p95.\tLaunched the test suite by 2.1 percent!; Led the API gateway for 5 regions!; Led the search index in Q5",
+   "boundaries": [
+    0,
+    47,
+    86,
+    122,
+    150
+   ]
+  },
+  {
+   "id": "generated-en-0200",
+   "category": "generated-en",
+   "text": "Designed the search index to 12.25 ms p95. Reduced the release process with a team of 12 engineers \u2022 Owned the reporting pipeline for 5 regions;",
+   "boundaries": [
+    0,
+    43,
+    144
+   ]
+  },
+  {
+   "id": "generated-en-0201",
+   "category": "generated-en",
+   "text": "Built the billing service via ops@example.com.",
+   "boundaries": [
+    0,
+    46
+   ]
+  },
+  {
+   "id": "generated-en-0202",
+   "category": "generated-en",
+   "text": "Coached the test suite (see www.example.org/item)",
+   "boundaries": [
+    0,
+    49
+   ]
+  },
+  {
+   "id": "generated-en-0203",
+   "category": "generated-en",
+   "text": "Designed the search index to 99.9 ms p95.",
+   "boundaries": [
+    0,
+    41
+   ]
+  },
+  {
+   "id": "generated-en-0204",
+   "category": "generated-en",
+   "text": "Automated the billing service across 3 sites.\u00a0Reduced the data warehouse via ops@example.com;",
+   "boundaries": [
+    0,
+    46,
+    93
+   ]
+  },
+  {
+   "id": "generated-en-0205",
+   "category": "generated-en",
+   "text": "Reviewed the test suite for 3 regions. \u2022 Documented the release process to 0.4 ms p95.; Reduced the API gateway to 3.5 s;",
+   "boundaries": [
+    0,
+    121
+   ]
+  },
+  {
+   "id": "generated-en-0206",
+   "category": "generated-en",
+   "text": "Reduced the billing service for 4 regions. \u2022 Migrated the release process to 99.9 ms p95.",
+   "boundaries": [
+    0,
+    89
+   ]
+  },
+  {
+   "id": "generated-en-0207",
+   "category": "generated-en",
+   "text": "Coached the API gateway with a team of 6 engineers!. Built the search index in 6 weeks",
+   "boundaries": [
+    0,
+    53,
+    86
+   ]
+  },
+  {
+   "id": "generated-en-0208",
+   "category": "generated-en",
+   "text": "Coached the onboarding flow in 11 weeks;\tDocumented the billing service in Q4;; Designed the reporting pipeline etc..; Shipped the test suite for Dr. Lind.",
+   "boundaries": [
+    0,
+    150,
+    155
+   ]
+  },
+  {
+   "id": "generated-en-0209",
+   "category": "generated-en",
+   "text": "Shipped the onboarding flow across 11 sites.; Automated the API gateway for Acme Inc.. \u2022 Coached the test suite in Q4\r\nShipped the onboarding flow with a team of 2 engineers!",
+   "boundaries": [
+    0,
+    174
+   ]
+  },
+  {
+   "id": "generated-en-0210",
+   "category": "generated-en",
+   "text": "Coached the release process with e.g. 5 reviewers Designed the release process via ops@example.com. Reduced the release process for 5 regions; Designed the API gateway for the U.S. market!",
+   "boundaries": [
+    0,
+    100,
+    188
+   ]
+  },
+  {
+   "id": "generated-en-0211",
+   "category": "generated-en",
+   "text": "Documented the onboarding flow for Dr. Vale\u00a0Documented the onboarding flow for the U.S. market.; Designed the data warehouse across 5 sites!. Owned the test suite (see https://docs.example.com/guide).",
+   "boundaries": [
+    0,
+    39,
+    142,
+    200
+   ]
+  },
+  {
+   "id": "generated-en-0212",
+   "category": "generated-en",
+   "text": "Automated the test suite by 12.25 percent.. Built the API gateway etc..\u00a0Led the billing service for 3 regions.\r\nMigrated the data warehouse to 4.75 s",
+   "boundaries": [
+    0,
+    44,
+    72,
+    112,
+    149
+   ]
+  },
+  {
+   "id": "generated-en-0213",
+   "category": "generated-en",
+   "text": "Built the search index in Q2.; Built the billing service for 5 regions.\u00a0Shipped the billing service across 10 sites.",
+   "boundaries": [
+    0,
+    72,
+    116
+   ]
+  },
+  {
+   "id": "generated-en-0214",
+   "category": "generated-en",
+   "text": "Reduced the billing service in 8 weeks. Reviewed the release process for Dr. Vale. Reviewed the search index with a team of 2 engineers.",
+   "boundaries": [
+    0,
+    40,
+    77,
+    83,
+    136
+   ]
+  },
+  {
+   "id": "generated-en-0215",
+   "category": "generated-en",
+   "text": "Designed the onboarding flow at version v4.2.7.  Migrated the release process (see https://docs.example.com/guide).  Built the release process with e.g. 2 reviewers!. Built the billing service for Dr. Lind;",
+   "boundaries": [
+    0,
+    49,
+    117,
+    167,
+    201,
+    206
+   ]
+  },
+  {
+   "id": "generated-en-0216",
+   "category": "generated-en",
+   "text": "Designed the release process across 5 sites; Owned the test suite at version v2.1!\u00a0Led the billing service in Q2;",
+   "boundaries": [
+    0,
+    83,
+    113
+   ]
+  },
+  {
+   "id": "generated-en-0217",
+   "category": "generated-en",
+   "text": "Launched the test suite to 3.5 ms p95\u00a0Migrated the API gateway at version v3.0.1. Automated the billing service with e.g. 2 reviewers.\tReduced the reporting pipeline to 3.5 s",
+   "boundaries": [
+    0,
+    82,
+    135,
+    174
+   ]
+  },
+  {
+   "id": "generated-en-0218",
+   "category": "generated-en",
+   "text": "Migrated the release process via team@example.com.",
+   "boundaries": [
+    0,
+    50
+   ]
+  },
+  {
+   "id": "generated-en-0219",
+   "category": "generated-en",
+   "text": "Automated the API gateway at version v4.2.7 Automated the reporting pipeline by 99.9 percent!. Automated the billing service etc.;",
+   "boundaries": [
+    0,
+    95,
+    128,
+    129,
+    130
+   ]
+  },
+  {
+   "id": "generated-en-0220",
+   "category": "generated-en",
+   "text": "Documented the search index via ops@example.com\tCoached the onboarding flow to 12.25 ms p95.",
+   "boundaries": [
+    0,
+    92
+   ]
+  },
+  {
+   "id": "generated-en-0221",
+   "category": "generated-en",
+   "text": "Built the onboarding flow with e.g. 8 reviewers.\nAutomated the data warehouse for the U.S. market!\nMigrated the onboarding flow across 2 sites\u00a0Launched the data warehouse for Acme Inc..",
+   "boundaries": [
+    0,
+    49,
+    99,
+    185
+   ]
+  },
+  {
+   "id": "generated-en-0222",
+   "category": "generated-en",
+   "text": "Shipped the API gateway across 7 sites.. Reviewed the billing service for the U.S. market.; Designed the release process to 4.75 ms p95.",
+   "boundaries": [
+    0,
+    41,
+    136
+   ]
+  },
+  {
+   "id": "generated-en-0223",
+   "category": "generated-en",
+   "text": "Reviewed the onboarding flow to 2.1 s.",
+   "boundaries": [
+    0,
+    38
+   ]
+  },
+  {
+   "id": "generated-en-0224",
+   "category": "generated-en",
+   "text": "Reduced the data warehouse for Dr. Vale.\u00a0Built the data warehouse for Acme Inc.;  Reduced the test suite with e.g. 11 reviewers.",
+   "boundaries": [
+    0,
+    35,
+    41,
+    128
+   ]
+  },
+  {
+   "id": "generated-en-0225",
+   "category": "generated-en",
+   "text": "Migrated the onboarding flow via ops@example.com!",
+   "boundaries": [
+    0,
+    49
+   ]
+  },
+  {
+   "id": "generated-en-0226",
+   "category": "generated-en",
+   "text": "Led the API gateway via ops@example.com.; Reviewed the onboarding flow by 12.25 percent",
+   "boundaries": [
+    0,
+    87
+   ]
+  },
+  {
+   "id": "generated-en-0227",
+   "category": "generated-en",
+   "text": "Coached the release process for Acme Inc.",
+   "boundaries": [
+    0,
+    41
+   ]
+  },
+  {
+   "id": "generated-en-0228",
+   "category": "generated-en",
+   "text": "Documented the API gateway in Q4 Reviewed the onboarding flow in 6 weeks.\r\nAutomated the data warehouse (see www.example.org/item).",
+   "boundaries": [
+    0,
+    75,
+    131
+   ]
+  },
+  {
+   "id": "generated-en-0229",
+   "category": "generated-en",
+   "text": "Coached the release process for 3 regions!\u00a0Reviewed the release process in Q3. Reduced the data warehouse to 4.75 s.",
+   "boundaries": [
+    0,
+    43,
+    79,
+    116
+   ]
+  },
+  {
+   "id": "generated-en-0230",
+   "category": "generated-en",
+   "text": "Reduced the API gateway to 3.5 ms p95.\r\nDesigned the test suite in Q5. Automated the test suite with e.g. 3 reviewers.\u00a0Designed the reporting pipeline for Acme Inc..",
+   "boundaries": [
+    0,
+    40,
+    71,
+    119,
+    165
+   ]
+  },
+  {
+   "id": "generated-en-0231",
+   "category": "generated-en",
+   "text": "Shipped the API gateway to 99.9 s;\nShipped the test suite for Acme Inc.!",
+   "boundaries": [
+    0,
+    72
+   ]
+  },
+  {
+   "id": "generated-en-0232",
+   "category": "generated-en",
+   "text": "Migrated the onboarding flow (see https://docs.example.com/guide).. Built the test suite for Dr. Vale! Designed the search index via ops@example.com!\tShipped the API gateway for Acme Inc..",
+   "boundaries": [
+    0,
+    68,
+    97,
+    103,
+    150,
+    188
+   ]
+  },
+  {
+   "id": "generated-en-0233",
+   "category": "generated-en",
+   "text": "Built the billing service in Q3.\nLed the reporting pipeline by 99.9 percent. Owned the reporting pipeline across 7 sites.. Built the API gateway etc..",
+   "boundaries": [
+    0,
+    33,
+    77,
+    123,
+    150
+   ]
+  },
+  {
+   "id": "generated-en-0234",
+   "category": "generated-en",
+   "text": "Shipped the data warehouse to 99.9 ms p95.",
+   "boundaries": [
+    0,
+    42
+   ]
+  },
+  {
+   "id": "generated-en-0235",
+   "category": "generated-en",
+   "text": "Led the onboarding flow for Acme Inc.!  Shipped the reporting pipeline to 99.9 ms p95 Designed the release process etc.;",
+   "boundaries": [
+    0,
+    40,
+    118,
+    119,
+    120
+   ]
+  },
+  {
+   "id": "generated-en-0236",
+   "category": "generated-en",
+   "text": "Reviewed the release process (see https://docs.example.com/guide);\r\nAutomated the release process in Q5. \u2022 Led the data warehouse for 4 regions!",
+   "boundaries": [
+    0,
+    144
+   ]
+  },
+  {
+   "id": "generated-en-0237",
+   "category": "generated-en",
+   "text": "Reviewed the release process in Q5 Launched the reporting pipeline in 12 weeks.; Reduced the API gateway with a team of 8 engineers.",
+   "boundaries": [
+    0,
+    132
+   ]
+  },
+  {
+   "id": "generated-en-0238",
+   "category": "generated-en",
+   "text": "Designed the search index for Dr. Vale;\nDocumented the reporting pipeline to 3.5 s \u2022 Launched the onboarding flow with a team of 2 engineers!",
+   "boundaries": [
+    0,
+    34,
+    141
+   ]
+  },
+  {
+   "id": "generated-en-0239",
+   "category": "generated-en",
+   "text": "Documented the onboarding flow etc.!  Owned the onboarding flow in Q4.",
+   "boundaries": [
+    0,
+    38,
+    70
+   ]
+  },
+  {
+   "id": "generated-en-0240",
+   "category": "generated-en",
+   "text": "Shipped the search index etc..; Launched the reporting pipeline with a team of 6 engineers.\r\nBuilt the data warehouse in 5 weeks!  Launched the API gateway to 0.4 ms p95.",
+   "boundaries": [
+    0,
+    93,
+    131,
+    170
+   ]
+  },
+  {
+   "id": "generated-en-0241",
+   "category": "generated-en",
+   "text": "Reduced the data warehouse by 3.5 percent.",
+   "boundaries": [
+    0,
+    42
+   ]
+  },
+  {
+   "id": "generated-en-0242",
+   "category": "generated-en",
+   "text": "Launched the reporting pipeline across 6 sites. Reduced the reporting pipeline for the U.S. market.. Migrated the reporting pipeline with a team of 8 engineers!",
+   "boundaries": [
+    0,
+    48,
+    101,
+    160
+   ]
+  },
+  {
+   "id": "generated-en-0243",
+   "category": "generated-en",
+   "text": "Automated the search index (see https://docs.example.com/guide).\tShipped the billing service in Q4!",
+   "boundaries": [
+    0,
+    65,
+    99
+   ]
+  },
+  {
+   "id": "generated-en-0244",
+   "category": "generated-en",
+   "text": "Shipped the API gateway to 0.4 ms p95!  Built the API gateway (see www.example.org/item).",
+   "boundaries": [
+    0,
+    40,
+    89
+   ]
+  },
+  {
+   "id": "generated-en-0245",
+   "category": "generated-en",
+   "text": "Reviewed the release process for 4 regions. Built the release process at version v2.1; \u2022 Led the search index across 5 sites.",
+   "boundaries": [
+    0,
+    44,
+    125
+   ]
+  },
+  {
+   "id": "generated-en-0246",
+   "category": "generated-en",
+   "text": "Shipped the API gateway for the U.S. market;  Reduced the search index to 12.25 s. \u2022 Reviewed the test suite with e.g. 12 reviewers.",
+   "boundaries": [
+    0,
+    132
+   ]
+  },
+  {
+   "id": "generated-en-0247",
+   "category": "generated-en",
+   "text": "Reduced the data warehouse for 2 regions!\u00a0Reduced the search index to 12.25 ms p95!",
+   "boundaries": [
+    0,
+    42,
+    83
+   ]
+  },
+  {
+   "id": "generated-en-0248",
+   "category": "generated-en",
+   "text": "Coached the data warehouse etc..  Built the release process with a team of 4 engineers.; Shipped the onboarding flow via ops@example.com.",
+   "boundaries": [
+    0,
+    34,
+    137
+   ]
+  },
+  {
+   "id": "generated-en-0249",
+   "category": "generated-en",
+   "text": "Launched the reporting pipeline via team@example.com.  Reduced the search index to 99.9 s. Built the reporting pipeline in Q3.",
+   "boundaries": [
+    0,
+    55,
+    91,
+    126
+   ]
+  },
+  {
+   "id": "generated-en-0250",
+   "category": "generated-en",
+   "text": "Reviewed the test suite to 3.5 s!\nLed the data warehouse for 3 regions!",
+   "boundaries": [
+    0,
+    34,
+    71
+   ]
+  },
+  {
+   "id": "generated-en-0251",
+   "category": "generated-en",
+   "text": "Coached the billing service in 3 weeks.",
+   "boundaries": [
+    0,
+    39
+   ]
+  },
+  {
+   "id": "generated-en-0252",
+   "category": "generated-en",
+   "text": "Reduced the billing service in 11 weeks.",
+   "boundaries": [
+    0,
+    40
+   ]
+  },
+  {
+   "id": "generated-en-0253",
+   "category": "generated-en",
+   "text": "Documented the API gateway etc.. \u2022 Automated the billing service to 0.4 s",
+   "boundaries": [
+    0,
+    73
+   ]
+  },
+  {
+   "id": "generated-en-0254",
+   "category": "generated-en",
+   "text": "Launched the test suite to 2.1 ms p95!. Reviewed the search index for the U.S. market.\tLaunched the test suite with a team of 9 engineers!; Documented the onboarding flow to 99.9 s;",
+   "boundaries": [
+    0,
+    40,
+    87,
+    138,
+    181
+   ]
+  },
+  {
+   "id": "generated-en-0255",
+   "category": "generated-en",
+   "text": "Shipped the onboarding flow with a team of 9 engineers; \u2022 Designed the test suite for Dr. Test.; Reviewed the onboarding flow at version v3.0.1.",
+   "boundaries": [
+    0,
+    90,
+    144
+   ]
+  },
+  {
+   "id": "generated-en-0256",
+   "category": "generated-en",
+   "text": "Built the billing service by 2.1 percent.  Reviewed the release process with a team of 4 engineers",
+   "boundaries": [
+    0,
+    43,
+    98
+   ]
+  },
+  {
+   "id": "generated-en-0257",
+   "category": "generated-en",
+   "text": "Reduced the search index via ops@example.com;\tBuilt the test suite with e.g. 8 reviewers. Launched the test suite at version v3.0.1!; Designed the search index with a team of 8 engineers",
+   "boundaries": [
+    0,
+    90,
+    132,
+    186
+   ]
+  },
+  {
+   "id": "generated-en-0258",
+   "category": "generated-en",
+   "text": "Reduced the reporting pipeline for 5 regions \u2022 Launched the release process to 0.4 s.\tReduced the test suite via ops@example.com!",
+   "boundaries": [
+    0,
+    86,
+    129
+   ]
+  },
+  {
+   "id": "generated-en-0259",
+   "category": "generated-en",
+   "text": "Designed the reporting pipeline for the U.S. market.",
+   "boundaries": [
+    0,
+    52
+   ]
+  },
+  {
+   "id": "generated-en-0260",
+   "category": "generated-en",
+   "text": "Shipped the data warehouse to 99.9 ms p95\u00a0Designed the API gateway at version v3.0.1;\tReduced the data warehouse via ops@example.com",
+   "boundaries": [
+    0,
+    132
+   ]
+  },
+  {
+   "id": "generated-en-0261",
+   "category": "generated-en",
+   "text": "Automated the reporting pipeline for Dr. Vale.\u00a0Owned the release process in 9 weeks",
+   "boundaries": [
+    0,
+    41,
+    47,
+    83
+   ]
+  },
+  {
+   "id": "generated-en-0262",
+   "category": "generated-en",
+   "text": "Designed the data warehouse (see www.example.org/item). Documented the billing service by 4.75 percent.\u00a0Reduced the onboarding flow for the U.S. market",
+   "boundaries": [
+    0,
+    56,
+    104,
+    151
+   ]
+  },
+  {
+   "id": "generated-en-0263",
+   "category": "generated-en",
+   "text": "Led the search index in 6 weeks! Reviewed the test suite to 12.25 ms p95;; Launched the data warehouse in 6 weeks\u00a0Coached the billing service with e.g. 12 reviewers!",
+   "boundaries": [
+    0,
+    33,
+    165
+   ]
+  },
+  {
+   "id": "generated-en-0264",
+   "category": "generated-en",
+   "text": "Documented the test suite with e.g. 2 reviewers Automated the search index for Acme Inc.",
+   "boundaries": [
+    0,
+    88
+   ]
+  },
+  {
+   "id": "generated-en-0265",
+   "category": "generated-en",
+   "text": "Reduced the search index to 4.75 ms p95;\r\nShipped the onboarding flow for Dr. Lind.\u00a0Launched the search index via team@example.com  Led the data warehouse via team@example.com!",
+   "boundaries": [
+    0,
+    78,
+    84,
+    176
+   ]
+  },
+  {
+   "id": "generated-en-0266",
+   "category": "generated-en",
+   "text": "Led the reporting pipeline in Q4. Reviewed the test suite by 2.1 percent!\u00a0Documented the data warehouse with e.g. 12 reviewers",
+   "boundaries": [
+    0,
+    34,
+    74,
+    126
+   ]
+  },
+  {
+   "id": "generated-en-0267",
+   "category": "generated-en",
+   "text": "Led the search index in 10 weeks!",
+   "boundaries": [
+    0,
+    33
+   ]
+  },
+  {
+   "id": "generated-en-0268",
+   "category": "generated-en",
+   "text": "Owned the billing service with a team of 3 engineers.  Migrated the release process etc.!\r\nAutomated the data warehouse at version v1.0 Launched the billing service in 2 weeks",
+   "boundaries": [
+    0,
+    55,
+    91,
+    175
+   ]
+  },
+  {
+   "id": "generated-en-0269",
+   "category": "generated-en",
+   "text": "Migrated the billing service to 99.9 s! Migrated the reporting pipeline via ops@example.com;",
+   "boundaries": [
+    0,
+    40,
+    92
+   ]
+  },
+  {
+   "id": "generated-en-0270",
+   "category": "generated-en",
+   "text": "Designed the release process in 8 weeks;. Owned the test suite with e.g. 4 reviewers. Led the API gateway by 0.4 percent.\u00a0Automated the API gateway for Acme Inc..",
+   "boundaries": [
+    0,
+    42,
+    86,
+    122,
+    162
+   ]
+  },
+  {
+   "id": "generated-en-0271",
+   "category": "generated-en",
+   "text": "Migrated the test suite with a team of 7 engineers!\tBuilt the test suite in 2 weeks",
+   "boundaries": [
+    0,
+    52,
+    83
+   ]
+  },
+  {
+   "id": "generated-en-0272",
+   "category": "generated-en",
+   "text": "Reduced the API gateway by 12.25 percent! Designed the data warehouse for 2 regions. Led the test suite for 3 regions! Owned the search index via team@example.com",
+   "boundaries": [
+    0,
+    42,
+    85,
+    119,
+    162
+   ]
+  },
+  {
+   "id": "generated-en-0273",
+   "category": "generated-en",
+   "text": "Built the data warehouse with e.g. 6 reviewers;",
+   "boundaries": [
+    0,
+    47
+   ]
+  },
+  {
+   "id": "generated-en-0274",
+   "category": "generated-en",
+   "text": "Reduced the reporting pipeline for Acme Inc.;",
+   "boundaries": [
+    0,
+    43,
+    44,
+    45
+   ]
+  },
+  {
+   "id": "generated-en-0275",
+   "category": "generated-en",
+   "text": "Reviewed the API gateway in Q3!",
+   "boundaries": [
+    0,
+    31
+   ]
+  },
+  {
+   "id": "generated-en-0276",
+   "category": "generated-en",
+   "text": "Led the onboarding flow to 99.9 ms p95;\r\nDesigned the billing service across 5 sites\u00a0Launched the search index by 2.1 percent!",
+   "boundaries": [
+    0,
+    126
+   ]
+  },
+  {
+   "id": "generated-en-0277",
+   "category": "generated-en",
+   "text": "Automated the onboarding flow by 3.5 percent. Migrated the release process for Acme Inc.! Reduced the onboarding flow at version v2.1. Built the onboarding flow by 12.25 percent.",
+   "boundaries": [
+    0,
+    46,
+    90,
+    135,
+    178
+   ]
+  },
+  {
+   "id": "generated-en-0278",
+   "category": "generated-en",
+   "text": "Automated the onboarding flow for the U.S. market.  Coached the search index etc.;. Reduced the release process in 9 weeks!\tDocumented the reporting pipeline by 3.5 percent;",
+   "boundaries": [
+    0,
+    52,
+    84,
+    124,
+    173
+   ]
+  },
+  {
+   "id": "generated-en-0279",
+   "category": "generated-en",
+   "text": "Built the API gateway for the U.S. market \u2022 Automated the onboarding flow by 2.1 percent!\tMigrated the search index for Dr. Lind  Automated the billing service at version v1.0;",
+   "boundaries": [
+    0,
+    90,
+    124,
+    176
+   ]
+  },
+  {
+   "id": "generated-en-0280",
+   "category": "generated-en",
+   "text": "Built the reporting pipeline for Dr. Test.; Migrated the billing service for 3 regions;; Launched the reporting pipeline etc..; Built the test suite for the U.S. market.",
+   "boundaries": [
+    0,
+    37,
+    169
+   ]
+  },
+  {
+   "id": "generated-en-0281",
+   "category": "generated-en",
+   "text": "Led the billing service for Acme Inc..",
+   "boundaries": [
+    0,
+    38
+   ]
+  },
+  {
+   "id": "generated-en-0282",
+   "category": "generated-en",
+   "text": "Reduced the billing service via ops@example.com.; Coached the billing service via ops@example.com;",
+   "boundaries": [
+    0,
+    98
+   ]
+  },
+  {
+   "id": "generated-en-0283",
+   "category": "generated-en",
+   "text": "Automated the reporting pipeline etc.",
+   "boundaries": [
+    0,
+    37
+   ]
+  },
+  {
+   "id": "generated-en-0284",
+   "category": "generated-en",
+   "text": "Launched the billing service in Q5!\tReviewed the release process via team@example.com.  Reviewed the search index via team@example.com.",
+   "boundaries": [
+    0,
+    36,
+    88,
+    135
+   ]
+  },
+  {
+   "id": "generated-en-0285",
+   "category": "generated-en",
+   "text": "Coached the onboarding flow via team@example.com;",
+   "boundaries": [
+    0,
+    49
+   ]
+  },
+  {
+   "id": "generated-en-0286",
+   "category": "generated-en",
+   "text": "Automated the onboarding flow by 2.1 percent;",
+   "boundaries": [
+    0,
+    45
+   ]
+  },
+  {
+   "id": "generated-en-0287",
+   "category": "generated-en",
+   "text": "Shipped the billing service for the U.S. market.",
+   "boundaries": [
+    0,
+    48
+   ]
+  },
+  {
+   "id": "generated-en-0288",
+   "category": "generated-en",
+   "text": "Documented the onboarding flow etc..\u00a0Coached the release process (see www.example.org/item).",
+   "boundaries": [
+    0,
+    37,
+    92
+   ]
+  },
+  {
+   "id": "generated-en-0289",
+   "category": "generated-en",
+   "text": "Designed the billing service to 99.9 ms p95. Owned the test suite with a team of 8 engineers.  Designed the search index for Dr. Lind;",
+   "boundaries": [
+    0,
+    45,
+    95,
+    129,
+    134
+   ]
+  },
+  {
+   "id": "generated-en-0290",
+   "category": "generated-en",
+   "text": "Shipped the search index with a team of 5 engineers.; Documented the API gateway to 99.9 s",
+   "boundaries": [
+    0,
+    90
+   ]
+  },
+  {
+   "id": "generated-en-0291",
+   "category": "generated-en",
+   "text": "Built the test suite for the U.S. market",
+   "boundaries": [
+    0,
+    40
+   ]
+  },
+  {
+   "id": "generated-en-0292",
+   "category": "generated-en",
+   "text": "Built the search index across 12 sites. Led the reporting pipeline for 3 regions.; Coached the reporting pipeline in Q3;  Owned the search index (see www.example.org/item);",
+   "boundaries": [
+    0,
+    40,
+    172
+   ]
+  },
+  {
+   "id": "generated-en-0293",
+   "category": "generated-en",
+   "text": "Migrated the reporting pipeline for the U.S. market!  Owned the API gateway at version v3.0.1.  Shipped the search index etc..\u00a0Coached the onboarding flow at version v4.2.7.",
+   "boundaries": [
+    0,
+    54,
+    96,
+    127,
+    173
+   ]
+  },
+  {
+   "id": "generated-en-0294",
+   "category": "generated-en",
+   "text": "Migrated the API gateway for Acme Inc.;",
+   "boundaries": [
+    0,
+    37,
+    38,
+    39
+   ]
+  },
+  {
+   "id": "generated-en-0295",
+   "category": "generated-en",
+   "text": "Coached the search index for Dr. Lind! Designed the API gateway in 12 weeks;",
+   "boundaries": [
+    0,
+    33,
+    39,
+    76
+   ]
+  },
+  {
+   "id": "generated-en-0296",
+   "category": "generated-en",
+   "text": "Owned the data warehouse for the U.S. market.\r\nReviewed the data warehouse with e.g. 2 reviewers!\u00a0Shipped the API gateway for Acme Inc..; Owned the reporting pipeline across 4 sites!",
+   "boundaries": [
+    0,
+    47,
+    98,
+    182
+   ]
+  },
+  {
+   "id": "generated-en-0297",
+   "category": "generated-en",
+   "text": "Reduced the billing service for Acme Inc..\u00a0Owned the release process for 4 regions!",
+   "boundaries": [
+    0,
+    43,
+    83
+   ]
+  },
+  {
+   "id": "generated-en-0298",
+   "category": "generated-en",
+   "text": "Built the search index in 9 weeks.  Built the data warehouse to 99.9 s;",
+   "boundaries": [
+    0,
+    36,
+    71
+   ]
+  },
+  {
+   "id": "generated-en-0299",
+   "category": "generated-en",
+   "text": "Shipped the release process (see www.example.org/item).. Designed the data warehouse for 2 regions!",
+   "boundaries": [
+    0,
+    57,
+    99
+   ]
+  },
+  {
+   "id": "generated-en-0300",
+   "category": "generated-en",
+   "text": "Automated the API gateway across 8 sites;; Coached the release process in Q3 \u2022 Reduced the onboarding flow for Acme Inc.. Owned the release process via ops@example.com.",
+   "boundaries": [
+    0,
+    122,
+    168
+   ]
+  },
+  {
+   "id": "generated-en-0301",
+   "category": "generated-en",
+   "text": "Reduced the release process for the U.S. market\r\nMigrated the data warehouse to 3.5 ms p95!  Coached the data warehouse to 99.9 s.",
+   "boundaries": [
+    0,
+    93,
+    130
+   ]
+  },
+  {
+   "id": "generated-en-0302",
+   "category": "generated-en",
+   "text": "Documented the API gateway to 2.1 s. Automated the API gateway with e.g. 2 reviewers",
+   "boundaries": [
+    0,
+    37,
+    84
+   ]
+  },
+  {
+   "id": "generated-en-0303",
+   "category": "generated-en",
+   "text": "Reduced the search index etc.. Built the API gateway across 12 sites.. Owned the reporting pipeline for 3 regions.",
+   "boundaries": [
+    0,
+    31,
+    71,
+    114
+   ]
+  },
+  {
+   "id": "generated-en-0304",
+   "category": "generated-en",
+   "text": "Reviewed the search index for the U.S. market\nDesigned the data warehouse at version v4.2.7.",
+   "boundaries": [
+    0,
+    92
+   ]
+  },
+  {
+   "id": "generated-en-0305",
+   "category": "generated-en",
+   "text": "Shipped the API gateway with a team of 11 engineers.",
+   "boundaries": [
+    0,
+    52
+   ]
+  },
+  {
+   "id": "generated-en-0306",
+   "category": "generated-en",
+   "text": "Launched the reporting pipeline by 99.9 percent! Reviewed the API gateway via ops@example.com!  Coached the release process across 4 sites.",
+   "boundaries": [
+    0,
+    49,
+    96,
+    139
+   ]
+  },
+  {
+   "id": "generated-en-0307",
+   "category": "generated-en",
+   "text": "Designed the API gateway in Q3. Documented the search index in 9 weeks.\tLed the search index (see www.example.org/item).\r\nLaunched the billing service etc..",
+   "boundaries": [
+    0,
+    32,
+    72,
+    122,
+    156
+   ]
+  },
+  {
+   "id": "generated-en-0308",
+   "category": "generated-en",
+   "text": "Migrated the release process by 0.4 percent.\u00a0Led the reporting pipeline in Q2.\tOwned the billing service via team@example.com;",
+   "boundaries": [
+    0,
+    45,
+    79,
+    126
+   ]
+  },
+  {
+   "id": "generated-en-0309",
+   "category": "generated-en",
+   "text": "Reduced the reporting pipeline in Q4",
+   "boundaries": [
+    0,
+    36
+   ]
+  },
+  {
+   "id": "generated-en-0310",
+   "category": "generated-en",
+   "text": "Led the test suite for Dr. Lind;  Launched the onboarding flow to 0.4 s. Led the release process for Dr. Lind.",
+   "boundaries": [
+    0,
+    27,
+    73,
+    105,
+    110
+   ]
+  },
+  {
+   "id": "generated-en-0311",
+   "category": "generated-en",
+   "text": "Owned the API gateway in 9 weeks.",
+   "boundaries": [
+    0,
+    33
+   ]
+  },
+  {
+   "id": "generated-fr-0312",
+   "category": "generated-fr",
+   "text": "R\u00e9duit la suite de tests pour 4 r\u00e9gions.",
+   "boundaries": [
+    0,
+    40
+   ]
+  },
+  {
+   "id": "generated-fr-0313",
+   "category": "generated-fr",
+   "text": "R\u00e9duit le processus de revue de 3.5 %.\u00a0: Form\u00e9 le pipeline de donn\u00e9es \u00e0 99.9 ms\u00a0!",
+   "boundaries": [
+    0,
+    81
+   ]
+  },
+  {
+   "id": "generated-fr-0314",
+   "category": "generated-fr",
+   "text": "Dirig\u00e9 la plateforme de facturation etc.\u00a0!\u202fCon\u00e7u le processus de revue \u00e0 4.75\u00a0s\u202f? \u00ab\u00a0Automatis\u00e9 la plateforme de facturation c.-\u00e0-d. la note 3.3.\u00a0Document\u00e9 le processus de revue \u00e0 4.75\u00a0s\u00a0;",
+   "boundaries": [
+    0,
+    43,
+    82,
+    126,
+    145,
+    187
+   ]
+  },
+  {
+   "id": "generated-fr-0315",
+   "category": "generated-fr",
+   "text": "Dirig\u00e9 le pipeline de donn\u00e9es avec 9 ing\u00e9nieurs\u00a0Mis en place la plateforme de facturation etc..\u00a0; Dirig\u00e9 le pipeline de donn\u00e9es avec 2 ing\u00e9nieurs\u00a0;\u00a0: Con\u00e7u l\u2019API interne avec 12 ing\u00e9nieurs",
+   "boundaries": [
+    0,
+    188
+   ]
+  },
+  {
+   "id": "generated-fr-0316",
+   "category": "generated-fr",
+   "text": "Livr\u00e9 la plateforme de facturation etc.\u202fR\u00e9duit le pipeline de donn\u00e9es \u00e0 2.1\u00a0s.",
+   "boundaries": [
+    0,
+    40,
+    78
+   ]
+  },
+  {
+   "id": "generated-fr-0317",
+   "category": "generated-fr",
+   "text": "Dirig\u00e9 l\u2019API interne etc.. Dirig\u00e9 le processus de revue c.-\u00e0-d. la note 12.3.",
+   "boundaries": [
+    0,
+    27,
+    58,
+    77
+   ]
+  },
+  {
+   "id": "generated-fr-0318",
+   "category": "generated-fr",
+   "text": "Automatis\u00e9 le pipeline de donn\u00e9es pour 5 r\u00e9gions.",
+   "boundaries": [
+    0,
+    49
+   ]
+  },
+  {
+   "id": "generated-fr-0319",
+   "category": "generated-fr",
+   "text": "Con\u00e7u le processus de revue c.-\u00e0-d. la note 2.2\u00a0! : Dirig\u00e9 le pipeline de donn\u00e9es pour 2 r\u00e9gions\u00a0;\u00a0\u00bb Document\u00e9 le processus de revue pour M. Exemple.",
+   "boundaries": [
+    0,
+    30,
+    50,
+    141,
+    149
+   ]
+  },
+  {
+   "id": "generated-fr-0320",
+   "category": "generated-fr",
+   "text": "Mis en place l\u2019API interne \u00e0 3.5\u00a0s Dirig\u00e9 le processus de revue pour 5 r\u00e9gions.\u00a0Livr\u00e9 l\u2019API interne pour 3 r\u00e9gions.\u00a0: Automatis\u00e9 la suite de tests (version 4.2.7)\u00a0;",
+   "boundaries": [
+    0,
+    80,
+    164
+   ]
+  },
+  {
+   "id": "generated-fr-0321",
+   "category": "generated-fr",
+   "text": "Con\u00e7u le pipeline de donn\u00e9es pour 5 r\u00e9gions.\u202fR\u00e9duit le pipeline de donn\u00e9es pour 2 r\u00e9gions\u00a0;\u00a0: Mis en place la plateforme de facturation en 4 semaines\u00a0;\u00a0Automatis\u00e9 l\u2019API interne de 2.1 %\u00a0!",
+   "boundaries": [
+    0,
+    45,
+    187
+   ]
+  },
+  {
+   "id": "generated-fr-0322",
+   "category": "generated-fr",
+   "text": "Con\u00e7u la suite de tests en 12 semaines\u202f? : Livr\u00e9 le pipeline de donn\u00e9es (version 4.2.7).",
+   "boundaries": [
+    0,
+    41,
+    88
+   ]
+  },
+  {
+   "id": "generated-fr-0323",
+   "category": "generated-fr",
+   "text": "Mis en place le processus de revue en 7 semaines. \u00ab\u00a0Document\u00e9 la suite de tests \u00e0 0.4 ms\u202f?",
+   "boundaries": [
+    0,
+    90
+   ]
+  },
+  {
+   "id": "generated-fr-0324",
+   "category": "generated-fr",
+   "text": "Mis en place l\u2019API interne avec 7 ing\u00e9nieurs\u00a0!",
+   "boundaries": [
+    0,
+    46
+   ]
+  },
+  {
+   "id": "generated-fr-0325",
+   "category": "generated-fr",
+   "text": "Livr\u00e9 l\u2019API interne en 10 semaines\u00a0\u00bb Form\u00e9 le processus de revue pour M. Exemple\u00a0! ; Dirig\u00e9 le processus de revue \u00e0 4.75\u00a0s\u202f?",
+   "boundaries": [
+    0,
+    73,
+    83,
+    124
+   ]
+  },
+  {
+   "id": "generated-fr-0326",
+   "category": "generated-fr",
+   "text": "Con\u00e7u la suite de tests avec 10 ing\u00e9nieurs\u202f?\u202fForm\u00e9 la suite de tests \u00e0 12.25 ms.\u00a0: Mis en place la suite de tests avec 5 ing\u00e9nieurs\u00a0;\u202fMis en place le pipeline de donn\u00e9es de 2.1 %",
+   "boundaries": [
+    0,
+    45,
+    178
+   ]
+  },
+  {
+   "id": "generated-fr-0327",
+   "category": "generated-fr",
+   "text": "Automatis\u00e9 la suite de tests \u00e0 99.9 ms.\u00a0; Mis en place le pipeline de donn\u00e9es (version 3.0.1) ; Mis en place le processus de revue etc.\u202f?\u00a0\u00bb Document\u00e9 l\u2019API interne \u00e0 2.1 ms",
+   "boundaries": [
+    0,
+    138,
+    172
+   ]
+  },
+  {
+   "id": "generated-fr-0328",
+   "category": "generated-fr",
+   "text": "Livr\u00e9 le processus de revue \u00e0 3.5\u00a0s\u202f?\u00a0: R\u00e9duit la suite de tests de 3.5 %.",
+   "boundaries": [
+    0,
+    38,
+    74
+   ]
+  },
+  {
+   "id": "generated-fr-0329",
+   "category": "generated-fr",
+   "text": "Automatis\u00e9 la suite de tests \u00e0 12.25 ms\u00a0;",
+   "boundaries": [
+    0,
+    41
+   ]
+  },
+  {
+   "id": "generated-fr-0330",
+   "category": "generated-fr",
+   "text": "Con\u00e7u le processus de revue pour 3 r\u00e9gions\u00a0;\u00a0; Dirig\u00e9 l\u2019API interne de 3.5 %\u00a0!\u00a0\u00bb R\u00e9duit le pipeline de donn\u00e9es (version 3.0.1). ; R\u00e9duit la plateforme de facturation \u00e0 2.1\u00a0s\u00a0;",
+   "boundaries": [
+    0,
+    79,
+    175
+   ]
+  },
+  {
+   "id": "generated-fr-0331",
+   "category": "generated-fr",
+   "text": "R\u00e9duit le processus de revue avec 11 ing\u00e9nieurs\u00a0;\u00a0Form\u00e9 la plateforme de facturation de 0.4 %.\u00a0: Mis en place la suite de tests (version 4.2.7)\u00a0;\u00a0: R\u00e9duit l\u2019API interne avec 3 ing\u00e9nieurs",
+   "boundaries": [
+    0,
+    186
+   ]
+  },
+  {
+   "id": "generated-fr-0332",
+   "category": "generated-fr",
+   "text": "Con\u00e7u le processus de revue \u00e0 99.9\u00a0s.\u00a0\u00bb Automatis\u00e9 l\u2019API interne de 12.25 %\u00a0Form\u00e9 le pipeline de donn\u00e9es \u00e0 3.5 ms\u202f?\u00a0; Mis en place la plateforme de facturation \u00e0 12.25\u00a0s\u00a0!",
+   "boundaries": [
+    0,
+    116,
+    171
+   ]
+  },
+  {
+   "id": "generated-fr-0333",
+   "category": "generated-fr",
+   "text": "Automatis\u00e9 la plateforme de facturation c.-\u00e0-d. la note 8.4\u00a0; R\u00e9duit la suite de tests pour 4 r\u00e9gions\u202fDirig\u00e9 le pipeline de donn\u00e9es avec 9 ing\u00e9nieurs\u00a0: Document\u00e9 la plateforme de facturation (version 4.2.7).",
+   "boundaries": [
+    0,
+    42,
+    207
+   ]
+  },
+  {
+   "id": "generated-fr-0334",
+   "category": "generated-fr",
+   "text": "Con\u00e7u l\u2019API interne en 5 semaines\u00a0!\u00a0\u00bb Dirig\u00e9 le processus de revue (version 4.2.7)\u00a0! ; Dirig\u00e9 l\u2019API interne pour 2 r\u00e9gions\u00a0!",
+   "boundaries": [
+    0,
+    36,
+    85,
+    124
+   ]
+  },
+  {
+   "id": "generated-fr-0335",
+   "category": "generated-fr",
+   "text": "Mis en place la suite de tests (version 3.0.1)",
+   "boundaries": [
+    0,
+    46
+   ]
+  },
+  {
+   "id": "generated-fr-0336",
+   "category": "generated-fr",
+   "text": "Dirig\u00e9 l\u2019API interne pour M. Exemple\u00a0!\u00a0; Automatis\u00e9 l\u2019API interne de 2.1 %\u00a0!\u00a0\u00bb Con\u00e7u la plateforme de facturation en 8 semaines\u00a0Con\u00e7u le pipeline de donn\u00e9es c.-\u00e0-d. la note 12.5\u00a0;",
+   "boundaries": [
+    0,
+    29,
+    39,
+    77,
+    159,
+    179
+   ]
+  },
+  {
+   "id": "generated-fr-0337",
+   "category": "generated-fr",
+   "text": "Automatis\u00e9 le processus de revue pour 2 r\u00e9gions. : Con\u00e7u la plateforme de facturation avec 2 ing\u00e9nieurs.\u00a0; Document\u00e9 la suite de tests \u00e0 0.4\u00a0s\u00a0;\u00a0: Automatis\u00e9 le pipeline de donn\u00e9es en 7 semaines\u00a0!",
+   "boundaries": [
+    0,
+    196
+   ]
+  },
+  {
+   "id": "generated-fr-0338",
+   "category": "generated-fr",
+   "text": "R\u00e9duit la suite de tests en 10 semaines. \u00ab\u00a0Livr\u00e9 la plateforme de facturation pour M. Exemple\u00a0!\u00a0; R\u00e9duit le processus de revue pour 5 r\u00e9gions\u00a0;\u00a0; Automatis\u00e9 le processus de revue c.-\u00e0-d. la note 6.5.",
+   "boundaries": [
+    0,
+    86,
+    96,
+    181,
+    199
+   ]
+  },
+  {
+   "id": "generated-fr-0339",
+   "category": "generated-fr",
+   "text": "Con\u00e7u le processus de revue \u00e0 3.5\u00a0s",
+   "boundaries": [
+    0,
+    35
+   ]
+  },
+  {
+   "id": "generated-fr-0340",
+   "category": "generated-fr",
+   "text": "R\u00e9duit la plateforme de facturation etc..\u00a0: Automatis\u00e9 l\u2019API interne \u00e0 4.75 ms\u00a0;\u00a0: Con\u00e7u la suite de tests avec 12 ing\u00e9nieurs\u202f?",
+   "boundaries": [
+    0,
+    127
+   ]
+  },
+  {
+   "id": "generated-fr-0341",
+   "category": "generated-fr",
+   "text": "R\u00e9duit la plateforme de facturation avec 8 ing\u00e9nieurs\u202f?\u00a0\u00bb R\u00e9duit le pipeline de donn\u00e9es pour M. Exemple\u00a0; \u00ab\u00a0Livr\u00e9 l\u2019API interne en 10 semaines.",
+   "boundaries": [
+    0,
+    56,
+    96,
+    143
+   ]
+  },
+  {
+   "id": "generated-fr-0342",
+   "category": "generated-fr",
+   "text": "Con\u00e7u la plateforme de facturation \u00e0 2.1\u00a0s. ; Automatis\u00e9 la plateforme de facturation \u00e0 99.9\u00a0s\u202f? ; Form\u00e9 la suite de tests de 12.25 %",
+   "boundaries": [
+    0,
+    97,
+    133
+   ]
+  },
+  {
+   "id": "generated-fr-0343",
+   "category": "generated-fr",
+   "text": "Mis en place le processus de revue (version 1.0)\u00a0!\u202fDirig\u00e9 la suite de tests \u00e0 12.25 ms",
+   "boundaries": [
+    0,
+    51,
+    86
+   ]
+  },
+  {
+   "id": "generated-fr-0344",
+   "category": "generated-fr",
+   "text": "Document\u00e9 l\u2019API interne pour 2 r\u00e9gions ; Livr\u00e9 la suite de tests c.-\u00e0-d. la note 12.3\u00a0!\u00a0\u00bb Dirig\u00e9 l\u2019API interne \u00e0 0.4 ms. Mis en place la plateforme de facturation en 10 semaines\u00a0;",
+   "boundaries": [
+    0,
+    67,
+    88,
+    121,
+    179
+   ]
+  },
+  {
+   "id": "generated-fr-0345",
+   "category": "generated-fr",
+   "text": "Mis en place le pipeline de donn\u00e9es pour M. Exemple\u202fAutomatis\u00e9 le pipeline de donn\u00e9es en 7 semaines.",
+   "boundaries": [
+    0,
+    44,
+    100
+   ]
+  },
+  {
+   "id": "generated-fr-0346",
+   "category": "generated-fr",
+   "text": "Form\u00e9 l\u2019API interne pour 5 r\u00e9gions : R\u00e9duit le processus de revue \u00e0 0.4 ms\u00a0! Automatis\u00e9 la plateforme de facturation avec 2 ing\u00e9nieurs.\u00a0; Livr\u00e9 le processus de revue \u00e0 2.1\u00a0s.",
+   "boundaries": [
+    0,
+    77,
+    174
+   ]
+  },
+  {
+   "id": "generated-fr-0347",
+   "category": "generated-fr",
+   "text": "R\u00e9duit la plateforme de facturation de 0.4 %\u00a0;\u00a0: Mis en place le processus de revue etc.\u00a0; Livr\u00e9 le pipeline de donn\u00e9es c.-\u00e0-d. la note 7.3 R\u00e9duit l\u2019API interne pour M. Exemple",
+   "boundaries": [
+    0,
+    122,
+    169,
+    176
+   ]
+  },
+  {
+   "id": "generated-fr-0348",
+   "category": "generated-fr",
+   "text": "Automatis\u00e9 la plateforme de facturation \u00e0 99.9\u00a0s",
+   "boundaries": [
+    0,
+    48
+   ]
+  },
+  {
+   "id": "generated-fr-0349",
+   "category": "generated-fr",
+   "text": "Dirig\u00e9 le pipeline de donn\u00e9es pour M. Exemple.\u00a0; Form\u00e9 l\u2019API interne \u00e0 3.5\u00a0s\u00a0!\u00a0Livr\u00e9 la suite de tests pour 3 r\u00e9gions\u202f?",
+   "boundaries": [
+    0,
+    38,
+    79,
+    119
+   ]
+  },
+  {
+   "id": "generated-fr-0350",
+   "category": "generated-fr",
+   "text": "Con\u00e7u la plateforme de facturation de 0.4 %\u00a0!",
+   "boundaries": [
+    0,
+    45
+   ]
+  },
+  {
+   "id": "generated-fr-0351",
+   "category": "generated-fr",
+   "text": "Mis en place la suite de tests \u00e0 4.75 ms. Form\u00e9 la plateforme de facturation etc.\u00a0\u00bb Dirig\u00e9 la suite de tests pour M. Exemple\u00a0;",
+   "boundaries": [
+    0,
+    42,
+    117,
+    126
+   ]
+  },
+  {
+   "id": "generated-fr-0352",
+   "category": "generated-fr",
+   "text": "R\u00e9duit le pipeline de donn\u00e9es (version 2.1)\u00a0!\u00a0; R\u00e9duit la suite de tests (version 2.1).\u00a0: Mis en place le processus de revue de 2.1 %\u202f?",
+   "boundaries": [
+    0,
+    46,
+    135
+   ]
+  },
+  {
+   "id": "generated-fr-0353",
+   "category": "generated-fr",
+   "text": "Automatis\u00e9 la suite de tests pour 3 r\u00e9gions.",
+   "boundaries": [
+    0,
+    44
+   ]
+  },
+  {
+   "id": "generated-fr-0354",
+   "category": "generated-fr",
+   "text": "Mis en place l\u2019API interne \u00e0 99.9\u00a0s\u202f?",
+   "boundaries": [
+    0,
+    37
+   ]
+  },
+  {
+   "id": "generated-fr-0355",
+   "category": "generated-fr",
+   "text": "Livr\u00e9 le pipeline de donn\u00e9es pour M. Exemple\u00a0;\u00a0Form\u00e9 l\u2019API interne en 11 semaines.",
+   "boundaries": [
+    0,
+    37,
+    82
+   ]
+  },
+  {
+   "id": "generated-fr-0356",
+   "category": "generated-fr",
+   "text": "Form\u00e9 le processus de revue de 3.5 %\u00a0;\u00a0\u00bb Automatis\u00e9 l\u2019API interne avec 7 ing\u00e9nieurs\u202f?\u00a0; Livr\u00e9 la suite de tests \u00e0 4.75 ms\u202f?",
+   "boundaries": [
+    0,
+    86,
+    123
+   ]
+  },
+  {
+   "id": "generated-fr-0357",
+   "category": "generated-fr",
+   "text": "Automatis\u00e9 l\u2019API interne en 3 semaines ; Dirig\u00e9 le processus de revue \u00e0 3.5\u00a0s. \u00ab\u00a0Automatis\u00e9 la plateforme de facturation pour 5 r\u00e9gions\u00a0!\u00a0Dirig\u00e9 la plateforme de facturation pour M. Exemple\u202f?",
+   "boundaries": [
+    0,
+    138,
+    182,
+    191
+   ]
+  },
+  {
+   "id": "generated-fr-0358",
+   "category": "generated-fr",
+   "text": "Document\u00e9 le processus de revue pour M. Exemple. Livr\u00e9 le pipeline de donn\u00e9es en 5 semaines.\u202fDocument\u00e9 la plateforme de facturation de 12.25 %\u202f?",
+   "boundaries": [
+    0,
+    40,
+    49,
+    93,
+    144
+   ]
+  },
+  {
+   "id": "generated-fr-0359",
+   "category": "generated-fr",
+   "text": "Dirig\u00e9 la suite de tests c.-\u00e0-d. la note 7.2. ; Livr\u00e9 le pipeline de donn\u00e9es de 4.75 %\u202f?\u00a0\u00bb Document\u00e9 l\u2019API interne etc.\u00a0! \u00ab\u00a0Livr\u00e9 l\u2019API interne c.-\u00e0-d. la note 5.3\u00a0!",
+   "boundaries": [
+    0,
+    27,
+    89,
+    122,
+    146,
+    165
+   ]
+  },
+  {
+   "id": "generated-fr-0360",
+   "category": "generated-fr",
+   "text": "Con\u00e7u l\u2019API interne etc.\u00a0;\u202fDocument\u00e9 la suite de tests de 12.25 %.\u00a0: Document\u00e9 le processus de revue pour M. Exemple\u00a0; \u00ab\u00a0Mis en place le pipeline de donn\u00e9es avec 8 ing\u00e9nieurs.",
+   "boundaries": [
+    0,
+    109,
+    175
+   ]
+  },
+  {
+   "id": "generated-fr-0361",
+   "category": "generated-fr",
+   "text": "Document\u00e9 l\u2019API interne \u00e0 99.9 ms.\u00a0: Dirig\u00e9 l\u2019API interne avec 5 ing\u00e9nieurs",
+   "boundaries": [
+    0,
+    75
+   ]
+  },
+  {
+   "id": "generated-fr-0362",
+   "category": "generated-fr",
+   "text": "Automatis\u00e9 la plateforme de facturation etc..\u00a0: Dirig\u00e9 le processus de revue (version 1.0)\u00a0Automatis\u00e9 l\u2019API interne pour M. Exemple\u202fDirig\u00e9 le processus de revue de 2.1 %.",
+   "boundaries": [
+    0,
+    124,
+    170
+   ]
+  },
+  {
+   "id": "generated-fr-0363",
+   "category": "generated-fr",
+   "text": "R\u00e9duit l\u2019API interne (version 3.0.1)\u00a0! R\u00e9duit l\u2019API interne c.-\u00e0-d. la note 7.5\u202f?\u00a0R\u00e9duit le processus de revue pour M. Exemple\u00a0!",
+   "boundaries": [
+    0,
+    39,
+    62,
+    82,
+    119,
+    128
+   ]
+  },
+  {
+   "id": "generated-fr-0364",
+   "category": "generated-fr",
+   "text": "Form\u00e9 le pipeline de donn\u00e9es de 99.9 %.",
+   "boundaries": [
+    0,
+    39
+   ]
+  },
+  {
+   "id": "generated-fr-0365",
+   "category": "generated-fr",
+   "text": "Document\u00e9 le processus de revue pour M. Exemple.\u00a0Document\u00e9 l\u2019API interne c.-\u00e0-d. la note 5.5\u202f?",
+   "boundaries": [
+    0,
+    40,
+    49,
+    75,
+    94
+   ]
+  },
+  {
+   "id": "generated-fr-0366",
+   "category": "generated-fr",
+   "text": "R\u00e9duit le pipeline de donn\u00e9es etc..\u202fCon\u00e7u la suite de tests pour 4 r\u00e9gions\u202f? Livr\u00e9 la plateforme de facturation en 7 semaines.",
+   "boundaries": [
+    0,
+    36,
+    77,
+    126
+   ]
+  },
+  {
+   "id": "generated-fr-0367",
+   "category": "generated-fr",
+   "text": "Mis en place la plateforme de facturation pour M. Exemple\u00a0!",
+   "boundaries": [
+    0,
+    50,
+    59
+   ]
+  },
+  {
+   "id": "generated-fr-0368",
+   "category": "generated-fr",
+   "text": "Mis en place la plateforme de facturation etc.\u202f?",
+   "boundaries": [
+    0,
+    48
+   ]
+  },
+  {
+   "id": "generated-fr-0369",
+   "category": "generated-fr",
+   "text": "Document\u00e9 la suite de tests (version 2.1)\u202f?",
+   "boundaries": [
+    0,
+    43
+   ]
+  },
+  {
+   "id": "generated-fr-0370",
+   "category": "generated-fr",
+   "text": "Form\u00e9 la plateforme de facturation (version 3.0.1)\u00a0!\u00a0: Dirig\u00e9 le processus de revue \u00e0 3.5 ms\u00a0!\u00a0\u00bb Document\u00e9 le processus de revue c.-\u00e0-d. la note 2.3. : Con\u00e7u la plateforme de facturation avec 8 ing\u00e9nieurs.",
+   "boundaries": [
+    0,
+    53,
+    95,
+    131,
+    205
+   ]
+  },
+  {
+   "id": "generated-fr-0371",
+   "category": "generated-fr",
+   "text": "Con\u00e7u le pipeline de donn\u00e9es etc.\u00a0! ; Mis en place le pipeline de donn\u00e9es c.-\u00e0-d. la note 3.4",
+   "boundaries": [
+    0,
+    36,
+    76,
+    93
+   ]
+  },
+  {
+   "id": "generated-fr-0372",
+   "category": "generated-fr",
+   "text": "Mis en place la plateforme de facturation (version 4.2.7)\u00a0;\u202fDocument\u00e9 l\u2019API interne en 9 semaines\u00a0;\u00a0; Mis en place le pipeline de donn\u00e9es de 4.75 %. ; Automatis\u00e9 le pipeline de donn\u00e9es avec 5 ing\u00e9nieurs\u00a0!",
+   "boundaries": [
+    0,
+    204
+   ]
+  },
+  {
+   "id": "generated-fr-0373",
+   "category": "generated-fr",
+   "text": "Mis en place l\u2019API interne en 12 semaines. : Automatis\u00e9 la suite de tests c.-\u00e0-d. la note 8.2\u202f?\u00a0\u00bb Con\u00e7u le processus de revue \u00e0 2.1\u00a0s. R\u00e9duit le processus de revue c.-\u00e0-d. la note 9.4\u00a0!",
+   "boundaries": [
+    0,
+    76,
+    96,
+    135,
+    166,
+    185
+   ]
+  },
+  {
+   "id": "generated-fr-0374",
+   "category": "generated-fr",
+   "text": "Document\u00e9 le processus de revue de 12.25 % \u00ab\u00a0Automatis\u00e9 le processus de revue en 7 semaines\u00a0;\u00a0; R\u00e9duit la plateforme de facturation \u00e0 3.5\u00a0s. ; Livr\u00e9 le pipeline de donn\u00e9es pour M. Exemple.",
+   "boundaries": [
+    0,
+    180,
+    188
+   ]
+  },
+  {
+   "id": "generated-fr-0375",
+   "category": "generated-fr",
+   "text": "Document\u00e9 la suite de tests c.-\u00e0-d. la note 2.2\u202f?\u202fDirig\u00e9 la suite de tests (version 4.2.7).\u202fDirig\u00e9 le pipeline de donn\u00e9es pour 2 r\u00e9gions.",
+   "boundaries": [
+    0,
+    30,
+    50,
+    92,
+    137
+   ]
+  },
+  {
+   "id": "generated-fr-0376",
+   "category": "generated-fr",
+   "text": "R\u00e9duit l\u2019API interne etc.\u202f?\u00a0Form\u00e9 le processus de revue \u00e0 3.5\u00a0s Dirig\u00e9 le processus de revue en 12 semaines\u00a0; : Dirig\u00e9 l\u2019API interne de 0.4 %.",
+   "boundaries": [
+    0,
+    28,
+    142
+   ]
+  },
+  {
+   "id": "generated-fr-0377",
+   "category": "generated-fr",
+   "text": "R\u00e9duit la suite de tests pour 4 r\u00e9gions\u00a0;",
+   "boundaries": [
+    0,
+    41
+   ]
+  },
+  {
+   "id": "generated-fr-0378",
+   "category": "generated-fr",
+   "text": "Mis en place le processus de revue \u00e0 3.5\u00a0s",
+   "boundaries": [
+    0,
+    42
+   ]
+  },
+  {
+   "id": "generated-fr-0379",
+   "category": "generated-fr",
+   "text": "Dirig\u00e9 la suite de tests c.-\u00e0-d. la note 8.5\u00a0!\u202fLivr\u00e9 la suite de tests etc.\u00a0;",
+   "boundaries": [
+    0,
+    27,
+    47,
+    74,
+    75,
+    77
+   ]
+  },
+  {
+   "id": "generated-fr-0380",
+   "category": "generated-fr",
+   "text": "Livr\u00e9 le pipeline de donn\u00e9es etc.\u00a0Mis en place l\u2019API interne c.-\u00e0-d. la note 12.2\u202f?\u00a0\u00bb Livr\u00e9 l\u2019API interne \u00e0 4.75 ms \u00ab\u00a0R\u00e9duit l\u2019API interne \u00e0 0.4\u00a0s\u00a0!",
+   "boundaries": [
+    0,
+    34,
+    63,
+    84,
+    148
+   ]
+  },
+  {
+   "id": "generated-fr-0381",
+   "category": "generated-fr",
+   "text": "Con\u00e7u le pipeline de donn\u00e9es en 8 semaines",
+   "boundaries": [
+    0,
+    42
+   ]
+  },
+  {
+   "id": "edge-unicode-0382",
+   "category": "edge-unicode",
+   "text": "A\uffff. B",
+   "boundaries": [
+    0,
+    1,
+    2,
+    4,
+    5
+   ]
+  },
+  {
+   "id": "edge-unicode-0383",
+   "category": "edge-unicode",
+   "text": "A\uffff B. C",
+   "boundaries": [
+    0,
+    1,
+    2,
+    6,
+    7
+   ]
+  },
+  {
+   "id": "edge-unicode-0384",
+   "category": "edge-unicode",
+   "text": "Built the API.\uffff Done.",
+   "boundaries": [
+    0,
+    13,
+    14,
+    15,
+    21
+   ]
+  },
+  {
+   "id": "edge-unicode-0385",
+   "category": "edge-unicode",
+   "text": "Built\uffffthe API. Done.",
+   "boundaries": [
+    0,
+    5,
+    6,
+    15,
+    20
+   ]
+  },
+  {
+   "id": "edge-unicode-0386",
+   "category": "edge-unicode",
+   "text": "\uffff",
+   "boundaries": [
+    0,
+    1
+   ]
+  },
+  {
+   "id": "edge-unicode-0387",
+   "category": "edge-unicode",
+   "text": "Done.\uffff",
+   "boundaries": [
+    0,
+    4,
+    5,
+    6
+   ]
+  },
+  {
+   "id": "edge-unicode-0388",
+   "category": "edge-unicode",
+   "text": "Done.\ufffe Next.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0389",
+   "category": "edge-unicode",
+   "text": "Done.\ud83f\udfff Next.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0390",
+   "category": "edge-unicode",
+   "text": "Built the API.\u0378 Next.",
+   "boundaries": [
+    0,
+    21
+   ]
+  },
+  {
+   "id": "edge-unicode-0391",
+   "category": "edge-unicode",
+   "text": "Built the API\u0378. Next.",
+   "boundaries": [
+    0,
+    16,
+    21
+   ]
+  },
+  {
+   "id": "edge-unicode-0392",
+   "category": "edge-unicode",
+   "text": "Done.\u0903 Next.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0393",
+   "category": "edge-unicode",
+   "text": "Done.\u0903Next.",
+   "boundaries": [
+    0,
+    5,
+    11
+   ]
+  },
+  {
+   "id": "edge-unicode-0394",
+   "category": "edge-unicode",
+   "text": "Done!\u0903 Next.",
+   "boundaries": [
+    0,
+    5,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0395",
+   "category": "edge-unicode",
+   "text": "Done?\u0903 Next.",
+   "boundaries": [
+    0,
+    5,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0396",
+   "category": "edge-unicode",
+   "text": "Done.\u0301 Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0397",
+   "category": "edge-unicode",
+   "text": "Done!\u0301 Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0398",
+   "category": "edge-unicode",
+   "text": "Done?\u0308 Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0399",
+   "category": "edge-unicode",
+   "text": "Done.\u200b Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0400",
+   "category": "edge-unicode",
+   "text": "Done.\u00ad Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0401",
+   "category": "edge-unicode",
+   "text": "Done\u200d. Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0402",
+   "category": "edge-unicode",
+   "text": "Done.\u200d Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0403",
+   "category": "edge-unicode",
+   "text": "Done.\ufeff Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0404",
+   "category": "edge-unicode",
+   "text": "Done.\u2060Next.",
+   "boundaries": [
+    0,
+    11
+   ]
+  },
+  {
+   "id": "edge-unicode-0405",
+   "category": "edge-unicode",
+   "text": "Done.\u00ad\u00adNext.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0406",
+   "category": "edge-unicode",
+   "text": "\u061f Hola",
+   "boundaries": [
+    0,
+    6
+   ]
+  },
+  {
+   "id": "edge-unicode-0407",
+   "category": "edge-unicode",
+   "text": "Hola\u061f Adios.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0408",
+   "category": "edge-unicode",
+   "text": "Hola\u061f Adios.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0409",
+   "category": "edge-unicode",
+   "text": "Hola.\u061f Adios.",
+   "boundaries": [
+    0,
+    13
+   ]
+  },
+  {
+   "id": "edge-unicode-0410",
+   "category": "edge-unicode",
+   "text": "Hola\u037e Adios.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0411",
+   "category": "edge-unicode",
+   "text": "Hola\u2e2e Adios.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0412",
+   "category": "edge-unicode",
+   "text": "Hola\u2048 Adios.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0413",
+   "category": "edge-unicode",
+   "text": "Hola\u2049 Adios.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0414",
+   "category": "edge-unicode",
+   "text": "Hola\u203c Adios.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0415",
+   "category": "edge-unicode",
+   "text": "Hola\uff1f Adios.",
+   "boundaries": [
+    0,
+    6,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0416",
+   "category": "edge-unicode",
+   "text": "Hola\uff01 Adios.",
+   "boundaries": [
+    0,
+    6,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0417",
+   "category": "edge-unicode",
+   "text": "Hola\uff0e Adios.",
+   "boundaries": [
+    0,
+    6,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0418",
+   "category": "edge-unicode",
+   "text": "Hola\u3002Adios.",
+   "boundaries": [
+    0,
+    5,
+    11
+   ]
+  },
+  {
+   "id": "edge-unicode-0419",
+   "category": "edge-unicode",
+   "text": "Hola\uff61 Adios.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0420",
+   "category": "edge-unicode",
+   "text": "Built \ua7ce here. Done.",
+   "boundaries": [
+    0,
+    14,
+    19
+   ]
+  },
+  {
+   "id": "edge-unicode-0421",
+   "category": "edge-unicode",
+   "text": "Built \ua7d2 here. Done.",
+   "boundaries": [
+    0,
+    14,
+    19
+   ]
+  },
+  {
+   "id": "edge-unicode-0422",
+   "category": "edge-unicode",
+   "text": "Built \ua7d4 here. Done.",
+   "boundaries": [
+    0,
+    14,
+    19
+   ]
+  },
+  {
+   "id": "edge-unicode-0423",
+   "category": "edge-unicode",
+   "text": "Built \ua7f1 here. Done.",
+   "boundaries": [
+    0,
+    14,
+    19
+   ]
+  },
+  {
+   "id": "edge-unicode-0424",
+   "category": "edge-unicode",
+   "text": "Built the \u16ea0 API. Done.",
+   "boundaries": [
+    0,
+    18,
+    23
+   ]
+  },
+  {
+   "id": "edge-unicode-0425",
+   "category": "edge-unicode",
+   "text": "Built the \u16eb8 API. Done.",
+   "boundaries": [
+    0,
+    18,
+    23
+   ]
+  },
+  {
+   "id": "edge-unicode-0426",
+   "category": "edge-unicode",
+   "text": "Built the API. \u16ea0 Done.",
+   "boundaries": [
+    0,
+    15,
+    23
+   ]
+  },
+  {
+   "id": "edge-unicode-0427",
+   "category": "edge-unicode",
+   "text": "Built the API. \ua7ce Done.",
+   "boundaries": [
+    0,
+    22
+   ]
+  },
+  {
+   "id": "edge-unicode-0428",
+   "category": "edge-unicode",
+   "text": "Done.\ud83d\ude00\ud83d\ude00 Next.",
+   "boundaries": [
+    0,
+    13
+   ]
+  },
+  {
+   "id": "edge-unicode-0429",
+   "category": "edge-unicode",
+   "text": "Done.\u200d\ud83d\udc69 Next.",
+   "boundaries": [
+    0,
+    13
+   ]
+  },
+  {
+   "id": "edge-unicode-0430",
+   "category": "edge-unicode",
+   "text": "Done.\ud83c\uddfa\ud83c\uddf8 Next.",
+   "boundaries": [
+    0,
+    13
+   ]
+  },
+  {
+   "id": "edge-unicode-0431",
+   "category": "edge-unicode",
+   "text": "Done.\ud83c\uddfa Next.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0432",
+   "category": "edge-unicode",
+   "text": "Done.\u0085\u0085Next.",
+   "boundaries": [
+    0,
+    5,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0433",
+   "category": "edge-unicode",
+   "text": "Done.\u000bNext.",
+   "boundaries": [
+    0,
+    5,
+    11
+   ]
+  },
+  {
+   "id": "edge-unicode-0434",
+   "category": "edge-unicode",
+   "text": "Done.\fNext.",
+   "boundaries": [
+    0,
+    6,
+    11
+   ]
+  },
+  {
+   "id": "edge-unicode-0435",
+   "category": "edge-unicode",
+   "text": "Done.\u0000 Next.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-unicode-0436",
+   "category": "edge-unicode",
+   "text": "Done.\u007fNext.",
+   "boundaries": [
+    0,
+    5,
+    11
+   ]
+  },
+  {
+   "id": "edge-unicode-0437",
+   "category": "edge-unicode",
+   "text": "Done.\tNext.",
+   "boundaries": [
+    0,
+    6,
+    11
+   ]
+  },
+  {
+   "id": "edge-punctuation-0438",
+   "category": "edge-punctuation",
+   "text": "A.\u2026 B",
+   "boundaries": [
+    0,
+    5
+   ]
+  },
+  {
+   "id": "edge-punctuation-0439",
+   "category": "edge-punctuation",
+   "text": "Done.\u2026 Next.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0440",
+   "category": "edge-punctuation",
+   "text": "Done\u2026Next.",
+   "boundaries": [
+    0,
+    10
+   ]
+  },
+  {
+   "id": "edge-punctuation-0441",
+   "category": "edge-punctuation",
+   "text": "Done\u2026. Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0442",
+   "category": "edge-punctuation",
+   "text": "Done...\u2026 Next.",
+   "boundaries": [
+    0,
+    14
+   ]
+  },
+  {
+   "id": "edge-punctuation-0443",
+   "category": "edge-punctuation",
+   "text": "Ended .... Next.",
+   "boundaries": [
+    0,
+    11,
+    16
+   ]
+  },
+  {
+   "id": "edge-punctuation-0444",
+   "category": "edge-punctuation",
+   "text": "Done.)Next.",
+   "boundaries": [
+    0,
+    11
+   ]
+  },
+  {
+   "id": "edge-punctuation-0445",
+   "category": "edge-punctuation",
+   "text": "Done.) Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0446",
+   "category": "edge-punctuation",
+   "text": "See (done.) Next.",
+   "boundaries": [
+    0,
+    12,
+    17
+   ]
+  },
+  {
+   "id": "edge-punctuation-0447",
+   "category": "edge-punctuation",
+   "text": "See (done). Next.",
+   "boundaries": [
+    0,
+    12,
+    17
+   ]
+  },
+  {
+   "id": "edge-punctuation-0448",
+   "category": "edge-punctuation",
+   "text": "Done.\u201d Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0449",
+   "category": "edge-punctuation",
+   "text": "Done.\u2019 Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0450",
+   "category": "edge-punctuation",
+   "text": "Done.\u00bb Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0451",
+   "category": "edge-punctuation",
+   "text": "Done!\u00bb Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0452",
+   "category": "edge-punctuation",
+   "text": "Really?\u00bb Yes.",
+   "boundaries": [
+    0,
+    9,
+    13
+   ]
+  },
+  {
+   "id": "edge-punctuation-0453",
+   "category": "edge-punctuation",
+   "text": "Ready?) Yes.",
+   "boundaries": [
+    0,
+    8,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0454",
+   "category": "edge-punctuation",
+   "text": "Ready!) Yes.",
+   "boundaries": [
+    0,
+    8,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0455",
+   "category": "edge-punctuation",
+   "text": "Done.\"Next.\"",
+   "boundaries": [
+    0,
+    6,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0456",
+   "category": "edge-punctuation",
+   "text": "Done.'Next.",
+   "boundaries": [
+    0,
+    6,
+    11
+   ]
+  },
+  {
+   "id": "edge-punctuation-0457",
+   "category": "edge-punctuation",
+   "text": "Done.'\u00a0Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0458",
+   "category": "edge-punctuation",
+   "text": "Done.(Next).",
+   "boundaries": [
+    0,
+    5,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0459",
+   "category": "edge-punctuation",
+   "text": "Done.[Next].",
+   "boundaries": [
+    0,
+    5,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0460",
+   "category": "edge-punctuation",
+   "text": "Done.{Next}.",
+   "boundaries": [
+    0,
+    5,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0461",
+   "category": "edge-punctuation",
+   "text": "Built the API.\u00a02 new services shipped.",
+   "boundaries": [
+    0,
+    38
+   ]
+  },
+  {
+   "id": "edge-punctuation-0462",
+   "category": "edge-punctuation",
+   "text": "Built the API.\u20072 new services shipped.",
+   "boundaries": [
+    0,
+    38
+   ]
+  },
+  {
+   "id": "edge-punctuation-0463",
+   "category": "edge-punctuation",
+   "text": "Built the API.\u202f2 new services shipped.",
+   "boundaries": [
+    0,
+    38
+   ]
+  },
+  {
+   "id": "edge-punctuation-0464",
+   "category": "edge-punctuation",
+   "text": "Built the API.\u00a0Wrote the tests.",
+   "boundaries": [
+    0,
+    15,
+    31
+   ]
+  },
+  {
+   "id": "edge-punctuation-0465",
+   "category": "edge-punctuation",
+   "text": "Built the API.\u202fWrote the tests.",
+   "boundaries": [
+    0,
+    15,
+    31
+   ]
+  },
+  {
+   "id": "edge-punctuation-0466",
+   "category": "edge-punctuation",
+   "text": "Built the API.\u3000Wrote the tests.",
+   "boundaries": [
+    0,
+    15,
+    31
+   ]
+  },
+  {
+   "id": "edge-punctuation-0467",
+   "category": "edge-punctuation",
+   "text": "Built the API.\u2007Wrote the tests.",
+   "boundaries": [
+    0,
+    15,
+    31
+   ]
+  },
+  {
+   "id": "edge-punctuation-0468",
+   "category": "edge-punctuation",
+   "text": "Built the API.\u00a0\u00a0Wrote the tests.",
+   "boundaries": [
+    0,
+    16,
+    32
+   ]
+  },
+  {
+   "id": "edge-punctuation-0469",
+   "category": "edge-punctuation",
+   "text": "Done.\u00a0Next.",
+   "boundaries": [
+    0,
+    6,
+    11
+   ]
+  },
+  {
+   "id": "edge-punctuation-0470",
+   "category": "edge-punctuation",
+   "text": "Done.\u202fNext.",
+   "boundaries": [
+    0,
+    6,
+    11
+   ]
+  },
+  {
+   "id": "edge-punctuation-0471",
+   "category": "edge-punctuation",
+   "text": "Done.\u2007Next.",
+   "boundaries": [
+    0,
+    6,
+    11
+   ]
+  },
+  {
+   "id": "edge-punctuation-0472",
+   "category": "edge-punctuation",
+   "text": "Done.\u3000Next.",
+   "boundaries": [
+    0,
+    6,
+    11
+   ]
+  },
+  {
+   "id": "edge-punctuation-0473",
+   "category": "edge-punctuation",
+   "text": "1. 2. Two",
+   "boundaries": [
+    0,
+    6,
+    9
+   ]
+  },
+  {
+   "id": "edge-punctuation-0474",
+   "category": "edge-punctuation",
+   "text": "1. Built. 2. Wrote.",
+   "boundaries": [
+    0,
+    3,
+    13,
+    19
+   ]
+  },
+  {
+   "id": "edge-punctuation-0475",
+   "category": "edge-punctuation",
+   "text": "Built the API. 1. Wrote the tests.",
+   "boundaries": [
+    0,
+    18,
+    34
+   ]
+  },
+  {
+   "id": "edge-punctuation-0476",
+   "category": "edge-punctuation",
+   "text": "Built the API.\u00a01. Wrote the tests.",
+   "boundaries": [
+    0,
+    18,
+    34
+   ]
+  },
+  {
+   "id": "edge-punctuation-0477",
+   "category": "edge-punctuation",
+   "text": "Built the API. (1) Wrote the tests.",
+   "boundaries": [
+    0,
+    35
+   ]
+  },
+  {
+   "id": "edge-punctuation-0478",
+   "category": "edge-punctuation",
+   "text": "Built the API. (a) Wrote the tests.",
+   "boundaries": [
+    0,
+    15,
+    35
+   ]
+  },
+  {
+   "id": "edge-punctuation-0479",
+   "category": "edge-punctuation",
+   "text": "Done.. Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0480",
+   "category": "edge-punctuation",
+   "text": "Done.! Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0481",
+   "category": "edge-punctuation",
+   "text": "Done?! Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0482",
+   "category": "edge-punctuation",
+   "text": "Done!? Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0483",
+   "category": "edge-punctuation",
+   "text": "Done.; Next.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0484",
+   "category": "edge-punctuation",
+   "text": "Done.: Next.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0485",
+   "category": "edge-punctuation",
+   "text": "Done.- Next.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0486",
+   "category": "edge-punctuation",
+   "text": "Done.-Next.",
+   "boundaries": [
+    0,
+    5,
+    11
+   ]
+  },
+  {
+   "id": "edge-punctuation-0487",
+   "category": "edge-punctuation",
+   "text": "Done./ Next.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0488",
+   "category": "edge-punctuation",
+   "text": "Done.  Next.",
+   "boundaries": [
+    0,
+    7,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0489",
+   "category": "edge-punctuation",
+   "text": ". Done.",
+   "boundaries": [
+    0,
+    2,
+    7
+   ]
+  },
+  {
+   "id": "edge-punctuation-0490",
+   "category": "edge-punctuation",
+   "text": "? Done.",
+   "boundaries": [
+    0,
+    2,
+    7
+   ]
+  },
+  {
+   "id": "edge-punctuation-0491",
+   "category": "edge-punctuation",
+   "text": "! Done.",
+   "boundaries": [
+    0,
+    2,
+    7
+   ]
+  },
+  {
+   "id": "edge-punctuation-0492",
+   "category": "edge-punctuation",
+   "text": "... Done.",
+   "boundaries": [
+    0,
+    4,
+    9
+   ]
+  },
+  {
+   "id": "edge-punctuation-0493",
+   "category": "edge-punctuation",
+   "text": "Done.Next",
+   "boundaries": [
+    0,
+    9
+   ]
+  },
+  {
+   "id": "edge-punctuation-0494",
+   "category": "edge-punctuation",
+   "text": "Done.next",
+   "boundaries": [
+    0,
+    9
+   ]
+  },
+  {
+   "id": "edge-punctuation-0495",
+   "category": "edge-punctuation",
+   "text": "Done.NEXT.",
+   "boundaries": [
+    0,
+    10
+   ]
+  },
+  {
+   "id": "edge-punctuation-0496",
+   "category": "edge-punctuation",
+   "text": "Done. next",
+   "boundaries": [
+    0,
+    10
+   ]
+  },
+  {
+   "id": "edge-punctuation-0497",
+   "category": "edge-punctuation",
+   "text": "Done.1 next.",
+   "boundaries": [
+    0,
+    12
+   ]
+  },
+  {
+   "id": "edge-punctuation-0498",
+   "category": "edge-punctuation",
+   "text": "Done. 9 next.",
+   "boundaries": [
+    0,
+    13
+   ]
+  },
+  {
+   "id": "edge-punctuation-0499",
+   "category": "edge-punctuation",
+   "text": "A. B. C. D.",
+   "boundaries": [
+    0,
+    3,
+    6,
+    9,
+    11
+   ]
+  },
+  {
+   "id": "edge-punctuation-0500",
+   "category": "edge-punctuation",
+   "text": "A.B.C.D.",
+   "boundaries": [
+    0,
+    8
+   ]
+  },
+  {
+   "id": "edge-punctuation-0501",
+   "category": "edge-punctuation",
+   "text": "Scored 4.5/5. Next.",
+   "boundaries": [
+    0,
+    14,
+    19
+   ]
+  }
+ ]
+}

@@ -1,0 +1,1474 @@
+{
+ "metadata": {
+  "unicodedata": "16.0.0",
+  "now": "2026-09-28T12:30:15.123Z",
+  "note": "Identifiers are counter-based; every input is synthetic."
+ },
+ "cases": [
+  {
+   "name": "query_trims_and_tokenizes",
+   "request": {
+    "query": "  JAVA SPRIN  ",
+    "limit": 5
+   },
+   "ok": true,
+   "response": {
+    "query": "JAVA SPRIN",
+    "queryTokens": [
+     "java",
+     "sprin"
+    ],
+    "totalMatches": 1,
+    "matchedCount": 1,
+    "hasMore": false,
+    "returnedCount": 1,
+    "profiles": [
+     {
+      "profile": {
+       "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+       "fullName": "Ada Lovelace",
+       "email": "ada.lovelace@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 4
+      },
+      "score": 21,
+      "matchedFields": [
+       "profile.fullName",
+       "skills",
+       "experience.title"
+      ]
+     }
+    ]
+   },
+   "scenario": {
+    "matchedCount": 1,
+    "hasMore": false,
+    "candidates": [
+     {
+      "profile": {
+       "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+       "fullName": "Ada Lovelace",
+       "email": "ada.lovelace@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 4
+      },
+      "score": 21,
+      "fieldKeys": [
+       "experience:bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb:title",
+       "skills:cccccccc-cccc-cccc-cccc-cccccccccccc:skill",
+       "profile.fullName"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "query_default_limit",
+   "request": {
+    "query": "java"
+   },
+   "ok": true,
+   "response": {
+    "query": "java",
+    "queryTokens": [
+     "java"
+    ],
+    "totalMatches": 25,
+    "matchedCount": 25,
+    "hasMore": false,
+    "returnedCount": 20,
+    "profiles": [
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000000",
+       "fullName": "P0",
+       "email": "p0@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000001",
+       "fullName": "P1",
+       "email": "p1@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000002",
+       "fullName": "P2",
+       "email": "p2@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000003",
+       "fullName": "P3",
+       "email": "p3@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000004",
+       "fullName": "P4",
+       "email": "p4@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000005",
+       "fullName": "P5",
+       "email": "p5@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000006",
+       "fullName": "P6",
+       "email": "p6@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000007",
+       "fullName": "P7",
+       "email": "p7@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000008",
+       "fullName": "P8",
+       "email": "p8@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000009",
+       "fullName": "P9",
+       "email": "p9@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-00000000000a",
+       "fullName": "P10",
+       "email": "p10@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-00000000000b",
+       "fullName": "P11",
+       "email": "p11@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-00000000000c",
+       "fullName": "P12",
+       "email": "p12@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-00000000000d",
+       "fullName": "P13",
+       "email": "p13@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-00000000000e",
+       "fullName": "P14",
+       "email": "p14@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-00000000000f",
+       "fullName": "P15",
+       "email": "p15@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000010",
+       "fullName": "P16",
+       "email": "p16@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000011",
+       "fullName": "P17",
+       "email": "p17@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000012",
+       "fullName": "P18",
+       "email": "p18@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000013",
+       "fullName": "P19",
+       "email": "p19@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     }
+    ]
+   },
+   "scenario": {
+    "matchedCount": 25,
+    "hasMore": false,
+    "candidates": [
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000000",
+       "fullName": "P0",
+       "email": "p0@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000001",
+       "fullName": "P1",
+       "email": "p1@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000002",
+       "fullName": "P2",
+       "email": "p2@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000003",
+       "fullName": "P3",
+       "email": "p3@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000004",
+       "fullName": "P4",
+       "email": "p4@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000005",
+       "fullName": "P5",
+       "email": "p5@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000006",
+       "fullName": "P6",
+       "email": "p6@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000007",
+       "fullName": "P7",
+       "email": "p7@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000008",
+       "fullName": "P8",
+       "email": "p8@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000009",
+       "fullName": "P9",
+       "email": "p9@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-00000000000a",
+       "fullName": "P10",
+       "email": "p10@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-00000000000b",
+       "fullName": "P11",
+       "email": "p11@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-00000000000c",
+       "fullName": "P12",
+       "email": "p12@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-00000000000d",
+       "fullName": "P13",
+       "email": "p13@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-00000000000e",
+       "fullName": "P14",
+       "email": "p14@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-00000000000f",
+       "fullName": "P15",
+       "email": "p15@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000010",
+       "fullName": "P16",
+       "email": "p16@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000011",
+       "fullName": "P17",
+       "email": "p17@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000012",
+       "fullName": "P18",
+       "email": "p18@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000013",
+       "fullName": "P19",
+       "email": "p19@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000014",
+       "fullName": "P20",
+       "email": "p20@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000015",
+       "fullName": "P21",
+       "email": "p21@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000016",
+       "fullName": "P22",
+       "email": "p22@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000017",
+       "fullName": "P23",
+       "email": "p23@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000018",
+       "fullName": "P24",
+       "email": "p24@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     }
+    ]
+   }
+  },
+  {
+   "name": "query_null_request",
+   "request": null,
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile search request",
+    "details": {
+     "field": "request",
+     "reason": "must not be null"
+    }
+   },
+   "scenario": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "candidates": []
+   }
+  },
+  {
+   "name": "query_blank",
+   "request": {
+    "query": "  "
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile search request",
+    "details": {
+     "field": "query",
+     "reason": "must not be blank"
+    }
+   },
+   "scenario": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "candidates": []
+   }
+  },
+  {
+   "name": "query_missing",
+   "request": {
+    "limit": 3
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile search request",
+    "details": {
+     "field": "query",
+     "reason": "must not be blank"
+    }
+   },
+   "scenario": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "candidates": []
+   }
+  },
+  {
+   "name": "query_not_text",
+   "request": {
+    "query": 5
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile search request",
+    "details": {
+     "field": "query",
+     "reason": "must not be blank"
+    }
+   },
+   "scenario": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "candidates": []
+   }
+  },
+  {
+   "name": "query_no_searchable_text",
+   "request": {
+    "query": "---"
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile search request",
+    "details": {
+     "field": "query",
+     "reason": "must contain searchable text"
+    }
+   },
+   "scenario": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "candidates": []
+   }
+  },
+  {
+   "name": "query_too_long",
+   "request": {
+    "query": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile search request",
+    "details": {
+     "field": "query",
+     "reason": "must not exceed 256 characters"
+    }
+   },
+   "scenario": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "candidates": []
+   }
+  },
+  {
+   "name": "query_exact_length",
+   "request": {
+    "query": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "ok": true,
+   "response": {
+    "query": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "queryTokens": [
+     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    ],
+    "totalMatches": 0,
+    "matchedCount": 0,
+    "hasMore": false,
+    "returnedCount": 0,
+    "profiles": []
+   },
+   "scenario": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "candidates": []
+   }
+  },
+  {
+   "name": "query_too_many_terms",
+   "request": {
+    "query": "term0 term1 term2 term3 term4 term5 term6 term7 term8 term9 term10 term11 term12 term13 term14 term15 term16"
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile search request",
+    "details": {
+     "field": "query",
+     "reason": "must contain at most 16 searchable terms"
+    }
+   },
+   "scenario": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "candidates": []
+   }
+  },
+  {
+   "name": "query_exact_terms",
+   "request": {
+    "query": "term0 term1 term2 term3 term4 term5 term6 term7 term8 term9 term10 term11 term12 term13 term14 term15"
+   },
+   "ok": true,
+   "response": {
+    "query": "term0 term1 term2 term3 term4 term5 term6 term7 term8 term9 term10 term11 term12 term13 term14 term15",
+    "queryTokens": [
+     "term0",
+     "term1",
+     "term2",
+     "term3",
+     "term4",
+     "term5",
+     "term6",
+     "term7",
+     "term8",
+     "term9",
+     "term10",
+     "term11",
+     "term12",
+     "term13",
+     "term14",
+     "term15"
+    ],
+    "totalMatches": 0,
+    "matchedCount": 0,
+    "hasMore": false,
+    "returnedCount": 0,
+    "profiles": []
+   },
+   "scenario": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "candidates": []
+   }
+  },
+  {
+   "name": "limit_zero",
+   "request": {
+    "query": "java",
+    "limit": 0
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile search request",
+    "details": {
+     "field": "limit",
+     "reason": "must be between 1 and 100"
+    }
+   },
+   "scenario": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "candidates": []
+   }
+  },
+  {
+   "name": "limit_too_large",
+   "request": {
+    "query": "java",
+    "limit": 101
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile search request",
+    "details": {
+     "field": "limit",
+     "reason": "must be between 1 and 100"
+    }
+   },
+   "scenario": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "candidates": []
+   }
+  },
+  {
+   "name": "limit_bool",
+   "request": {
+    "query": "java",
+    "limit": true
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile search request",
+    "details": {
+     "field": "limit",
+     "reason": "must be between 1 and 100"
+    }
+   },
+   "scenario": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "candidates": []
+   }
+  },
+  {
+   "name": "limit_string",
+   "request": {
+    "query": "java",
+    "limit": "1"
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile search request",
+    "details": {
+     "field": "limit",
+     "reason": "must be between 1 and 100"
+    }
+   },
+   "scenario": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "candidates": []
+   }
+  },
+  {
+   "name": "limit_float",
+   "request": {
+    "query": "java",
+    "limit": 1.0
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid profile search request",
+    "details": {
+     "field": "limit",
+     "reason": "must be between 1 and 100"
+    }
+   },
+   "scenario": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "candidates": []
+   }
+  },
+  {
+   "name": "limit_null_is_default",
+   "request": {
+    "query": "java",
+    "limit": null
+   },
+   "ok": true,
+   "response": {
+    "query": "java",
+    "queryTokens": [
+     "java"
+    ],
+    "totalMatches": 0,
+    "matchedCount": 0,
+    "hasMore": false,
+    "returnedCount": 0,
+    "profiles": []
+   },
+   "scenario": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "candidates": []
+   }
+  },
+  {
+   "name": "limit_one",
+   "request": {
+    "query": "java",
+    "limit": 1
+   },
+   "ok": true,
+   "response": {
+    "query": "java",
+    "queryTokens": [
+     "java"
+    ],
+    "totalMatches": 0,
+    "matchedCount": 0,
+    "hasMore": false,
+    "returnedCount": 0,
+    "profiles": []
+   },
+   "scenario": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "candidates": []
+   }
+  },
+  {
+   "name": "matched_fields_order",
+   "request": {
+    "query": "python"
+   },
+   "ok": true,
+   "response": {
+    "query": "python",
+    "queryTokens": [
+     "python"
+    ],
+    "totalMatches": 4,
+    "matchedCount": 4,
+    "hasMore": false,
+    "returnedCount": 3,
+    "profiles": [
+     {
+      "profile": {
+       "id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+       "fullName": "Carl",
+       "email": "carl@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 30,
+      "matchedFields": [
+       "profile.fullName"
+      ]
+     },
+     {
+      "profile": {
+       "id": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+       "fullName": "Dana",
+       "email": "dana@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 30,
+      "matchedFields": [
+       "profile.email",
+       "profile.summary",
+       "contacts",
+       "links",
+       "skills.category",
+       "skills",
+       "languages",
+       "education",
+       "experience.description",
+       "experience.company",
+       "projects",
+       "projectTechnologies"
+      ]
+     },
+     {
+      "profile": {
+       "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+       "fullName": "Ann",
+       "email": "ann@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 9,
+      "matchedFields": []
+     }
+    ]
+   },
+   "scenario": {
+    "matchedCount": 4,
+    "hasMore": false,
+    "candidates": [
+     {
+      "profile": {
+       "id": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+       "fullName": "Dana",
+       "email": "dana@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 30,
+      "fieldKeys": [
+       "projects:bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb:name",
+       "technologies:cccccccc-cccc-cccc-cccc-cccccccccccc:technology",
+       "experience:bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb:description",
+       "experience:bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb:company",
+       "skills:cccccccc-cccc-cccc-cccc-cccccccccccc:category",
+       "skills:cccccccc-cccc-cccc-cccc-cccccccccccc:skill",
+       "education:cccccccc-cccc-cccc-cccc-cccccccccccc:focus",
+       "languages:cccccccc-cccc-cccc-cccc-cccccccccccc:language",
+       "contacts:cccccccc-cccc-cccc-cccc-cccccccccccc:label",
+       "links:cccccccc-cccc-cccc-cccc-cccccccccccc:url",
+       "profile.summary",
+       "profile.email",
+       "experience:bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb:unknown",
+       "unrelated:key"
+      ]
+     },
+     {
+      "profile": {
+       "id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+       "fullName": "Carl",
+       "email": "carl@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 30,
+      "fieldKeys": [
+       "profile.fullName"
+      ]
+     },
+     {
+      "profile": {
+       "id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+       "fullName": "Bea",
+       "email": "bea@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 0,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+       "fullName": "Ann",
+       "email": "ann@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 9,
+      "fieldKeys": []
+     }
+    ]
+   }
+  },
+  {
+   "name": "scores_zero_are_not_matches",
+   "request": {
+    "query": "java"
+   },
+   "ok": true,
+   "response": {
+    "query": "java",
+    "queryTokens": [
+     "java"
+    ],
+    "totalMatches": 3,
+    "matchedCount": 3,
+    "hasMore": false,
+    "returnedCount": 3,
+    "profiles": [
+     {
+      "profile": {
+       "id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+       "fullName": "Cy",
+       "email": "cy@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 9,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+       "fullName": "Ann",
+       "email": "ann@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 8,
+      "matchedFields": []
+     },
+     {
+      "profile": {
+       "id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+       "fullName": "Bea",
+       "email": "bea@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 8,
+      "matchedFields": []
+     }
+    ]
+   },
+   "scenario": {
+    "matchedCount": 3,
+    "hasMore": false,
+    "candidates": [
+     {
+      "profile": {
+       "id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+       "fullName": "Bea",
+       "email": "bea@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 8,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+       "fullName": "Cy",
+       "email": "cy@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 9,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+       "fullName": "Ann",
+       "email": "ann@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 8,
+      "fieldKeys": []
+     }
+    ]
+   }
+  },
+  {
+   "name": "bounded_has_more",
+   "request": {
+    "query": "java",
+    "limit": 1
+   },
+   "ok": true,
+   "response": {
+    "query": "java",
+    "queryTokens": [
+     "java"
+    ],
+    "totalMatches": null,
+    "matchedCount": 500,
+    "hasMore": true,
+    "returnedCount": 1,
+    "profiles": [
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000001",
+       "fullName": "One",
+       "email": "one@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "matchedFields": []
+     }
+    ]
+   },
+   "scenario": {
+    "matchedCount": 500,
+    "hasMore": true,
+    "candidates": [
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000002",
+       "fullName": "Two",
+       "email": "two@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     },
+     {
+      "profile": {
+       "id": "00000000-0000-0000-0000-000000000001",
+       "fullName": "One",
+       "email": "one@example.test",
+       "summary": "Synthetic summary",
+       "rawResumeText": null,
+       "createdAt": "2026-07-13T12:00:00Z",
+       "updatedAt": "2026-07-14T12:00:00Z",
+       "embedding": null,
+       "revision": 3
+      },
+      "score": 1,
+      "fieldKeys": []
+     }
+    ]
+   }
+  }
+ ]
+}

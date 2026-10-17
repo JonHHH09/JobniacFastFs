@@ -1,0 +1,3311 @@
+{
+ "provenance": {
+  "contexts": "capital sigma U+03A3 with synthetic neighbours: cased letters, apostrophes, combining marks, case-ignorable marks and format characters, digits, punctuation, astral characters, Roman numerals, string edges"
+ },
+ "vectors": [
+  {
+   "input": "\u03a3",
+   "expected": "\u03c3"
+  },
+  {
+   "input": "\u03a3A",
+   "expected": "\u03c3a"
+  },
+  {
+   "input": "\u03a3a",
+   "expected": "\u03c3a"
+  },
+  {
+   "input": "\u03a3\u0391",
+   "expected": "\u03c3\u03b1"
+  },
+  {
+   "input": "\u03a3\u03b1",
+   "expected": "\u03c3\u03b1"
+  },
+  {
+   "input": "\u03a3 ",
+   "expected": "\u03c3 "
+  },
+  {
+   "input": "\u03a3\t",
+   "expected": "\u03c3\t"
+  },
+  {
+   "input": "\u03a3'",
+   "expected": "\u03c3'"
+  },
+  {
+   "input": "\u03a3\u2019",
+   "expected": "\u03c3\u2019"
+  },
+  {
+   "input": "\u03a3\u0301",
+   "expected": "\u03c3\u0301"
+  },
+  {
+   "input": "\u03a3\u0345",
+   "expected": "\u03c3\u0345"
+  },
+  {
+   "input": "\u03a3\u00ad",
+   "expected": "\u03c3\u00ad"
+  },
+  {
+   "input": "\u03a3\u02bc",
+   "expected": "\u03c3\u02bc"
+  },
+  {
+   "input": "\u03a31",
+   "expected": "\u03c31"
+  },
+  {
+   "input": "\u03a3.",
+   "expected": "\u03c3."
+  },
+  {
+   "input": "\u03a3-",
+   "expected": "\u03c3-"
+  },
+  {
+   "input": "\u03a3\u00df",
+   "expected": "\u03c3\u00df"
+  },
+  {
+   "input": "\u03a3\u01c5",
+   "expected": "\u03c3\u01c6"
+  },
+  {
+   "input": "\u03a3\u03a9",
+   "expected": "\u03c3\u03c9"
+  },
+  {
+   "input": "\u03a3:",
+   "expected": "\u03c3:"
+  },
+  {
+   "input": "\u03a3\u0307",
+   "expected": "\u03c3\u0307"
+  },
+  {
+   "input": "\u03a3\u200d",
+   "expected": "\u03c3\u200d"
+  },
+  {
+   "input": "\u03a3\ud83d\ude00",
+   "expected": "\u03c3\ud83d\ude00"
+  },
+  {
+   "input": "\u03a3\ud801\udc00",
+   "expected": "\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\u03a3\u3042",
+   "expected": "\u03c3\u3042"
+  },
+  {
+   "input": "\u03a3\u4e2d",
+   "expected": "\u03c3\u4e2d"
+  },
+  {
+   "input": "\u03a3\u2170",
+   "expected": "\u03c3\u2170"
+  },
+  {
+   "input": "A\u03a3",
+   "expected": "a\u03c2"
+  },
+  {
+   "input": "A\u03a3A",
+   "expected": "a\u03c3a"
+  },
+  {
+   "input": "A\u03a3a",
+   "expected": "a\u03c3a"
+  },
+  {
+   "input": "A\u03a3\u0391",
+   "expected": "a\u03c3\u03b1"
+  },
+  {
+   "input": "A\u03a3\u03b1",
+   "expected": "a\u03c3\u03b1"
+  },
+  {
+   "input": "A\u03a3 ",
+   "expected": "a\u03c2 "
+  },
+  {
+   "input": "A\u03a3\t",
+   "expected": "a\u03c2\t"
+  },
+  {
+   "input": "A\u03a3'",
+   "expected": "a\u03c2'"
+  },
+  {
+   "input": "A\u03a3\u2019",
+   "expected": "a\u03c2\u2019"
+  },
+  {
+   "input": "A\u03a3\u0301",
+   "expected": "a\u03c2\u0301"
+  },
+  {
+   "input": "A\u03a3\u0345",
+   "expected": "a\u03c3\u0345"
+  },
+  {
+   "input": "A\u03a3\u00ad",
+   "expected": "a\u03c2\u00ad"
+  },
+  {
+   "input": "A\u03a3\u02bc",
+   "expected": "a\u03c2\u02bc"
+  },
+  {
+   "input": "A\u03a31",
+   "expected": "a\u03c21"
+  },
+  {
+   "input": "A\u03a3.",
+   "expected": "a\u03c2."
+  },
+  {
+   "input": "A\u03a3-",
+   "expected": "a\u03c2-"
+  },
+  {
+   "input": "A\u03a3\u00df",
+   "expected": "a\u03c3\u00df"
+  },
+  {
+   "input": "A\u03a3\u01c5",
+   "expected": "a\u03c3\u01c6"
+  },
+  {
+   "input": "A\u03a3\u03a9",
+   "expected": "a\u03c3\u03c9"
+  },
+  {
+   "input": "A\u03a3:",
+   "expected": "a\u03c2:"
+  },
+  {
+   "input": "A\u03a3\u0307",
+   "expected": "a\u03c2\u0307"
+  },
+  {
+   "input": "A\u03a3\u200d",
+   "expected": "a\u03c2\u200d"
+  },
+  {
+   "input": "A\u03a3\ud83d\ude00",
+   "expected": "a\u03c2\ud83d\ude00"
+  },
+  {
+   "input": "A\u03a3\ud801\udc00",
+   "expected": "a\u03c3\ud801\udc28"
+  },
+  {
+   "input": "A\u03a3\u3042",
+   "expected": "a\u03c2\u3042"
+  },
+  {
+   "input": "A\u03a3\u4e2d",
+   "expected": "a\u03c2\u4e2d"
+  },
+  {
+   "input": "A\u03a3\u2170",
+   "expected": "a\u03c3\u2170"
+  },
+  {
+   "input": "a\u03a3",
+   "expected": "a\u03c2"
+  },
+  {
+   "input": "a\u03a3A",
+   "expected": "a\u03c3a"
+  },
+  {
+   "input": "a\u03a3a",
+   "expected": "a\u03c3a"
+  },
+  {
+   "input": "a\u03a3\u0391",
+   "expected": "a\u03c3\u03b1"
+  },
+  {
+   "input": "a\u03a3\u03b1",
+   "expected": "a\u03c3\u03b1"
+  },
+  {
+   "input": "a\u03a3 ",
+   "expected": "a\u03c2 "
+  },
+  {
+   "input": "a\u03a3\t",
+   "expected": "a\u03c2\t"
+  },
+  {
+   "input": "a\u03a3'",
+   "expected": "a\u03c2'"
+  },
+  {
+   "input": "a\u03a3\u2019",
+   "expected": "a\u03c2\u2019"
+  },
+  {
+   "input": "a\u03a3\u0301",
+   "expected": "a\u03c2\u0301"
+  },
+  {
+   "input": "a\u03a3\u0345",
+   "expected": "a\u03c3\u0345"
+  },
+  {
+   "input": "a\u03a3\u00ad",
+   "expected": "a\u03c2\u00ad"
+  },
+  {
+   "input": "a\u03a3\u02bc",
+   "expected": "a\u03c2\u02bc"
+  },
+  {
+   "input": "a\u03a31",
+   "expected": "a\u03c21"
+  },
+  {
+   "input": "a\u03a3.",
+   "expected": "a\u03c2."
+  },
+  {
+   "input": "a\u03a3-",
+   "expected": "a\u03c2-"
+  },
+  {
+   "input": "a\u03a3\u00df",
+   "expected": "a\u03c3\u00df"
+  },
+  {
+   "input": "a\u03a3\u01c5",
+   "expected": "a\u03c3\u01c6"
+  },
+  {
+   "input": "a\u03a3\u03a9",
+   "expected": "a\u03c3\u03c9"
+  },
+  {
+   "input": "a\u03a3:",
+   "expected": "a\u03c2:"
+  },
+  {
+   "input": "a\u03a3\u0307",
+   "expected": "a\u03c2\u0307"
+  },
+  {
+   "input": "a\u03a3\u200d",
+   "expected": "a\u03c2\u200d"
+  },
+  {
+   "input": "a\u03a3\ud83d\ude00",
+   "expected": "a\u03c2\ud83d\ude00"
+  },
+  {
+   "input": "a\u03a3\ud801\udc00",
+   "expected": "a\u03c3\ud801\udc28"
+  },
+  {
+   "input": "a\u03a3\u3042",
+   "expected": "a\u03c2\u3042"
+  },
+  {
+   "input": "a\u03a3\u4e2d",
+   "expected": "a\u03c2\u4e2d"
+  },
+  {
+   "input": "a\u03a3\u2170",
+   "expected": "a\u03c3\u2170"
+  },
+  {
+   "input": "\u0391\u03a3",
+   "expected": "\u03b1\u03c2"
+  },
+  {
+   "input": "\u0391\u03a3A",
+   "expected": "\u03b1\u03c3a"
+  },
+  {
+   "input": "\u0391\u03a3a",
+   "expected": "\u03b1\u03c3a"
+  },
+  {
+   "input": "\u0391\u03a3\u0391",
+   "expected": "\u03b1\u03c3\u03b1"
+  },
+  {
+   "input": "\u0391\u03a3\u03b1",
+   "expected": "\u03b1\u03c3\u03b1"
+  },
+  {
+   "input": "\u0391\u03a3 ",
+   "expected": "\u03b1\u03c2 "
+  },
+  {
+   "input": "\u0391\u03a3\t",
+   "expected": "\u03b1\u03c2\t"
+  },
+  {
+   "input": "\u0391\u03a3'",
+   "expected": "\u03b1\u03c2'"
+  },
+  {
+   "input": "\u0391\u03a3\u2019",
+   "expected": "\u03b1\u03c2\u2019"
+  },
+  {
+   "input": "\u0391\u03a3\u0301",
+   "expected": "\u03b1\u03c2\u0301"
+  },
+  {
+   "input": "\u0391\u03a3\u0345",
+   "expected": "\u03b1\u03c3\u0345"
+  },
+  {
+   "input": "\u0391\u03a3\u00ad",
+   "expected": "\u03b1\u03c2\u00ad"
+  },
+  {
+   "input": "\u0391\u03a3\u02bc",
+   "expected": "\u03b1\u03c2\u02bc"
+  },
+  {
+   "input": "\u0391\u03a31",
+   "expected": "\u03b1\u03c21"
+  },
+  {
+   "input": "\u0391\u03a3.",
+   "expected": "\u03b1\u03c2."
+  },
+  {
+   "input": "\u0391\u03a3-",
+   "expected": "\u03b1\u03c2-"
+  },
+  {
+   "input": "\u0391\u03a3\u00df",
+   "expected": "\u03b1\u03c3\u00df"
+  },
+  {
+   "input": "\u0391\u03a3\u01c5",
+   "expected": "\u03b1\u03c3\u01c6"
+  },
+  {
+   "input": "\u0391\u03a3\u03a9",
+   "expected": "\u03b1\u03c3\u03c9"
+  },
+  {
+   "input": "\u0391\u03a3:",
+   "expected": "\u03b1\u03c2:"
+  },
+  {
+   "input": "\u0391\u03a3\u0307",
+   "expected": "\u03b1\u03c2\u0307"
+  },
+  {
+   "input": "\u0391\u03a3\u200d",
+   "expected": "\u03b1\u03c2\u200d"
+  },
+  {
+   "input": "\u0391\u03a3\ud83d\ude00",
+   "expected": "\u03b1\u03c2\ud83d\ude00"
+  },
+  {
+   "input": "\u0391\u03a3\ud801\udc00",
+   "expected": "\u03b1\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\u0391\u03a3\u3042",
+   "expected": "\u03b1\u03c2\u3042"
+  },
+  {
+   "input": "\u0391\u03a3\u4e2d",
+   "expected": "\u03b1\u03c2\u4e2d"
+  },
+  {
+   "input": "\u0391\u03a3\u2170",
+   "expected": "\u03b1\u03c3\u2170"
+  },
+  {
+   "input": "\u03b1\u03a3",
+   "expected": "\u03b1\u03c2"
+  },
+  {
+   "input": "\u03b1\u03a3A",
+   "expected": "\u03b1\u03c3a"
+  },
+  {
+   "input": "\u03b1\u03a3a",
+   "expected": "\u03b1\u03c3a"
+  },
+  {
+   "input": "\u03b1\u03a3\u0391",
+   "expected": "\u03b1\u03c3\u03b1"
+  },
+  {
+   "input": "\u03b1\u03a3\u03b1",
+   "expected": "\u03b1\u03c3\u03b1"
+  },
+  {
+   "input": "\u03b1\u03a3 ",
+   "expected": "\u03b1\u03c2 "
+  },
+  {
+   "input": "\u03b1\u03a3\t",
+   "expected": "\u03b1\u03c2\t"
+  },
+  {
+   "input": "\u03b1\u03a3'",
+   "expected": "\u03b1\u03c2'"
+  },
+  {
+   "input": "\u03b1\u03a3\u2019",
+   "expected": "\u03b1\u03c2\u2019"
+  },
+  {
+   "input": "\u03b1\u03a3\u0301",
+   "expected": "\u03b1\u03c2\u0301"
+  },
+  {
+   "input": "\u03b1\u03a3\u0345",
+   "expected": "\u03b1\u03c3\u0345"
+  },
+  {
+   "input": "\u03b1\u03a3\u00ad",
+   "expected": "\u03b1\u03c2\u00ad"
+  },
+  {
+   "input": "\u03b1\u03a3\u02bc",
+   "expected": "\u03b1\u03c2\u02bc"
+  },
+  {
+   "input": "\u03b1\u03a31",
+   "expected": "\u03b1\u03c21"
+  },
+  {
+   "input": "\u03b1\u03a3.",
+   "expected": "\u03b1\u03c2."
+  },
+  {
+   "input": "\u03b1\u03a3-",
+   "expected": "\u03b1\u03c2-"
+  },
+  {
+   "input": "\u03b1\u03a3\u00df",
+   "expected": "\u03b1\u03c3\u00df"
+  },
+  {
+   "input": "\u03b1\u03a3\u01c5",
+   "expected": "\u03b1\u03c3\u01c6"
+  },
+  {
+   "input": "\u03b1\u03a3\u03a9",
+   "expected": "\u03b1\u03c3\u03c9"
+  },
+  {
+   "input": "\u03b1\u03a3:",
+   "expected": "\u03b1\u03c2:"
+  },
+  {
+   "input": "\u03b1\u03a3\u0307",
+   "expected": "\u03b1\u03c2\u0307"
+  },
+  {
+   "input": "\u03b1\u03a3\u200d",
+   "expected": "\u03b1\u03c2\u200d"
+  },
+  {
+   "input": "\u03b1\u03a3\ud83d\ude00",
+   "expected": "\u03b1\u03c2\ud83d\ude00"
+  },
+  {
+   "input": "\u03b1\u03a3\ud801\udc00",
+   "expected": "\u03b1\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\u03b1\u03a3\u3042",
+   "expected": "\u03b1\u03c2\u3042"
+  },
+  {
+   "input": "\u03b1\u03a3\u4e2d",
+   "expected": "\u03b1\u03c2\u4e2d"
+  },
+  {
+   "input": "\u03b1\u03a3\u2170",
+   "expected": "\u03b1\u03c3\u2170"
+  },
+  {
+   "input": " \u03a3",
+   "expected": " \u03c3"
+  },
+  {
+   "input": " \u03a3A",
+   "expected": " \u03c3a"
+  },
+  {
+   "input": " \u03a3a",
+   "expected": " \u03c3a"
+  },
+  {
+   "input": " \u03a3\u0391",
+   "expected": " \u03c3\u03b1"
+  },
+  {
+   "input": " \u03a3\u03b1",
+   "expected": " \u03c3\u03b1"
+  },
+  {
+   "input": " \u03a3 ",
+   "expected": " \u03c3 "
+  },
+  {
+   "input": " \u03a3\t",
+   "expected": " \u03c3\t"
+  },
+  {
+   "input": " \u03a3'",
+   "expected": " \u03c3'"
+  },
+  {
+   "input": " \u03a3\u2019",
+   "expected": " \u03c3\u2019"
+  },
+  {
+   "input": " \u03a3\u0301",
+   "expected": " \u03c3\u0301"
+  },
+  {
+   "input": " \u03a3\u0345",
+   "expected": " \u03c3\u0345"
+  },
+  {
+   "input": " \u03a3\u00ad",
+   "expected": " \u03c3\u00ad"
+  },
+  {
+   "input": " \u03a3\u02bc",
+   "expected": " \u03c3\u02bc"
+  },
+  {
+   "input": " \u03a31",
+   "expected": " \u03c31"
+  },
+  {
+   "input": " \u03a3.",
+   "expected": " \u03c3."
+  },
+  {
+   "input": " \u03a3-",
+   "expected": " \u03c3-"
+  },
+  {
+   "input": " \u03a3\u00df",
+   "expected": " \u03c3\u00df"
+  },
+  {
+   "input": " \u03a3\u01c5",
+   "expected": " \u03c3\u01c6"
+  },
+  {
+   "input": " \u03a3\u03a9",
+   "expected": " \u03c3\u03c9"
+  },
+  {
+   "input": " \u03a3:",
+   "expected": " \u03c3:"
+  },
+  {
+   "input": " \u03a3\u0307",
+   "expected": " \u03c3\u0307"
+  },
+  {
+   "input": " \u03a3\u200d",
+   "expected": " \u03c3\u200d"
+  },
+  {
+   "input": " \u03a3\ud83d\ude00",
+   "expected": " \u03c3\ud83d\ude00"
+  },
+  {
+   "input": " \u03a3\ud801\udc00",
+   "expected": " \u03c3\ud801\udc28"
+  },
+  {
+   "input": " \u03a3\u3042",
+   "expected": " \u03c3\u3042"
+  },
+  {
+   "input": " \u03a3\u4e2d",
+   "expected": " \u03c3\u4e2d"
+  },
+  {
+   "input": " \u03a3\u2170",
+   "expected": " \u03c3\u2170"
+  },
+  {
+   "input": "\t\u03a3",
+   "expected": "\t\u03c3"
+  },
+  {
+   "input": "\t\u03a3A",
+   "expected": "\t\u03c3a"
+  },
+  {
+   "input": "\t\u03a3a",
+   "expected": "\t\u03c3a"
+  },
+  {
+   "input": "\t\u03a3\u0391",
+   "expected": "\t\u03c3\u03b1"
+  },
+  {
+   "input": "\t\u03a3\u03b1",
+   "expected": "\t\u03c3\u03b1"
+  },
+  {
+   "input": "\t\u03a3 ",
+   "expected": "\t\u03c3 "
+  },
+  {
+   "input": "\t\u03a3\t",
+   "expected": "\t\u03c3\t"
+  },
+  {
+   "input": "\t\u03a3'",
+   "expected": "\t\u03c3'"
+  },
+  {
+   "input": "\t\u03a3\u2019",
+   "expected": "\t\u03c3\u2019"
+  },
+  {
+   "input": "\t\u03a3\u0301",
+   "expected": "\t\u03c3\u0301"
+  },
+  {
+   "input": "\t\u03a3\u0345",
+   "expected": "\t\u03c3\u0345"
+  },
+  {
+   "input": "\t\u03a3\u00ad",
+   "expected": "\t\u03c3\u00ad"
+  },
+  {
+   "input": "\t\u03a3\u02bc",
+   "expected": "\t\u03c3\u02bc"
+  },
+  {
+   "input": "\t\u03a31",
+   "expected": "\t\u03c31"
+  },
+  {
+   "input": "\t\u03a3.",
+   "expected": "\t\u03c3."
+  },
+  {
+   "input": "\t\u03a3-",
+   "expected": "\t\u03c3-"
+  },
+  {
+   "input": "\t\u03a3\u00df",
+   "expected": "\t\u03c3\u00df"
+  },
+  {
+   "input": "\t\u03a3\u01c5",
+   "expected": "\t\u03c3\u01c6"
+  },
+  {
+   "input": "\t\u03a3\u03a9",
+   "expected": "\t\u03c3\u03c9"
+  },
+  {
+   "input": "\t\u03a3:",
+   "expected": "\t\u03c3:"
+  },
+  {
+   "input": "\t\u03a3\u0307",
+   "expected": "\t\u03c3\u0307"
+  },
+  {
+   "input": "\t\u03a3\u200d",
+   "expected": "\t\u03c3\u200d"
+  },
+  {
+   "input": "\t\u03a3\ud83d\ude00",
+   "expected": "\t\u03c3\ud83d\ude00"
+  },
+  {
+   "input": "\t\u03a3\ud801\udc00",
+   "expected": "\t\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\t\u03a3\u3042",
+   "expected": "\t\u03c3\u3042"
+  },
+  {
+   "input": "\t\u03a3\u4e2d",
+   "expected": "\t\u03c3\u4e2d"
+  },
+  {
+   "input": "\t\u03a3\u2170",
+   "expected": "\t\u03c3\u2170"
+  },
+  {
+   "input": "'\u03a3",
+   "expected": "'\u03c3"
+  },
+  {
+   "input": "'\u03a3A",
+   "expected": "'\u03c3a"
+  },
+  {
+   "input": "'\u03a3a",
+   "expected": "'\u03c3a"
+  },
+  {
+   "input": "'\u03a3\u0391",
+   "expected": "'\u03c3\u03b1"
+  },
+  {
+   "input": "'\u03a3\u03b1",
+   "expected": "'\u03c3\u03b1"
+  },
+  {
+   "input": "'\u03a3 ",
+   "expected": "'\u03c3 "
+  },
+  {
+   "input": "'\u03a3\t",
+   "expected": "'\u03c3\t"
+  },
+  {
+   "input": "'\u03a3'",
+   "expected": "'\u03c3'"
+  },
+  {
+   "input": "'\u03a3\u2019",
+   "expected": "'\u03c3\u2019"
+  },
+  {
+   "input": "'\u03a3\u0301",
+   "expected": "'\u03c3\u0301"
+  },
+  {
+   "input": "'\u03a3\u0345",
+   "expected": "'\u03c3\u0345"
+  },
+  {
+   "input": "'\u03a3\u00ad",
+   "expected": "'\u03c3\u00ad"
+  },
+  {
+   "input": "'\u03a3\u02bc",
+   "expected": "'\u03c3\u02bc"
+  },
+  {
+   "input": "'\u03a31",
+   "expected": "'\u03c31"
+  },
+  {
+   "input": "'\u03a3.",
+   "expected": "'\u03c3."
+  },
+  {
+   "input": "'\u03a3-",
+   "expected": "'\u03c3-"
+  },
+  {
+   "input": "'\u03a3\u00df",
+   "expected": "'\u03c3\u00df"
+  },
+  {
+   "input": "'\u03a3\u01c5",
+   "expected": "'\u03c3\u01c6"
+  },
+  {
+   "input": "'\u03a3\u03a9",
+   "expected": "'\u03c3\u03c9"
+  },
+  {
+   "input": "'\u03a3:",
+   "expected": "'\u03c3:"
+  },
+  {
+   "input": "'\u03a3\u0307",
+   "expected": "'\u03c3\u0307"
+  },
+  {
+   "input": "'\u03a3\u200d",
+   "expected": "'\u03c3\u200d"
+  },
+  {
+   "input": "'\u03a3\ud83d\ude00",
+   "expected": "'\u03c3\ud83d\ude00"
+  },
+  {
+   "input": "'\u03a3\ud801\udc00",
+   "expected": "'\u03c3\ud801\udc28"
+  },
+  {
+   "input": "'\u03a3\u3042",
+   "expected": "'\u03c3\u3042"
+  },
+  {
+   "input": "'\u03a3\u4e2d",
+   "expected": "'\u03c3\u4e2d"
+  },
+  {
+   "input": "'\u03a3\u2170",
+   "expected": "'\u03c3\u2170"
+  },
+  {
+   "input": "\u2019\u03a3",
+   "expected": "\u2019\u03c3"
+  },
+  {
+   "input": "\u2019\u03a3A",
+   "expected": "\u2019\u03c3a"
+  },
+  {
+   "input": "\u2019\u03a3a",
+   "expected": "\u2019\u03c3a"
+  },
+  {
+   "input": "\u2019\u03a3\u0391",
+   "expected": "\u2019\u03c3\u03b1"
+  },
+  {
+   "input": "\u2019\u03a3\u03b1",
+   "expected": "\u2019\u03c3\u03b1"
+  },
+  {
+   "input": "\u2019\u03a3 ",
+   "expected": "\u2019\u03c3 "
+  },
+  {
+   "input": "\u2019\u03a3\t",
+   "expected": "\u2019\u03c3\t"
+  },
+  {
+   "input": "\u2019\u03a3'",
+   "expected": "\u2019\u03c3'"
+  },
+  {
+   "input": "\u2019\u03a3\u2019",
+   "expected": "\u2019\u03c3\u2019"
+  },
+  {
+   "input": "\u2019\u03a3\u0301",
+   "expected": "\u2019\u03c3\u0301"
+  },
+  {
+   "input": "\u2019\u03a3\u0345",
+   "expected": "\u2019\u03c3\u0345"
+  },
+  {
+   "input": "\u2019\u03a3\u00ad",
+   "expected": "\u2019\u03c3\u00ad"
+  },
+  {
+   "input": "\u2019\u03a3\u02bc",
+   "expected": "\u2019\u03c3\u02bc"
+  },
+  {
+   "input": "\u2019\u03a31",
+   "expected": "\u2019\u03c31"
+  },
+  {
+   "input": "\u2019\u03a3.",
+   "expected": "\u2019\u03c3."
+  },
+  {
+   "input": "\u2019\u03a3-",
+   "expected": "\u2019\u03c3-"
+  },
+  {
+   "input": "\u2019\u03a3\u00df",
+   "expected": "\u2019\u03c3\u00df"
+  },
+  {
+   "input": "\u2019\u03a3\u01c5",
+   "expected": "\u2019\u03c3\u01c6"
+  },
+  {
+   "input": "\u2019\u03a3\u03a9",
+   "expected": "\u2019\u03c3\u03c9"
+  },
+  {
+   "input": "\u2019\u03a3:",
+   "expected": "\u2019\u03c3:"
+  },
+  {
+   "input": "\u2019\u03a3\u0307",
+   "expected": "\u2019\u03c3\u0307"
+  },
+  {
+   "input": "\u2019\u03a3\u200d",
+   "expected": "\u2019\u03c3\u200d"
+  },
+  {
+   "input": "\u2019\u03a3\ud83d\ude00",
+   "expected": "\u2019\u03c3\ud83d\ude00"
+  },
+  {
+   "input": "\u2019\u03a3\ud801\udc00",
+   "expected": "\u2019\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\u2019\u03a3\u3042",
+   "expected": "\u2019\u03c3\u3042"
+  },
+  {
+   "input": "\u2019\u03a3\u4e2d",
+   "expected": "\u2019\u03c3\u4e2d"
+  },
+  {
+   "input": "\u2019\u03a3\u2170",
+   "expected": "\u2019\u03c3\u2170"
+  },
+  {
+   "input": "\u0301\u03a3",
+   "expected": "\u0301\u03c3"
+  },
+  {
+   "input": "\u0301\u03a3A",
+   "expected": "\u0301\u03c3a"
+  },
+  {
+   "input": "\u0301\u03a3a",
+   "expected": "\u0301\u03c3a"
+  },
+  {
+   "input": "\u0301\u03a3\u0391",
+   "expected": "\u0301\u03c3\u03b1"
+  },
+  {
+   "input": "\u0301\u03a3\u03b1",
+   "expected": "\u0301\u03c3\u03b1"
+  },
+  {
+   "input": "\u0301\u03a3 ",
+   "expected": "\u0301\u03c3 "
+  },
+  {
+   "input": "\u0301\u03a3\t",
+   "expected": "\u0301\u03c3\t"
+  },
+  {
+   "input": "\u0301\u03a3'",
+   "expected": "\u0301\u03c3'"
+  },
+  {
+   "input": "\u0301\u03a3\u2019",
+   "expected": "\u0301\u03c3\u2019"
+  },
+  {
+   "input": "\u0301\u03a3\u0301",
+   "expected": "\u0301\u03c3\u0301"
+  },
+  {
+   "input": "\u0301\u03a3\u0345",
+   "expected": "\u0301\u03c3\u0345"
+  },
+  {
+   "input": "\u0301\u03a3\u00ad",
+   "expected": "\u0301\u03c3\u00ad"
+  },
+  {
+   "input": "\u0301\u03a3\u02bc",
+   "expected": "\u0301\u03c3\u02bc"
+  },
+  {
+   "input": "\u0301\u03a31",
+   "expected": "\u0301\u03c31"
+  },
+  {
+   "input": "\u0301\u03a3.",
+   "expected": "\u0301\u03c3."
+  },
+  {
+   "input": "\u0301\u03a3-",
+   "expected": "\u0301\u03c3-"
+  },
+  {
+   "input": "\u0301\u03a3\u00df",
+   "expected": "\u0301\u03c3\u00df"
+  },
+  {
+   "input": "\u0301\u03a3\u01c5",
+   "expected": "\u0301\u03c3\u01c6"
+  },
+  {
+   "input": "\u0301\u03a3\u03a9",
+   "expected": "\u0301\u03c3\u03c9"
+  },
+  {
+   "input": "\u0301\u03a3:",
+   "expected": "\u0301\u03c3:"
+  },
+  {
+   "input": "\u0301\u03a3\u0307",
+   "expected": "\u0301\u03c3\u0307"
+  },
+  {
+   "input": "\u0301\u03a3\u200d",
+   "expected": "\u0301\u03c3\u200d"
+  },
+  {
+   "input": "\u0301\u03a3\ud83d\ude00",
+   "expected": "\u0301\u03c3\ud83d\ude00"
+  },
+  {
+   "input": "\u0301\u03a3\ud801\udc00",
+   "expected": "\u0301\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\u0301\u03a3\u3042",
+   "expected": "\u0301\u03c3\u3042"
+  },
+  {
+   "input": "\u0301\u03a3\u4e2d",
+   "expected": "\u0301\u03c3\u4e2d"
+  },
+  {
+   "input": "\u0301\u03a3\u2170",
+   "expected": "\u0301\u03c3\u2170"
+  },
+  {
+   "input": "\u0345\u03a3",
+   "expected": "\u0345\u03c3"
+  },
+  {
+   "input": "\u0345\u03a3A",
+   "expected": "\u0345\u03c3a"
+  },
+  {
+   "input": "\u0345\u03a3a",
+   "expected": "\u0345\u03c3a"
+  },
+  {
+   "input": "\u0345\u03a3\u0391",
+   "expected": "\u0345\u03c3\u03b1"
+  },
+  {
+   "input": "\u0345\u03a3\u03b1",
+   "expected": "\u0345\u03c3\u03b1"
+  },
+  {
+   "input": "\u0345\u03a3 ",
+   "expected": "\u0345\u03c3 "
+  },
+  {
+   "input": "\u0345\u03a3\t",
+   "expected": "\u0345\u03c3\t"
+  },
+  {
+   "input": "\u0345\u03a3'",
+   "expected": "\u0345\u03c3'"
+  },
+  {
+   "input": "\u0345\u03a3\u2019",
+   "expected": "\u0345\u03c3\u2019"
+  },
+  {
+   "input": "\u0345\u03a3\u0301",
+   "expected": "\u0345\u03c3\u0301"
+  },
+  {
+   "input": "\u0345\u03a3\u0345",
+   "expected": "\u0345\u03c3\u0345"
+  },
+  {
+   "input": "\u0345\u03a3\u00ad",
+   "expected": "\u0345\u03c3\u00ad"
+  },
+  {
+   "input": "\u0345\u03a3\u02bc",
+   "expected": "\u0345\u03c3\u02bc"
+  },
+  {
+   "input": "\u0345\u03a31",
+   "expected": "\u0345\u03c31"
+  },
+  {
+   "input": "\u0345\u03a3.",
+   "expected": "\u0345\u03c3."
+  },
+  {
+   "input": "\u0345\u03a3-",
+   "expected": "\u0345\u03c3-"
+  },
+  {
+   "input": "\u0345\u03a3\u00df",
+   "expected": "\u0345\u03c3\u00df"
+  },
+  {
+   "input": "\u0345\u03a3\u01c5",
+   "expected": "\u0345\u03c3\u01c6"
+  },
+  {
+   "input": "\u0345\u03a3\u03a9",
+   "expected": "\u0345\u03c3\u03c9"
+  },
+  {
+   "input": "\u0345\u03a3:",
+   "expected": "\u0345\u03c3:"
+  },
+  {
+   "input": "\u0345\u03a3\u0307",
+   "expected": "\u0345\u03c3\u0307"
+  },
+  {
+   "input": "\u0345\u03a3\u200d",
+   "expected": "\u0345\u03c3\u200d"
+  },
+  {
+   "input": "\u0345\u03a3\ud83d\ude00",
+   "expected": "\u0345\u03c3\ud83d\ude00"
+  },
+  {
+   "input": "\u0345\u03a3\ud801\udc00",
+   "expected": "\u0345\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\u0345\u03a3\u3042",
+   "expected": "\u0345\u03c3\u3042"
+  },
+  {
+   "input": "\u0345\u03a3\u4e2d",
+   "expected": "\u0345\u03c3\u4e2d"
+  },
+  {
+   "input": "\u0345\u03a3\u2170",
+   "expected": "\u0345\u03c3\u2170"
+  },
+  {
+   "input": "\u00ad\u03a3",
+   "expected": "\u00ad\u03c3"
+  },
+  {
+   "input": "\u00ad\u03a3A",
+   "expected": "\u00ad\u03c3a"
+  },
+  {
+   "input": "\u00ad\u03a3a",
+   "expected": "\u00ad\u03c3a"
+  },
+  {
+   "input": "\u00ad\u03a3\u0391",
+   "expected": "\u00ad\u03c3\u03b1"
+  },
+  {
+   "input": "\u00ad\u03a3\u03b1",
+   "expected": "\u00ad\u03c3\u03b1"
+  },
+  {
+   "input": "\u00ad\u03a3 ",
+   "expected": "\u00ad\u03c3 "
+  },
+  {
+   "input": "\u00ad\u03a3\t",
+   "expected": "\u00ad\u03c3\t"
+  },
+  {
+   "input": "\u00ad\u03a3'",
+   "expected": "\u00ad\u03c3'"
+  },
+  {
+   "input": "\u00ad\u03a3\u2019",
+   "expected": "\u00ad\u03c3\u2019"
+  },
+  {
+   "input": "\u00ad\u03a3\u0301",
+   "expected": "\u00ad\u03c3\u0301"
+  },
+  {
+   "input": "\u00ad\u03a3\u0345",
+   "expected": "\u00ad\u03c3\u0345"
+  },
+  {
+   "input": "\u00ad\u03a3\u00ad",
+   "expected": "\u00ad\u03c3\u00ad"
+  },
+  {
+   "input": "\u00ad\u03a3\u02bc",
+   "expected": "\u00ad\u03c3\u02bc"
+  },
+  {
+   "input": "\u00ad\u03a31",
+   "expected": "\u00ad\u03c31"
+  },
+  {
+   "input": "\u00ad\u03a3.",
+   "expected": "\u00ad\u03c3."
+  },
+  {
+   "input": "\u00ad\u03a3-",
+   "expected": "\u00ad\u03c3-"
+  },
+  {
+   "input": "\u00ad\u03a3\u00df",
+   "expected": "\u00ad\u03c3\u00df"
+  },
+  {
+   "input": "\u00ad\u03a3\u01c5",
+   "expected": "\u00ad\u03c3\u01c6"
+  },
+  {
+   "input": "\u00ad\u03a3\u03a9",
+   "expected": "\u00ad\u03c3\u03c9"
+  },
+  {
+   "input": "\u00ad\u03a3:",
+   "expected": "\u00ad\u03c3:"
+  },
+  {
+   "input": "\u00ad\u03a3\u0307",
+   "expected": "\u00ad\u03c3\u0307"
+  },
+  {
+   "input": "\u00ad\u03a3\u200d",
+   "expected": "\u00ad\u03c3\u200d"
+  },
+  {
+   "input": "\u00ad\u03a3\ud83d\ude00",
+   "expected": "\u00ad\u03c3\ud83d\ude00"
+  },
+  {
+   "input": "\u00ad\u03a3\ud801\udc00",
+   "expected": "\u00ad\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\u00ad\u03a3\u3042",
+   "expected": "\u00ad\u03c3\u3042"
+  },
+  {
+   "input": "\u00ad\u03a3\u4e2d",
+   "expected": "\u00ad\u03c3\u4e2d"
+  },
+  {
+   "input": "\u00ad\u03a3\u2170",
+   "expected": "\u00ad\u03c3\u2170"
+  },
+  {
+   "input": "\u02bc\u03a3",
+   "expected": "\u02bc\u03c3"
+  },
+  {
+   "input": "\u02bc\u03a3A",
+   "expected": "\u02bc\u03c3a"
+  },
+  {
+   "input": "\u02bc\u03a3a",
+   "expected": "\u02bc\u03c3a"
+  },
+  {
+   "input": "\u02bc\u03a3\u0391",
+   "expected": "\u02bc\u03c3\u03b1"
+  },
+  {
+   "input": "\u02bc\u03a3\u03b1",
+   "expected": "\u02bc\u03c3\u03b1"
+  },
+  {
+   "input": "\u02bc\u03a3 ",
+   "expected": "\u02bc\u03c3 "
+  },
+  {
+   "input": "\u02bc\u03a3\t",
+   "expected": "\u02bc\u03c3\t"
+  },
+  {
+   "input": "\u02bc\u03a3'",
+   "expected": "\u02bc\u03c3'"
+  },
+  {
+   "input": "\u02bc\u03a3\u2019",
+   "expected": "\u02bc\u03c3\u2019"
+  },
+  {
+   "input": "\u02bc\u03a3\u0301",
+   "expected": "\u02bc\u03c3\u0301"
+  },
+  {
+   "input": "\u02bc\u03a3\u0345",
+   "expected": "\u02bc\u03c3\u0345"
+  },
+  {
+   "input": "\u02bc\u03a3\u00ad",
+   "expected": "\u02bc\u03c3\u00ad"
+  },
+  {
+   "input": "\u02bc\u03a3\u02bc",
+   "expected": "\u02bc\u03c3\u02bc"
+  },
+  {
+   "input": "\u02bc\u03a31",
+   "expected": "\u02bc\u03c31"
+  },
+  {
+   "input": "\u02bc\u03a3.",
+   "expected": "\u02bc\u03c3."
+  },
+  {
+   "input": "\u02bc\u03a3-",
+   "expected": "\u02bc\u03c3-"
+  },
+  {
+   "input": "\u02bc\u03a3\u00df",
+   "expected": "\u02bc\u03c3\u00df"
+  },
+  {
+   "input": "\u02bc\u03a3\u01c5",
+   "expected": "\u02bc\u03c3\u01c6"
+  },
+  {
+   "input": "\u02bc\u03a3\u03a9",
+   "expected": "\u02bc\u03c3\u03c9"
+  },
+  {
+   "input": "\u02bc\u03a3:",
+   "expected": "\u02bc\u03c3:"
+  },
+  {
+   "input": "\u02bc\u03a3\u0307",
+   "expected": "\u02bc\u03c3\u0307"
+  },
+  {
+   "input": "\u02bc\u03a3\u200d",
+   "expected": "\u02bc\u03c3\u200d"
+  },
+  {
+   "input": "\u02bc\u03a3\ud83d\ude00",
+   "expected": "\u02bc\u03c3\ud83d\ude00"
+  },
+  {
+   "input": "\u02bc\u03a3\ud801\udc00",
+   "expected": "\u02bc\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\u02bc\u03a3\u3042",
+   "expected": "\u02bc\u03c3\u3042"
+  },
+  {
+   "input": "\u02bc\u03a3\u4e2d",
+   "expected": "\u02bc\u03c3\u4e2d"
+  },
+  {
+   "input": "\u02bc\u03a3\u2170",
+   "expected": "\u02bc\u03c3\u2170"
+  },
+  {
+   "input": "1\u03a3",
+   "expected": "1\u03c3"
+  },
+  {
+   "input": "1\u03a3A",
+   "expected": "1\u03c3a"
+  },
+  {
+   "input": "1\u03a3a",
+   "expected": "1\u03c3a"
+  },
+  {
+   "input": "1\u03a3\u0391",
+   "expected": "1\u03c3\u03b1"
+  },
+  {
+   "input": "1\u03a3\u03b1",
+   "expected": "1\u03c3\u03b1"
+  },
+  {
+   "input": "1\u03a3 ",
+   "expected": "1\u03c3 "
+  },
+  {
+   "input": "1\u03a3\t",
+   "expected": "1\u03c3\t"
+  },
+  {
+   "input": "1\u03a3'",
+   "expected": "1\u03c3'"
+  },
+  {
+   "input": "1\u03a3\u2019",
+   "expected": "1\u03c3\u2019"
+  },
+  {
+   "input": "1\u03a3\u0301",
+   "expected": "1\u03c3\u0301"
+  },
+  {
+   "input": "1\u03a3\u0345",
+   "expected": "1\u03c3\u0345"
+  },
+  {
+   "input": "1\u03a3\u00ad",
+   "expected": "1\u03c3\u00ad"
+  },
+  {
+   "input": "1\u03a3\u02bc",
+   "expected": "1\u03c3\u02bc"
+  },
+  {
+   "input": "1\u03a31",
+   "expected": "1\u03c31"
+  },
+  {
+   "input": "1\u03a3.",
+   "expected": "1\u03c3."
+  },
+  {
+   "input": "1\u03a3-",
+   "expected": "1\u03c3-"
+  },
+  {
+   "input": "1\u03a3\u00df",
+   "expected": "1\u03c3\u00df"
+  },
+  {
+   "input": "1\u03a3\u01c5",
+   "expected": "1\u03c3\u01c6"
+  },
+  {
+   "input": "1\u03a3\u03a9",
+   "expected": "1\u03c3\u03c9"
+  },
+  {
+   "input": "1\u03a3:",
+   "expected": "1\u03c3:"
+  },
+  {
+   "input": "1\u03a3\u0307",
+   "expected": "1\u03c3\u0307"
+  },
+  {
+   "input": "1\u03a3\u200d",
+   "expected": "1\u03c3\u200d"
+  },
+  {
+   "input": "1\u03a3\ud83d\ude00",
+   "expected": "1\u03c3\ud83d\ude00"
+  },
+  {
+   "input": "1\u03a3\ud801\udc00",
+   "expected": "1\u03c3\ud801\udc28"
+  },
+  {
+   "input": "1\u03a3\u3042",
+   "expected": "1\u03c3\u3042"
+  },
+  {
+   "input": "1\u03a3\u4e2d",
+   "expected": "1\u03c3\u4e2d"
+  },
+  {
+   "input": "1\u03a3\u2170",
+   "expected": "1\u03c3\u2170"
+  },
+  {
+   "input": ".\u03a3",
+   "expected": ".\u03c3"
+  },
+  {
+   "input": ".\u03a3A",
+   "expected": ".\u03c3a"
+  },
+  {
+   "input": ".\u03a3a",
+   "expected": ".\u03c3a"
+  },
+  {
+   "input": ".\u03a3\u0391",
+   "expected": ".\u03c3\u03b1"
+  },
+  {
+   "input": ".\u03a3\u03b1",
+   "expected": ".\u03c3\u03b1"
+  },
+  {
+   "input": ".\u03a3 ",
+   "expected": ".\u03c3 "
+  },
+  {
+   "input": ".\u03a3\t",
+   "expected": ".\u03c3\t"
+  },
+  {
+   "input": ".\u03a3'",
+   "expected": ".\u03c3'"
+  },
+  {
+   "input": ".\u03a3\u2019",
+   "expected": ".\u03c3\u2019"
+  },
+  {
+   "input": ".\u03a3\u0301",
+   "expected": ".\u03c3\u0301"
+  },
+  {
+   "input": ".\u03a3\u0345",
+   "expected": ".\u03c3\u0345"
+  },
+  {
+   "input": ".\u03a3\u00ad",
+   "expected": ".\u03c3\u00ad"
+  },
+  {
+   "input": ".\u03a3\u02bc",
+   "expected": ".\u03c3\u02bc"
+  },
+  {
+   "input": ".\u03a31",
+   "expected": ".\u03c31"
+  },
+  {
+   "input": ".\u03a3.",
+   "expected": ".\u03c3."
+  },
+  {
+   "input": ".\u03a3-",
+   "expected": ".\u03c3-"
+  },
+  {
+   "input": ".\u03a3\u00df",
+   "expected": ".\u03c3\u00df"
+  },
+  {
+   "input": ".\u03a3\u01c5",
+   "expected": ".\u03c3\u01c6"
+  },
+  {
+   "input": ".\u03a3\u03a9",
+   "expected": ".\u03c3\u03c9"
+  },
+  {
+   "input": ".\u03a3:",
+   "expected": ".\u03c3:"
+  },
+  {
+   "input": ".\u03a3\u0307",
+   "expected": ".\u03c3\u0307"
+  },
+  {
+   "input": ".\u03a3\u200d",
+   "expected": ".\u03c3\u200d"
+  },
+  {
+   "input": ".\u03a3\ud83d\ude00",
+   "expected": ".\u03c3\ud83d\ude00"
+  },
+  {
+   "input": ".\u03a3\ud801\udc00",
+   "expected": ".\u03c3\ud801\udc28"
+  },
+  {
+   "input": ".\u03a3\u3042",
+   "expected": ".\u03c3\u3042"
+  },
+  {
+   "input": ".\u03a3\u4e2d",
+   "expected": ".\u03c3\u4e2d"
+  },
+  {
+   "input": ".\u03a3\u2170",
+   "expected": ".\u03c3\u2170"
+  },
+  {
+   "input": "-\u03a3",
+   "expected": "-\u03c3"
+  },
+  {
+   "input": "-\u03a3A",
+   "expected": "-\u03c3a"
+  },
+  {
+   "input": "-\u03a3a",
+   "expected": "-\u03c3a"
+  },
+  {
+   "input": "-\u03a3\u0391",
+   "expected": "-\u03c3\u03b1"
+  },
+  {
+   "input": "-\u03a3\u03b1",
+   "expected": "-\u03c3\u03b1"
+  },
+  {
+   "input": "-\u03a3 ",
+   "expected": "-\u03c3 "
+  },
+  {
+   "input": "-\u03a3\t",
+   "expected": "-\u03c3\t"
+  },
+  {
+   "input": "-\u03a3'",
+   "expected": "-\u03c3'"
+  },
+  {
+   "input": "-\u03a3\u2019",
+   "expected": "-\u03c3\u2019"
+  },
+  {
+   "input": "-\u03a3\u0301",
+   "expected": "-\u03c3\u0301"
+  },
+  {
+   "input": "-\u03a3\u0345",
+   "expected": "-\u03c3\u0345"
+  },
+  {
+   "input": "-\u03a3\u00ad",
+   "expected": "-\u03c3\u00ad"
+  },
+  {
+   "input": "-\u03a3\u02bc",
+   "expected": "-\u03c3\u02bc"
+  },
+  {
+   "input": "-\u03a31",
+   "expected": "-\u03c31"
+  },
+  {
+   "input": "-\u03a3.",
+   "expected": "-\u03c3."
+  },
+  {
+   "input": "-\u03a3-",
+   "expected": "-\u03c3-"
+  },
+  {
+   "input": "-\u03a3\u00df",
+   "expected": "-\u03c3\u00df"
+  },
+  {
+   "input": "-\u03a3\u01c5",
+   "expected": "-\u03c3\u01c6"
+  },
+  {
+   "input": "-\u03a3\u03a9",
+   "expected": "-\u03c3\u03c9"
+  },
+  {
+   "input": "-\u03a3:",
+   "expected": "-\u03c3:"
+  },
+  {
+   "input": "-\u03a3\u0307",
+   "expected": "-\u03c3\u0307"
+  },
+  {
+   "input": "-\u03a3\u200d",
+   "expected": "-\u03c3\u200d"
+  },
+  {
+   "input": "-\u03a3\ud83d\ude00",
+   "expected": "-\u03c3\ud83d\ude00"
+  },
+  {
+   "input": "-\u03a3\ud801\udc00",
+   "expected": "-\u03c3\ud801\udc28"
+  },
+  {
+   "input": "-\u03a3\u3042",
+   "expected": "-\u03c3\u3042"
+  },
+  {
+   "input": "-\u03a3\u4e2d",
+   "expected": "-\u03c3\u4e2d"
+  },
+  {
+   "input": "-\u03a3\u2170",
+   "expected": "-\u03c3\u2170"
+  },
+  {
+   "input": "\u00df\u03a3",
+   "expected": "\u00df\u03c2"
+  },
+  {
+   "input": "\u00df\u03a3A",
+   "expected": "\u00df\u03c3a"
+  },
+  {
+   "input": "\u00df\u03a3a",
+   "expected": "\u00df\u03c3a"
+  },
+  {
+   "input": "\u00df\u03a3\u0391",
+   "expected": "\u00df\u03c3\u03b1"
+  },
+  {
+   "input": "\u00df\u03a3\u03b1",
+   "expected": "\u00df\u03c3\u03b1"
+  },
+  {
+   "input": "\u00df\u03a3 ",
+   "expected": "\u00df\u03c2 "
+  },
+  {
+   "input": "\u00df\u03a3\t",
+   "expected": "\u00df\u03c2\t"
+  },
+  {
+   "input": "\u00df\u03a3'",
+   "expected": "\u00df\u03c2'"
+  },
+  {
+   "input": "\u00df\u03a3\u2019",
+   "expected": "\u00df\u03c2\u2019"
+  },
+  {
+   "input": "\u00df\u03a3\u0301",
+   "expected": "\u00df\u03c2\u0301"
+  },
+  {
+   "input": "\u00df\u03a3\u0345",
+   "expected": "\u00df\u03c3\u0345"
+  },
+  {
+   "input": "\u00df\u03a3\u00ad",
+   "expected": "\u00df\u03c2\u00ad"
+  },
+  {
+   "input": "\u00df\u03a3\u02bc",
+   "expected": "\u00df\u03c2\u02bc"
+  },
+  {
+   "input": "\u00df\u03a31",
+   "expected": "\u00df\u03c21"
+  },
+  {
+   "input": "\u00df\u03a3.",
+   "expected": "\u00df\u03c2."
+  },
+  {
+   "input": "\u00df\u03a3-",
+   "expected": "\u00df\u03c2-"
+  },
+  {
+   "input": "\u00df\u03a3\u00df",
+   "expected": "\u00df\u03c3\u00df"
+  },
+  {
+   "input": "\u00df\u03a3\u01c5",
+   "expected": "\u00df\u03c3\u01c6"
+  },
+  {
+   "input": "\u00df\u03a3\u03a9",
+   "expected": "\u00df\u03c3\u03c9"
+  },
+  {
+   "input": "\u00df\u03a3:",
+   "expected": "\u00df\u03c2:"
+  },
+  {
+   "input": "\u00df\u03a3\u0307",
+   "expected": "\u00df\u03c2\u0307"
+  },
+  {
+   "input": "\u00df\u03a3\u200d",
+   "expected": "\u00df\u03c2\u200d"
+  },
+  {
+   "input": "\u00df\u03a3\ud83d\ude00",
+   "expected": "\u00df\u03c2\ud83d\ude00"
+  },
+  {
+   "input": "\u00df\u03a3\ud801\udc00",
+   "expected": "\u00df\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\u00df\u03a3\u3042",
+   "expected": "\u00df\u03c2\u3042"
+  },
+  {
+   "input": "\u00df\u03a3\u4e2d",
+   "expected": "\u00df\u03c2\u4e2d"
+  },
+  {
+   "input": "\u00df\u03a3\u2170",
+   "expected": "\u00df\u03c3\u2170"
+  },
+  {
+   "input": "\u01c5\u03a3",
+   "expected": "\u01c6\u03c2"
+  },
+  {
+   "input": "\u01c5\u03a3A",
+   "expected": "\u01c6\u03c3a"
+  },
+  {
+   "input": "\u01c5\u03a3a",
+   "expected": "\u01c6\u03c3a"
+  },
+  {
+   "input": "\u01c5\u03a3\u0391",
+   "expected": "\u01c6\u03c3\u03b1"
+  },
+  {
+   "input": "\u01c5\u03a3\u03b1",
+   "expected": "\u01c6\u03c3\u03b1"
+  },
+  {
+   "input": "\u01c5\u03a3 ",
+   "expected": "\u01c6\u03c2 "
+  },
+  {
+   "input": "\u01c5\u03a3\t",
+   "expected": "\u01c6\u03c2\t"
+  },
+  {
+   "input": "\u01c5\u03a3'",
+   "expected": "\u01c6\u03c2'"
+  },
+  {
+   "input": "\u01c5\u03a3\u2019",
+   "expected": "\u01c6\u03c2\u2019"
+  },
+  {
+   "input": "\u01c5\u03a3\u0301",
+   "expected": "\u01c6\u03c2\u0301"
+  },
+  {
+   "input": "\u01c5\u03a3\u0345",
+   "expected": "\u01c6\u03c3\u0345"
+  },
+  {
+   "input": "\u01c5\u03a3\u00ad",
+   "expected": "\u01c6\u03c2\u00ad"
+  },
+  {
+   "input": "\u01c5\u03a3\u02bc",
+   "expected": "\u01c6\u03c2\u02bc"
+  },
+  {
+   "input": "\u01c5\u03a31",
+   "expected": "\u01c6\u03c21"
+  },
+  {
+   "input": "\u01c5\u03a3.",
+   "expected": "\u01c6\u03c2."
+  },
+  {
+   "input": "\u01c5\u03a3-",
+   "expected": "\u01c6\u03c2-"
+  },
+  {
+   "input": "\u01c5\u03a3\u00df",
+   "expected": "\u01c6\u03c3\u00df"
+  },
+  {
+   "input": "\u01c5\u03a3\u01c5",
+   "expected": "\u01c6\u03c3\u01c6"
+  },
+  {
+   "input": "\u01c5\u03a3\u03a9",
+   "expected": "\u01c6\u03c3\u03c9"
+  },
+  {
+   "input": "\u01c5\u03a3:",
+   "expected": "\u01c6\u03c2:"
+  },
+  {
+   "input": "\u01c5\u03a3\u0307",
+   "expected": "\u01c6\u03c2\u0307"
+  },
+  {
+   "input": "\u01c5\u03a3\u200d",
+   "expected": "\u01c6\u03c2\u200d"
+  },
+  {
+   "input": "\u01c5\u03a3\ud83d\ude00",
+   "expected": "\u01c6\u03c2\ud83d\ude00"
+  },
+  {
+   "input": "\u01c5\u03a3\ud801\udc00",
+   "expected": "\u01c6\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\u01c5\u03a3\u3042",
+   "expected": "\u01c6\u03c2\u3042"
+  },
+  {
+   "input": "\u01c5\u03a3\u4e2d",
+   "expected": "\u01c6\u03c2\u4e2d"
+  },
+  {
+   "input": "\u01c5\u03a3\u2170",
+   "expected": "\u01c6\u03c3\u2170"
+  },
+  {
+   "input": "\u03a9\u03a3",
+   "expected": "\u03c9\u03c2"
+  },
+  {
+   "input": "\u03a9\u03a3A",
+   "expected": "\u03c9\u03c3a"
+  },
+  {
+   "input": "\u03a9\u03a3a",
+   "expected": "\u03c9\u03c3a"
+  },
+  {
+   "input": "\u03a9\u03a3\u0391",
+   "expected": "\u03c9\u03c3\u03b1"
+  },
+  {
+   "input": "\u03a9\u03a3\u03b1",
+   "expected": "\u03c9\u03c3\u03b1"
+  },
+  {
+   "input": "\u03a9\u03a3 ",
+   "expected": "\u03c9\u03c2 "
+  },
+  {
+   "input": "\u03a9\u03a3\t",
+   "expected": "\u03c9\u03c2\t"
+  },
+  {
+   "input": "\u03a9\u03a3'",
+   "expected": "\u03c9\u03c2'"
+  },
+  {
+   "input": "\u03a9\u03a3\u2019",
+   "expected": "\u03c9\u03c2\u2019"
+  },
+  {
+   "input": "\u03a9\u03a3\u0301",
+   "expected": "\u03c9\u03c2\u0301"
+  },
+  {
+   "input": "\u03a9\u03a3\u0345",
+   "expected": "\u03c9\u03c3\u0345"
+  },
+  {
+   "input": "\u03a9\u03a3\u00ad",
+   "expected": "\u03c9\u03c2\u00ad"
+  },
+  {
+   "input": "\u03a9\u03a3\u02bc",
+   "expected": "\u03c9\u03c2\u02bc"
+  },
+  {
+   "input": "\u03a9\u03a31",
+   "expected": "\u03c9\u03c21"
+  },
+  {
+   "input": "\u03a9\u03a3.",
+   "expected": "\u03c9\u03c2."
+  },
+  {
+   "input": "\u03a9\u03a3-",
+   "expected": "\u03c9\u03c2-"
+  },
+  {
+   "input": "\u03a9\u03a3\u00df",
+   "expected": "\u03c9\u03c3\u00df"
+  },
+  {
+   "input": "\u03a9\u03a3\u01c5",
+   "expected": "\u03c9\u03c3\u01c6"
+  },
+  {
+   "input": "\u03a9\u03a3\u03a9",
+   "expected": "\u03c9\u03c3\u03c9"
+  },
+  {
+   "input": "\u03a9\u03a3:",
+   "expected": "\u03c9\u03c2:"
+  },
+  {
+   "input": "\u03a9\u03a3\u0307",
+   "expected": "\u03c9\u03c2\u0307"
+  },
+  {
+   "input": "\u03a9\u03a3\u200d",
+   "expected": "\u03c9\u03c2\u200d"
+  },
+  {
+   "input": "\u03a9\u03a3\ud83d\ude00",
+   "expected": "\u03c9\u03c2\ud83d\ude00"
+  },
+  {
+   "input": "\u03a9\u03a3\ud801\udc00",
+   "expected": "\u03c9\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\u03a9\u03a3\u3042",
+   "expected": "\u03c9\u03c2\u3042"
+  },
+  {
+   "input": "\u03a9\u03a3\u4e2d",
+   "expected": "\u03c9\u03c2\u4e2d"
+  },
+  {
+   "input": "\u03a9\u03a3\u2170",
+   "expected": "\u03c9\u03c3\u2170"
+  },
+  {
+   "input": ":\u03a3",
+   "expected": ":\u03c3"
+  },
+  {
+   "input": ":\u03a3A",
+   "expected": ":\u03c3a"
+  },
+  {
+   "input": ":\u03a3a",
+   "expected": ":\u03c3a"
+  },
+  {
+   "input": ":\u03a3\u0391",
+   "expected": ":\u03c3\u03b1"
+  },
+  {
+   "input": ":\u03a3\u03b1",
+   "expected": ":\u03c3\u03b1"
+  },
+  {
+   "input": ":\u03a3 ",
+   "expected": ":\u03c3 "
+  },
+  {
+   "input": ":\u03a3\t",
+   "expected": ":\u03c3\t"
+  },
+  {
+   "input": ":\u03a3'",
+   "expected": ":\u03c3'"
+  },
+  {
+   "input": ":\u03a3\u2019",
+   "expected": ":\u03c3\u2019"
+  },
+  {
+   "input": ":\u03a3\u0301",
+   "expected": ":\u03c3\u0301"
+  },
+  {
+   "input": ":\u03a3\u0345",
+   "expected": ":\u03c3\u0345"
+  },
+  {
+   "input": ":\u03a3\u00ad",
+   "expected": ":\u03c3\u00ad"
+  },
+  {
+   "input": ":\u03a3\u02bc",
+   "expected": ":\u03c3\u02bc"
+  },
+  {
+   "input": ":\u03a31",
+   "expected": ":\u03c31"
+  },
+  {
+   "input": ":\u03a3.",
+   "expected": ":\u03c3."
+  },
+  {
+   "input": ":\u03a3-",
+   "expected": ":\u03c3-"
+  },
+  {
+   "input": ":\u03a3\u00df",
+   "expected": ":\u03c3\u00df"
+  },
+  {
+   "input": ":\u03a3\u01c5",
+   "expected": ":\u03c3\u01c6"
+  },
+  {
+   "input": ":\u03a3\u03a9",
+   "expected": ":\u03c3\u03c9"
+  },
+  {
+   "input": ":\u03a3:",
+   "expected": ":\u03c3:"
+  },
+  {
+   "input": ":\u03a3\u0307",
+   "expected": ":\u03c3\u0307"
+  },
+  {
+   "input": ":\u03a3\u200d",
+   "expected": ":\u03c3\u200d"
+  },
+  {
+   "input": ":\u03a3\ud83d\ude00",
+   "expected": ":\u03c3\ud83d\ude00"
+  },
+  {
+   "input": ":\u03a3\ud801\udc00",
+   "expected": ":\u03c3\ud801\udc28"
+  },
+  {
+   "input": ":\u03a3\u3042",
+   "expected": ":\u03c3\u3042"
+  },
+  {
+   "input": ":\u03a3\u4e2d",
+   "expected": ":\u03c3\u4e2d"
+  },
+  {
+   "input": ":\u03a3\u2170",
+   "expected": ":\u03c3\u2170"
+  },
+  {
+   "input": "\u0307\u03a3",
+   "expected": "\u0307\u03c3"
+  },
+  {
+   "input": "\u0307\u03a3A",
+   "expected": "\u0307\u03c3a"
+  },
+  {
+   "input": "\u0307\u03a3a",
+   "expected": "\u0307\u03c3a"
+  },
+  {
+   "input": "\u0307\u03a3\u0391",
+   "expected": "\u0307\u03c3\u03b1"
+  },
+  {
+   "input": "\u0307\u03a3\u03b1",
+   "expected": "\u0307\u03c3\u03b1"
+  },
+  {
+   "input": "\u0307\u03a3 ",
+   "expected": "\u0307\u03c3 "
+  },
+  {
+   "input": "\u0307\u03a3\t",
+   "expected": "\u0307\u03c3\t"
+  },
+  {
+   "input": "\u0307\u03a3'",
+   "expected": "\u0307\u03c3'"
+  },
+  {
+   "input": "\u0307\u03a3\u2019",
+   "expected": "\u0307\u03c3\u2019"
+  },
+  {
+   "input": "\u0307\u03a3\u0301",
+   "expected": "\u0307\u03c3\u0301"
+  },
+  {
+   "input": "\u0307\u03a3\u0345",
+   "expected": "\u0307\u03c3\u0345"
+  },
+  {
+   "input": "\u0307\u03a3\u00ad",
+   "expected": "\u0307\u03c3\u00ad"
+  },
+  {
+   "input": "\u0307\u03a3\u02bc",
+   "expected": "\u0307\u03c3\u02bc"
+  },
+  {
+   "input": "\u0307\u03a31",
+   "expected": "\u0307\u03c31"
+  },
+  {
+   "input": "\u0307\u03a3.",
+   "expected": "\u0307\u03c3."
+  },
+  {
+   "input": "\u0307\u03a3-",
+   "expected": "\u0307\u03c3-"
+  },
+  {
+   "input": "\u0307\u03a3\u00df",
+   "expected": "\u0307\u03c3\u00df"
+  },
+  {
+   "input": "\u0307\u03a3\u01c5",
+   "expected": "\u0307\u03c3\u01c6"
+  },
+  {
+   "input": "\u0307\u03a3\u03a9",
+   "expected": "\u0307\u03c3\u03c9"
+  },
+  {
+   "input": "\u0307\u03a3:",
+   "expected": "\u0307\u03c3:"
+  },
+  {
+   "input": "\u0307\u03a3\u0307",
+   "expected": "\u0307\u03c3\u0307"
+  },
+  {
+   "input": "\u0307\u03a3\u200d",
+   "expected": "\u0307\u03c3\u200d"
+  },
+  {
+   "input": "\u0307\u03a3\ud83d\ude00",
+   "expected": "\u0307\u03c3\ud83d\ude00"
+  },
+  {
+   "input": "\u0307\u03a3\ud801\udc00",
+   "expected": "\u0307\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\u0307\u03a3\u3042",
+   "expected": "\u0307\u03c3\u3042"
+  },
+  {
+   "input": "\u0307\u03a3\u4e2d",
+   "expected": "\u0307\u03c3\u4e2d"
+  },
+  {
+   "input": "\u0307\u03a3\u2170",
+   "expected": "\u0307\u03c3\u2170"
+  },
+  {
+   "input": "\u200d\u03a3",
+   "expected": "\u200d\u03c3"
+  },
+  {
+   "input": "\u200d\u03a3A",
+   "expected": "\u200d\u03c3a"
+  },
+  {
+   "input": "\u200d\u03a3a",
+   "expected": "\u200d\u03c3a"
+  },
+  {
+   "input": "\u200d\u03a3\u0391",
+   "expected": "\u200d\u03c3\u03b1"
+  },
+  {
+   "input": "\u200d\u03a3\u03b1",
+   "expected": "\u200d\u03c3\u03b1"
+  },
+  {
+   "input": "\u200d\u03a3 ",
+   "expected": "\u200d\u03c3 "
+  },
+  {
+   "input": "\u200d\u03a3\t",
+   "expected": "\u200d\u03c3\t"
+  },
+  {
+   "input": "\u200d\u03a3'",
+   "expected": "\u200d\u03c3'"
+  },
+  {
+   "input": "\u200d\u03a3\u2019",
+   "expected": "\u200d\u03c3\u2019"
+  },
+  {
+   "input": "\u200d\u03a3\u0301",
+   "expected": "\u200d\u03c3\u0301"
+  },
+  {
+   "input": "\u200d\u03a3\u0345",
+   "expected": "\u200d\u03c3\u0345"
+  },
+  {
+   "input": "\u200d\u03a3\u00ad",
+   "expected": "\u200d\u03c3\u00ad"
+  },
+  {
+   "input": "\u200d\u03a3\u02bc",
+   "expected": "\u200d\u03c3\u02bc"
+  },
+  {
+   "input": "\u200d\u03a31",
+   "expected": "\u200d\u03c31"
+  },
+  {
+   "input": "\u200d\u03a3.",
+   "expected": "\u200d\u03c3."
+  },
+  {
+   "input": "\u200d\u03a3-",
+   "expected": "\u200d\u03c3-"
+  },
+  {
+   "input": "\u200d\u03a3\u00df",
+   "expected": "\u200d\u03c3\u00df"
+  },
+  {
+   "input": "\u200d\u03a3\u01c5",
+   "expected": "\u200d\u03c3\u01c6"
+  },
+  {
+   "input": "\u200d\u03a3\u03a9",
+   "expected": "\u200d\u03c3\u03c9"
+  },
+  {
+   "input": "\u200d\u03a3:",
+   "expected": "\u200d\u03c3:"
+  },
+  {
+   "input": "\u200d\u03a3\u0307",
+   "expected": "\u200d\u03c3\u0307"
+  },
+  {
+   "input": "\u200d\u03a3\u200d",
+   "expected": "\u200d\u03c3\u200d"
+  },
+  {
+   "input": "\u200d\u03a3\ud83d\ude00",
+   "expected": "\u200d\u03c3\ud83d\ude00"
+  },
+  {
+   "input": "\u200d\u03a3\ud801\udc00",
+   "expected": "\u200d\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\u200d\u03a3\u3042",
+   "expected": "\u200d\u03c3\u3042"
+  },
+  {
+   "input": "\u200d\u03a3\u4e2d",
+   "expected": "\u200d\u03c3\u4e2d"
+  },
+  {
+   "input": "\u200d\u03a3\u2170",
+   "expected": "\u200d\u03c3\u2170"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3",
+   "expected": "\ud83d\ude00\u03c3"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3A",
+   "expected": "\ud83d\ude00\u03c3a"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3a",
+   "expected": "\ud83d\ude00\u03c3a"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\u0391",
+   "expected": "\ud83d\ude00\u03c3\u03b1"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\u03b1",
+   "expected": "\ud83d\ude00\u03c3\u03b1"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3 ",
+   "expected": "\ud83d\ude00\u03c3 "
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\t",
+   "expected": "\ud83d\ude00\u03c3\t"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3'",
+   "expected": "\ud83d\ude00\u03c3'"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\u2019",
+   "expected": "\ud83d\ude00\u03c3\u2019"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\u0301",
+   "expected": "\ud83d\ude00\u03c3\u0301"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\u0345",
+   "expected": "\ud83d\ude00\u03c3\u0345"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\u00ad",
+   "expected": "\ud83d\ude00\u03c3\u00ad"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\u02bc",
+   "expected": "\ud83d\ude00\u03c3\u02bc"
+  },
+  {
+   "input": "\ud83d\ude00\u03a31",
+   "expected": "\ud83d\ude00\u03c31"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3.",
+   "expected": "\ud83d\ude00\u03c3."
+  },
+  {
+   "input": "\ud83d\ude00\u03a3-",
+   "expected": "\ud83d\ude00\u03c3-"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\u00df",
+   "expected": "\ud83d\ude00\u03c3\u00df"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\u01c5",
+   "expected": "\ud83d\ude00\u03c3\u01c6"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\u03a9",
+   "expected": "\ud83d\ude00\u03c3\u03c9"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3:",
+   "expected": "\ud83d\ude00\u03c3:"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\u0307",
+   "expected": "\ud83d\ude00\u03c3\u0307"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\u200d",
+   "expected": "\ud83d\ude00\u03c3\u200d"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\ud83d\ude00",
+   "expected": "\ud83d\ude00\u03c3\ud83d\ude00"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\ud801\udc00",
+   "expected": "\ud83d\ude00\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\u3042",
+   "expected": "\ud83d\ude00\u03c3\u3042"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\u4e2d",
+   "expected": "\ud83d\ude00\u03c3\u4e2d"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\u2170",
+   "expected": "\ud83d\ude00\u03c3\u2170"
+  },
+  {
+   "input": "\ud801\udc00\u03a3",
+   "expected": "\ud801\udc28\u03c2"
+  },
+  {
+   "input": "\ud801\udc00\u03a3A",
+   "expected": "\ud801\udc28\u03c3a"
+  },
+  {
+   "input": "\ud801\udc00\u03a3a",
+   "expected": "\ud801\udc28\u03c3a"
+  },
+  {
+   "input": "\ud801\udc00\u03a3\u0391",
+   "expected": "\ud801\udc28\u03c3\u03b1"
+  },
+  {
+   "input": "\ud801\udc00\u03a3\u03b1",
+   "expected": "\ud801\udc28\u03c3\u03b1"
+  },
+  {
+   "input": "\ud801\udc00\u03a3 ",
+   "expected": "\ud801\udc28\u03c2 "
+  },
+  {
+   "input": "\ud801\udc00\u03a3\t",
+   "expected": "\ud801\udc28\u03c2\t"
+  },
+  {
+   "input": "\ud801\udc00\u03a3'",
+   "expected": "\ud801\udc28\u03c2'"
+  },
+  {
+   "input": "\ud801\udc00\u03a3\u2019",
+   "expected": "\ud801\udc28\u03c2\u2019"
+  },
+  {
+   "input": "\ud801\udc00\u03a3\u0301",
+   "expected": "\ud801\udc28\u03c2\u0301"
+  },
+  {
+   "input": "\ud801\udc00\u03a3\u0345",
+   "expected": "\ud801\udc28\u03c3\u0345"
+  },
+  {
+   "input": "\ud801\udc00\u03a3\u00ad",
+   "expected": "\ud801\udc28\u03c2\u00ad"
+  },
+  {
+   "input": "\ud801\udc00\u03a3\u02bc",
+   "expected": "\ud801\udc28\u03c2\u02bc"
+  },
+  {
+   "input": "\ud801\udc00\u03a31",
+   "expected": "\ud801\udc28\u03c21"
+  },
+  {
+   "input": "\ud801\udc00\u03a3.",
+   "expected": "\ud801\udc28\u03c2."
+  },
+  {
+   "input": "\ud801\udc00\u03a3-",
+   "expected": "\ud801\udc28\u03c2-"
+  },
+  {
+   "input": "\ud801\udc00\u03a3\u00df",
+   "expected": "\ud801\udc28\u03c3\u00df"
+  },
+  {
+   "input": "\ud801\udc00\u03a3\u01c5",
+   "expected": "\ud801\udc28\u03c3\u01c6"
+  },
+  {
+   "input": "\ud801\udc00\u03a3\u03a9",
+   "expected": "\ud801\udc28\u03c3\u03c9"
+  },
+  {
+   "input": "\ud801\udc00\u03a3:",
+   "expected": "\ud801\udc28\u03c2:"
+  },
+  {
+   "input": "\ud801\udc00\u03a3\u0307",
+   "expected": "\ud801\udc28\u03c2\u0307"
+  },
+  {
+   "input": "\ud801\udc00\u03a3\u200d",
+   "expected": "\ud801\udc28\u03c2\u200d"
+  },
+  {
+   "input": "\ud801\udc00\u03a3\ud83d\ude00",
+   "expected": "\ud801\udc28\u03c2\ud83d\ude00"
+  },
+  {
+   "input": "\ud801\udc00\u03a3\ud801\udc00",
+   "expected": "\ud801\udc28\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\ud801\udc00\u03a3\u3042",
+   "expected": "\ud801\udc28\u03c2\u3042"
+  },
+  {
+   "input": "\ud801\udc00\u03a3\u4e2d",
+   "expected": "\ud801\udc28\u03c2\u4e2d"
+  },
+  {
+   "input": "\ud801\udc00\u03a3\u2170",
+   "expected": "\ud801\udc28\u03c3\u2170"
+  },
+  {
+   "input": "\u3042\u03a3",
+   "expected": "\u3042\u03c3"
+  },
+  {
+   "input": "\u3042\u03a3A",
+   "expected": "\u3042\u03c3a"
+  },
+  {
+   "input": "\u3042\u03a3a",
+   "expected": "\u3042\u03c3a"
+  },
+  {
+   "input": "\u3042\u03a3\u0391",
+   "expected": "\u3042\u03c3\u03b1"
+  },
+  {
+   "input": "\u3042\u03a3\u03b1",
+   "expected": "\u3042\u03c3\u03b1"
+  },
+  {
+   "input": "\u3042\u03a3 ",
+   "expected": "\u3042\u03c3 "
+  },
+  {
+   "input": "\u3042\u03a3\t",
+   "expected": "\u3042\u03c3\t"
+  },
+  {
+   "input": "\u3042\u03a3'",
+   "expected": "\u3042\u03c3'"
+  },
+  {
+   "input": "\u3042\u03a3\u2019",
+   "expected": "\u3042\u03c3\u2019"
+  },
+  {
+   "input": "\u3042\u03a3\u0301",
+   "expected": "\u3042\u03c3\u0301"
+  },
+  {
+   "input": "\u3042\u03a3\u0345",
+   "expected": "\u3042\u03c3\u0345"
+  },
+  {
+   "input": "\u3042\u03a3\u00ad",
+   "expected": "\u3042\u03c3\u00ad"
+  },
+  {
+   "input": "\u3042\u03a3\u02bc",
+   "expected": "\u3042\u03c3\u02bc"
+  },
+  {
+   "input": "\u3042\u03a31",
+   "expected": "\u3042\u03c31"
+  },
+  {
+   "input": "\u3042\u03a3.",
+   "expected": "\u3042\u03c3."
+  },
+  {
+   "input": "\u3042\u03a3-",
+   "expected": "\u3042\u03c3-"
+  },
+  {
+   "input": "\u3042\u03a3\u00df",
+   "expected": "\u3042\u03c3\u00df"
+  },
+  {
+   "input": "\u3042\u03a3\u01c5",
+   "expected": "\u3042\u03c3\u01c6"
+  },
+  {
+   "input": "\u3042\u03a3\u03a9",
+   "expected": "\u3042\u03c3\u03c9"
+  },
+  {
+   "input": "\u3042\u03a3:",
+   "expected": "\u3042\u03c3:"
+  },
+  {
+   "input": "\u3042\u03a3\u0307",
+   "expected": "\u3042\u03c3\u0307"
+  },
+  {
+   "input": "\u3042\u03a3\u200d",
+   "expected": "\u3042\u03c3\u200d"
+  },
+  {
+   "input": "\u3042\u03a3\ud83d\ude00",
+   "expected": "\u3042\u03c3\ud83d\ude00"
+  },
+  {
+   "input": "\u3042\u03a3\ud801\udc00",
+   "expected": "\u3042\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\u3042\u03a3\u3042",
+   "expected": "\u3042\u03c3\u3042"
+  },
+  {
+   "input": "\u3042\u03a3\u4e2d",
+   "expected": "\u3042\u03c3\u4e2d"
+  },
+  {
+   "input": "\u3042\u03a3\u2170",
+   "expected": "\u3042\u03c3\u2170"
+  },
+  {
+   "input": "\u4e2d\u03a3",
+   "expected": "\u4e2d\u03c3"
+  },
+  {
+   "input": "\u4e2d\u03a3A",
+   "expected": "\u4e2d\u03c3a"
+  },
+  {
+   "input": "\u4e2d\u03a3a",
+   "expected": "\u4e2d\u03c3a"
+  },
+  {
+   "input": "\u4e2d\u03a3\u0391",
+   "expected": "\u4e2d\u03c3\u03b1"
+  },
+  {
+   "input": "\u4e2d\u03a3\u03b1",
+   "expected": "\u4e2d\u03c3\u03b1"
+  },
+  {
+   "input": "\u4e2d\u03a3 ",
+   "expected": "\u4e2d\u03c3 "
+  },
+  {
+   "input": "\u4e2d\u03a3\t",
+   "expected": "\u4e2d\u03c3\t"
+  },
+  {
+   "input": "\u4e2d\u03a3'",
+   "expected": "\u4e2d\u03c3'"
+  },
+  {
+   "input": "\u4e2d\u03a3\u2019",
+   "expected": "\u4e2d\u03c3\u2019"
+  },
+  {
+   "input": "\u4e2d\u03a3\u0301",
+   "expected": "\u4e2d\u03c3\u0301"
+  },
+  {
+   "input": "\u4e2d\u03a3\u0345",
+   "expected": "\u4e2d\u03c3\u0345"
+  },
+  {
+   "input": "\u4e2d\u03a3\u00ad",
+   "expected": "\u4e2d\u03c3\u00ad"
+  },
+  {
+   "input": "\u4e2d\u03a3\u02bc",
+   "expected": "\u4e2d\u03c3\u02bc"
+  },
+  {
+   "input": "\u4e2d\u03a31",
+   "expected": "\u4e2d\u03c31"
+  },
+  {
+   "input": "\u4e2d\u03a3.",
+   "expected": "\u4e2d\u03c3."
+  },
+  {
+   "input": "\u4e2d\u03a3-",
+   "expected": "\u4e2d\u03c3-"
+  },
+  {
+   "input": "\u4e2d\u03a3\u00df",
+   "expected": "\u4e2d\u03c3\u00df"
+  },
+  {
+   "input": "\u4e2d\u03a3\u01c5",
+   "expected": "\u4e2d\u03c3\u01c6"
+  },
+  {
+   "input": "\u4e2d\u03a3\u03a9",
+   "expected": "\u4e2d\u03c3\u03c9"
+  },
+  {
+   "input": "\u4e2d\u03a3:",
+   "expected": "\u4e2d\u03c3:"
+  },
+  {
+   "input": "\u4e2d\u03a3\u0307",
+   "expected": "\u4e2d\u03c3\u0307"
+  },
+  {
+   "input": "\u4e2d\u03a3\u200d",
+   "expected": "\u4e2d\u03c3\u200d"
+  },
+  {
+   "input": "\u4e2d\u03a3\ud83d\ude00",
+   "expected": "\u4e2d\u03c3\ud83d\ude00"
+  },
+  {
+   "input": "\u4e2d\u03a3\ud801\udc00",
+   "expected": "\u4e2d\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\u4e2d\u03a3\u3042",
+   "expected": "\u4e2d\u03c3\u3042"
+  },
+  {
+   "input": "\u4e2d\u03a3\u4e2d",
+   "expected": "\u4e2d\u03c3\u4e2d"
+  },
+  {
+   "input": "\u4e2d\u03a3\u2170",
+   "expected": "\u4e2d\u03c3\u2170"
+  },
+  {
+   "input": "\u2170\u03a3",
+   "expected": "\u2170\u03c2"
+  },
+  {
+   "input": "\u2170\u03a3A",
+   "expected": "\u2170\u03c3a"
+  },
+  {
+   "input": "\u2170\u03a3a",
+   "expected": "\u2170\u03c3a"
+  },
+  {
+   "input": "\u2170\u03a3\u0391",
+   "expected": "\u2170\u03c3\u03b1"
+  },
+  {
+   "input": "\u2170\u03a3\u03b1",
+   "expected": "\u2170\u03c3\u03b1"
+  },
+  {
+   "input": "\u2170\u03a3 ",
+   "expected": "\u2170\u03c2 "
+  },
+  {
+   "input": "\u2170\u03a3\t",
+   "expected": "\u2170\u03c2\t"
+  },
+  {
+   "input": "\u2170\u03a3'",
+   "expected": "\u2170\u03c2'"
+  },
+  {
+   "input": "\u2170\u03a3\u2019",
+   "expected": "\u2170\u03c2\u2019"
+  },
+  {
+   "input": "\u2170\u03a3\u0301",
+   "expected": "\u2170\u03c2\u0301"
+  },
+  {
+   "input": "\u2170\u03a3\u0345",
+   "expected": "\u2170\u03c3\u0345"
+  },
+  {
+   "input": "\u2170\u03a3\u00ad",
+   "expected": "\u2170\u03c2\u00ad"
+  },
+  {
+   "input": "\u2170\u03a3\u02bc",
+   "expected": "\u2170\u03c2\u02bc"
+  },
+  {
+   "input": "\u2170\u03a31",
+   "expected": "\u2170\u03c21"
+  },
+  {
+   "input": "\u2170\u03a3.",
+   "expected": "\u2170\u03c2."
+  },
+  {
+   "input": "\u2170\u03a3-",
+   "expected": "\u2170\u03c2-"
+  },
+  {
+   "input": "\u2170\u03a3\u00df",
+   "expected": "\u2170\u03c3\u00df"
+  },
+  {
+   "input": "\u2170\u03a3\u01c5",
+   "expected": "\u2170\u03c3\u01c6"
+  },
+  {
+   "input": "\u2170\u03a3\u03a9",
+   "expected": "\u2170\u03c3\u03c9"
+  },
+  {
+   "input": "\u2170\u03a3:",
+   "expected": "\u2170\u03c2:"
+  },
+  {
+   "input": "\u2170\u03a3\u0307",
+   "expected": "\u2170\u03c2\u0307"
+  },
+  {
+   "input": "\u2170\u03a3\u200d",
+   "expected": "\u2170\u03c2\u200d"
+  },
+  {
+   "input": "\u2170\u03a3\ud83d\ude00",
+   "expected": "\u2170\u03c2\ud83d\ude00"
+  },
+  {
+   "input": "\u2170\u03a3\ud801\udc00",
+   "expected": "\u2170\u03c3\ud801\udc28"
+  },
+  {
+   "input": "\u2170\u03a3\u3042",
+   "expected": "\u2170\u03c2\u3042"
+  },
+  {
+   "input": "\u2170\u03a3\u4e2d",
+   "expected": "\u2170\u03c2\u4e2d"
+  },
+  {
+   "input": "\u2170\u03a3\u2170",
+   "expected": "\u2170\u03c3\u2170"
+  },
+  {
+   "input": "\u03a3\u03a3",
+   "expected": "\u03c3\u03c2"
+  },
+  {
+   "input": "A\u03a3\u03a3",
+   "expected": "a\u03c3\u03c2"
+  },
+  {
+   "input": "a\u03a3\u03a3",
+   "expected": "a\u03c3\u03c2"
+  },
+  {
+   "input": "\u0391\u03a3\u03a3",
+   "expected": "\u03b1\u03c3\u03c2"
+  },
+  {
+   "input": "\u03b1\u03a3\u03a3",
+   "expected": "\u03b1\u03c3\u03c2"
+  },
+  {
+   "input": " \u03a3\u03a3",
+   "expected": " \u03c3\u03c2"
+  },
+  {
+   "input": "\t\u03a3\u03a3",
+   "expected": "\t\u03c3\u03c2"
+  },
+  {
+   "input": "'\u03a3\u03a3",
+   "expected": "'\u03c3\u03c2"
+  },
+  {
+   "input": "\u2019\u03a3\u03a3",
+   "expected": "\u2019\u03c3\u03c2"
+  },
+  {
+   "input": "\u0301\u03a3\u03a3",
+   "expected": "\u0301\u03c3\u03c2"
+  },
+  {
+   "input": "\u0345\u03a3\u03a3",
+   "expected": "\u0345\u03c3\u03c2"
+  },
+  {
+   "input": "\u00ad\u03a3\u03a3",
+   "expected": "\u00ad\u03c3\u03c2"
+  },
+  {
+   "input": "\u02bc\u03a3\u03a3",
+   "expected": "\u02bc\u03c3\u03c2"
+  },
+  {
+   "input": "1\u03a3\u03a3",
+   "expected": "1\u03c3\u03c2"
+  },
+  {
+   "input": ".\u03a3\u03a3",
+   "expected": ".\u03c3\u03c2"
+  },
+  {
+   "input": "-\u03a3\u03a3",
+   "expected": "-\u03c3\u03c2"
+  },
+  {
+   "input": "\u00df\u03a3\u03a3",
+   "expected": "\u00df\u03c3\u03c2"
+  },
+  {
+   "input": "\u01c5\u03a3\u03a3",
+   "expected": "\u01c6\u03c3\u03c2"
+  },
+  {
+   "input": "\u03a9\u03a3\u03a3",
+   "expected": "\u03c9\u03c3\u03c2"
+  },
+  {
+   "input": ":\u03a3\u03a3",
+   "expected": ":\u03c3\u03c2"
+  },
+  {
+   "input": "\u0307\u03a3\u03a3",
+   "expected": "\u0307\u03c3\u03c2"
+  },
+  {
+   "input": "\u200d\u03a3\u03a3",
+   "expected": "\u200d\u03c3\u03c2"
+  },
+  {
+   "input": "\ud83d\ude00\u03a3\u03a3",
+   "expected": "\ud83d\ude00\u03c3\u03c2"
+  },
+  {
+   "input": "\ud801\udc00\u03a3\u03a3",
+   "expected": "\ud801\udc28\u03c3\u03c2"
+  },
+  {
+   "input": "\u3042\u03a3\u03a3",
+   "expected": "\u3042\u03c3\u03c2"
+  },
+  {
+   "input": "\u4e2d\u03a3\u03a3",
+   "expected": "\u4e2d\u03c3\u03c2"
+  },
+  {
+   "input": "\u2170\u03a3\u03a3",
+   "expected": "\u2170\u03c3\u03c2"
+  },
+  {
+   "input": "\u0391\u03a3 \u03a3",
+   "expected": "\u03b1\u03c2 \u03c3"
+  },
+  {
+   "input": "\u0391\u03a3\u0391\u03a3",
+   "expected": "\u03b1\u03c3\u03b1\u03c2"
+  },
+  {
+   "input": "\u0391\u03a3\u0301\u03a3",
+   "expected": "\u03b1\u03c3\u0301\u03c2"
+  },
+  {
+   "input": "\u0391\u03a3\u0301\u0391",
+   "expected": "\u03b1\u03c3\u0301\u03b1"
+  },
+  {
+   "input": "\u0391\u03a3\u0392",
+   "expected": "\u03b1\u03c3\u03b2"
+  },
+  {
+   "input": "\u0391\u03a3.\u0391",
+   "expected": "\u03b1\u03c3.\u03b1"
+  },
+  {
+   "input": "\u0391'\u03a3'",
+   "expected": "\u03b1'\u03c2'"
+  },
+  {
+   "input": "\u0391\u2019\u03a3\u2019\u0392",
+   "expected": "\u03b1\u2019\u03c3\u2019\u03b2"
+  },
+  {
+   "input": "\u0391\u03a3\u0391\u00ad\u03a3",
+   "expected": "\u03b1\u03c3\u03b1\u00ad\u03c2"
+  },
+  {
+   "input": "\u0391\u03a3\u200d\u03a3",
+   "expected": "\u03b1\u03c3\u200d\u03c2"
+  },
+  {
+   "input": "\u0391\u03a31\u03a3",
+   "expected": "\u03b1\u03c31\u03c2"
+  },
+  {
+   "input": "\u0391 \u03a3 \u0391",
+   "expected": "\u03b1 \u03c3 \u03b1"
+  },
+  {
+   "input": "\u0391\u03a3\u02bc\u0392",
+   "expected": "\u03b1\u03c3\u02bc\u03b2"
+  },
+  {
+   "input": "\u1fbc\u03a3",
+   "expected": "\u1fb3\u03c2"
+  },
+  {
+   "input": "\u0391\u03a3\u0386\u03a3",
+   "expected": "\u03b1\u03c3\u03ac\u03c2"
+  },
+  {
+   "input": "\u0391\u03a3-\u0345",
+   "expected": "\u03b1\u03c2-\u0345"
+  },
+  {
+   "input": "\u0391\u03a3'\u0345",
+   "expected": "\u03b1\u03c2'\u0345"
+  },
+  {
+   "input": "\u2160'\u03a3",
+   "expected": "\u2170'\u03c3"
+  },
+  {
+   "input": "\u2160-\u03a3",
+   "expected": "\u2170-\u03c3"
+  },
+  {
+   "input": "\u03911\u200d.\u03a3",
+   "expected": "\u03b11\u200d.\u03c3"
+  },
+  {
+   "input": "\u03911\u200d_\u03a3",
+   "expected": "\u03b11\u200d_\u03c3"
+  },
+  {
+   "input": "\u0391\u200d1_\u03a3",
+   "expected": "\u03b1\u200d1_\u03c3"
+  },
+  {
+   "input": "\u0345\u0345\u03a3",
+   "expected": "\u0345\u0345\u03c3"
+  },
+  {
+   "input": "\u03911'1\u03a3",
+   "expected": "\u03b11'1\u03c2"
+  },
+  {
+   "input": "\u2160'1\u03a3",
+   "expected": "\u2170'1\u03c2"
+  },
+  {
+   "input": "\u0391\u0301'\u03a3",
+   "expected": "\u03b1\u0301'\u03c2"
+  },
+  {
+   "input": "\u2160\u0301'\u03a3",
+   "expected": "\u2170\u0301'\u03c3"
+  },
+  {
+   "input": "1\u0345'\u03a3",
+   "expected": "1\u0345'\u03c3"
+  },
+  {
+   "input": "\u0391\u0345\u0301'\u03a3",
+   "expected": "\u03b1\u0345\u0301'\u03c2"
+  },
+  {
+   "input": "\u03c3",
+   "expected": "\u03c3"
+  },
+  {
+   "input": "\u03b1\u03c3\u03b1",
+   "expected": "\u03b1\u03c3\u03b1"
+  },
+  {
+   "input": "\u03b1\u03c2 \u03c3",
+   "expected": "\u03b1\u03c2 \u03c3"
+  },
+  {
+   "input": "\u03b1\u03c3\u03b1\u03c2",
+   "expected": "\u03b1\u03c3\u03b1\u03c2"
+  },
+  {
+   "input": "\u03b1\u03c3\u0301\u03c2",
+   "expected": "\u03b1\u03c3\u0301\u03c2"
+  },
+  {
+   "input": "\u03c3\u0301",
+   "expected": "\u03c3\u0301"
+  },
+  {
+   "input": "\u03b1\u03c2\u0301",
+   "expected": "\u03b1\u03c2\u0301"
+  },
+  {
+   "input": "\u03b1\u03c3\u0301\u03b1",
+   "expected": "\u03b1\u03c3\u0301\u03b1"
+  },
+  {
+   "input": "\u03c3\u03c2",
+   "expected": "\u03c3\u03c2"
+  },
+  {
+   "input": "\u03b1\u03c3\u03c2",
+   "expected": "\u03b1\u03c3\u03c2"
+  },
+  {
+   "input": "\u03b1\u03c3\u03b2",
+   "expected": "\u03b1\u03c3\u03b2"
+  },
+  {
+   "input": "\u03b1\u03c3.\u03b1",
+   "expected": "\u03b1\u03c3.\u03b1"
+  },
+  {
+   "input": "\u03b1\u03c2.",
+   "expected": "\u03b1\u03c2."
+  },
+  {
+   "input": "\u03b1'\u03c2'",
+   "expected": "\u03b1'\u03c2'"
+  },
+  {
+   "input": "\u03b1\u2019\u03c3\u2019\u03b2",
+   "expected": "\u03b1\u2019\u03c3\u2019\u03b2"
+  },
+  {
+   "input": "\u03b1\u03c3\u03b1\u00ad\u03c2",
+   "expected": "\u03b1\u03c3\u03b1\u00ad\u03c2"
+  },
+  {
+   "input": "\u03b1\u03c3\u200d\u03c2",
+   "expected": "\u03b1\u03c3\u200d\u03c2"
+  },
+  {
+   "input": "\u03c3\ud83d\ude00",
+   "expected": "\u03c3\ud83d\ude00"
+  },
+  {
+   "input": "\ud83d\ude00\u03c3",
+   "expected": "\ud83d\ude00\u03c3"
+  },
+  {
+   "input": "\u03b1\u03c21\u03c3",
+   "expected": "\u03b1\u03c21\u03c3"
+  },
+  {
+   "input": "\u03b1 \u03c3 \u03b1",
+   "expected": "\u03b1 \u03c3 \u03b1"
+  },
+  {
+   "input": "\u03b1\u03c2\u02bc",
+   "expected": "\u03b1\u03c2\u02bc"
+  },
+  {
+   "input": "\u03b1\u03c3\u02bc\u03b2",
+   "expected": "\u03b1\u03c3\u02bc\u03b2"
+  },
+  {
+   "input": "\u03b1\u03c2\u0345",
+   "expected": "\u03b1\u03c2\u0345"
+  },
+  {
+   "input": "\u1fb3\u03c2",
+   "expected": "\u1fb3\u03c2"
+  },
+  {
+   "input": "\u03b1\u03c3\u03ac\u03c2",
+   "expected": "\u03b1\u03c3\u03ac\u03c2"
+  },
+  {
+   "input": "\u03b1\u03c2-\u0345",
+   "expected": "\u03b1\u03c2-\u0345"
+  },
+  {
+   "input": "\u03b1\u03c2'\u0345",
+   "expected": "\u03b1\u03c2'\u0345"
+  },
+  {
+   "input": "\u2170'\u03c2",
+   "expected": "\u2170'\u03c2"
+  },
+  {
+   "input": "\u2170-\u03c3",
+   "expected": "\u2170-\u03c3"
+  },
+  {
+   "input": "\u03b11\u200d.\u03c3",
+   "expected": "\u03b11\u200d.\u03c3"
+  },
+  {
+   "input": "\u03b11\u200d_\u03c3",
+   "expected": "\u03b11\u200d_\u03c3"
+  },
+  {
+   "input": "\u03b1\u200d1_\u03c3",
+   "expected": "\u03b1\u200d1_\u03c3"
+  },
+  {
+   "input": "\u0345\u03c3",
+   "expected": "\u0345\u03c3"
+  },
+  {
+   "input": "\u0345\u0345\u03c3",
+   "expected": "\u0345\u0345\u03c3"
+  },
+  {
+   "input": "\u03b11'1\u03c3",
+   "expected": "\u03b11'1\u03c3"
+  },
+  {
+   "input": "\u2170'1\u03c3",
+   "expected": "\u2170'1\u03c3"
+  },
+  {
+   "input": "\u03b1\u0301'\u03c2",
+   "expected": "\u03b1\u0301'\u03c2"
+  },
+  {
+   "input": "\u2170\u0301'\u03c2",
+   "expected": "\u2170\u0301'\u03c2"
+  },
+  {
+   "input": "1\u0345'\u03c3",
+   "expected": "1\u0345'\u03c3"
+  },
+  {
+   "input": "\u03b1\u0345\u0301'\u03c2",
+   "expected": "\u03b1\u0345\u0301'\u03c2"
+  }
+ ]
+}

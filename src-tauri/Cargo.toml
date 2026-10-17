@@ -1,0 +1,54 @@
+[package]
+name = "jobniac-desktop"
+description = "Local-first desktop workspace for candidate profiles, job postings, matching and resume generation"
+default-run = "jobniac"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[lib]
+# The `_lib` suffix keeps the library name distinct from the binary name; this matters on
+# Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "jobniac_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "jobniac"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+jobniac-core.workspace = true
+jobniac-runtime.workspace = true
+# Line splitting and stripping for the skill text the job editor sends (one skill per line).
+jobniac-text.workspace = true
+# `ExposeSecret` for the clipboard hand-off of the MCP token (settings_commands.rs).
+secrecy.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+# `serde_json` lets the profile write requests cross IPC as the JSON the use cases
+# validate (the Rust side re-validates everything it stores).
+specta = { workspace = true, features = ["serde_json"] }
+specta-typescript.workspace = true
+tauri = { version = "2", features = [] }
+# Native open dialog of the Documents screen. It is called from Rust only (the picker seam in
+# document_commands), so the webview is granted no dialog permission.
+tauri-plugin-dialog = "=2.8.2"
+# Writes the MCP endpoint and token to the system clipboard. Called from Rust only (the Settings
+# copy command), so the webview is granted no clipboard permission and the token never crosses IPC.
+tauri-plugin-clipboard-manager = "=2.5.0"
+tauri-specta.workspace = true
+time.workspace = true
+tokio.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

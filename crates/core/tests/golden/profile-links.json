@@ -1,0 +1,193 @@
+{
+ "metadata": {
+  "unicodedata": "16.0.0",
+  "now": "2026-09-28T12:30:15.123Z",
+  "note": "Identifiers are counter-based; every input is synthetic."
+ },
+ "cases": [
+  {
+   "raw": "HTTP://EXAMPLE.TEST/ada/?source=profile#bio",
+   "canonical": "https://example.test/ada"
+  },
+  {
+   "raw": "example.test",
+   "canonical": "https://example.test"
+  },
+  {
+   "raw": "example.test/",
+   "canonical": "https://example.test"
+  },
+  {
+   "raw": "  www.Example.Test/Path/To/Page/  ",
+   "canonical": "https://www.example.test/path/to/page"
+  },
+  {
+   "raw": "https://example.test:443/x",
+   "canonical": "https://example.test/x"
+  },
+  {
+   "raw": "http://example.test:80/x/",
+   "canonical": "https://example.test/x"
+  },
+  {
+   "raw": "https://example.test:8443/x",
+   "canonical": "https://example.test:8443/x"
+  },
+  {
+   "raw": "https://example.test:0/x",
+   "canonical": "https://example.test:0/x"
+  },
+  {
+   "raw": "https://example.test:65535/x",
+   "canonical": "https://example.test:65535/x"
+  },
+  {
+   "raw": "https://example.test:65536/x",
+   "canonical": "https://example.test:65536/x"
+  },
+  {
+   "raw": "https://example.test:abc/x",
+   "canonical": "https://example.test:abc/x"
+  },
+  {
+   "raw": "https://example.test:/x",
+   "canonical": "https://example.test/x"
+  },
+  {
+   "raw": "https://user:pass@Example.Test:8080/Some/Path?q=1",
+   "canonical": "https://example.test:8080/some/path"
+  },
+  {
+   "raw": "https://user@example.test/a",
+   "canonical": "https://example.test/a"
+  },
+  {
+   "raw": "https://[2001:DB8::1]:8080/p/",
+   "canonical": "https://[2001:db8::1]:8080/p"
+  },
+  {
+   "raw": "https://[2001:db8::1]/p",
+   "canonical": "https://[2001:db8::1]/p"
+  },
+  {
+   "raw": "https://[::1",
+   "canonical": "https://[::1"
+  },
+  {
+   "raw": "https://[::ffff:1.2.3.4]/x",
+   "canonical": "https://[::ffff:1.2.3.4]/x"
+  },
+  {
+   "raw": "https://[1.2.3.4]/x",
+   "canonical": "https://[1.2.3.4]/x"
+  },
+  {
+   "raw": "https://[v1.abc]/x",
+   "canonical": "https://v1.abc/x"
+  },
+  {
+   "raw": "https://[fe80::1%25eth0]/x",
+   "canonical": "https://[fe80::1%25eth0]/x"
+  },
+  {
+   "raw": "https://[fe80::1%]/x",
+   "canonical": "https://[fe80::1%]/x"
+  },
+  {
+   "raw": "https://exa mple.test/x",
+   "canonical": "https://exa mple.test/x"
+  },
+  {
+   "raw": "https://example.test/a\tb\nc",
+   "canonical": "https://example.test/abc"
+  },
+  {
+   "raw": "https://ex\nample.test/x",
+   "canonical": "https://example.test/x"
+  },
+  {
+   "raw": "https://ex\u00e4mple.test/Stra\u00dfe",
+   "canonical": "https://ex\u00e4mple.test/stra\u00dfe"
+  },
+  {
+   "raw": "https://\uff25\uff29\uff21\uff2d.test/x",
+   "canonical": "https://\uff45\uff49\uff41\uff4d.test/x"
+  },
+  {
+   "raw": "https://\u2100.test/x",
+   "canonical": "https://\u2100.test/x"
+  },
+  {
+   "raw": "https://example.test/path/?",
+   "canonical": "https://example.test/path"
+  },
+  {
+   "raw": "https://example.test/a?b=c#d",
+   "canonical": "https://example.test/a"
+  },
+  {
+   "raw": "https://example.test/a#frag?x",
+   "canonical": "https://example.test/a"
+  },
+  {
+   "raw": "ftp://example.test/x",
+   "canonical": "https://ftp//example.test/x"
+  },
+  {
+   "raw": "mailto:someone@example.test",
+   "canonical": "https://example.test"
+  },
+  {
+   "raw": "example.test.,;",
+   "canonical": "https://example.test"
+  },
+  {
+   "raw": "",
+   "canonical": "https:"
+  },
+  {
+   "raw": "   ",
+   "canonical": "https:"
+  },
+  {
+   "raw": "HTTPS://EXAMPLE.TEST",
+   "canonical": "https://example.test"
+  },
+  {
+   "raw": "https:/example.test",
+   "canonical": "https://https/example.test"
+  },
+  {
+   "raw": "http://",
+   "canonical": "https:"
+  },
+  {
+   "raw": "https://[bad?x#y",
+   "canonical": "https://[bad"
+  },
+  {
+   "raw": "https://[bad?x\ny",
+   "canonical": "https://[bad?x\ny"
+  },
+  {
+   "raw": "https://example.test/x\u00a0",
+   "canonical": "https://example.test/x"
+  },
+  {
+   "raw": "https://example.test/?q=\u00e9",
+   "canonical": "https://example.test"
+  },
+  {
+   "raw": "https://EXAMPLE.TEST:080/A",
+   "canonical": "https://example.test/a"
+  },
+  {
+   "raw": "https://example.test?#x",
+   "canonical": "https://example.test"
+  },
+  {
+   "raw": "example.test#?x\n",
+   "canonical": "https://example.test"
+  }
+ ]
+}

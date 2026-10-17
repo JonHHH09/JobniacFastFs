@@ -1,0 +1,41 @@
+{
+  "writer": "migration runner on an empty database",
+  "rows": [
+    {
+      "version": 1,
+      "description": "baseline_from_spring_v29",
+      "script": "V0001__baseline_from_spring_v29.sql",
+      "checksum": "77ed4396ae96b03172b66c3dbd1352e1d53f9ce65f98df1b25adf65d90e4b844"
+    },
+    {
+      "version": 2,
+      "description": "cutover_ledger",
+      "script": "V0002__cutover_ledger.sql",
+      "checksum": "3e24e96db674782a83c61734eacca6829880cde1eec20e78bab1d0493a6af909"
+    },
+    {
+      "version": 3,
+      "description": "resume_section_order_unique",
+      "script": "V0003__resume_section_order_unique.sql",
+      "checksum": "972aae00257820da4a206321787e4ef8deb948a99254365bfc2b22482530ffee"
+    },
+    {
+      "version": 4,
+      "description": "ascii_search_postings",
+      "script": "V0004__ascii_search_postings.sql",
+      "checksum": "91f5d791e6d281d6084885b118cccb8c735626be1445c2f1fc068ab473cc5edf"
+    },
+    {
+      "version": 5,
+      "description": "owned_generated_asset_cleanup",
+      "script": "V0005__owned_generated_asset_cleanup.sql",
+      "checksum": "afebabf2edbc0a88a78d52b4f75e6df3ee21d7e4070e10e60933b45865906b81"
+    },
+    {
+      "version": 6,
+      "description": "generated_asset_intents",
+      "script": "V0006__generated_asset_intents.sql",
+      "checksum": "0d6432012faf1a9fa7f637b04811b85de2449907ed2b349481480377a8a1d13b"
+    }
+  ]
+}

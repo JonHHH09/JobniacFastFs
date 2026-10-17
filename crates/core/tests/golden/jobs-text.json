@@ -1,0 +1,684 @@
+{
+ "inputTextHash": [
+  {
+   "text": "Senior Python Developer\nRemote, EU\n\nWe build APIs.\n",
+   "sha256": "a2f0b3789b86df2fe9eb0f0f2ce003c6acd85be6cf9c16c11e6dc721a9632308"
+  },
+  {
+   "text": "  Python \t\n Developer  ",
+   "sha256": "b544764dc7c8e101749b44d5c432c253e35b65080eb7a4fdfff9f0514d48a9a5"
+  },
+  {
+   "text": "\u00a0D\u00e9v\u00a0 \u00a0Ex\u00a0",
+   "sha256": "d2635f4c2ff705527cde917bf71ddf480cc3ead077769756b96f098d73430039"
+  },
+  {
+   "text": "Stra\u00dfe \u00c4rger \u03a3\u0399\u03a3\u03a5\u03a6\u039f\u03a3",
+   "sha256": "fb7e597a17fa69e411d876478dd48d515dfba16b635d3bbf0fddde724c41b5d1"
+  },
+  {
+   "text": "\u0130stanbul \u0131 \u017f K\u212a",
+   "sha256": "b7f0637221f35e65e12db7c1a847bd6f8efe7bd487b812de2e718eb5e7770ad5"
+  },
+  {
+   "text": "Cafe\u0301 nai\u0308ve",
+   "sha256": "cb507fbf66c9674a8decac646be589e518ad69e25ddcac02d51a9a9020e770d4"
+  },
+  {
+   "text": "line one\r\nline two\rline three\u2028four",
+   "sha256": "c3acce77688f32c40378af166453d89262c73e200a0f04b2b1efdb13e9df4d4d"
+  },
+  {
+   "text": "\u2007x\u202f\u0085",
+   "sha256": "a23367a983cc4d89ca5af3dd0407788ed51f03b607927603cc6e64cbc3dc410e"
+  },
+  {
+   "text": "\ud835\udd38 supplementary \ud83d\ude00 text",
+   "sha256": "d821de4f9f601592b9299dd203fe65dde5b28ff2771437dff079d8e28c539a84"
+  },
+  {
+   "text": "",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "text": "   ",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "text": "A\u001cB  C",
+   "sha256": "d3727ba6dd895064e59ef960c062b12bdff4eff6498e11305c8fe23431c42e97"
+  },
+  {
+   "text": "\uff30\uff59\uff54\uff48\uff4f\uff4e \ufb01ligature",
+   "sha256": "7d38f7cc6dd827a6f60827af1a4fc6a3899db6d8168e73fb590561c0c62c9705"
+  },
+  {
+   "text": "x\u00a0\u00a0y  \t z",
+   "sha256": "534606a1039345f0bd2205d8fbc4b5daaab39ab0c07ea2db61b7b95acee95cce"
+  },
+  {
+   "text": "Jos\u00e9 \u00c9TUDE \u0130\u0307",
+   "sha256": "39707c801272c11d1e471200dbd4211bba93afb0f17fdf1f25690f6868d27035"
+  },
+  {
+   "text": "Unicode 17 cased \ua7ce \ua7d2 \ua7d4 text",
+   "sha256": "9c1aef520058fd538c3b752d8864ac7284b3bc0d0a9cb537a2c2b6e22f6f4432"
+  },
+  {
+   "text": "\ua7f1 Mixed \ud81b\udea0 Tangsa \ud81b\udeb8 letters",
+   "sha256": "149665b42045e1643efd049f9f44b1bd85dd37dbe6a0f348d03aa5309b6f3327"
+  }
+ ],
+ "normalizedKey": [
+  {
+   "value": "Senior Python Developer\nRemote, EU\n\nWe build APIs.\n",
+   "key": "senior python developer remote, eu we build apis."
+  },
+  {
+   "value": "  Python \t\n Developer  ",
+   "key": "python developer"
+  },
+  {
+   "value": "\u00a0D\u00e9v\u00a0 \u00a0Ex\u00a0",
+   "key": " dev ex "
+  },
+  {
+   "value": "Stra\u00dfe \u00c4rger \u03a3\u0399\u03a3\u03a5\u03a6\u039f\u03a3",
+   "key": "stra\u00dfe arger \u03c3\u03b9\u03c3\u03c5\u03c6\u03bf\u03c2"
+  },
+  {
+   "value": "\u0130stanbul \u0131 \u017f K\u212a",
+   "key": "istanbul \u0131 s kk"
+  },
+  {
+   "value": "Cafe\u0301 nai\u0308ve",
+   "key": "cafe naive"
+  },
+  {
+   "value": "line one\r\nline two\rline three\u2028four",
+   "key": "line one line two line three\u2028four"
+  },
+  {
+   "value": "\u2007x\u202f\u0085",
+   "key": " x \u0085"
+  },
+  {
+   "value": "\ud835\udd38 supplementary \ud83d\ude00 text",
+   "key": "A supplementary \ud83d\ude00 text"
+  },
+  {
+   "value": "",
+   "key": ""
+  },
+  {
+   "value": "   ",
+   "key": ""
+  },
+  {
+   "value": "A\u001cB  C",
+   "key": "a\u001cb c"
+  },
+  {
+   "value": "\uff30\uff59\uff54\uff48\uff4f\uff4e \ufb01ligature",
+   "key": "python filigature"
+  },
+  {
+   "value": "x\u00a0\u00a0y  \t z",
+   "key": "x y z"
+  },
+  {
+   "value": "Jos\u00e9 \u00c9TUDE \u0130\u0307",
+   "key": "jose etude i"
+  },
+  {
+   "value": "Unicode 17 cased \ua7ce \ua7d2 \ua7d4 text",
+   "key": "unicode 17 cased \ua7ce \ua7d2 \ua7d4 text"
+  },
+  {
+   "value": "\ua7f1 Mixed \ud81b\udea0 Tangsa \ud81b\udeb8 letters",
+   "key": "\ua7f1 mixed \ud81b\udea0 tangsa \ud81b\udeb8 letters"
+  },
+  {
+   "value": null,
+   "key": ""
+  },
+  {
+   "value": "C++ / C# / .NET",
+   "key": "c++ / c# / .net"
+  },
+  {
+   "value": "Node.js",
+   "key": "node.js"
+  }
+ ],
+ "fingerprint": [
+  {
+   "title": "Senior Python Developer",
+   "company": "Acme",
+   "location": "Berlin",
+   "description": "Build APIs.",
+   "url": null,
+   "fingerprint": "a9e1b3754116fa2b9864ea7a33c664daa41c7f28fe2a81367c887b981cbdda13"
+  },
+  {
+   "title": "  senior   PYTHON developer ",
+   "company": null,
+   "location": "",
+   "description": "build   apis.",
+   "url": null,
+   "fingerprint": "ac7b5ddf4e3ff20aef56772971cad17820950ebdbcdce1b05a3e0dd0ec303429"
+  },
+  {
+   "title": "D\u00e9v",
+   "company": "Soci\u00e9t\u00e9",
+   "location": "Paris",
+   "description": "Texte\n\nligne",
+   "url": "https://example.com/jobs/1",
+   "fingerprint": "adac73cd12a11ab8f4bde4cad5151ea074f393c1cbdf1f50c21d81d33ff74414"
+  },
+  {
+   "title": "Role",
+   "company": null,
+   "location": null,
+   "description": "\u00a0desc\u00a0",
+   "url": "https://example.com/jobs/1?x=1",
+   "fingerprint": "bb3d8b71eaebb5613e3cf1add23f0786d4b86e994e1fe539a080a7622c2dc0ec"
+  }
+ ],
+ "skillSplit": [
+  {
+   "value": "Python, Java; Go | Rust / C++  ,, ;",
+   "parts": [
+    "Python",
+    "Java",
+    "Go",
+    "Rust",
+    "C++"
+   ]
+  },
+  {
+   "value": "  ,  ;  ",
+   "parts": []
+  },
+  {
+   "value": "Caf\u00e9, cafe\u0301, CAF\u00c9",
+   "parts": [
+    "Caf\u00e9",
+    "cafe\u0301",
+    "CAF\u00c9"
+   ]
+  },
+  {
+   "value": "\u00a0Go\u00a0,\u2007SQL\u202f",
+   "parts": [
+    "\u00a0Go\u00a0",
+    "\u2007SQL\u202f"
+   ]
+  }
+ ],
+ "mergeSkills": [
+  {
+   "explicit": [
+    "Python",
+    "python ",
+    "Caf\u00e9"
+   ],
+   "extracted": [
+    "cafe",
+    "Go"
+   ],
+   "merged": [
+    "Python",
+    "Caf\u00e9",
+    "Go"
+   ]
+  },
+  {
+   "explicit": [],
+   "extracted": [
+    "Go",
+    "GO",
+    " Go "
+   ],
+   "merged": [
+    "Go"
+   ]
+  },
+  {
+   "explicit": [
+    "\u00a0Go\u00a0"
+   ],
+   "extracted": [
+    "Go"
+   ],
+   "merged": [
+    "\u00a0Go\u00a0",
+    "Go"
+   ]
+  }
+ ],
+ "extractSkills": [
+  {
+   "text": "Skills: Python, SQL. Other stuff",
+   "skills": [
+    "Python",
+    "SQL"
+   ]
+  },
+  {
+   "text": "Technical Skills - Kotlin; Spring Boot",
+   "skills": [
+    "Kotlin",
+    "Spring Boot"
+   ]
+  },
+  {
+   "text": "required skills:\n Java, Kotlin.",
+   "skills": [
+    "Java",
+    "Kotlin"
+   ]
+  },
+  {
+   "text": "skills:\n.  x",
+   "skills": []
+  },
+  {
+   "text": "skills:   \n   .",
+   "skills": []
+  },
+  {
+   "text": "xskills: Haskell\nskill: Ignored",
+   "skills": [
+    "Haskell"
+   ]
+  },
+  {
+   "text": "Skills:  \n Go",
+   "skills": [
+    "Go"
+   ]
+  },
+  {
+   "text": "SK\u0130LLS: Ruby",
+   "skills": [
+    "Ruby"
+   ]
+  },
+  {
+   "text": "\u017fkills: Perl",
+   "skills": [
+    "Perl"
+   ]
+  },
+  {
+   "text": "Requirement skills: Erlang",
+   "skills": [
+    "Erlang"
+   ]
+  },
+  {
+   "text": "Kills: Nothing",
+   "skills": []
+  },
+  {
+   "text": "Some prose with skill set and no separator",
+   "skills": []
+  },
+  {
+   "text": "Technical  \t skills  :  C#, F# / OCaml",
+   "skills": [
+    "C#",
+    "F#",
+    "OCaml"
+   ]
+  },
+  {
+   "text": "skills: \r\nNext line",
+   "skills": [
+    "Next line"
+   ]
+  }
+ ],
+ "extractExperience": [
+  {
+   "text": "Experience: 5+ years building APIs\nRequirements: Rust, Go",
+   "experience": "5+ years building APIs"
+  },
+  {
+   "text": "EXPERIENCE: 3 years",
+   "experience": "3 years"
+  },
+  {
+   "text": "requirement - C++",
+   "experience": "C++"
+  },
+  {
+   "text": "Qualifications:\n  Degree in CS",
+   "experience": "Degree in CS"
+  },
+  {
+   "text": "Qualifications:\n\n",
+   "experience": null
+  },
+  {
+   "text": "experience : x",
+   "experience": "x"
+  },
+  {
+   "text": "xx experience: y",
+   "experience": null
+  },
+  {
+   "text": "Experiences: no",
+   "experience": null
+  },
+  {
+   "text": "Requirements:   \n\n   Five years",
+   "experience": "Five years"
+  },
+  {
+   "text": "Experience:\t  \t",
+   "experience": null
+  },
+  {
+   "text": "\u017fkill experience: nope",
+   "experience": null
+  },
+  {
+   "text": "Experience - \u0130nside",
+   "experience": "\u0130nside"
+  },
+  {
+   "text": "qualifications: \u00a0 Degree\u00a0",
+   "experience": "\u00a0 Degree\u00a0"
+  },
+  {
+   "text": "Plain prose without a label",
+   "experience": null
+  }
+ ],
+ "deriveTitle": [
+  {
+   "text": "\n\n  First line  \nSecond",
+   "title": "First line"
+  },
+  {
+   "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\nshort",
+   "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\ud83d\ude00\nshort",
+   "title": "short"
+  },
+  {
+   "text": "\u2028one\u2028two",
+   "title": "one\u2028two"
+  },
+  {
+   "text": "   \n\t\n",
+   "title": "Untitled Job"
+  },
+  {
+   "text": "",
+   "title": "Untitled Job"
+  },
+  {
+   "text": "line one\rline two",
+   "title": "line one"
+  },
+  {
+   "text": "alpha\r\nbeta",
+   "title": "alpha"
+  },
+  {
+   "text": "  \u00a0Nbsp title\u00a0\nnext",
+   "title": "\u00a0Nbsp title\u00a0"
+  },
+  {
+   "text": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+   "title": "Untitled Job"
+  }
+ ],
+ "postedAt": [
+  {
+   "value": "2026-10-02T12:00:00+02:00",
+   "result": "2026-10-02T10:00:00Z"
+  },
+  {
+   "value": "2026-10-02T12:00:00.1234567+02:00",
+   "result": "2026-10-02T10:00:00.123456Z"
+  },
+  {
+   "value": "2026-09-29T10:30:00Z",
+   "result": "2026-09-29T10:30:00Z"
+  },
+  {
+   "value": "2026-09-29T10:30:00.5Z",
+   "result": "2026-09-29T10:30:00.500Z"
+  },
+  {
+   "value": "2026-09-29T10:30Z",
+   "result": "2026-09-29T10:30:00Z"
+  },
+  {
+   "value": "2026-09-29T10:30:00-00:00",
+   "result": "2026-09-29T10:30:00Z"
+  },
+  {
+   "value": "2026-09-29T10:30:00+17:59",
+   "result": "2026-09-28T16:31:00Z"
+  },
+  {
+   "value": "2026-09-29T10:30:00+18:00",
+   "result": "2026-09-28T16:30:00Z"
+  },
+  {
+   "value": "2026-09-29T10:30:00",
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "postedAt",
+     "reason": "must be an ISO-8601 UTC timestamp"
+    }
+   }
+  },
+  {
+   "value": "not-a-timestamp",
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "postedAt",
+     "reason": "must be an ISO-8601 UTC timestamp"
+    }
+   }
+  },
+  {
+   "value": "2026-09-29T10:30:00+25:00",
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "postedAt",
+     "reason": "must be an ISO-8601 UTC timestamp"
+    }
+   }
+  },
+  {
+   "value": "2026-09-29T10:30:00+18:01",
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "postedAt",
+     "reason": "must be an ISO-8601 UTC timestamp"
+    }
+   }
+  },
+  {
+   "value": "0001-01-01T00:00:00+18:00",
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "postedAt",
+     "reason": "must be an ISO-8601 UTC timestamp"
+    }
+   }
+  },
+  {
+   "value": "9999-12-31T23:59:59-18:00",
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "postedAt",
+     "reason": "must be an ISO-8601 UTC timestamp"
+    }
+   }
+  },
+  {
+   "value": "0001-01-01T00:00:00+01:00",
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "postedAt",
+     "reason": "must be an ISO-8601 UTC timestamp"
+    }
+   }
+  },
+  {
+   "value": "2026-02-30T10:30:00+02:00",
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "postedAt",
+     "reason": "must be an ISO-8601 UTC timestamp"
+    }
+   }
+  },
+  {
+   "value": "2026-09-29T10:30:60+02:00",
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "postedAt",
+     "reason": "must be an ISO-8601 UTC timestamp"
+    }
+   }
+  },
+  {
+   "value": "2026-09-29T10:30:00.+02:00",
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "postedAt",
+     "reason": "must be an ISO-8601 UTC timestamp"
+    }
+   }
+  },
+  {
+   "value": "2026-09-29T10:30:00.1234567890+02:00",
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "postedAt",
+     "reason": "must be an ISO-8601 UTC timestamp"
+    }
+   }
+  },
+  {
+   "value": "2026-09-29T10:30:00.9999995+02:00",
+   "result": "2026-09-29T08:30:00.999999Z"
+  },
+  {
+   "value": "2026-09-29T10:30:00 +02:00",
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "postedAt",
+     "reason": "must be an ISO-8601 UTC timestamp"
+    }
+   }
+  },
+  {
+   "value": "2026-12-31T24:00+00:00",
+   "result": "2027-01-01T00:00:00Z"
+  },
+  {
+   "value": "2026-09-29T24:00:00.000+02:00",
+   "result": "2026-09-29T22:00:00Z"
+  },
+  {
+   "value": "0001-01-01T24:00+00:00",
+   "result": "0001-01-02T00:00:00Z"
+  },
+  {
+   "value": "9999-12-31T24:00+00:00",
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "postedAt",
+     "reason": "must be an ISO-8601 UTC timestamp"
+    }
+   }
+  },
+  {
+   "value": "2026-09-29T24:00:01+02:00",
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "postedAt",
+     "reason": "must be an ISO-8601 UTC timestamp"
+    }
+   }
+  },
+  {
+   "value": "2026-09-29T24:30+02:00",
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "postedAt",
+     "reason": "must be an ISO-8601 UTC timestamp"
+    }
+   }
+  },
+  {
+   "value": " 2026-09-29T10:30:00Z ",
+   "result": "2026-09-29T10:30:00Z"
+  },
+  {
+   "value": 7,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "postedAt",
+     "reason": "must be an ISO-8601 UTC timestamp"
+    }
+   }
+  },
+  {
+   "value": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid job request",
+    "details": {
+     "field": "postedAt",
+     "reason": "must be an ISO-8601 UTC timestamp"
+    }
+   }
+  }
+ ]
+}

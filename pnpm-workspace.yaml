@@ -1,0 +1,6 @@
+allowBuilds:
+  edgedriver: false
+  geckodriver: false
+# Supply-chain cooling-off: a dependency bump only resolves npm versions published at least three
+# days ago (minutes). The lockfile already pins what CI installs.
+minimumReleaseAge: 4320

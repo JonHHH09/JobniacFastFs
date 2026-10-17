@@ -1,0 +1,132 @@
+name: End-to-end
+
+# WebDriver suite of the desktop workflows (e2e/README.md). It runs the debug desktop build through
+# tauri-driver on Windows (msedgedriver matching the WebView2 runtime) and Linux (WebKitWebDriver
+# under xvfb), over a disposable PostgreSQL 18 cluster started by pg-run.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  e2e:
+    name: E2E (${{ matrix.platform }})
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [windows-latest, ubuntu-24.04]
+    runs-on: ${{ matrix.platform }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Install Linux system dependencies (Tauri, WebKitWebDriver, xvfb)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf webkit2gtk-driver xvfb
+
+      - name: Install PostgreSQL 18 (Linux, signing key fingerprint pinned)
+        if: runner.os == 'Linux'
+        run: bash scripts/ci/install-postgresql-18.sh
+
+      - name: Install PostgreSQL 18 (Windows, only when the runner image lacks it)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (-not (Test-Path -LiteralPath 'C:\Program Files\PostgreSQL\18\bin\pg_ctl.exe' -PathType Leaf)) {
+            choco install postgresql18 --yes --no-progress
+          }
+          $service = Get-Service -Name 'postgresql-x64-18' -ErrorAction SilentlyContinue
+          if ($service) { Stop-Service -Name 'postgresql-x64-18' -Force }
+          if (-not (Test-Path -LiteralPath 'C:\Program Files\PostgreSQL\18\bin\postgres.exe' -PathType Leaf)) { throw 'PostgreSQL 18 binaries were not found' }
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+
+      - name: Install pnpm
+        run: npm install -g pnpm@12.10.1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249 # stable branch at the pinned commit
+        with:
+          toolchain: stable
+      - uses: swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+
+      - name: Fetch the pinned PDFium library (Linux)
+        if: runner.os == 'Linux'
+        run: bash scripts/fetch-pdfium.sh linux-x64
+
+      - name: Fetch the pinned PDFium library (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/fetch-pdfium.ps1 -Platform windows-x64
+
+      - name: Build the debug desktop application (no bundle)
+        run: pnpm tauri build --debug --no-bundle
+
+      - name: Build the console binary and pg-run
+        run: cargo build --locked -p jobniac-cli -p jobniac-testkit --bins
+
+      - name: Install tauri-driver
+        run: cargo install tauri-driver --locked
+
+      - name: Fetch the Microsoft Edge WebDriver matching the WebView2 runtime (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $key = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}'
+          $version = (Get-ItemProperty -Path $key -Name pv -ErrorAction Stop).pv
+          if (-not ($version -match '^\d+(\.\d+){3}$')) { throw 'the WebView2 runtime version is not readable' }
+          $dir = Join-Path $env:RUNNER_TEMP 'msedgedriver'
+          New-Item -ItemType Directory -Force -Path $dir | Out-Null
+          $zip = Join-Path $dir 'edgedriver_win64.zip'
+          Invoke-WebRequest -Uri "https://msedgedriver.microsoft.com/$version/edgedriver_win64.zip" -OutFile $zip -UseBasicParsing
+          Expand-Archive -LiteralPath $zip -DestinationPath $dir -Force
+          $driver = Join-Path $dir 'msedgedriver.exe'
+          $signature = Get-AuthenticodeSignature -FilePath $driver
+          if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch 'Microsoft Corporation') {
+            throw 'msedgedriver.exe is not validly signed by Microsoft'
+          }
+          $installed = (& $driver --version) -replace '^.*?(\d+(\.\d+){3}).*$', '$1'
+          if ($installed -ne $version) { throw "msedgedriver $installed does not match the WebView2 runtime $version" }
+          $dir | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+
+      - name: Run the end-to-end suite (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          JOBNIAC_POSTGRES_BIN: C:\Program Files\PostgreSQL\18\bin
+        run: ./target/debug/pg-run.exe node e2e/run.mjs
+
+      - name: Run the end-to-end suite (Linux, under xvfb)
+        if: runner.os == 'Linux'
+        env:
+          JOBNIAC_POSTGRES_BIN: /usr/lib/postgresql/18/bin
+        run: xvfb-run --auto-servernum ./target/debug/pg-run node e2e/run.mjs
+
+      - name: Upload failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-screenshots-${{ matrix.platform }}
+          path: e2e/.artifacts/
+          if-no-files-found: ignore
+          retention-days: 7

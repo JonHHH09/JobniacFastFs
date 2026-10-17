@@ -1,0 +1,1778 @@
+{
+  "candidate": {
+    "crate": "unicode-segmentation",
+    "unicode_version": "17.0.0",
+    "version": "1.13.3"
+  },
+  "categories": {
+    "abbreviation-internal-period": "A period, after the last non-space character before the boundary, is followed by a hyphen or a digit (for example c.-a-d. or Sec. 4.2)",
+    "bullet-or-list-marker": "A bullet (U+2022), a numbered marker (1. or 1)), a parenthesised marker ((a)) or a dash or asterisk item is the token next to the boundary",
+    "combining-or-format-mark": "A nonspacing, spacing or enclosing mark, or a format character (Cf), is within two code points of the boundary",
+    "ellipsis-character": "U+2026 HORIZONTAL ELLIPSIS is within two code points of the boundary",
+    "line-separator": "A CR, LF, NEL, U+2028 or U+2029 is within two code points of the boundary; UAX #29 breaks after each one (rule SB4), the reference segmentation breaks differently",
+    "non-ascii-space-after-terminator": "A non-ASCII space (NBSP, U+2007, U+202F, U+3000) is within two code points of the boundary",
+    "noncharacter": "A noncharacter (U+FFFE, U+FFFF and their plane equivalents) is within two code points of the boundary; the reference segmentation ends or changes processing there",
+    "other": "Not explained by the categories above; must stay unused (the test fails if a text needs it)",
+    "period-prefixed-token": "A stand-alone period token precedes the boundary and the next word starts with a letter",
+    "punctuation-after-terminator": "Punctuation such as ; : ! ? ( ) guillemets or curly quotes is within two code points of the boundary",
+    "terminator-before-symbol": "An astral character (U+1F000 and above: emoji, regional indicators, symbols) is within two code points of the boundary",
+    "terminator-not-in-reference": "A character that UAX #29 treats as a sentence terminator and the reference segmentation does not (for example U+061F, U+203D, U+3002, U+FF61)",
+    "unassigned-or-control": "An unassigned, control, private-use or surrogate-class code point is within two code points of the boundary",
+    "unicode-version": "A character assigned in Unicode 17.0 and unassigned in the reference data (Unicode 16.0.0) is within two code points of the boundary"
+  },
+  "classifier": "crates/text/tests/sentences_golden.rs (classify_boundary, classify_text)",
+  "entries": [
+    {
+      "also": [],
+      "category": "abbreviation-internal-period",
+      "id": "abbreviation-0011",
+      "reference": [
+        0,
+        52
+      ],
+      "rust": [
+        0,
+        35,
+        52
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "version-0040",
+      "reference": [
+        0,
+        17,
+        39
+      ],
+      "rust": [
+        0,
+        17,
+        35,
+        39
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "newline-0074",
+      "reference": [
+        0,
+        36
+      ],
+      "rust": [
+        0,
+        17,
+        36
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "newline-0075",
+      "reference": [
+        0,
+        50,
+        56
+      ],
+      "rust": [
+        0,
+        25,
+        50,
+        56
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "newline-0076",
+      "reference": [
+        0,
+        15,
+        35
+      ],
+      "rust": [
+        0,
+        14,
+        15,
+        35
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "newline-0079",
+      "reference": [
+        0,
+        17,
+        38
+      ],
+      "rust": [
+        0,
+        15,
+        17,
+        38
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "newline-0080",
+      "reference": [
+        0,
+        31,
+        36
+      ],
+      "rust": [
+        0,
+        7,
+        31,
+        36
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "newline-0082",
+      "reference": [
+        0,
+        15
+      ],
+      "rust": [
+        0,
+        1,
+        2,
+        15
+      ]
+    },
+    {
+      "also": [],
+      "category": "bullet-or-list-marker",
+      "id": "bullet-0083",
+      "reference": [
+        0,
+        35
+      ],
+      "rust": [
+        0,
+        17,
+        35
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "bullet-0084",
+      "reference": [
+        0,
+        35
+      ],
+      "rust": [
+        0,
+        17,
+        35
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "bullet-0085",
+      "reference": [
+        0,
+        35
+      ],
+      "rust": [
+        0,
+        17,
+        35
+      ]
+    },
+    {
+      "also": [],
+      "category": "bullet-or-list-marker",
+      "id": "bullet-0086",
+      "reference": [
+        0,
+        3,
+        21,
+        37
+      ],
+      "rust": [
+        0,
+        3,
+        18,
+        21,
+        37
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "bullet-0088",
+      "reference": [
+        0,
+        35
+      ],
+      "rust": [
+        0,
+        17,
+        35
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "nbsp-0111",
+      "reference": [
+        0,
+        9,
+        20
+      ],
+      "rust": [
+        0,
+        10,
+        20
+      ]
+    },
+    {
+      "also": [],
+      "category": "abbreviation-internal-period",
+      "id": "french-0133",
+      "reference": [
+        0,
+        19,
+        38,
+        51
+      ],
+      "rust": [
+        0,
+        38,
+        51
+      ]
+    },
+    {
+      "also": [],
+      "category": "terminator-before-symbol",
+      "id": "astral-0141",
+      "reference": [
+        0,
+        43
+      ],
+      "rust": [
+        0,
+        19,
+        43
+      ]
+    },
+    {
+      "also": [],
+      "category": "terminator-not-in-reference",
+      "id": "terminator-0162",
+      "reference": [
+        0,
+        25
+      ],
+      "rust": [
+        0,
+        21,
+        25
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "generated-en-0183",
+      "reference": [
+        0,
+        38,
+        164
+      ],
+      "rust": [
+        0,
+        38,
+        87,
+        164
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-en-0188",
+      "reference": [
+        0,
+        45,
+        100,
+        140
+      ],
+      "rust": [
+        0,
+        45,
+        140
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "generated-en-0191",
+      "reference": [
+        0,
+        86,
+        127,
+        164
+      ],
+      "rust": [
+        0,
+        43,
+        86,
+        127,
+        164
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-en-0192",
+      "reference": [
+        0,
+        44,
+        115,
+        116,
+        117
+      ],
+      "rust": [
+        0,
+        44,
+        117
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-en-0199",
+      "reference": [
+        0,
+        47,
+        86,
+        122,
+        150
+      ],
+      "rust": [
+        0,
+        47,
+        150
+      ]
+    },
+    {
+      "also": [],
+      "category": "bullet-or-list-marker",
+      "id": "generated-en-0205",
+      "reference": [
+        0,
+        121
+      ],
+      "rust": [
+        0,
+        39,
+        121
+      ]
+    },
+    {
+      "also": [],
+      "category": "bullet-or-list-marker",
+      "id": "generated-en-0206",
+      "reference": [
+        0,
+        89
+      ],
+      "rust": [
+        0,
+        43,
+        89
+      ]
+    },
+    {
+      "also": [
+        "bullet-or-list-marker"
+      ],
+      "category": "line-separator",
+      "id": "generated-en-0209",
+      "reference": [
+        0,
+        174
+      ],
+      "rust": [
+        0,
+        87,
+        119,
+        174
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-en-0219",
+      "reference": [
+        0,
+        95,
+        128,
+        129,
+        130
+      ],
+      "rust": [
+        0,
+        95,
+        130
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "generated-en-0231",
+      "reference": [
+        0,
+        72
+      ],
+      "rust": [
+        0,
+        35,
+        72
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-en-0235",
+      "reference": [
+        0,
+        40,
+        118,
+        119,
+        120
+      ],
+      "rust": [
+        0,
+        40,
+        120
+      ]
+    },
+    {
+      "also": [
+        "bullet-or-list-marker"
+      ],
+      "category": "line-separator",
+      "id": "generated-en-0236",
+      "reference": [
+        0,
+        144
+      ],
+      "rust": [
+        0,
+        68,
+        105,
+        144
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "generated-en-0238",
+      "reference": [
+        0,
+        34,
+        141
+      ],
+      "rust": [
+        0,
+        34,
+        40,
+        141
+      ]
+    },
+    {
+      "also": [],
+      "category": "bullet-or-list-marker",
+      "id": "generated-en-0246",
+      "reference": [
+        0,
+        132
+      ],
+      "rust": [
+        0,
+        83,
+        132
+      ]
+    },
+    {
+      "also": [],
+      "category": "bullet-or-list-marker",
+      "id": "generated-en-0253",
+      "reference": [
+        0,
+        73
+      ],
+      "rust": [
+        0,
+        33,
+        73
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-en-0254",
+      "reference": [
+        0,
+        40,
+        87,
+        138,
+        181
+      ],
+      "rust": [
+        0,
+        40,
+        87,
+        181
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-en-0257",
+      "reference": [
+        0,
+        90,
+        132,
+        186
+      ],
+      "rust": [
+        0,
+        90,
+        186
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "generated-en-0265",
+      "reference": [
+        0,
+        78,
+        84,
+        176
+      ],
+      "rust": [
+        0,
+        42,
+        78,
+        84,
+        176
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-en-0274",
+      "reference": [
+        0,
+        43,
+        44,
+        45
+      ],
+      "rust": [
+        0,
+        45
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "generated-en-0276",
+      "reference": [
+        0,
+        126
+      ],
+      "rust": [
+        0,
+        41,
+        126
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-en-0294",
+      "reference": [
+        0,
+        37,
+        38,
+        39
+      ],
+      "rust": [
+        0,
+        39
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "generated-en-0301",
+      "reference": [
+        0,
+        93,
+        130
+      ],
+      "rust": [
+        0,
+        49,
+        93,
+        130
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "generated-en-0304",
+      "reference": [
+        0,
+        92
+      ],
+      "rust": [
+        0,
+        46,
+        92
+      ]
+    },
+    {
+      "also": [],
+      "category": "abbreviation-internal-period",
+      "id": "generated-fr-0314",
+      "reference": [
+        0,
+        43,
+        82,
+        126,
+        145,
+        187
+      ],
+      "rust": [
+        0,
+        43,
+        82,
+        145,
+        187
+      ]
+    },
+    {
+      "also": [],
+      "category": "abbreviation-internal-period",
+      "id": "generated-fr-0317",
+      "reference": [
+        0,
+        27,
+        58,
+        77
+      ],
+      "rust": [
+        0,
+        27,
+        77
+      ]
+    },
+    {
+      "also": [
+        "punctuation-after-terminator"
+      ],
+      "category": "abbreviation-internal-period",
+      "id": "generated-fr-0319",
+      "reference": [
+        0,
+        30,
+        50,
+        141,
+        149
+      ],
+      "rust": [
+        0,
+        141,
+        149
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-fr-0322",
+      "reference": [
+        0,
+        41,
+        88
+      ],
+      "rust": [
+        0,
+        88
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-fr-0323",
+      "reference": [
+        0,
+        90
+      ],
+      "rust": [
+        0,
+        50,
+        90
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-fr-0325",
+      "reference": [
+        0,
+        73,
+        83,
+        124
+      ],
+      "rust": [
+        0,
+        73,
+        124
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-fr-0328",
+      "reference": [
+        0,
+        38,
+        74
+      ],
+      "rust": [
+        0,
+        74
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-fr-0332",
+      "reference": [
+        0,
+        116,
+        171
+      ],
+      "rust": [
+        0,
+        38,
+        171
+      ]
+    },
+    {
+      "also": [],
+      "category": "abbreviation-internal-period",
+      "id": "generated-fr-0333",
+      "reference": [
+        0,
+        42,
+        207
+      ],
+      "rust": [
+        0,
+        207
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-fr-0334",
+      "reference": [
+        0,
+        36,
+        85,
+        124
+      ],
+      "rust": [
+        0,
+        36,
+        124
+      ]
+    },
+    {
+      "also": [
+        "punctuation-after-terminator"
+      ],
+      "category": "abbreviation-internal-period",
+      "id": "generated-fr-0336",
+      "reference": [
+        0,
+        29,
+        39,
+        77,
+        159,
+        179
+      ],
+      "rust": [
+        0,
+        29,
+        77,
+        179
+      ]
+    },
+    {
+      "also": [
+        "punctuation-after-terminator"
+      ],
+      "category": "abbreviation-internal-period",
+      "id": "generated-fr-0338",
+      "reference": [
+        0,
+        86,
+        96,
+        181,
+        199
+      ],
+      "rust": [
+        0,
+        41,
+        86,
+        199
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-fr-0342",
+      "reference": [
+        0,
+        97,
+        133
+      ],
+      "rust": [
+        0,
+        133
+      ]
+    },
+    {
+      "also": [],
+      "category": "abbreviation-internal-period",
+      "id": "generated-fr-0344",
+      "reference": [
+        0,
+        67,
+        88,
+        121,
+        179
+      ],
+      "rust": [
+        0,
+        88,
+        121,
+        179
+      ]
+    },
+    {
+      "also": [],
+      "category": "abbreviation-internal-period",
+      "id": "generated-fr-0347",
+      "reference": [
+        0,
+        122,
+        169,
+        176
+      ],
+      "rust": [
+        0,
+        169,
+        176
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-fr-0351",
+      "reference": [
+        0,
+        42,
+        117,
+        126
+      ],
+      "rust": [
+        0,
+        42,
+        82,
+        117,
+        126
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-fr-0352",
+      "reference": [
+        0,
+        46,
+        135
+      ],
+      "rust": [
+        0,
+        135
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-fr-0356",
+      "reference": [
+        0,
+        86,
+        123
+      ],
+      "rust": [
+        0,
+        123
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "generated-fr-0357",
+      "reference": [
+        0,
+        138,
+        182,
+        191
+      ],
+      "rust": [
+        0,
+        79,
+        138,
+        182,
+        191
+      ]
+    },
+    {
+      "also": [],
+      "category": "abbreviation-internal-period",
+      "id": "generated-fr-0359",
+      "reference": [
+        0,
+        27,
+        89,
+        122,
+        146,
+        165
+      ],
+      "rust": [
+        0,
+        89,
+        122,
+        165
+      ]
+    },
+    {
+      "also": [],
+      "category": "abbreviation-internal-period",
+      "id": "generated-fr-0363",
+      "reference": [
+        0,
+        39,
+        62,
+        82,
+        119,
+        128
+      ],
+      "rust": [
+        0,
+        39,
+        82,
+        119,
+        128
+      ]
+    },
+    {
+      "also": [],
+      "category": "abbreviation-internal-period",
+      "id": "generated-fr-0365",
+      "reference": [
+        0,
+        40,
+        49,
+        75,
+        94
+      ],
+      "rust": [
+        0,
+        40,
+        49,
+        94
+      ]
+    },
+    {
+      "also": [
+        "punctuation-after-terminator"
+      ],
+      "category": "abbreviation-internal-period",
+      "id": "generated-fr-0370",
+      "reference": [
+        0,
+        53,
+        95,
+        131,
+        205
+      ],
+      "rust": [
+        0,
+        95,
+        205
+      ]
+    },
+    {
+      "also": [
+        "punctuation-after-terminator"
+      ],
+      "category": "abbreviation-internal-period",
+      "id": "generated-fr-0371",
+      "reference": [
+        0,
+        36,
+        76,
+        93
+      ],
+      "rust": [
+        0,
+        93
+      ]
+    },
+    {
+      "also": [],
+      "category": "abbreviation-internal-period",
+      "id": "generated-fr-0373",
+      "reference": [
+        0,
+        76,
+        96,
+        135,
+        166,
+        185
+      ],
+      "rust": [
+        0,
+        96,
+        135,
+        185
+      ]
+    },
+    {
+      "also": [],
+      "category": "abbreviation-internal-period",
+      "id": "generated-fr-0375",
+      "reference": [
+        0,
+        30,
+        50,
+        92,
+        137
+      ],
+      "rust": [
+        0,
+        50,
+        92,
+        137
+      ]
+    },
+    {
+      "also": [
+        "punctuation-after-terminator"
+      ],
+      "category": "abbreviation-internal-period",
+      "id": "generated-fr-0379",
+      "reference": [
+        0,
+        27,
+        47,
+        74,
+        75,
+        77
+      ],
+      "rust": [
+        0,
+        47,
+        77
+      ]
+    },
+    {
+      "also": [],
+      "category": "abbreviation-internal-period",
+      "id": "generated-fr-0380",
+      "reference": [
+        0,
+        34,
+        63,
+        84,
+        148
+      ],
+      "rust": [
+        0,
+        34,
+        84,
+        148
+      ]
+    },
+    {
+      "also": [],
+      "category": "noncharacter",
+      "id": "edge-unicode-0382",
+      "reference": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "rust": [
+        0,
+        4,
+        5
+      ]
+    },
+    {
+      "also": [],
+      "category": "noncharacter",
+      "id": "edge-unicode-0383",
+      "reference": [
+        0,
+        1,
+        2,
+        6,
+        7
+      ],
+      "rust": [
+        0,
+        6,
+        7
+      ]
+    },
+    {
+      "also": [],
+      "category": "noncharacter",
+      "id": "edge-unicode-0384",
+      "reference": [
+        0,
+        13,
+        14,
+        15,
+        21
+      ],
+      "rust": [
+        0,
+        14,
+        21
+      ]
+    },
+    {
+      "also": [],
+      "category": "noncharacter",
+      "id": "edge-unicode-0385",
+      "reference": [
+        0,
+        5,
+        6,
+        15,
+        20
+      ],
+      "rust": [
+        0,
+        15,
+        20
+      ]
+    },
+    {
+      "also": [],
+      "category": "noncharacter",
+      "id": "edge-unicode-0387",
+      "reference": [
+        0,
+        4,
+        5,
+        6
+      ],
+      "rust": [
+        0,
+        5,
+        6
+      ]
+    },
+    {
+      "also": [],
+      "category": "noncharacter",
+      "id": "edge-unicode-0388",
+      "reference": [
+        0,
+        12
+      ],
+      "rust": [
+        0,
+        5,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "noncharacter",
+      "id": "edge-unicode-0389",
+      "reference": [
+        0,
+        12
+      ],
+      "rust": [
+        0,
+        5,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "unassigned-or-control",
+      "id": "edge-unicode-0390",
+      "reference": [
+        0,
+        21
+      ],
+      "rust": [
+        0,
+        14,
+        21
+      ]
+    },
+    {
+      "also": [],
+      "category": "combining-or-format-mark",
+      "id": "edge-unicode-0392",
+      "reference": [
+        0,
+        12
+      ],
+      "rust": [
+        0,
+        7,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "combining-or-format-mark",
+      "id": "edge-unicode-0393",
+      "reference": [
+        0,
+        5,
+        11
+      ],
+      "rust": [
+        0,
+        11
+      ]
+    },
+    {
+      "also": [],
+      "category": "combining-or-format-mark",
+      "id": "edge-unicode-0394",
+      "reference": [
+        0,
+        5,
+        12
+      ],
+      "rust": [
+        0,
+        7,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "combining-or-format-mark",
+      "id": "edge-unicode-0395",
+      "reference": [
+        0,
+        5,
+        12
+      ],
+      "rust": [
+        0,
+        7,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "terminator-not-in-reference",
+      "id": "edge-unicode-0406",
+      "reference": [
+        0,
+        6
+      ],
+      "rust": [
+        0,
+        2,
+        6
+      ]
+    },
+    {
+      "also": [],
+      "category": "terminator-not-in-reference",
+      "id": "edge-unicode-0407",
+      "reference": [
+        0,
+        12
+      ],
+      "rust": [
+        0,
+        6,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "terminator-not-in-reference",
+      "id": "edge-unicode-0408",
+      "reference": [
+        0,
+        12
+      ],
+      "rust": [
+        0,
+        6,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "terminator-not-in-reference",
+      "id": "edge-unicode-0409",
+      "reference": [
+        0,
+        13
+      ],
+      "rust": [
+        0,
+        7,
+        13
+      ]
+    },
+    {
+      "also": [],
+      "category": "terminator-not-in-reference",
+      "id": "edge-unicode-0411",
+      "reference": [
+        0,
+        12
+      ],
+      "rust": [
+        0,
+        6,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "terminator-not-in-reference",
+      "id": "edge-unicode-0412",
+      "reference": [
+        0,
+        12
+      ],
+      "rust": [
+        0,
+        6,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "terminator-not-in-reference",
+      "id": "edge-unicode-0413",
+      "reference": [
+        0,
+        12
+      ],
+      "rust": [
+        0,
+        6,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "terminator-not-in-reference",
+      "id": "edge-unicode-0414",
+      "reference": [
+        0,
+        12
+      ],
+      "rust": [
+        0,
+        6,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "terminator-not-in-reference",
+      "id": "edge-unicode-0419",
+      "reference": [
+        0,
+        12
+      ],
+      "rust": [
+        0,
+        6,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "unicode-version",
+      "id": "edge-unicode-0427",
+      "reference": [
+        0,
+        22
+      ],
+      "rust": [
+        0,
+        15,
+        22
+      ]
+    },
+    {
+      "also": [],
+      "category": "terminator-before-symbol",
+      "id": "edge-unicode-0428",
+      "reference": [
+        0,
+        13
+      ],
+      "rust": [
+        0,
+        5,
+        13
+      ]
+    },
+    {
+      "also": [],
+      "category": "terminator-before-symbol",
+      "id": "edge-unicode-0429",
+      "reference": [
+        0,
+        13
+      ],
+      "rust": [
+        0,
+        6,
+        13
+      ]
+    },
+    {
+      "also": [],
+      "category": "terminator-before-symbol",
+      "id": "edge-unicode-0430",
+      "reference": [
+        0,
+        13
+      ],
+      "rust": [
+        0,
+        5,
+        13
+      ]
+    },
+    {
+      "also": [],
+      "category": "terminator-before-symbol",
+      "id": "edge-unicode-0431",
+      "reference": [
+        0,
+        12
+      ],
+      "rust": [
+        0,
+        5,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "line-separator",
+      "id": "edge-unicode-0432",
+      "reference": [
+        0,
+        5,
+        12
+      ],
+      "rust": [
+        0,
+        6,
+        7,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "unassigned-or-control",
+      "id": "edge-unicode-0433",
+      "reference": [
+        0,
+        5,
+        11
+      ],
+      "rust": [
+        0,
+        6,
+        11
+      ]
+    },
+    {
+      "also": [],
+      "category": "unassigned-or-control",
+      "id": "edge-unicode-0435",
+      "reference": [
+        0,
+        12
+      ],
+      "rust": [
+        0,
+        5,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "ellipsis-character",
+      "id": "edge-punctuation-0438",
+      "reference": [
+        0,
+        5
+      ],
+      "rust": [
+        0,
+        2,
+        5
+      ]
+    },
+    {
+      "also": [],
+      "category": "ellipsis-character",
+      "id": "edge-punctuation-0439",
+      "reference": [
+        0,
+        12
+      ],
+      "rust": [
+        0,
+        5,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "ellipsis-character",
+      "id": "edge-punctuation-0442",
+      "reference": [
+        0,
+        14
+      ],
+      "rust": [
+        0,
+        7,
+        14
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "edge-punctuation-0444",
+      "reference": [
+        0,
+        11
+      ],
+      "rust": [
+        0,
+        6,
+        11
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "edge-punctuation-0458",
+      "reference": [
+        0,
+        5,
+        12
+      ],
+      "rust": [
+        0,
+        6,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "edge-punctuation-0459",
+      "reference": [
+        0,
+        5,
+        12
+      ],
+      "rust": [
+        0,
+        6,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "edge-punctuation-0460",
+      "reference": [
+        0,
+        5,
+        12
+      ],
+      "rust": [
+        0,
+        6,
+        12
+      ]
+    },
+    {
+      "also": [],
+      "category": "bullet-or-list-marker",
+      "id": "edge-punctuation-0473",
+      "reference": [
+        0,
+        6,
+        9
+      ],
+      "rust": [
+        0,
+        3,
+        6,
+        9
+      ]
+    },
+    {
+      "also": [],
+      "category": "bullet-or-list-marker",
+      "id": "edge-punctuation-0474",
+      "reference": [
+        0,
+        3,
+        13,
+        19
+      ],
+      "rust": [
+        0,
+        3,
+        10,
+        13,
+        19
+      ]
+    },
+    {
+      "also": [],
+      "category": "bullet-or-list-marker",
+      "id": "edge-punctuation-0475",
+      "reference": [
+        0,
+        18,
+        34
+      ],
+      "rust": [
+        0,
+        15,
+        18,
+        34
+      ]
+    },
+    {
+      "also": [],
+      "category": "bullet-or-list-marker",
+      "id": "edge-punctuation-0476",
+      "reference": [
+        0,
+        18,
+        34
+      ],
+      "rust": [
+        0,
+        15,
+        18,
+        34
+      ]
+    },
+    {
+      "also": [],
+      "category": "bullet-or-list-marker",
+      "id": "edge-punctuation-0477",
+      "reference": [
+        0,
+        35
+      ],
+      "rust": [
+        0,
+        15,
+        35
+      ]
+    },
+    {
+      "also": [],
+      "category": "bullet-or-list-marker",
+      "id": "edge-punctuation-0478",
+      "reference": [
+        0,
+        15,
+        35
+      ],
+      "rust": [
+        0,
+        35
+      ]
+    },
+    {
+      "also": [],
+      "category": "abbreviation-internal-period",
+      "id": "edge-punctuation-0486",
+      "reference": [
+        0,
+        5,
+        11
+      ],
+      "rust": [
+        0,
+        11
+      ]
+    },
+    {
+      "also": [],
+      "category": "punctuation-after-terminator",
+      "id": "edge-punctuation-0487",
+      "reference": [
+        0,
+        12
+      ],
+      "rust": [
+        0,
+        5,
+        12
+      ]
+    }
+  ],
+  "format": "jobniac-sentence-accepted-differences",
+  "reference": {
+    "unicode_version": "16.0.0"
+  },
+  "version": 2
+}

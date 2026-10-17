@@ -1,0 +1,65 @@
+{
+ "format": 1,
+ "notes": [
+  "Synthetic inputs only. No database, no network, no personal data.",
+  "Lone surrogates are excluded."
+ ],
+ "cases": [
+  {
+   "name": "both_current",
+   "profileRevision": "2025-01-02T03:04:05.123456Z",
+   "jobRevision": "2025-02-03T04:05:06.654321Z",
+   "currentProfileRevision": "2025-01-02T03:04:05.123456Z",
+   "currentJobRevision": "2025-02-03T04:05:06.654321Z",
+   "stale": false
+  },
+  {
+   "name": "profile_changed",
+   "profileRevision": "2025-01-02T03:04:05.123456Z",
+   "jobRevision": "2025-02-03T04:05:06.654321Z",
+   "currentProfileRevision": "2025-01-02T03:04:05.123457Z",
+   "currentJobRevision": "2025-02-03T04:05:06.654321Z",
+   "stale": true
+  },
+  {
+   "name": "job_changed",
+   "profileRevision": "2025-01-02T03:04:05.123456Z",
+   "jobRevision": "2025-02-03T04:05:06.654321Z",
+   "currentProfileRevision": "2025-01-02T03:04:05.123456Z",
+   "currentJobRevision": "2025-02-03T04:05:06.654322Z",
+   "stale": true
+  },
+  {
+   "name": "both_changed",
+   "profileRevision": "2025-01-02T03:04:05.123456Z",
+   "jobRevision": "2025-02-03T04:05:06.654321Z",
+   "currentProfileRevision": "2025-01-02T03:04:06Z",
+   "currentJobRevision": "2025-02-03T04:05:07Z",
+   "stale": true
+  },
+  {
+   "name": "profile_missing",
+   "profileRevision": "2025-01-02T03:04:05.123456Z",
+   "jobRevision": "2025-02-03T04:05:06.654321Z",
+   "currentProfileRevision": null,
+   "currentJobRevision": "2025-02-03T04:05:06.654321Z",
+   "stale": true
+  },
+  {
+   "name": "job_missing",
+   "profileRevision": "2025-01-02T03:04:05.123456Z",
+   "jobRevision": "2025-02-03T04:05:06.654321Z",
+   "currentProfileRevision": "2025-01-02T03:04:05.123456Z",
+   "currentJobRevision": null,
+   "stale": true
+  },
+  {
+   "name": "both_missing",
+   "profileRevision": "2025-01-02T03:04:05.123456Z",
+   "jobRevision": "2025-02-03T04:05:06.654321Z",
+   "currentProfileRevision": null,
+   "currentJobRevision": null,
+   "stale": true
+  }
+ ]
+}

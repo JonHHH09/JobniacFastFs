@@ -1,0 +1,20 @@
+[package]
+name = "jobniac-pdf"
+description = "Deterministic Standard-14 PDF layout and writing for Jobniac"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[dependencies]
+jobniac-text.workspace = true
+lopdf.workspace = true
+pdf-writer.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[lints]
+workspace = true

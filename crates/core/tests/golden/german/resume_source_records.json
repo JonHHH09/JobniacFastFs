@@ -1,0 +1,1550 @@
+{
+ "source": "jobniac.application.german_resume_persistence over synthetic inputs",
+ "constants": {
+  "section_types": [
+   "personal",
+   "summary",
+   "experience",
+   "additional",
+   "education",
+   "skills",
+   "languages"
+  ],
+  "entry_types": [
+   "personal_field",
+   "summary",
+   "experience",
+   "project",
+   "education",
+   "skill_group",
+   "language"
+  ],
+  "titles_en": [
+   "Contact",
+   "Profile",
+   "Professional Experience",
+   "Projects",
+   "Education",
+   "Skills",
+   "Languages"
+  ],
+  "titles_de": [
+   "Kontakt",
+   "Profil",
+   "Berufserfahrung",
+   "Projekte",
+   "Ausbildung",
+   "Kenntnisse",
+   "Sprachen"
+  ],
+  "max_variants": 2,
+  "max_display_order": 2147483647,
+  "max_revision": 9223372036854775807
+ },
+ "observations": [
+  {
+   "kind": "entry",
+   "input": {
+    "entry_type": "ICBDVVNUT03EsCAg",
+    "title": "ICBUaXRsZSAg",
+    "organization": "CQ==",
+    "location": "wqA=",
+    "metadata": "ICB7aW52YWxpZDogSlNPTn0gIA=="
+   },
+   "expect": {
+    "entry_type": "Y3VzdG9tacyH",
+    "title": "VGl0bGU=",
+    "organization": null,
+    "location": "wqA=",
+    "metadata": "e2ludmFsaWQ6IEpTT059",
+    "raw_units": 41
+   }
+  },
+  {
+   "kind": "entry",
+   "input": {
+    "entry_type": "Y3VzdG9t",
+    "title": null,
+    "organization": null,
+    "location": null,
+    "metadata": "8J+YgA=="
+   },
+   "expect": {
+    "entry_type": "Y3VzdG9t",
+    "title": null,
+    "organization": null,
+    "location": null,
+    "metadata": "8J+YgA==",
+    "raw_units": 8
+   }
+  },
+  {
+   "kind": "entry",
+   "input": {
+    "entry_type": "Y3VzdG9t",
+    "title": null,
+    "organization": null,
+    "location": null,
+    "metadata": "AA=="
+   },
+   "expect": "INVALID"
+  },
+  {
+   "kind": "entry",
+   "input": {
+    "entry_type": "ICAJ",
+    "title": null,
+    "organization": null,
+    "location": null,
+    "metadata": null
+   },
+   "expect": "INVALID"
+  },
+  {
+   "kind": "entry",
+   "input": {
+    "entry_type": "TWlYZUQgQ2FzZQ==",
+    "title": "44CA",
+    "organization": null,
+    "location": null,
+    "metadata": ""
+   },
+   "expect": {
+    "entry_type": "bWl4ZWQgY2FzZQ==",
+    "title": null,
+    "organization": null,
+    "location": null,
+    "metadata": null,
+    "raw_units": 11
+   }
+  },
+  {
+   "kind": "entry",
+   "input": {
+    "entry_type": "Y3VzdG9t",
+    "title": "U3RyYcOfZSBDYWbDqQ==",
+    "organization": null,
+    "location": "WsO8cmljaA==",
+    "metadata": null
+   },
+   "expect": {
+    "entry_type": "Y3VzdG9t",
+    "title": "U3RyYcOfZSBDYWbDqQ==",
+    "organization": null,
+    "location": "WsO8cmljaA==",
+    "metadata": null,
+    "raw_units": 23
+   }
+  },
+  {
+   "kind": "parent",
+   "input": {
+    "format": "CSBHZVJtQW5Z4oCD"
+   },
+   "expect": {
+    "format": "germany"
+   }
+  },
+  {
+   "kind": "parent",
+   "input": {
+    "format": "R0VSTUFOWQ=="
+   },
+   "expect": {
+    "format": "germany"
+   }
+  },
+  {
+   "kind": "parent",
+   "input": {
+    "format": "YXVzdHJpYQ=="
+   },
+   "expect": "INVALID"
+  },
+  {
+   "kind": "parent",
+   "input": {
+    "format": "IA=="
+   },
+   "expect": "INVALID"
+  },
+  {
+   "kind": "variant",
+   "input": {
+    "language": "ICBERQk=",
+    "file_path": "ICBmaWxlLnBkZgk="
+   },
+   "expect": {
+    "language": "de",
+    "file_path": "ZmlsZS5wZGY="
+   }
+  },
+  {
+   "kind": "variant",
+   "input": {
+    "language": "ZW4=",
+    "file_path": "YXNzZXQucGRm"
+   },
+   "expect": {
+    "language": "en",
+    "file_path": "YXNzZXQucGRm"
+   }
+  },
+  {
+   "kind": "variant",
+   "input": {
+    "language": "ZnI=",
+    "file_path": "YXNzZXQucGRm"
+   },
+   "expect": "INVALID"
+  },
+  {
+   "kind": "variant",
+   "input": {
+    "language": "ZGU=",
+    "file_path": "IOKAgw=="
+   },
+   "expect": "INVALID"
+  },
+  {
+   "kind": "section",
+   "input": {
+    "section_type": "IENVU1RPTSA=",
+    "title": "IFRpdGxlIA=="
+   },
+   "expect": {
+    "section_type": "custom",
+    "title": "VGl0bGU="
+   }
+  },
+  {
+   "kind": "section",
+   "input": {
+    "section_type": "Y3VzdG9t",
+    "title": "CQ=="
+   },
+   "expect": "INVALID"
+  },
+  {
+   "kind": "bullet",
+   "input": {
+    "text": "ICBCdWxsZXQgdGV4dCAg"
+   },
+   "expect": {
+    "text": "QnVsbGV0IHRleHQ="
+   }
+  },
+  {
+   "kind": "bullet",
+   "input": {
+    "text": "IOKAgyA="
+   },
+   "expect": "INVALID"
+  },
+  {
+   "kind": "map",
+   "language": "de",
+   "variant_language": "de",
+   "content": {
+    "full_name": "QWRhIEV4YW1wbGU="
+   },
+   "expect": {
+    "variant_language": "de",
+    "sections": [
+     {
+      "section_type": "personal",
+      "title": "S29udGFrdA==",
+      "display_order": 0,
+      "entries": []
+     }
+    ],
+    "ids": [
+     100
+    ],
+    "raw_entries": 2,
+    "raw_units": 26
+   }
+  },
+  {
+   "kind": "map",
+   "language": "en",
+   "variant_language": "en",
+   "content": {
+    "full_name": "QWRhIEV4YW1wbGU="
+   },
+   "expect": {
+    "variant_language": "en",
+    "sections": [
+     {
+      "section_type": "personal",
+      "title": "Q29udGFjdA==",
+      "display_order": 0,
+      "entries": []
+     }
+    ],
+    "ids": [
+     100
+    ],
+    "raw_entries": 2,
+    "raw_units": 26
+   }
+  },
+  {
+   "kind": "map",
+   "language": "de",
+   "variant_language": "de",
+   "content": {
+    "full_name": "VW5zdG9yZWQgRnVsbCBOYW1l",
+    "summary": "U3VtbWFyeSB0ZXh0",
+    "personal": [
+     [
+      "RW1haWw=",
+      "YWRhQGV4YW1wbGUudGVzdA=="
+     ],
+     [
+      "UGxhY2U=",
+      "QmVybGlu"
+     ]
+    ],
+    "experiences": [
+     [
+      "RW5naW5lZXI=",
+      "Q29tcGFueQ==",
+      "QmVybGlu",
+      "MDAwMS0wMS0wMg==",
+      null,
+      [
+       "Rmlyc3Q=",
+       "U2Vjb25k"
+      ]
+     ],
+     [
+      "QW5hbHlzdA==",
+      "T3RoZXIgQ29tcGFueQ==",
+      null,
+      "MjAyMC0wMi0yOQ==",
+      "MjAyMS0wMy0wMQ==",
+      []
+     ]
+    ],
+    "education": [
+     [
+      "RGVncmVl",
+      "VW5p",
+      null,
+      null,
+      "OTk5OS0xMi0zMQ==",
+      [
+       "VGhpcmQ="
+      ]
+     ]
+    ],
+    "skills": [
+     [
+      "VGVjaG5vbG9neQ==",
+      [
+       "UHl0aG9u",
+       "U1FM"
+      ]
+     ],
+     [
+      "VG9vbHM=",
+      [
+       "SGFtbWVy"
+      ]
+     ]
+    ],
+    "languages": [
+     [
+      "R2VybWFu",
+      "QzE="
+     ],
+     [
+      "RW5nbGlzaA==",
+      null
+     ]
+    ],
+    "additional": [
+     [
+      "UHJvamVjdA==",
+      "aHR0cHM6Ly9leGFtcGxlLnRlc3Q=",
+      [
+       "Rm91cnRo",
+       "RmlmdGg="
+      ]
+     ]
+    ]
+   },
+   "expect": {
+    "variant_language": "de",
+    "sections": [
+     {
+      "section_type": "personal",
+      "title": "S29udGFrdA==",
+      "display_order": 0,
+      "entries": [
+       {
+        "entry_type": "personal_field",
+        "display_order": 0,
+        "title": "RW1haWw=",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "YWRhQGV4YW1wbGUudGVzdA==",
+        "bullets": []
+       },
+       {
+        "entry_type": "personal_field",
+        "display_order": 1,
+        "title": "UGxhY2U=",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "QmVybGlu",
+        "bullets": []
+       }
+      ]
+     },
+     {
+      "section_type": "summary",
+      "title": "UHJvZmls",
+      "display_order": 1,
+      "entries": [
+       {
+        "entry_type": "summary",
+        "display_order": 0,
+        "title": "UHJvZmls",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "U3VtbWFyeSB0ZXh0",
+        "bullets": []
+       }
+      ]
+     },
+     {
+      "section_type": "experience",
+      "title": "QmVydWZzZXJmYWhydW5n",
+      "display_order": 2,
+      "entries": [
+       {
+        "entry_type": "experience",
+        "display_order": 0,
+        "title": "RW5naW5lZXI=",
+        "organization": "Q29tcGFueQ==",
+        "location": "QmVybGlu",
+        "start_date": "0001-01-02",
+        "end_date": null,
+        "metadata": null,
+        "bullets": [
+         {
+          "display_order": 0,
+          "text": "Rmlyc3Q="
+         },
+         {
+          "display_order": 1,
+          "text": "U2Vjb25k"
+         }
+        ]
+       },
+       {
+        "entry_type": "experience",
+        "display_order": 1,
+        "title": "QW5hbHlzdA==",
+        "organization": "T3RoZXIgQ29tcGFueQ==",
+        "location": null,
+        "start_date": "2020-02-29",
+        "end_date": "2021-03-01",
+        "metadata": null,
+        "bullets": []
+       }
+      ]
+     },
+     {
+      "section_type": "additional",
+      "title": "UHJvamVrdGU=",
+      "display_order": 3,
+      "entries": [
+       {
+        "entry_type": "project",
+        "display_order": 0,
+        "title": "UHJvamVjdA==",
+        "organization": "aHR0cHM6Ly9leGFtcGxlLnRlc3Q=",
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": null,
+        "bullets": [
+         {
+          "display_order": 0,
+          "text": "Rm91cnRo"
+         },
+         {
+          "display_order": 1,
+          "text": "RmlmdGg="
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "section_type": "education",
+      "title": "QXVzYmlsZHVuZw==",
+      "display_order": 4,
+      "entries": [
+       {
+        "entry_type": "education",
+        "display_order": 0,
+        "title": "RGVncmVl",
+        "organization": "VW5p",
+        "location": null,
+        "start_date": null,
+        "end_date": "9999-12-31",
+        "metadata": null,
+        "bullets": [
+         {
+          "display_order": 0,
+          "text": "VGhpcmQ="
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "section_type": "skills",
+      "title": "S2VubnRuaXNzZQ==",
+      "display_order": 5,
+      "entries": [
+       {
+        "entry_type": "skill_group",
+        "display_order": 0,
+        "title": "VGVjaG5vbG9neQ==",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "UHl0aG9uLCBTUUw=",
+        "bullets": []
+       },
+       {
+        "entry_type": "skill_group",
+        "display_order": 1,
+        "title": "VG9vbHM=",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "SGFtbWVy",
+        "bullets": []
+       }
+      ]
+     },
+     {
+      "section_type": "languages",
+      "title": "U3ByYWNoZW4=",
+      "display_order": 6,
+      "entries": [
+       {
+        "entry_type": "language",
+        "display_order": 0,
+        "title": "R2VybWFu",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "QzE=",
+        "bullets": []
+       },
+       {
+        "entry_type": "language",
+        "display_order": 1,
+        "title": "RW5nbGlzaA==",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": null,
+        "bullets": []
+       }
+      ]
+     }
+    ],
+    "ids": [
+     100,
+     101,
+     102,
+     103,
+     104,
+     105,
+     106,
+     107,
+     108,
+     109,
+     110,
+     111,
+     112,
+     113,
+     114,
+     115,
+     116,
+     117,
+     118,
+     119,
+     120,
+     121,
+     122
+    ],
+    "raw_entries": 24,
+    "raw_units": 444
+   }
+  },
+  {
+   "kind": "map",
+   "language": "en",
+   "variant_language": "en",
+   "content": {
+    "full_name": "VW5zdG9yZWQgRnVsbCBOYW1l",
+    "summary": "U3VtbWFyeSB0ZXh0",
+    "personal": [
+     [
+      "RW1haWw=",
+      "YWRhQGV4YW1wbGUudGVzdA=="
+     ],
+     [
+      "UGxhY2U=",
+      "QmVybGlu"
+     ]
+    ],
+    "experiences": [
+     [
+      "RW5naW5lZXI=",
+      "Q29tcGFueQ==",
+      "QmVybGlu",
+      "MDAwMS0wMS0wMg==",
+      null,
+      [
+       "Rmlyc3Q=",
+       "U2Vjb25k"
+      ]
+     ],
+     [
+      "QW5hbHlzdA==",
+      "T3RoZXIgQ29tcGFueQ==",
+      null,
+      "MjAyMC0wMi0yOQ==",
+      "MjAyMS0wMy0wMQ==",
+      []
+     ]
+    ],
+    "education": [
+     [
+      "RGVncmVl",
+      "VW5p",
+      null,
+      null,
+      "OTk5OS0xMi0zMQ==",
+      [
+       "VGhpcmQ="
+      ]
+     ]
+    ],
+    "skills": [
+     [
+      "VGVjaG5vbG9neQ==",
+      [
+       "UHl0aG9u",
+       "U1FM"
+      ]
+     ],
+     [
+      "VG9vbHM=",
+      [
+       "SGFtbWVy"
+      ]
+     ]
+    ],
+    "languages": [
+     [
+      "R2VybWFu",
+      "QzE="
+     ],
+     [
+      "RW5nbGlzaA==",
+      null
+     ]
+    ],
+    "additional": [
+     [
+      "UHJvamVjdA==",
+      "aHR0cHM6Ly9leGFtcGxlLnRlc3Q=",
+      [
+       "Rm91cnRo",
+       "RmlmdGg="
+      ]
+     ]
+    ]
+   },
+   "expect": {
+    "variant_language": "en",
+    "sections": [
+     {
+      "section_type": "personal",
+      "title": "Q29udGFjdA==",
+      "display_order": 0,
+      "entries": [
+       {
+        "entry_type": "personal_field",
+        "display_order": 0,
+        "title": "RW1haWw=",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "YWRhQGV4YW1wbGUudGVzdA==",
+        "bullets": []
+       },
+       {
+        "entry_type": "personal_field",
+        "display_order": 1,
+        "title": "UGxhY2U=",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "QmVybGlu",
+        "bullets": []
+       }
+      ]
+     },
+     {
+      "section_type": "summary",
+      "title": "UHJvZmlsZQ==",
+      "display_order": 1,
+      "entries": [
+       {
+        "entry_type": "summary",
+        "display_order": 0,
+        "title": "UHJvZmlsZQ==",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "U3VtbWFyeSB0ZXh0",
+        "bullets": []
+       }
+      ]
+     },
+     {
+      "section_type": "experience",
+      "title": "UHJvZmVzc2lvbmFsIEV4cGVyaWVuY2U=",
+      "display_order": 2,
+      "entries": [
+       {
+        "entry_type": "experience",
+        "display_order": 0,
+        "title": "RW5naW5lZXI=",
+        "organization": "Q29tcGFueQ==",
+        "location": "QmVybGlu",
+        "start_date": "0001-01-02",
+        "end_date": null,
+        "metadata": null,
+        "bullets": [
+         {
+          "display_order": 0,
+          "text": "Rmlyc3Q="
+         },
+         {
+          "display_order": 1,
+          "text": "U2Vjb25k"
+         }
+        ]
+       },
+       {
+        "entry_type": "experience",
+        "display_order": 1,
+        "title": "QW5hbHlzdA==",
+        "organization": "T3RoZXIgQ29tcGFueQ==",
+        "location": null,
+        "start_date": "2020-02-29",
+        "end_date": "2021-03-01",
+        "metadata": null,
+        "bullets": []
+       }
+      ]
+     },
+     {
+      "section_type": "additional",
+      "title": "UHJvamVjdHM=",
+      "display_order": 3,
+      "entries": [
+       {
+        "entry_type": "project",
+        "display_order": 0,
+        "title": "UHJvamVjdA==",
+        "organization": "aHR0cHM6Ly9leGFtcGxlLnRlc3Q=",
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": null,
+        "bullets": [
+         {
+          "display_order": 0,
+          "text": "Rm91cnRo"
+         },
+         {
+          "display_order": 1,
+          "text": "RmlmdGg="
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "section_type": "education",
+      "title": "RWR1Y2F0aW9u",
+      "display_order": 4,
+      "entries": [
+       {
+        "entry_type": "education",
+        "display_order": 0,
+        "title": "RGVncmVl",
+        "organization": "VW5p",
+        "location": null,
+        "start_date": null,
+        "end_date": "9999-12-31",
+        "metadata": null,
+        "bullets": [
+         {
+          "display_order": 0,
+          "text": "VGhpcmQ="
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "section_type": "skills",
+      "title": "U2tpbGxz",
+      "display_order": 5,
+      "entries": [
+       {
+        "entry_type": "skill_group",
+        "display_order": 0,
+        "title": "VGVjaG5vbG9neQ==",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "UHl0aG9uLCBTUUw=",
+        "bullets": []
+       },
+       {
+        "entry_type": "skill_group",
+        "display_order": 1,
+        "title": "VG9vbHM=",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "SGFtbWVy",
+        "bullets": []
+       }
+      ]
+     },
+     {
+      "section_type": "languages",
+      "title": "TGFuZ3VhZ2Vz",
+      "display_order": 6,
+      "entries": [
+       {
+        "entry_type": "language",
+        "display_order": 0,
+        "title": "R2VybWFu",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "QzE=",
+        "bullets": []
+       },
+       {
+        "entry_type": "language",
+        "display_order": 1,
+        "title": "RW5nbGlzaA==",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": null,
+        "bullets": []
+       }
+      ]
+     }
+    ],
+    "ids": [
+     100,
+     101,
+     102,
+     103,
+     104,
+     105,
+     106,
+     107,
+     108,
+     109,
+     110,
+     111,
+     112,
+     113,
+     114,
+     115,
+     116,
+     117,
+     118,
+     119,
+     120,
+     121,
+     122
+    ],
+    "raw_entries": 24,
+    "raw_units": 450
+   }
+  },
+  {
+   "kind": "map",
+   "language": "de",
+   "variant_language": "en",
+   "content": {
+    "full_name": "QWRhIEV4YW1wbGU="
+   },
+   "expect": {
+    "variant_language": "en",
+    "sections": [
+     {
+      "section_type": "personal",
+      "title": "S29udGFrdA==",
+      "display_order": 0,
+      "entries": []
+     }
+    ],
+    "ids": [
+     100
+    ],
+    "raw_entries": 2,
+    "raw_units": 26
+   }
+  },
+  {
+   "kind": "map",
+   "language": "en",
+   "variant_language": "de",
+   "content": {
+    "full_name": "VW5zdG9yZWQgRnVsbCBOYW1l",
+    "summary": "U3VtbWFyeSB0ZXh0",
+    "personal": [
+     [
+      "RW1haWw=",
+      "YWRhQGV4YW1wbGUudGVzdA=="
+     ],
+     [
+      "UGxhY2U=",
+      "QmVybGlu"
+     ]
+    ],
+    "experiences": [
+     [
+      "RW5naW5lZXI=",
+      "Q29tcGFueQ==",
+      "QmVybGlu",
+      "MDAwMS0wMS0wMg==",
+      null,
+      [
+       "Rmlyc3Q=",
+       "U2Vjb25k"
+      ]
+     ],
+     [
+      "QW5hbHlzdA==",
+      "T3RoZXIgQ29tcGFueQ==",
+      null,
+      "MjAyMC0wMi0yOQ==",
+      "MjAyMS0wMy0wMQ==",
+      []
+     ]
+    ],
+    "education": [
+     [
+      "RGVncmVl",
+      "VW5p",
+      null,
+      null,
+      "OTk5OS0xMi0zMQ==",
+      [
+       "VGhpcmQ="
+      ]
+     ]
+    ],
+    "skills": [
+     [
+      "VGVjaG5vbG9neQ==",
+      [
+       "UHl0aG9u",
+       "U1FM"
+      ]
+     ],
+     [
+      "VG9vbHM=",
+      [
+       "SGFtbWVy"
+      ]
+     ]
+    ],
+    "languages": [
+     [
+      "R2VybWFu",
+      "QzE="
+     ],
+     [
+      "RW5nbGlzaA==",
+      null
+     ]
+    ],
+    "additional": [
+     [
+      "UHJvamVjdA==",
+      "aHR0cHM6Ly9leGFtcGxlLnRlc3Q=",
+      [
+       "Rm91cnRo",
+       "RmlmdGg="
+      ]
+     ]
+    ]
+   },
+   "expect": {
+    "variant_language": "de",
+    "sections": [
+     {
+      "section_type": "personal",
+      "title": "Q29udGFjdA==",
+      "display_order": 0,
+      "entries": [
+       {
+        "entry_type": "personal_field",
+        "display_order": 0,
+        "title": "RW1haWw=",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "YWRhQGV4YW1wbGUudGVzdA==",
+        "bullets": []
+       },
+       {
+        "entry_type": "personal_field",
+        "display_order": 1,
+        "title": "UGxhY2U=",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "QmVybGlu",
+        "bullets": []
+       }
+      ]
+     },
+     {
+      "section_type": "summary",
+      "title": "UHJvZmlsZQ==",
+      "display_order": 1,
+      "entries": [
+       {
+        "entry_type": "summary",
+        "display_order": 0,
+        "title": "UHJvZmlsZQ==",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "U3VtbWFyeSB0ZXh0",
+        "bullets": []
+       }
+      ]
+     },
+     {
+      "section_type": "experience",
+      "title": "UHJvZmVzc2lvbmFsIEV4cGVyaWVuY2U=",
+      "display_order": 2,
+      "entries": [
+       {
+        "entry_type": "experience",
+        "display_order": 0,
+        "title": "RW5naW5lZXI=",
+        "organization": "Q29tcGFueQ==",
+        "location": "QmVybGlu",
+        "start_date": "0001-01-02",
+        "end_date": null,
+        "metadata": null,
+        "bullets": [
+         {
+          "display_order": 0,
+          "text": "Rmlyc3Q="
+         },
+         {
+          "display_order": 1,
+          "text": "U2Vjb25k"
+         }
+        ]
+       },
+       {
+        "entry_type": "experience",
+        "display_order": 1,
+        "title": "QW5hbHlzdA==",
+        "organization": "T3RoZXIgQ29tcGFueQ==",
+        "location": null,
+        "start_date": "2020-02-29",
+        "end_date": "2021-03-01",
+        "metadata": null,
+        "bullets": []
+       }
+      ]
+     },
+     {
+      "section_type": "additional",
+      "title": "UHJvamVjdHM=",
+      "display_order": 3,
+      "entries": [
+       {
+        "entry_type": "project",
+        "display_order": 0,
+        "title": "UHJvamVjdA==",
+        "organization": "aHR0cHM6Ly9leGFtcGxlLnRlc3Q=",
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": null,
+        "bullets": [
+         {
+          "display_order": 0,
+          "text": "Rm91cnRo"
+         },
+         {
+          "display_order": 1,
+          "text": "RmlmdGg="
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "section_type": "education",
+      "title": "RWR1Y2F0aW9u",
+      "display_order": 4,
+      "entries": [
+       {
+        "entry_type": "education",
+        "display_order": 0,
+        "title": "RGVncmVl",
+        "organization": "VW5p",
+        "location": null,
+        "start_date": null,
+        "end_date": "9999-12-31",
+        "metadata": null,
+        "bullets": [
+         {
+          "display_order": 0,
+          "text": "VGhpcmQ="
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "section_type": "skills",
+      "title": "U2tpbGxz",
+      "display_order": 5,
+      "entries": [
+       {
+        "entry_type": "skill_group",
+        "display_order": 0,
+        "title": "VGVjaG5vbG9neQ==",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "UHl0aG9uLCBTUUw=",
+        "bullets": []
+       },
+       {
+        "entry_type": "skill_group",
+        "display_order": 1,
+        "title": "VG9vbHM=",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "SGFtbWVy",
+        "bullets": []
+       }
+      ]
+     },
+     {
+      "section_type": "languages",
+      "title": "TGFuZ3VhZ2Vz",
+      "display_order": 6,
+      "entries": [
+       {
+        "entry_type": "language",
+        "display_order": 0,
+        "title": "R2VybWFu",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "QzE=",
+        "bullets": []
+       },
+       {
+        "entry_type": "language",
+        "display_order": 1,
+        "title": "RW5nbGlzaA==",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": null,
+        "bullets": []
+       }
+      ]
+     }
+    ],
+    "ids": [
+     100,
+     101,
+     102,
+     103,
+     104,
+     105,
+     106,
+     107,
+     108,
+     109,
+     110,
+     111,
+     112,
+     113,
+     114,
+     115,
+     116,
+     117,
+     118,
+     119,
+     120,
+     121,
+     122
+    ],
+    "raw_entries": 24,
+    "raw_units": 450
+   }
+  },
+  {
+   "kind": "map",
+   "language": "de",
+   "variant_language": "de",
+   "content": {
+    "full_name": "ICBBZGEgRXhhbXBsZSAg",
+    "summary": "ICDigIMg",
+    "personal": [
+     [
+      "ICBFbWFpbCA=",
+      "IGFkYUBleGFtcGxlLnRlc3Qg"
+     ]
+    ],
+    "experiences": [
+     [
+      "ICA=",
+      "IENvbXBhbnkg",
+      "wqA=",
+      null,
+      null,
+      [
+       "ICBCdWxsZXQg",
+       "IA=="
+      ]
+     ]
+    ],
+    "skills": [
+     [
+      "ICBUb29scyA=",
+      [
+       "IEEg",
+       "IA==",
+       "Qg=="
+      ]
+     ]
+    ]
+   },
+   "expect": {
+    "variant_language": "de",
+    "sections": [
+     {
+      "section_type": "personal",
+      "title": "S29udGFrdA==",
+      "display_order": 0,
+      "entries": [
+       {
+        "entry_type": "personal_field",
+        "display_order": 0,
+        "title": "RW1haWw=",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "YWRhQGV4YW1wbGUudGVzdA==",
+        "bullets": []
+       }
+      ]
+     },
+     {
+      "section_type": "experience",
+      "title": "QmVydWZzZXJmYWhydW5n",
+      "display_order": 1,
+      "entries": [
+       {
+        "entry_type": "experience",
+        "display_order": 0,
+        "title": null,
+        "organization": "Q29tcGFueQ==",
+        "location": "wqA=",
+        "start_date": null,
+        "end_date": null,
+        "metadata": null,
+        "bullets": [
+         {
+          "display_order": 0,
+          "text": "QnVsbGV0"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "section_type": "skills",
+      "title": "S2VubnRuaXNzZQ==",
+      "display_order": 2,
+      "entries": [
+       {
+        "entry_type": "skill_group",
+        "display_order": 0,
+        "title": "VG9vbHM=",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "QSwgQg==",
+        "bullets": []
+       }
+      ]
+     }
+    ],
+    "ids": [
+     100,
+     101,
+     102,
+     103,
+     104,
+     105,
+     106
+    ],
+    "raw_entries": 8,
+    "raw_units": 146
+   }
+  },
+  {
+   "kind": "map",
+   "language": "de",
+   "variant_language": "de",
+   "content": {
+    "full_name": "QWRhIEV4YW1wbGU=",
+    "skills": [
+     [
+      "VG9vbHM=",
+      [
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA==",
+       "WA=="
+      ]
+     ]
+    ]
+   },
+   "expect": {
+    "variant_language": "de",
+    "sections": [
+     {
+      "section_type": "personal",
+      "title": "S29udGFrdA==",
+      "display_order": 0,
+      "entries": []
+     },
+     {
+      "section_type": "skills",
+      "title": "S2VubnRuaXNzZQ==",
+      "display_order": 1,
+      "entries": [
+       {
+        "entry_type": "skill_group",
+        "display_order": 0,
+        "title": "VG9vbHM=",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "WCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWCwgWA==",
+        "bullets": []
+       }
+      ]
+     }
+    ],
+    "ids": [
+     100,
+     101,
+     102
+    ],
+    "raw_entries": 4,
+    "raw_units": 206
+   }
+  },
+  {
+   "kind": "map",
+   "language": "de",
+   "variant_language": "de",
+   "content": {
+    "full_name": "QWRhIEV4YW1wbGU=",
+    "summary": "U3RyYcOfZSwgQ2Fmw6kg8J+YgA==",
+    "experiences": [
+     [
+      "RW50d2lja2xlcg==",
+      "QmVpc3BpZWwgR21iSA==",
+      "TcO8bmNoZW4=",
+      "MjAxOS0wMS0wMQ==",
+      null,
+      [
+       "w4Q="
+      ]
+     ]
+    ]
+   },
+   "expect": {
+    "variant_language": "de",
+    "sections": [
+     {
+      "section_type": "personal",
+      "title": "S29udGFrdA==",
+      "display_order": 0,
+      "entries": []
+     },
+     {
+      "section_type": "summary",
+      "title": "UHJvZmls",
+      "display_order": 1,
+      "entries": [
+       {
+        "entry_type": "summary",
+        "display_order": 0,
+        "title": "UHJvZmls",
+        "organization": null,
+        "location": null,
+        "start_date": null,
+        "end_date": null,
+        "metadata": "U3RyYcOfZSwgQ2Fmw6kg8J+YgA==",
+        "bullets": []
+       }
+      ]
+     },
+     {
+      "section_type": "experience",
+      "title": "QmVydWZzZXJmYWhydW5n",
+      "display_order": 2,
+      "entries": [
+       {
+        "entry_type": "experience",
+        "display_order": 0,
+        "title": "RW50d2lja2xlcg==",
+        "organization": "QmVpc3BpZWwgR21iSA==",
+        "location": "TcO8bmNoZW4=",
+        "start_date": "2019-01-01",
+        "end_date": null,
+        "metadata": null,
+        "bullets": [
+         {
+          "display_order": 0,
+          "text": "w4Q="
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "ids": [
+     100,
+     101,
+     102,
+     103,
+     104,
+     105
+    ],
+    "raw_entries": 7,
+    "raw_units": 133
+   }
+  }
+ ]
+}

@@ -1,0 +1,1633 @@
+{
+ "format": 1,
+ "notes": [
+  "Synthetic inputs only. No database, no network, no personal data.",
+  "Lone surrogates are excluded."
+ ],
+ "fixture": {
+  "profile": {
+   "id": "11111111-1111-4111-8111-111111111111",
+   "updatedAt": "2025-01-02T03:04:05.123456Z",
+   "skills": [
+    "Java"
+   ],
+   "hasExperience": false
+  },
+  "jobs": [
+   {
+    "id": "22222222-2222-4222-8222-222222222222",
+    "updatedAt": "2025-02-03T04:05:06.654321Z",
+    "experienceRequirement": null,
+    "seniority": null,
+    "skills": [
+     "Java"
+    ]
+   },
+   {
+    "id": "00000000-0000-4000-8000-000000000002",
+    "updatedAt": "2025-02-03T04:05:06.654321Z",
+    "experienceRequirement": null,
+    "seniority": null,
+    "skills": [
+     "secret"
+    ]
+   },
+   {
+    "id": "00000000-0000-4000-8000-000000000003",
+    "updatedAt": "2025-02-03T04:05:06.654321Z",
+    "experienceRequirement": null,
+    "seniority": null,
+    "skills": [
+     "Python"
+    ]
+   }
+  ]
+ },
+ "cases": [
+  {
+   "name": "single_ok",
+   "steps": [
+    {
+     "method": "analyze_job_match",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "jobId": "22222222-2222-4222-8222-222222222222"
+     },
+     "outcome": {
+      "ok": {
+       "report": {
+        "id": "9e119fdc-6f1d-3ce4-9385-d19a52d2fc26",
+        "profileId": "11111111-1111-4111-8111-111111111111",
+        "jobId": "22222222-2222-4222-8222-222222222222",
+        "profileRevision": "2025-01-02T03:04:05.123456Z",
+        "jobRevision": "2025-02-03T04:05:06.654321Z",
+        "algorithmVersion": "deterministic-v1",
+        "overallScore": 100,
+        "confidence": 40,
+        "outcome": "STRONG_MATCH",
+        "blockerMismatch": false,
+        "components": [
+         {
+          "component": "TECHNICAL",
+          "earnedPoints": 40,
+          "availablePoints": 40,
+          "status": "MATCH"
+         },
+         {
+          "component": "EXPERIENCE_SENIORITY",
+          "earnedPoints": 0,
+          "availablePoints": 25,
+          "status": "UNKNOWN"
+         },
+         {
+          "component": "DOMAIN",
+          "earnedPoints": 0,
+          "availablePoints": 15,
+          "status": "UNKNOWN"
+         },
+         {
+          "component": "DELIVERY",
+          "earnedPoints": 0,
+          "availablePoints": 10,
+          "status": "UNKNOWN"
+         },
+         {
+          "component": "HARD_REQUIREMENTS",
+          "earnedPoints": 0,
+          "availablePoints": 10,
+          "status": "UNKNOWN"
+         }
+        ],
+        "evidence": [
+         {
+          "component": "TECHNICAL",
+          "status": "MATCH",
+          "sourceType": "normalized_skill",
+          "fact": "java",
+          "outcomeChangingDefect": false
+         }
+        ],
+        "createdAt": "2026-10-02T12:00:00.123456Z"
+       },
+       "stale": false
+      }
+     },
+     "repositoryCalls": [
+      "analyze_pair",
+      "save_report"
+     ],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "single_upper_case_ids",
+   "steps": [
+    {
+     "method": "analyze_job_match",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "jobId": "22222222-2222-4222-8222-222222222222"
+     },
+     "outcome": {
+      "ok": {
+       "report": {
+        "id": "9e119fdc-6f1d-3ce4-9385-d19a52d2fc26",
+        "profileId": "11111111-1111-4111-8111-111111111111",
+        "jobId": "22222222-2222-4222-8222-222222222222",
+        "profileRevision": "2025-01-02T03:04:05.123456Z",
+        "jobRevision": "2025-02-03T04:05:06.654321Z",
+        "algorithmVersion": "deterministic-v1",
+        "overallScore": 100,
+        "confidence": 40,
+        "outcome": "STRONG_MATCH",
+        "blockerMismatch": false,
+        "components": [
+         {
+          "component": "TECHNICAL",
+          "earnedPoints": 40,
+          "availablePoints": 40,
+          "status": "MATCH"
+         },
+         {
+          "component": "EXPERIENCE_SENIORITY",
+          "earnedPoints": 0,
+          "availablePoints": 25,
+          "status": "UNKNOWN"
+         },
+         {
+          "component": "DOMAIN",
+          "earnedPoints": 0,
+          "availablePoints": 15,
+          "status": "UNKNOWN"
+         },
+         {
+          "component": "DELIVERY",
+          "earnedPoints": 0,
+          "availablePoints": 10,
+          "status": "UNKNOWN"
+         },
+         {
+          "component": "HARD_REQUIREMENTS",
+          "earnedPoints": 0,
+          "availablePoints": 10,
+          "status": "UNKNOWN"
+         }
+        ],
+        "evidence": [
+         {
+          "component": "TECHNICAL",
+          "status": "MATCH",
+          "sourceType": "normalized_skill",
+          "fact": "java",
+          "outcomeChangingDefect": false
+         }
+        ],
+        "createdAt": "2026-10-02T12:00:00.123456Z"
+       },
+       "stale": false
+      }
+     },
+     "repositoryCalls": [
+      "analyze_pair",
+      "save_report"
+     ],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "single_null_profile",
+   "steps": [
+    {
+     "method": "analyze_job_match",
+     "request": {
+      "profileId": null,
+      "jobId": "22222222-2222-4222-8222-222222222222"
+     },
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "profileId must not be null"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "single_missing_job",
+   "steps": [
+    {
+     "method": "analyze_job_match",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111"
+     },
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "jobId must not be null"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "single_bad_job",
+   "steps": [
+    {
+     "method": "analyze_job_match",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "jobId": "bad"
+     },
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "jobId must be a valid UUID"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "single_non_string_profile",
+   "steps": [
+    {
+     "method": "analyze_job_match",
+     "request": {
+      "profileId": 5,
+      "jobId": "22222222-2222-4222-8222-222222222222"
+     },
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "profileId must be a valid UUID"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "single_braced_job",
+   "steps": [
+    {
+     "method": "analyze_job_match",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "jobId": "{22222222-2222-4222-8222-222222222222}"
+     },
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "jobId must be a valid UUID"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "single_request_null",
+   "steps": [
+    {
+     "method": "analyze_job_match",
+     "request": null,
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "request must not be null"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "single_request_list",
+   "steps": [
+    {
+     "method": "analyze_job_match",
+     "request": [],
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "request must not be null"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "batch_page",
+   "steps": [
+    {
+     "method": "analyze_all_job_matches",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "limit": 3
+     },
+     "outcome": {
+      "ok": {
+       "succeeded": [
+        {
+         "report": {
+          "id": "9e119fdc-6f1d-3ce4-9385-d19a52d2fc26",
+          "profileId": "11111111-1111-4111-8111-111111111111",
+          "jobId": "22222222-2222-4222-8222-222222222222",
+          "profileRevision": "2025-01-02T03:04:05.123456Z",
+          "jobRevision": "2025-02-03T04:05:06.654321Z",
+          "algorithmVersion": "deterministic-v1",
+          "overallScore": 100,
+          "confidence": 40,
+          "outcome": "STRONG_MATCH",
+          "blockerMismatch": false,
+          "components": [
+           {
+            "component": "TECHNICAL",
+            "earnedPoints": 40,
+            "availablePoints": 40,
+            "status": "MATCH"
+           },
+           {
+            "component": "EXPERIENCE_SENIORITY",
+            "earnedPoints": 0,
+            "availablePoints": 25,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "DOMAIN",
+            "earnedPoints": 0,
+            "availablePoints": 15,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "DELIVERY",
+            "earnedPoints": 0,
+            "availablePoints": 10,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "HARD_REQUIREMENTS",
+            "earnedPoints": 0,
+            "availablePoints": 10,
+            "status": "UNKNOWN"
+           }
+          ],
+          "evidence": [
+           {
+            "component": "TECHNICAL",
+            "status": "MATCH",
+            "sourceType": "normalized_skill",
+            "fact": "java",
+            "outcomeChangingDefect": false
+           }
+          ],
+          "createdAt": "2026-10-02T12:00:00.123456Z"
+         },
+         "stale": false
+        },
+        {
+         "report": {
+          "id": "86c77908-eff9-350f-ac09-7da9a219079e",
+          "profileId": "11111111-1111-4111-8111-111111111111",
+          "jobId": "00000000-0000-4000-8000-000000000003",
+          "profileRevision": "2025-01-02T03:04:05.123456Z",
+          "jobRevision": "2025-02-03T04:05:06.654321Z",
+          "algorithmVersion": "deterministic-v1",
+          "overallScore": 0,
+          "confidence": 40,
+          "outcome": "WEAK_MATCH",
+          "blockerMismatch": false,
+          "components": [
+           {
+            "component": "TECHNICAL",
+            "earnedPoints": 0,
+            "availablePoints": 40,
+            "status": "MISMATCH"
+           },
+           {
+            "component": "EXPERIENCE_SENIORITY",
+            "earnedPoints": 0,
+            "availablePoints": 25,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "DOMAIN",
+            "earnedPoints": 0,
+            "availablePoints": 15,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "DELIVERY",
+            "earnedPoints": 0,
+            "availablePoints": 10,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "HARD_REQUIREMENTS",
+            "earnedPoints": 0,
+            "availablePoints": 10,
+            "status": "UNKNOWN"
+           }
+          ],
+          "evidence": [
+           {
+            "component": "TECHNICAL",
+            "status": "MISMATCH",
+            "sourceType": "normalized_skill",
+            "fact": "python",
+            "outcomeChangingDefect": false
+           }
+          ],
+          "createdAt": "2026-10-02T12:00:00.123456Z"
+         },
+         "stale": false
+        }
+       ],
+       "failed": [
+        {
+         "profileId": "11111111-1111-4111-8111-111111111111",
+         "jobId": "00000000-0000-4000-8000-000000000002",
+         "error": "analysis failed"
+        }
+       ],
+       "nextCursor": "djF8YW5hbHl6ZS1hbGwtam9iLW1hdGNoZXN8NDhjNDRiZmM1OWNlNmIwZDg5MWE5ZDQzYmI3ZmI4MWE1MzIzOTdiZGU5ZjQ0YzgxZDI0MjZmYjE4MmZmZDMxOHwyMDI2LTEwLTAyVDEyOjAwOjAwLjEyMzQ1Nlp8MjAyNi0xMC0wMlQxMjowMDowMC4xMjM0NTZafDAwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMw.syaSlBmfIGejZ_xudbWEEx5Nc5PZhVijVJhGvXfUPgs"
+      }
+     },
+     "repositoryCalls": [
+      "load_batch",
+      "save_report",
+      "save_report"
+     ],
+     "page": {
+      "scope": "analyze-all-job-matches",
+      "limit": 3,
+      "fingerprint": "48c44bfc59ce6b0d891a9d43bb7fb81a532397bde9f44c81d2426fb182ffd318"
+     }
+    }
+   ]
+  },
+  {
+   "name": "batch_default_limit",
+   "steps": [
+    {
+     "method": "analyze_all_job_matches",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111"
+     },
+     "outcome": {
+      "ok": {
+       "succeeded": [
+        {
+         "report": {
+          "id": "9e119fdc-6f1d-3ce4-9385-d19a52d2fc26",
+          "profileId": "11111111-1111-4111-8111-111111111111",
+          "jobId": "22222222-2222-4222-8222-222222222222",
+          "profileRevision": "2025-01-02T03:04:05.123456Z",
+          "jobRevision": "2025-02-03T04:05:06.654321Z",
+          "algorithmVersion": "deterministic-v1",
+          "overallScore": 100,
+          "confidence": 40,
+          "outcome": "STRONG_MATCH",
+          "blockerMismatch": false,
+          "components": [
+           {
+            "component": "TECHNICAL",
+            "earnedPoints": 40,
+            "availablePoints": 40,
+            "status": "MATCH"
+           },
+           {
+            "component": "EXPERIENCE_SENIORITY",
+            "earnedPoints": 0,
+            "availablePoints": 25,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "DOMAIN",
+            "earnedPoints": 0,
+            "availablePoints": 15,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "DELIVERY",
+            "earnedPoints": 0,
+            "availablePoints": 10,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "HARD_REQUIREMENTS",
+            "earnedPoints": 0,
+            "availablePoints": 10,
+            "status": "UNKNOWN"
+           }
+          ],
+          "evidence": [
+           {
+            "component": "TECHNICAL",
+            "status": "MATCH",
+            "sourceType": "normalized_skill",
+            "fact": "java",
+            "outcomeChangingDefect": false
+           }
+          ],
+          "createdAt": "2026-10-02T12:00:00.123456Z"
+         },
+         "stale": false
+        },
+        {
+         "report": {
+          "id": "86c77908-eff9-350f-ac09-7da9a219079e",
+          "profileId": "11111111-1111-4111-8111-111111111111",
+          "jobId": "00000000-0000-4000-8000-000000000003",
+          "profileRevision": "2025-01-02T03:04:05.123456Z",
+          "jobRevision": "2025-02-03T04:05:06.654321Z",
+          "algorithmVersion": "deterministic-v1",
+          "overallScore": 0,
+          "confidence": 40,
+          "outcome": "WEAK_MATCH",
+          "blockerMismatch": false,
+          "components": [
+           {
+            "component": "TECHNICAL",
+            "earnedPoints": 0,
+            "availablePoints": 40,
+            "status": "MISMATCH"
+           },
+           {
+            "component": "EXPERIENCE_SENIORITY",
+            "earnedPoints": 0,
+            "availablePoints": 25,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "DOMAIN",
+            "earnedPoints": 0,
+            "availablePoints": 15,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "DELIVERY",
+            "earnedPoints": 0,
+            "availablePoints": 10,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "HARD_REQUIREMENTS",
+            "earnedPoints": 0,
+            "availablePoints": 10,
+            "status": "UNKNOWN"
+           }
+          ],
+          "evidence": [
+           {
+            "component": "TECHNICAL",
+            "status": "MISMATCH",
+            "sourceType": "normalized_skill",
+            "fact": "python",
+            "outcomeChangingDefect": false
+           }
+          ],
+          "createdAt": "2026-10-02T12:00:00.123456Z"
+         },
+         "stale": false
+        }
+       ],
+       "failed": [
+        {
+         "profileId": "11111111-1111-4111-8111-111111111111",
+         "jobId": "00000000-0000-4000-8000-000000000002",
+         "error": "analysis failed"
+        }
+       ],
+       "nextCursor": "djF8YW5hbHl6ZS1hbGwtam9iLW1hdGNoZXN8NDhjNDRiZmM1OWNlNmIwZDg5MWE5ZDQzYmI3ZmI4MWE1MzIzOTdiZGU5ZjQ0YzgxZDI0MjZmYjE4MmZmZDMxOHwyMDI2LTEwLTAyVDEyOjAwOjAwLjEyMzQ1Nlp8MjAyNi0xMC0wMlQxMjowMDowMC4xMjM0NTZafDAwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMw.syaSlBmfIGejZ_xudbWEEx5Nc5PZhVijVJhGvXfUPgs"
+      }
+     },
+     "repositoryCalls": [
+      "load_batch",
+      "save_report",
+      "save_report"
+     ],
+     "page": {
+      "scope": "analyze-all-job-matches",
+      "limit": 20,
+      "fingerprint": "48c44bfc59ce6b0d891a9d43bb7fb81a532397bde9f44c81d2426fb182ffd318"
+     }
+    }
+   ]
+  },
+  {
+   "name": "batch_limit_bool",
+   "steps": [
+    {
+     "method": "analyze_all_job_matches",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "limit": true
+     },
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "limit must be between 1 and 100"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "batch_limit_string",
+   "steps": [
+    {
+     "method": "analyze_all_job_matches",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "limit": "3"
+     },
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "limit must be between 1 and 100"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "batch_limit_float",
+   "steps": [
+    {
+     "method": "analyze_all_job_matches",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "limit": 3.0
+     },
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "limit must be between 1 and 100"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "batch_limit_zero",
+   "steps": [
+    {
+     "method": "analyze_all_job_matches",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "limit": 0
+     },
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "limit must be between 1 and 100"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "batch_limit_101",
+   "steps": [
+    {
+     "method": "analyze_all_job_matches",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "limit": 101
+     },
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "limit must be between 1 and 100"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "batch_limit_100",
+   "steps": [
+    {
+     "method": "analyze_all_job_matches",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "limit": 100
+     },
+     "outcome": {
+      "ok": {
+       "succeeded": [
+        {
+         "report": {
+          "id": "9e119fdc-6f1d-3ce4-9385-d19a52d2fc26",
+          "profileId": "11111111-1111-4111-8111-111111111111",
+          "jobId": "22222222-2222-4222-8222-222222222222",
+          "profileRevision": "2025-01-02T03:04:05.123456Z",
+          "jobRevision": "2025-02-03T04:05:06.654321Z",
+          "algorithmVersion": "deterministic-v1",
+          "overallScore": 100,
+          "confidence": 40,
+          "outcome": "STRONG_MATCH",
+          "blockerMismatch": false,
+          "components": [
+           {
+            "component": "TECHNICAL",
+            "earnedPoints": 40,
+            "availablePoints": 40,
+            "status": "MATCH"
+           },
+           {
+            "component": "EXPERIENCE_SENIORITY",
+            "earnedPoints": 0,
+            "availablePoints": 25,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "DOMAIN",
+            "earnedPoints": 0,
+            "availablePoints": 15,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "DELIVERY",
+            "earnedPoints": 0,
+            "availablePoints": 10,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "HARD_REQUIREMENTS",
+            "earnedPoints": 0,
+            "availablePoints": 10,
+            "status": "UNKNOWN"
+           }
+          ],
+          "evidence": [
+           {
+            "component": "TECHNICAL",
+            "status": "MATCH",
+            "sourceType": "normalized_skill",
+            "fact": "java",
+            "outcomeChangingDefect": false
+           }
+          ],
+          "createdAt": "2026-10-02T12:00:00.123456Z"
+         },
+         "stale": false
+        },
+        {
+         "report": {
+          "id": "86c77908-eff9-350f-ac09-7da9a219079e",
+          "profileId": "11111111-1111-4111-8111-111111111111",
+          "jobId": "00000000-0000-4000-8000-000000000003",
+          "profileRevision": "2025-01-02T03:04:05.123456Z",
+          "jobRevision": "2025-02-03T04:05:06.654321Z",
+          "algorithmVersion": "deterministic-v1",
+          "overallScore": 0,
+          "confidence": 40,
+          "outcome": "WEAK_MATCH",
+          "blockerMismatch": false,
+          "components": [
+           {
+            "component": "TECHNICAL",
+            "earnedPoints": 0,
+            "availablePoints": 40,
+            "status": "MISMATCH"
+           },
+           {
+            "component": "EXPERIENCE_SENIORITY",
+            "earnedPoints": 0,
+            "availablePoints": 25,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "DOMAIN",
+            "earnedPoints": 0,
+            "availablePoints": 15,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "DELIVERY",
+            "earnedPoints": 0,
+            "availablePoints": 10,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "HARD_REQUIREMENTS",
+            "earnedPoints": 0,
+            "availablePoints": 10,
+            "status": "UNKNOWN"
+           }
+          ],
+          "evidence": [
+           {
+            "component": "TECHNICAL",
+            "status": "MISMATCH",
+            "sourceType": "normalized_skill",
+            "fact": "python",
+            "outcomeChangingDefect": false
+           }
+          ],
+          "createdAt": "2026-10-02T12:00:00.123456Z"
+         },
+         "stale": false
+        }
+       ],
+       "failed": [
+        {
+         "profileId": "11111111-1111-4111-8111-111111111111",
+         "jobId": "00000000-0000-4000-8000-000000000002",
+         "error": "analysis failed"
+        }
+       ],
+       "nextCursor": "djF8YW5hbHl6ZS1hbGwtam9iLW1hdGNoZXN8NDhjNDRiZmM1OWNlNmIwZDg5MWE5ZDQzYmI3ZmI4MWE1MzIzOTdiZGU5ZjQ0YzgxZDI0MjZmYjE4MmZmZDMxOHwyMDI2LTEwLTAyVDEyOjAwOjAwLjEyMzQ1Nlp8MjAyNi0xMC0wMlQxMjowMDowMC4xMjM0NTZafDAwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMw.syaSlBmfIGejZ_xudbWEEx5Nc5PZhVijVJhGvXfUPgs"
+      }
+     },
+     "repositoryCalls": [
+      "load_batch",
+      "save_report",
+      "save_report"
+     ],
+     "page": {
+      "scope": "analyze-all-job-matches",
+      "limit": 100,
+      "fingerprint": "48c44bfc59ce6b0d891a9d43bb7fb81a532397bde9f44c81d2426fb182ffd318"
+     }
+    }
+   ]
+  },
+  {
+   "name": "batch_limit_null",
+   "steps": [
+    {
+     "method": "analyze_all_job_matches",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "limit": null
+     },
+     "outcome": {
+      "ok": {
+       "succeeded": [
+        {
+         "report": {
+          "id": "9e119fdc-6f1d-3ce4-9385-d19a52d2fc26",
+          "profileId": "11111111-1111-4111-8111-111111111111",
+          "jobId": "22222222-2222-4222-8222-222222222222",
+          "profileRevision": "2025-01-02T03:04:05.123456Z",
+          "jobRevision": "2025-02-03T04:05:06.654321Z",
+          "algorithmVersion": "deterministic-v1",
+          "overallScore": 100,
+          "confidence": 40,
+          "outcome": "STRONG_MATCH",
+          "blockerMismatch": false,
+          "components": [
+           {
+            "component": "TECHNICAL",
+            "earnedPoints": 40,
+            "availablePoints": 40,
+            "status": "MATCH"
+           },
+           {
+            "component": "EXPERIENCE_SENIORITY",
+            "earnedPoints": 0,
+            "availablePoints": 25,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "DOMAIN",
+            "earnedPoints": 0,
+            "availablePoints": 15,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "DELIVERY",
+            "earnedPoints": 0,
+            "availablePoints": 10,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "HARD_REQUIREMENTS",
+            "earnedPoints": 0,
+            "availablePoints": 10,
+            "status": "UNKNOWN"
+           }
+          ],
+          "evidence": [
+           {
+            "component": "TECHNICAL",
+            "status": "MATCH",
+            "sourceType": "normalized_skill",
+            "fact": "java",
+            "outcomeChangingDefect": false
+           }
+          ],
+          "createdAt": "2026-10-02T12:00:00.123456Z"
+         },
+         "stale": false
+        },
+        {
+         "report": {
+          "id": "86c77908-eff9-350f-ac09-7da9a219079e",
+          "profileId": "11111111-1111-4111-8111-111111111111",
+          "jobId": "00000000-0000-4000-8000-000000000003",
+          "profileRevision": "2025-01-02T03:04:05.123456Z",
+          "jobRevision": "2025-02-03T04:05:06.654321Z",
+          "algorithmVersion": "deterministic-v1",
+          "overallScore": 0,
+          "confidence": 40,
+          "outcome": "WEAK_MATCH",
+          "blockerMismatch": false,
+          "components": [
+           {
+            "component": "TECHNICAL",
+            "earnedPoints": 0,
+            "availablePoints": 40,
+            "status": "MISMATCH"
+           },
+           {
+            "component": "EXPERIENCE_SENIORITY",
+            "earnedPoints": 0,
+            "availablePoints": 25,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "DOMAIN",
+            "earnedPoints": 0,
+            "availablePoints": 15,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "DELIVERY",
+            "earnedPoints": 0,
+            "availablePoints": 10,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "HARD_REQUIREMENTS",
+            "earnedPoints": 0,
+            "availablePoints": 10,
+            "status": "UNKNOWN"
+           }
+          ],
+          "evidence": [
+           {
+            "component": "TECHNICAL",
+            "status": "MISMATCH",
+            "sourceType": "normalized_skill",
+            "fact": "python",
+            "outcomeChangingDefect": false
+           }
+          ],
+          "createdAt": "2026-10-02T12:00:00.123456Z"
+         },
+         "stale": false
+        }
+       ],
+       "failed": [
+        {
+         "profileId": "11111111-1111-4111-8111-111111111111",
+         "jobId": "00000000-0000-4000-8000-000000000002",
+         "error": "analysis failed"
+        }
+       ],
+       "nextCursor": "djF8YW5hbHl6ZS1hbGwtam9iLW1hdGNoZXN8NDhjNDRiZmM1OWNlNmIwZDg5MWE5ZDQzYmI3ZmI4MWE1MzIzOTdiZGU5ZjQ0YzgxZDI0MjZmYjE4MmZmZDMxOHwyMDI2LTEwLTAyVDEyOjAwOjAwLjEyMzQ1Nlp8MjAyNi0xMC0wMlQxMjowMDowMC4xMjM0NTZafDAwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMw.syaSlBmfIGejZ_xudbWEEx5Nc5PZhVijVJhGvXfUPgs"
+      }
+     },
+     "repositoryCalls": [
+      "load_batch",
+      "save_report",
+      "save_report"
+     ],
+     "page": {
+      "scope": "analyze-all-job-matches",
+      "limit": 20,
+      "fingerprint": "48c44bfc59ce6b0d891a9d43bb7fb81a532397bde9f44c81d2426fb182ffd318"
+     }
+    }
+   ]
+  },
+  {
+   "name": "batch_cursor_bad",
+   "steps": [
+    {
+     "method": "analyze_all_job_matches",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "cursor": "bad"
+     },
+     "outcome": {
+      "error": {
+       "kind": "Application",
+       "code": "validation_error",
+       "message": "Invalid pagination cursor",
+       "details": {
+        "field": "cursor",
+        "reason": "malformed or does not match this request"
+       }
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "batch_cursor_bad_and_limit_bad",
+   "steps": [
+    {
+     "method": "analyze_all_job_matches",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "cursor": "bad",
+      "limit": 0
+     },
+     "outcome": {
+      "error": {
+       "kind": "Application",
+       "code": "validation_error",
+       "message": "Invalid pagination cursor",
+       "details": {
+        "field": "cursor",
+        "reason": "malformed or does not match this request"
+       }
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "batch_cursor_number",
+   "steps": [
+    {
+     "method": "analyze_all_job_matches",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "cursor": 5
+     },
+     "outcome": {
+      "error": {
+       "kind": "Application",
+       "code": "validation_error",
+       "message": "Invalid pagination cursor",
+       "details": {
+        "field": "cursor",
+        "reason": "malformed or does not match this request"
+       }
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "batch_null_profile",
+   "steps": [
+    {
+     "method": "analyze_all_job_matches",
+     "request": {
+      "limit": 3
+     },
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "profileId must not be null"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "get_missing",
+   "steps": [
+    {
+     "method": "get_match_report",
+     "request": {
+      "id": "00000000-0000-0000-0000-000000000099"
+     },
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "match report not found: 00000000-0000-0000-0000-000000000099"
+      }
+     },
+     "repositoryCalls": [
+      "get_report"
+     ],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "get_bad_id",
+   "steps": [
+    {
+     "method": "get_match_report",
+     "request": {
+      "id": "bad"
+     },
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "reportId must be a valid UUID"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "get_null_id",
+   "steps": [
+    {
+     "method": "get_match_report",
+     "request": {
+      "id": null
+     },
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "reportId must not be null"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "get_empty",
+   "steps": [
+    {
+     "method": "get_match_report",
+     "request": {},
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "reportId must not be null"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "get_after_analyze",
+   "steps": [
+    {
+     "method": "analyze_job_match",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "jobId": "22222222-2222-4222-8222-222222222222"
+     },
+     "outcome": {
+      "ok": {
+       "report": {
+        "id": "9e119fdc-6f1d-3ce4-9385-d19a52d2fc26",
+        "profileId": "11111111-1111-4111-8111-111111111111",
+        "jobId": "22222222-2222-4222-8222-222222222222",
+        "profileRevision": "2025-01-02T03:04:05.123456Z",
+        "jobRevision": "2025-02-03T04:05:06.654321Z",
+        "algorithmVersion": "deterministic-v1",
+        "overallScore": 100,
+        "confidence": 40,
+        "outcome": "STRONG_MATCH",
+        "blockerMismatch": false,
+        "components": [
+         {
+          "component": "TECHNICAL",
+          "earnedPoints": 40,
+          "availablePoints": 40,
+          "status": "MATCH"
+         },
+         {
+          "component": "EXPERIENCE_SENIORITY",
+          "earnedPoints": 0,
+          "availablePoints": 25,
+          "status": "UNKNOWN"
+         },
+         {
+          "component": "DOMAIN",
+          "earnedPoints": 0,
+          "availablePoints": 15,
+          "status": "UNKNOWN"
+         },
+         {
+          "component": "DELIVERY",
+          "earnedPoints": 0,
+          "availablePoints": 10,
+          "status": "UNKNOWN"
+         },
+         {
+          "component": "HARD_REQUIREMENTS",
+          "earnedPoints": 0,
+          "availablePoints": 10,
+          "status": "UNKNOWN"
+         }
+        ],
+        "evidence": [
+         {
+          "component": "TECHNICAL",
+          "status": "MATCH",
+          "sourceType": "normalized_skill",
+          "fact": "java",
+          "outcomeChangingDefect": false
+         }
+        ],
+        "createdAt": "2026-10-02T12:00:00.123456Z"
+       },
+       "stale": false
+      }
+     },
+     "repositoryCalls": [
+      "analyze_pair",
+      "save_report"
+     ],
+     "page": null
+    },
+    {
+     "method": "get_match_report",
+     "request": {
+      "id": "9e119fdc-6f1d-3ce4-9385-d19a52d2fc26"
+     },
+     "outcome": {
+      "ok": {
+       "report": {
+        "id": "9e119fdc-6f1d-3ce4-9385-d19a52d2fc26",
+        "profileId": "11111111-1111-4111-8111-111111111111",
+        "jobId": "22222222-2222-4222-8222-222222222222",
+        "profileRevision": "2025-01-02T03:04:05.123456Z",
+        "jobRevision": "2025-02-03T04:05:06.654321Z",
+        "algorithmVersion": "deterministic-v1",
+        "overallScore": 100,
+        "confidence": 40,
+        "outcome": "STRONG_MATCH",
+        "blockerMismatch": false,
+        "components": [
+         {
+          "component": "TECHNICAL",
+          "earnedPoints": 40,
+          "availablePoints": 40,
+          "status": "MATCH"
+         },
+         {
+          "component": "EXPERIENCE_SENIORITY",
+          "earnedPoints": 0,
+          "availablePoints": 25,
+          "status": "UNKNOWN"
+         },
+         {
+          "component": "DOMAIN",
+          "earnedPoints": 0,
+          "availablePoints": 15,
+          "status": "UNKNOWN"
+         },
+         {
+          "component": "DELIVERY",
+          "earnedPoints": 0,
+          "availablePoints": 10,
+          "status": "UNKNOWN"
+         },
+         {
+          "component": "HARD_REQUIREMENTS",
+          "earnedPoints": 0,
+          "availablePoints": 10,
+          "status": "UNKNOWN"
+         }
+        ],
+        "evidence": [
+         {
+          "component": "TECHNICAL",
+          "status": "MATCH",
+          "sourceType": "normalized_skill",
+          "fact": "java",
+          "outcomeChangingDefect": false
+         }
+        ],
+        "createdAt": "2026-10-02T12:00:00.123456Z"
+       },
+       "stale": false
+      }
+     },
+     "repositoryCalls": [
+      "get_report"
+     ],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "list_empty_filters",
+   "steps": [
+    {
+     "method": "list_match_reports",
+     "request": {},
+     "outcome": {
+      "ok": {
+       "reports": [],
+       "nextCursor": null
+      }
+     },
+     "repositoryCalls": [
+      "list_reports"
+     ],
+     "page": {
+      "scope": "match-reports",
+      "limit": 20,
+      "fingerprint": "82ff09587830c4f012857c6a6ce625280e560e50289e80d2993845e7d67cab82"
+     }
+    }
+   ]
+  },
+  {
+   "name": "list_profile_upper",
+   "steps": [
+    {
+     "method": "list_match_reports",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111"
+     },
+     "outcome": {
+      "ok": {
+       "reports": [],
+       "nextCursor": null
+      }
+     },
+     "repositoryCalls": [
+      "list_reports"
+     ],
+     "page": {
+      "scope": "match-reports",
+      "limit": 20,
+      "fingerprint": "a2e0d8acc6afc323f7ae1f8167b9719c48c762ca544fee3ec80dea29f2b52c13"
+     }
+    }
+   ]
+  },
+  {
+   "name": "list_profile_bad",
+   "steps": [
+    {
+     "method": "list_match_reports",
+     "request": {
+      "profileId": "bad"
+     },
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "profileId must be a valid UUID"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "list_job_and_zero_limit",
+   "steps": [
+    {
+     "method": "list_match_reports",
+     "request": {
+      "jobId": "22222222-2222-4222-8222-222222222222",
+      "limit": 0
+     },
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "limit must be between 1 and 100"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "list_limit_string",
+   "steps": [
+    {
+     "method": "list_match_reports",
+     "request": {
+      "limit": "1"
+     },
+     "outcome": {
+      "error": {
+       "kind": "DomainValue",
+       "message": "limit must be between 1 and 100"
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "list_cursor_bad",
+   "steps": [
+    {
+     "method": "list_match_reports",
+     "request": {
+      "cursor": "bad"
+     },
+     "outcome": {
+      "error": {
+       "kind": "Application",
+       "code": "validation_error",
+       "message": "Invalid pagination cursor",
+       "details": {
+        "field": "cursor",
+        "reason": "malformed or does not match this request"
+       }
+      }
+     },
+     "repositoryCalls": [],
+     "page": null
+    }
+   ]
+  },
+  {
+   "name": "list_after_analyze",
+   "steps": [
+    {
+     "method": "analyze_job_match",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "jobId": "22222222-2222-4222-8222-222222222222"
+     },
+     "outcome": {
+      "ok": {
+       "report": {
+        "id": "9e119fdc-6f1d-3ce4-9385-d19a52d2fc26",
+        "profileId": "11111111-1111-4111-8111-111111111111",
+        "jobId": "22222222-2222-4222-8222-222222222222",
+        "profileRevision": "2025-01-02T03:04:05.123456Z",
+        "jobRevision": "2025-02-03T04:05:06.654321Z",
+        "algorithmVersion": "deterministic-v1",
+        "overallScore": 100,
+        "confidence": 40,
+        "outcome": "STRONG_MATCH",
+        "blockerMismatch": false,
+        "components": [
+         {
+          "component": "TECHNICAL",
+          "earnedPoints": 40,
+          "availablePoints": 40,
+          "status": "MATCH"
+         },
+         {
+          "component": "EXPERIENCE_SENIORITY",
+          "earnedPoints": 0,
+          "availablePoints": 25,
+          "status": "UNKNOWN"
+         },
+         {
+          "component": "DOMAIN",
+          "earnedPoints": 0,
+          "availablePoints": 15,
+          "status": "UNKNOWN"
+         },
+         {
+          "component": "DELIVERY",
+          "earnedPoints": 0,
+          "availablePoints": 10,
+          "status": "UNKNOWN"
+         },
+         {
+          "component": "HARD_REQUIREMENTS",
+          "earnedPoints": 0,
+          "availablePoints": 10,
+          "status": "UNKNOWN"
+         }
+        ],
+        "evidence": [
+         {
+          "component": "TECHNICAL",
+          "status": "MATCH",
+          "sourceType": "normalized_skill",
+          "fact": "java",
+          "outcomeChangingDefect": false
+         }
+        ],
+        "createdAt": "2026-10-02T12:00:00.123456Z"
+       },
+       "stale": false
+      }
+     },
+     "repositoryCalls": [
+      "analyze_pair",
+      "save_report"
+     ],
+     "page": null
+    },
+    {
+     "method": "list_match_reports",
+     "request": {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "jobId": "22222222-2222-4222-8222-222222222222"
+     },
+     "outcome": {
+      "ok": {
+       "reports": [
+        {
+         "report": {
+          "id": "9e119fdc-6f1d-3ce4-9385-d19a52d2fc26",
+          "profileId": "11111111-1111-4111-8111-111111111111",
+          "jobId": "22222222-2222-4222-8222-222222222222",
+          "profileRevision": "2025-01-02T03:04:05.123456Z",
+          "jobRevision": "2025-02-03T04:05:06.654321Z",
+          "algorithmVersion": "deterministic-v1",
+          "overallScore": 100,
+          "confidence": 40,
+          "outcome": "STRONG_MATCH",
+          "blockerMismatch": false,
+          "components": [
+           {
+            "component": "TECHNICAL",
+            "earnedPoints": 40,
+            "availablePoints": 40,
+            "status": "MATCH"
+           },
+           {
+            "component": "EXPERIENCE_SENIORITY",
+            "earnedPoints": 0,
+            "availablePoints": 25,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "DOMAIN",
+            "earnedPoints": 0,
+            "availablePoints": 15,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "DELIVERY",
+            "earnedPoints": 0,
+            "availablePoints": 10,
+            "status": "UNKNOWN"
+           },
+           {
+            "component": "HARD_REQUIREMENTS",
+            "earnedPoints": 0,
+            "availablePoints": 10,
+            "status": "UNKNOWN"
+           }
+          ],
+          "evidence": [
+           {
+            "component": "TECHNICAL",
+            "status": "MATCH",
+            "sourceType": "normalized_skill",
+            "fact": "java",
+            "outcomeChangingDefect": false
+           }
+          ],
+          "createdAt": "2026-10-02T12:00:00.123456Z"
+         },
+         "stale": false
+        }
+       ],
+       "nextCursor": "djF8bWF0Y2gtcmVwb3J0c3wyZDczODY5NTU5NGEzOTdlODgwN2I0ZWZiN2M1YTk3ZWEzNzhiODY3N2E5ZTAyZjM3YzA4MTg5YWZlYjAwNjE2fDIwMjYtMTAtMDJUMTI6MDA6MDAuMTIzNDU2WnwyMDI2LTEwLTAyVDEyOjAwOjAwLjEyMzQ1Nlp8OWUxMTlmZGMtNmYxZC0zY2U0LTkzODUtZDE5YTUyZDJmYzI2.5nH7ukrFcl3lsFoFrM_DkLasSmlTGDalm2wiXBq70Vg"
+      }
+     },
+     "repositoryCalls": [
+      "list_reports"
+     ],
+     "page": {
+      "scope": "match-reports",
+      "limit": 20,
+      "fingerprint": "2d738695594a397e8807b4efb7c5a97ea378b8677a9e02f37c08189afeb00616"
+     }
+    }
+   ]
+  }
+ ]
+}

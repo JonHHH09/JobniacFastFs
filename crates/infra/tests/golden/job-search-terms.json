@@ -1,0 +1,376 @@
+{
+ "jobId": "00000000-0000-0000-0000-000000000001",
+ "scenarios": [
+  {
+   "name": "plain_fields_and_one_skill",
+   "job": {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "sourceMethod": "text",
+    "title": "Platform Engineer",
+    "company": "Example Corp",
+    "location": "Remote",
+    "description": "Build platform services with Python",
+    "experienceRequirement": "5+ years",
+    "employmentType": "Full-time",
+    "seniority": "Senior"
+   },
+   "skills": [
+    {
+     "id": "00000000-0000-0000-0000-0000000003e9",
+     "skill": "Python"
+    }
+   ],
+   "terms": [
+    [
+     "job.title",
+     "platform",
+     8
+    ],
+    [
+     "job.title",
+     "engineer",
+     8
+    ],
+    [
+     "job.company",
+     "example",
+     5
+    ],
+    [
+     "job.company",
+     "corp",
+     5
+    ],
+    [
+     "job.location",
+     "remote",
+     3
+    ],
+    [
+     "job.description",
+     "build",
+     3
+    ],
+    [
+     "job.description",
+     "platform",
+     3
+    ],
+    [
+     "job.description",
+     "services",
+     3
+    ],
+    [
+     "job.description",
+     "with",
+     3
+    ],
+    [
+     "job.description",
+     "python",
+     3
+    ],
+    [
+     "job.experienceRequirement",
+     "5+",
+     4
+    ],
+    [
+     "job.experienceRequirement",
+     "years",
+     4
+    ],
+    [
+     "job.employmentType",
+     "full",
+     2
+    ],
+    [
+     "job.employmentType",
+     "time",
+     2
+    ],
+    [
+     "job.seniority",
+     "senior",
+     2
+    ],
+    [
+     "skills:00000000-0000-0000-0000-0000000003e9",
+     "python",
+     7
+    ]
+   ]
+  },
+  {
+   "name": "unicode_and_tokens_with_symbols",
+   "job": {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "sourceMethod": "text",
+    "title": "Java\u0131script \u00dcr\u00fcn M\u00fcd\u00fcr\u00fc",
+    "company": "C++ .NET C# \u0130\u017fK caf\u00e9",
+    "location": null,
+    "description": "\u00dcn\u00efcode \u00df \u01c5 \ufb01 ligature and node.js & c#",
+    "experienceRequirement": null,
+    "employmentType": " ",
+    "seniority": "Senior/Lead"
+   },
+   "skills": [
+    {
+     "id": "00000000-0000-0000-0000-0000000003ea",
+     "skill": "C++"
+    },
+    {
+     "id": "00000000-0000-0000-0000-0000000003eb",
+     "skill": "Node.js"
+    },
+    {
+     "id": "00000000-0000-0000-0000-0000000003ec",
+     "skill": ".NET"
+    },
+    {
+     "id": "00000000-0000-0000-0000-0000000003ed",
+     "skill": "C#"
+    }
+   ],
+   "terms": [
+    [
+     "job.title",
+     "java",
+     8
+    ],
+    [
+     "job.title",
+     "script",
+     8
+    ],
+    [
+     "job.title",
+     "urun",
+     8
+    ],
+    [
+     "job.title",
+     "muduru",
+     8
+    ],
+    [
+     "job.company",
+     "c++",
+     5
+    ],
+    [
+     "job.company",
+     ".net",
+     5
+    ],
+    [
+     "job.company",
+     "c#",
+     5
+    ],
+    [
+     "job.company",
+     "isk",
+     5
+    ],
+    [
+     "job.company",
+     "cafe",
+     5
+    ],
+    [
+     "job.description",
+     "unicode",
+     3
+    ],
+    [
+     "job.description",
+     "dz",
+     3
+    ],
+    [
+     "job.description",
+     "fi",
+     3
+    ],
+    [
+     "job.description",
+     "ligature",
+     3
+    ],
+    [
+     "job.description",
+     "and",
+     3
+    ],
+    [
+     "job.description",
+     "node.js",
+     3
+    ],
+    [
+     "job.description",
+     "c#",
+     3
+    ],
+    [
+     "job.seniority",
+     "senior",
+     2
+    ],
+    [
+     "job.seniority",
+     "lead",
+     2
+    ],
+    [
+     "skills:00000000-0000-0000-0000-0000000003ea",
+     "c++",
+     7
+    ],
+    [
+     "skills:00000000-0000-0000-0000-0000000003eb",
+     "node.js",
+     7
+    ],
+    [
+     "skills:00000000-0000-0000-0000-0000000003ec",
+     ".net",
+     7
+    ],
+    [
+     "skills:00000000-0000-0000-0000-0000000003ed",
+     "c#",
+     7
+    ]
+   ]
+  },
+  {
+   "name": "repeated_tokens_are_distinct_per_field",
+   "job": {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "sourceMethod": "text",
+    "title": "Engineer",
+    "company": null,
+    "location": "",
+    "description": "Engineer engineer ENGINEER Engineer",
+    "experienceRequirement": "",
+    "employmentType": null,
+    "seniority": null
+   },
+   "skills": [],
+   "terms": [
+    [
+     "job.title",
+     "engineer",
+     8
+    ],
+    [
+     "job.description",
+     "engineer",
+     3
+    ]
+   ]
+  },
+  {
+   "name": "duplicate_tokens_inside_one_skill",
+   "job": {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "sourceMethod": "text",
+    "title": "Java",
+    "company": null,
+    "location": null,
+    "description": "Java Java",
+    "experienceRequirement": null,
+    "employmentType": null,
+    "seniority": null
+   },
+   "skills": [
+    {
+     "id": "00000000-0000-0000-0000-0000000003ee",
+     "skill": "Java Java; Kotlin"
+    }
+   ],
+   "terms": [
+    [
+     "job.title",
+     "java",
+     8
+    ],
+    [
+     "job.description",
+     "java",
+     3
+    ],
+    [
+     "skills:00000000-0000-0000-0000-0000000003ee",
+     "java",
+     7
+    ],
+    [
+     "skills:00000000-0000-0000-0000-0000000003ee",
+     "kotlin",
+     7
+    ]
+   ]
+  },
+  {
+   "name": "blank_and_separator_only_fields",
+   "job": {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "sourceMethod": "text",
+    "title": "  ",
+    "company": "+ # .",
+    "location": "\u001c\u001d",
+    "description": "Dotless \u0131 separates",
+    "experienceRequirement": null,
+    "employmentType": null,
+    "seniority": null
+   },
+   "skills": [
+    {
+     "id": "00000000-0000-0000-0000-0000000003ef",
+     "skill": "   "
+    },
+    {
+     "id": "00000000-0000-0000-0000-0000000003f0",
+     "skill": "Go"
+    }
+   ],
+   "terms": [
+    [
+     "job.company",
+     "+",
+     5
+    ],
+    [
+     "job.company",
+     "#",
+     5
+    ],
+    [
+     "job.company",
+     ".",
+     5
+    ],
+    [
+     "job.description",
+     "dotless",
+     3
+    ],
+    [
+     "job.description",
+     "separates",
+     3
+    ],
+    [
+     "skills:00000000-0000-0000-0000-0000000003f0",
+     "go",
+     7
+    ]
+   ]
+  }
+ ]
+}

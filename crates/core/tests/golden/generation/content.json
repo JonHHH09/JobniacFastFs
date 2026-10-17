@@ -1,0 +1,2238 @@
+{
+ "source": "Resume content built from synthetic profiles and synthetic sentence finders",
+ "finders": [
+  "invalid",
+  "raise",
+  "synthetic"
+ ],
+ "cases": [
+  {
+   "id": "master-base",
+   "kind": "master",
+   "finder": "synthetic",
+   "graph": {
+    "profile": {
+     "fullName": "Ada Example",
+     "email": "ada@example.com",
+     "summary": "Engineer who builds example systems for Example Corp."
+    },
+    "contacts": [
+     {
+      "contactType": "phone",
+      "contactValue": "+1 555 0100",
+      "label": "Phone"
+     },
+     {
+      "contactType": "email",
+      "contactValue": "ada@example.com",
+      "label": null
+     },
+     {
+      "contactType": "location",
+      "contactValue": "Address 1 Example Street, Montreal",
+      "label": "Address"
+     }
+    ],
+    "links": [
+     {
+      "linkType": "github",
+      "url": "https://github.example/ada",
+      "label": "GitHub"
+     },
+     {
+      "linkType": "website",
+      "url": "https://ada.example.com",
+      "label": null
+     }
+    ],
+    "skills": [
+     {
+      "skill": "Python",
+      "category": "Backend",
+      "displayOrder": 0
+     },
+     {
+      "skill": "TypeScript",
+      "category": "Frontend",
+      "displayOrder": 1
+     },
+     {
+      "skill": "Docker",
+      "category": null,
+      "displayOrder": 2
+     },
+     {
+      "skill": "PostgreSQL",
+      "category": "Backend",
+      "displayOrder": 3
+     }
+    ],
+    "languages": [
+     {
+      "language": "English",
+      "proficiency": "Fluent",
+      "displayOrder": 0
+     },
+     {
+      "language": "French",
+      "proficiency": "Intermediate",
+      "displayOrder": 1
+     },
+     {
+      "language": "Klingon",
+      "proficiency": null,
+      "displayOrder": 2
+     }
+    ],
+    "education": [
+     {
+      "institution": "Example University",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "location": "Montreal",
+      "startDate": "2010-09-01",
+      "endDate": "2014-06-30",
+      "relevantFocus": "software engineering, data structures"
+     },
+     {
+      "institution": "Example College",
+      "degree": null,
+      "field": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "relevantFocus": null
+     }
+    ],
+    "experiences": [
+     {
+      "company": "Example Corp",
+      "title": "Software Developer",
+      "location": "Montreal",
+      "startDate": "2016-01-01",
+      "endDate": null,
+      "description": "- Built the ingestion service for Example Corp.\n- Managed releases and deployments. Improved the test suite.",
+      "displayOrder": 0
+     },
+     {
+      "company": "Acme Example",
+      "title": "Full-Stack Developer",
+      "location": null,
+      "startDate": "2012-05-01",
+      "endDate": "2015-12-31",
+      "description": "Implemented JWT authentication. Supported the release process.",
+      "displayOrder": 1
+     },
+     {
+      "company": "Hidden Labs",
+      "title": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "1. First numbered line\n2) Second numbered line\n\n3. Third one\n4. Fourth one",
+      "displayOrder": 2
+     },
+     {
+      "company": null,
+      "title": "Consulting",
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "Single line only. With two sentences.",
+      "displayOrder": 3
+     }
+    ],
+    "projects": [
+     {
+      "name": "Ada Tools",
+      "url": "https://tools.example.com",
+      "description": "Open tooling for examples.",
+      "displayOrder": 0,
+      "technologies": [
+       {
+        "technology": "Rust",
+        "displayOrder": 0
+       },
+       {
+        "technology": "Python",
+        "displayOrder": 1
+       }
+      ]
+     },
+     {
+      "name": null,
+      "url": null,
+      "description": null,
+      "displayOrder": 1,
+      "technologies": []
+     }
+    ],
+    "projectTechnologies": [
+     {
+      "technology": "Rust",
+      "displayOrder": 0
+     },
+     {
+      "technology": "Python",
+      "displayOrder": 1
+     }
+    ]
+   },
+   "expected": {
+    "ok": true,
+    "value": {
+     "title": "Ada Example - Master Resume",
+     "body": "Ada Example\nada@example.com\nPhone: +1 555 0100 | email: ada@example.com | Address: Address 1 Example Street, Montreal\nGitHub: https://github.example/ada | website: https://ada.example.com\n\nSUMMARY\nEngineer who builds example systems for Example Corp.\n\nSKILLS\nBackend: Python, PostgreSQL\nFrontend: TypeScript\nGeneral: Docker\n\nLANGUAGES\nEnglish (Fluent), French (Intermediate), Klingon\n\nEXPERIENCE\nSoftware Developer | Example Corp\n2016-01 - Present | Montreal\n- - Built the ingestion service for Example Corp.\n- Managed releases and deployments. Improved the test suite.\n\nFull-Stack Developer | Acme Example\n2012-05 - 2015-12\n- Implemented JWT authentication. Supported the release process.\n\nRole | Hidden Labs\nDates not provided\n- 1. First numbered line\n2) Second numbered line\n\n3. Third one\n4. Fourth one\n\nConsulting | Company\nDates not provided\n- Single line only. With two sentences.\n\nPROJECTS\nAda Tools - https://tools.example.com\nTechnologies: Rust, Python\n- Open tooling for examples.\n\nProject\n\nEDUCATION\nBachelor of Science, Computer Science\nExample University | Montreal\n2010-09 - 2014-06\n- software engineering, data structures\n\nEducation\nExample College\nDates not provided",
+     "resumeType": "master_resume"
+    }
+   }
+  },
+  {
+   "id": "master-minimal",
+   "kind": "master",
+   "finder": "synthetic",
+   "graph": {
+    "profile": {
+     "fullName": "Ada Example",
+     "email": "ada@example.com",
+     "summary": null
+    },
+    "contacts": [],
+    "links": [],
+    "skills": [],
+    "languages": [],
+    "education": [],
+    "experiences": [],
+    "projects": [],
+    "projectTechnologies": []
+   },
+   "expected": {
+    "ok": true,
+    "value": {
+     "title": "Ada Example - Master Resume",
+     "body": "Ada Example\nada@example.com\n\nSUMMARY\nProfile summary not provided.",
+     "resumeType": "master_resume"
+    }
+   }
+  },
+  {
+   "id": "canadian-base",
+   "kind": "canadian",
+   "finder": "synthetic",
+   "graph": {
+    "profile": {
+     "fullName": "Ada Example",
+     "email": "ada@example.com",
+     "summary": "Engineer who builds example systems for Example Corp."
+    },
+    "contacts": [
+     {
+      "contactType": "phone",
+      "contactValue": "+1 555 0100",
+      "label": "Phone"
+     },
+     {
+      "contactType": "email",
+      "contactValue": "ada@example.com",
+      "label": null
+     },
+     {
+      "contactType": "location",
+      "contactValue": "Address 1 Example Street, Montreal",
+      "label": "Address"
+     }
+    ],
+    "links": [
+     {
+      "linkType": "github",
+      "url": "https://github.example/ada",
+      "label": "GitHub"
+     },
+     {
+      "linkType": "website",
+      "url": "https://ada.example.com",
+      "label": null
+     }
+    ],
+    "skills": [
+     {
+      "skill": "Python",
+      "category": "Backend",
+      "displayOrder": 0
+     },
+     {
+      "skill": "TypeScript",
+      "category": "Frontend",
+      "displayOrder": 1
+     },
+     {
+      "skill": "Docker",
+      "category": null,
+      "displayOrder": 2
+     },
+     {
+      "skill": "PostgreSQL",
+      "category": "Backend",
+      "displayOrder": 3
+     }
+    ],
+    "languages": [
+     {
+      "language": "English",
+      "proficiency": "Fluent",
+      "displayOrder": 0
+     },
+     {
+      "language": "French",
+      "proficiency": "Intermediate",
+      "displayOrder": 1
+     },
+     {
+      "language": "Klingon",
+      "proficiency": null,
+      "displayOrder": 2
+     }
+    ],
+    "education": [
+     {
+      "institution": "Example University",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "location": "Montreal",
+      "startDate": "2010-09-01",
+      "endDate": "2014-06-30",
+      "relevantFocus": "software engineering, data structures"
+     },
+     {
+      "institution": "Example College",
+      "degree": null,
+      "field": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "relevantFocus": null
+     }
+    ],
+    "experiences": [
+     {
+      "company": "Example Corp",
+      "title": "Software Developer",
+      "location": "Montreal",
+      "startDate": "2016-01-01",
+      "endDate": null,
+      "description": "- Built the ingestion service for Example Corp.\n- Managed releases and deployments. Improved the test suite.",
+      "displayOrder": 0
+     },
+     {
+      "company": "Acme Example",
+      "title": "Full-Stack Developer",
+      "location": null,
+      "startDate": "2012-05-01",
+      "endDate": "2015-12-31",
+      "description": "Implemented JWT authentication. Supported the release process.",
+      "displayOrder": 1
+     },
+     {
+      "company": "Hidden Labs",
+      "title": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "1. First numbered line\n2) Second numbered line\n\n3. Third one\n4. Fourth one",
+      "displayOrder": 2
+     },
+     {
+      "company": null,
+      "title": "Consulting",
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "Single line only. With two sentences.",
+      "displayOrder": 3
+     }
+    ],
+    "projects": [
+     {
+      "name": "Ada Tools",
+      "url": "https://tools.example.com",
+      "description": "Open tooling for examples.",
+      "displayOrder": 0,
+      "technologies": [
+       {
+        "technology": "Rust",
+        "displayOrder": 0
+       },
+       {
+        "technology": "Python",
+        "displayOrder": 1
+       }
+      ]
+     },
+     {
+      "name": null,
+      "url": null,
+      "description": null,
+      "displayOrder": 1,
+      "technologies": []
+     }
+    ],
+    "projectTechnologies": [
+     {
+      "technology": "Rust",
+      "displayOrder": 0
+     },
+     {
+      "technology": "Python",
+      "displayOrder": 1
+     }
+    ]
+   },
+   "expected": {
+    "ok": true,
+    "value": {
+     "title": "Ada Example",
+     "body": "Contact: ada@example.com | Phone: +1 555 0100 | Address: Address 1 Example Street, Montreal\nLinks: GitHub: https://github.example/ada | website: https://ada.example.com\n\nPROFESSIONAL SUMMARY\nEngineer who builds example systems for Example Corp.\n\nTECHNICAL SKILLS\nBackend: Python, PostgreSQL\nFrontend: TypeScript\nGeneral: Docker\n\nPROFESSIONAL EXPERIENCE\nSoftware Developer | Example Corp\n2016-01 - Present | Montreal\n- Built the ingestion service for Example Corp.\n- Managed releases and deployments. Improved the test suite.\n\nFull-Stack Developer | Acme Example\n2012-05 - 2015-12\n- Implemented JWT authentication.\n- Supported the release process.\n\nRole | Hidden Labs\nDates not provided\n- First numbered line\n- Second numbered line\n- Third one\n\nConsulting | Company\nDates not provided\n- Single line only.\n- With two sentences.\n\nEDUCATION\nBachelor of Science, Computer Science\nExample University | Montreal\n2010-09 - 2014-06\n- software engineering, data structures\n\nEducation\nExample College\nDates not provided\n\nLANGUAGES\nEnglish (Fluent), French (Intermediate), Klingon",
+     "resumeType": "canadian_resume"
+    }
+   }
+  },
+  {
+   "id": "canadian-minimal",
+   "kind": "canadian",
+   "finder": "synthetic",
+   "graph": {
+    "profile": {
+     "fullName": "Ada Example",
+     "email": "ada@example.com",
+     "summary": null
+    },
+    "contacts": [],
+    "links": [],
+    "skills": [],
+    "languages": [],
+    "education": [],
+    "experiences": [],
+    "projects": [
+     {
+      "name": "Ada Tools",
+      "url": "https://tools.example.com",
+      "description": "Open tooling for examples.",
+      "displayOrder": 0,
+      "technologies": [
+       {
+        "technology": "Rust",
+        "displayOrder": 0
+       },
+       {
+        "technology": "Python",
+        "displayOrder": 1
+       }
+      ]
+     },
+     {
+      "name": null,
+      "url": null,
+      "description": null,
+      "displayOrder": 1,
+      "technologies": []
+     }
+    ],
+    "projectTechnologies": [
+     {
+      "technology": "Rust",
+      "displayOrder": 0
+     },
+     {
+      "technology": "Python",
+      "displayOrder": 1
+     }
+    ]
+   },
+   "expected": {
+    "ok": true,
+    "value": {
+     "title": "Ada Example",
+     "body": "Contact: ada@example.com\n\nPROFESSIONAL SUMMARY\nProfile summary not provided.",
+     "resumeType": "canadian_resume"
+    }
+   }
+  },
+  {
+   "id": "canadian-raising-finder",
+   "kind": "canadian",
+   "finder": "raise",
+   "graph": {
+    "profile": {
+     "fullName": "Ada Example",
+     "email": "ada@example.com",
+     "summary": "Engineer who builds example systems for Example Corp."
+    },
+    "contacts": [
+     {
+      "contactType": "phone",
+      "contactValue": "+1 555 0100",
+      "label": "Phone"
+     },
+     {
+      "contactType": "email",
+      "contactValue": "ada@example.com",
+      "label": null
+     },
+     {
+      "contactType": "location",
+      "contactValue": "Address 1 Example Street, Montreal",
+      "label": "Address"
+     }
+    ],
+    "links": [
+     {
+      "linkType": "github",
+      "url": "https://github.example/ada",
+      "label": "GitHub"
+     },
+     {
+      "linkType": "website",
+      "url": "https://ada.example.com",
+      "label": null
+     }
+    ],
+    "skills": [
+     {
+      "skill": "Python",
+      "category": "Backend",
+      "displayOrder": 0
+     },
+     {
+      "skill": "TypeScript",
+      "category": "Frontend",
+      "displayOrder": 1
+     },
+     {
+      "skill": "Docker",
+      "category": null,
+      "displayOrder": 2
+     },
+     {
+      "skill": "PostgreSQL",
+      "category": "Backend",
+      "displayOrder": 3
+     }
+    ],
+    "languages": [
+     {
+      "language": "English",
+      "proficiency": "Fluent",
+      "displayOrder": 0
+     },
+     {
+      "language": "French",
+      "proficiency": "Intermediate",
+      "displayOrder": 1
+     },
+     {
+      "language": "Klingon",
+      "proficiency": null,
+      "displayOrder": 2
+     }
+    ],
+    "education": [
+     {
+      "institution": "Example University",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "location": "Montreal",
+      "startDate": "2010-09-01",
+      "endDate": "2014-06-30",
+      "relevantFocus": "software engineering, data structures"
+     },
+     {
+      "institution": "Example College",
+      "degree": null,
+      "field": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "relevantFocus": null
+     }
+    ],
+    "experiences": [
+     {
+      "company": "Example Corp",
+      "title": "Software Developer",
+      "location": "Montreal",
+      "startDate": "2016-01-01",
+      "endDate": null,
+      "description": "- Built the ingestion service for Example Corp.\n- Managed releases and deployments. Improved the test suite.",
+      "displayOrder": 0
+     },
+     {
+      "company": "Acme Example",
+      "title": "Full-Stack Developer",
+      "location": null,
+      "startDate": "2012-05-01",
+      "endDate": "2015-12-31",
+      "description": "Implemented JWT authentication. Supported the release process.",
+      "displayOrder": 1
+     },
+     {
+      "company": "Hidden Labs",
+      "title": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "1. First numbered line\n2) Second numbered line\n\n3. Third one\n4. Fourth one",
+      "displayOrder": 2
+     },
+     {
+      "company": null,
+      "title": "Consulting",
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "Single line only. With two sentences.",
+      "displayOrder": 3
+     }
+    ],
+    "projects": [
+     {
+      "name": "Ada Tools",
+      "url": "https://tools.example.com",
+      "description": "Open tooling for examples.",
+      "displayOrder": 0,
+      "technologies": [
+       {
+        "technology": "Rust",
+        "displayOrder": 0
+       },
+       {
+        "technology": "Python",
+        "displayOrder": 1
+       }
+      ]
+     },
+     {
+      "name": null,
+      "url": null,
+      "description": null,
+      "displayOrder": 1,
+      "technologies": []
+     }
+    ],
+    "projectTechnologies": [
+     {
+      "technology": "Rust",
+      "displayOrder": 0
+     },
+     {
+      "technology": "Python",
+      "displayOrder": 1
+     }
+    ]
+   },
+   "expected": {
+    "ok": false,
+    "error": {
+     "code": "internal_error",
+     "message": "Canadian sentence boundary backend failed",
+     "details": {}
+    }
+   }
+  },
+  {
+   "id": "canadian-invalid-finder",
+   "kind": "canadian",
+   "finder": "invalid",
+   "graph": {
+    "profile": {
+     "fullName": "Ada Example",
+     "email": "ada@example.com",
+     "summary": "Engineer who builds example systems for Example Corp."
+    },
+    "contacts": [
+     {
+      "contactType": "phone",
+      "contactValue": "+1 555 0100",
+      "label": "Phone"
+     },
+     {
+      "contactType": "email",
+      "contactValue": "ada@example.com",
+      "label": null
+     },
+     {
+      "contactType": "location",
+      "contactValue": "Address 1 Example Street, Montreal",
+      "label": "Address"
+     }
+    ],
+    "links": [
+     {
+      "linkType": "github",
+      "url": "https://github.example/ada",
+      "label": "GitHub"
+     },
+     {
+      "linkType": "website",
+      "url": "https://ada.example.com",
+      "label": null
+     }
+    ],
+    "skills": [
+     {
+      "skill": "Python",
+      "category": "Backend",
+      "displayOrder": 0
+     },
+     {
+      "skill": "TypeScript",
+      "category": "Frontend",
+      "displayOrder": 1
+     },
+     {
+      "skill": "Docker",
+      "category": null,
+      "displayOrder": 2
+     },
+     {
+      "skill": "PostgreSQL",
+      "category": "Backend",
+      "displayOrder": 3
+     }
+    ],
+    "languages": [
+     {
+      "language": "English",
+      "proficiency": "Fluent",
+      "displayOrder": 0
+     },
+     {
+      "language": "French",
+      "proficiency": "Intermediate",
+      "displayOrder": 1
+     },
+     {
+      "language": "Klingon",
+      "proficiency": null,
+      "displayOrder": 2
+     }
+    ],
+    "education": [
+     {
+      "institution": "Example University",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "location": "Montreal",
+      "startDate": "2010-09-01",
+      "endDate": "2014-06-30",
+      "relevantFocus": "software engineering, data structures"
+     },
+     {
+      "institution": "Example College",
+      "degree": null,
+      "field": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "relevantFocus": null
+     }
+    ],
+    "experiences": [
+     {
+      "company": "Example Corp",
+      "title": "Software Developer",
+      "location": "Montreal",
+      "startDate": "2016-01-01",
+      "endDate": null,
+      "description": "- Built the ingestion service for Example Corp.\n- Managed releases and deployments. Improved the test suite.",
+      "displayOrder": 0
+     },
+     {
+      "company": "Acme Example",
+      "title": "Full-Stack Developer",
+      "location": null,
+      "startDate": "2012-05-01",
+      "endDate": "2015-12-31",
+      "description": "Implemented JWT authentication. Supported the release process.",
+      "displayOrder": 1
+     },
+     {
+      "company": "Hidden Labs",
+      "title": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "1. First numbered line\n2) Second numbered line\n\n3. Third one\n4. Fourth one",
+      "displayOrder": 2
+     },
+     {
+      "company": null,
+      "title": "Consulting",
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "Single line only. With two sentences.",
+      "displayOrder": 3
+     }
+    ],
+    "projects": [
+     {
+      "name": "Ada Tools",
+      "url": "https://tools.example.com",
+      "description": "Open tooling for examples.",
+      "displayOrder": 0,
+      "technologies": [
+       {
+        "technology": "Rust",
+        "displayOrder": 0
+       },
+       {
+        "technology": "Python",
+        "displayOrder": 1
+       }
+      ]
+     },
+     {
+      "name": null,
+      "url": null,
+      "description": null,
+      "displayOrder": 1,
+      "technologies": []
+     }
+    ],
+    "projectTechnologies": [
+     {
+      "technology": "Rust",
+      "displayOrder": 0
+     },
+     {
+      "technology": "Python",
+      "displayOrder": 1
+     }
+    ]
+   },
+   "expected": {
+    "ok": false,
+    "error": {
+     "code": "internal_error",
+     "message": "Canadian sentence boundary backend returned invalid offsets",
+     "details": {}
+    }
+   }
+  },
+  {
+   "id": "canadian-fr-base",
+   "kind": "canadian_fr",
+   "finder": "synthetic",
+   "graph": {
+    "profile": {
+     "fullName": "Ada Example",
+     "email": "ada@example.com",
+     "summary": "Engineer who builds example systems for Example Corp."
+    },
+    "contacts": [
+     {
+      "contactType": "phone",
+      "contactValue": "+1 555 0100",
+      "label": "Phone"
+     },
+     {
+      "contactType": "email",
+      "contactValue": "ada@example.com",
+      "label": null
+     },
+     {
+      "contactType": "location",
+      "contactValue": "Address 1 Example Street, Montreal",
+      "label": "Address"
+     }
+    ],
+    "links": [
+     {
+      "linkType": "github",
+      "url": "https://github.example/ada",
+      "label": "GitHub"
+     },
+     {
+      "linkType": "website",
+      "url": "https://ada.example.com",
+      "label": null
+     }
+    ],
+    "skills": [
+     {
+      "skill": "Python",
+      "category": "Backend",
+      "displayOrder": 0
+     },
+     {
+      "skill": "TypeScript",
+      "category": "Frontend",
+      "displayOrder": 1
+     },
+     {
+      "skill": "Docker",
+      "category": null,
+      "displayOrder": 2
+     },
+     {
+      "skill": "PostgreSQL",
+      "category": "Backend",
+      "displayOrder": 3
+     }
+    ],
+    "languages": [
+     {
+      "language": "English",
+      "proficiency": "Fluent",
+      "displayOrder": 0
+     },
+     {
+      "language": "French",
+      "proficiency": "Intermediate",
+      "displayOrder": 1
+     },
+     {
+      "language": "Klingon",
+      "proficiency": null,
+      "displayOrder": 2
+     }
+    ],
+    "education": [
+     {
+      "institution": "Example University",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "location": "Montreal",
+      "startDate": "2010-09-01",
+      "endDate": "2014-06-30",
+      "relevantFocus": "software engineering, data structures"
+     },
+     {
+      "institution": "Example College",
+      "degree": null,
+      "field": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "relevantFocus": null
+     }
+    ],
+    "experiences": [
+     {
+      "company": "Example Corp",
+      "title": "Software Developer",
+      "location": "Montreal",
+      "startDate": "2016-01-01",
+      "endDate": null,
+      "description": "- Built the ingestion service for Example Corp.\n- Managed releases and deployments. Improved the test suite.",
+      "displayOrder": 0
+     },
+     {
+      "company": "Acme Example",
+      "title": "Full-Stack Developer",
+      "location": null,
+      "startDate": "2012-05-01",
+      "endDate": "2015-12-31",
+      "description": "Implemented JWT authentication. Supported the release process.",
+      "displayOrder": 1
+     },
+     {
+      "company": "Hidden Labs",
+      "title": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "1. First numbered line\n2) Second numbered line\n\n3. Third one\n4. Fourth one",
+      "displayOrder": 2
+     },
+     {
+      "company": null,
+      "title": "Consulting",
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "Single line only. With two sentences.",
+      "displayOrder": 3
+     }
+    ],
+    "projects": [
+     {
+      "name": "Ada Tools",
+      "url": "https://tools.example.com",
+      "description": "Open tooling for examples.",
+      "displayOrder": 0,
+      "technologies": [
+       {
+        "technology": "Rust",
+        "displayOrder": 0
+       },
+       {
+        "technology": "Python",
+        "displayOrder": 1
+       }
+      ]
+     },
+     {
+      "name": null,
+      "url": null,
+      "description": null,
+      "displayOrder": 1,
+      "technologies": []
+     }
+    ],
+    "projectTechnologies": [
+     {
+      "technology": "Rust",
+      "displayOrder": 0
+     },
+     {
+      "technology": "Python",
+      "displayOrder": 1
+     }
+    ]
+   },
+   "expected": {
+    "ok": true,
+    "value": {
+     "title": "Ada Example",
+     "body": "Coordonn\u00e9es: ada@example.com | T\u00e9l\u00e9phone: +1 555 0100 | Adresse: Address 1 Example Street, Montreal\nLiens: GitHub: https://github.example/ada | Site Web: https://ada.example.com\n\nPROFIL PROFESSIONNEL\nEngineer who builds example syst\u00e8mes for Example Corp.\n\nCOMP\u00c9TENCES TECHNIQUES\nD\u00e9veloppement backend: Python, PostgreSQL\nD\u00e9veloppement frontend: TypeScript\nG\u00e9n\u00e9ral: Docker\n\nEXP\u00c9RIENCE PROFESSIONNELLE\nD\u00e9veloppeur logiciel | Example Corp\n2016-01 - Pr\u00e9sent | Montreal\n- \u00c9labor\u00e9 the ingestion service for Example Corp.\n- G\u00e9r\u00e9 releases and deployments. Am\u00e9lior\u00e9 the test suite.\n\nD\u00e9veloppeur full-stack | Acme Example\n2012-05 - 2015-12\n- Mis en place JWT authentication.\n- Soutenu the release process.\n\nPoste | Hidden Labs\nDates non pr\u00e9cis\u00e9es\n- First numbered line\n- Second numbered line\n- Third one\n\nConsulting | Entreprise\nDates non pr\u00e9cis\u00e9es\n- Single line only.\n- With two sentences.\n\nFORMATION\nBachelor of Science, Informatique\nExample University | Montreal\n2010-09 - 2014-06\n- G\u00e9nie logiciel, data structures\n\nDipl\u00f4me\nExample College\nDates non pr\u00e9cis\u00e9es\n\nLANGUES\nAnglais (Courant), Fran\u00e7ais (Interm\u00e9diaire), Klingon",
+     "resumeType": "canadian_resume_fr"
+    }
+   }
+  },
+  {
+   "id": "canadian-fr-minimal",
+   "kind": "canadian_fr",
+   "finder": "synthetic",
+   "graph": {
+    "profile": {
+     "fullName": "Ada Example",
+     "email": "ada@example.com",
+     "summary": null
+    },
+    "contacts": [],
+    "links": [],
+    "skills": [],
+    "languages": [],
+    "education": [],
+    "experiences": [],
+    "projects": [],
+    "projectTechnologies": []
+   },
+   "expected": {
+    "ok": true,
+    "value": {
+     "title": "Ada Example",
+     "body": "Coordonn\u00e9es: ada@example.com\n\nPROFIL PROFESSIONNEL\nR\u00e9sum\u00e9 du profil non fourni.",
+     "resumeType": "canadian_resume_fr"
+    }
+   }
+  },
+  {
+   "id": "canadian-fr-raising-finder",
+   "kind": "canadian_fr",
+   "finder": "raise",
+   "graph": {
+    "profile": {
+     "fullName": "Ada Example",
+     "email": "ada@example.com",
+     "summary": "Engineer who builds example systems for Example Corp."
+    },
+    "contacts": [
+     {
+      "contactType": "phone",
+      "contactValue": "+1 555 0100",
+      "label": "Phone"
+     },
+     {
+      "contactType": "email",
+      "contactValue": "ada@example.com",
+      "label": null
+     },
+     {
+      "contactType": "location",
+      "contactValue": "Address 1 Example Street, Montreal",
+      "label": "Address"
+     }
+    ],
+    "links": [
+     {
+      "linkType": "github",
+      "url": "https://github.example/ada",
+      "label": "GitHub"
+     },
+     {
+      "linkType": "website",
+      "url": "https://ada.example.com",
+      "label": null
+     }
+    ],
+    "skills": [
+     {
+      "skill": "Python",
+      "category": "Backend",
+      "displayOrder": 0
+     },
+     {
+      "skill": "TypeScript",
+      "category": "Frontend",
+      "displayOrder": 1
+     },
+     {
+      "skill": "Docker",
+      "category": null,
+      "displayOrder": 2
+     },
+     {
+      "skill": "PostgreSQL",
+      "category": "Backend",
+      "displayOrder": 3
+     }
+    ],
+    "languages": [
+     {
+      "language": "English",
+      "proficiency": "Fluent",
+      "displayOrder": 0
+     },
+     {
+      "language": "French",
+      "proficiency": "Intermediate",
+      "displayOrder": 1
+     },
+     {
+      "language": "Klingon",
+      "proficiency": null,
+      "displayOrder": 2
+     }
+    ],
+    "education": [
+     {
+      "institution": "Example University",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "location": "Montreal",
+      "startDate": "2010-09-01",
+      "endDate": "2014-06-30",
+      "relevantFocus": "software engineering, data structures"
+     },
+     {
+      "institution": "Example College",
+      "degree": null,
+      "field": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "relevantFocus": null
+     }
+    ],
+    "experiences": [
+     {
+      "company": "Example Corp",
+      "title": "Software Developer",
+      "location": "Montreal",
+      "startDate": "2016-01-01",
+      "endDate": null,
+      "description": "- Built the ingestion service for Example Corp.\n- Managed releases and deployments. Improved the test suite.",
+      "displayOrder": 0
+     },
+     {
+      "company": "Acme Example",
+      "title": "Full-Stack Developer",
+      "location": null,
+      "startDate": "2012-05-01",
+      "endDate": "2015-12-31",
+      "description": "Implemented JWT authentication. Supported the release process.",
+      "displayOrder": 1
+     },
+     {
+      "company": "Hidden Labs",
+      "title": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "1. First numbered line\n2) Second numbered line\n\n3. Third one\n4. Fourth one",
+      "displayOrder": 2
+     },
+     {
+      "company": null,
+      "title": "Consulting",
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "Single line only. With two sentences.",
+      "displayOrder": 3
+     }
+    ],
+    "projects": [
+     {
+      "name": "Ada Tools",
+      "url": "https://tools.example.com",
+      "description": "Open tooling for examples.",
+      "displayOrder": 0,
+      "technologies": [
+       {
+        "technology": "Rust",
+        "displayOrder": 0
+       },
+       {
+        "technology": "Python",
+        "displayOrder": 1
+       }
+      ]
+     },
+     {
+      "name": null,
+      "url": null,
+      "description": null,
+      "displayOrder": 1,
+      "technologies": []
+     }
+    ],
+    "projectTechnologies": [
+     {
+      "technology": "Rust",
+      "displayOrder": 0
+     },
+     {
+      "technology": "Python",
+      "displayOrder": 1
+     }
+    ]
+   },
+   "expected": {
+    "ok": false,
+    "error": {
+     "code": "internal_error",
+     "message": "Canadian sentence boundary backend failed",
+     "details": {}
+    }
+   }
+  },
+  {
+   "id": "canadian-fr-title-font",
+   "kind": "canadian_fr",
+   "finder": "synthetic",
+   "graph": {
+    "profile": {
+     "fullName": "Ada \u03a9mega",
+     "email": "ada@example.com",
+     "summary": "Built tools."
+    },
+    "contacts": [
+     {
+      "contactType": "phone",
+      "contactValue": "+1 555 0100",
+      "label": "Phone"
+     },
+     {
+      "contactType": "email",
+      "contactValue": "ada@example.com",
+      "label": null
+     },
+     {
+      "contactType": "location",
+      "contactValue": "Address 1 Example Street, Montreal",
+      "label": "Address"
+     }
+    ],
+    "links": [
+     {
+      "linkType": "github",
+      "url": "https://github.example/ada",
+      "label": "GitHub"
+     },
+     {
+      "linkType": "website",
+      "url": "https://ada.example.com",
+      "label": null
+     }
+    ],
+    "skills": [
+     {
+      "skill": "Python",
+      "category": "Backend",
+      "displayOrder": 0
+     },
+     {
+      "skill": "TypeScript",
+      "category": "Frontend",
+      "displayOrder": 1
+     },
+     {
+      "skill": "Docker",
+      "category": null,
+      "displayOrder": 2
+     },
+     {
+      "skill": "PostgreSQL",
+      "category": "Backend",
+      "displayOrder": 3
+     }
+    ],
+    "languages": [
+     {
+      "language": "English",
+      "proficiency": "Fluent",
+      "displayOrder": 0
+     },
+     {
+      "language": "French",
+      "proficiency": "Intermediate",
+      "displayOrder": 1
+     },
+     {
+      "language": "Klingon",
+      "proficiency": null,
+      "displayOrder": 2
+     }
+    ],
+    "education": [
+     {
+      "institution": "Example University",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "location": "Montreal",
+      "startDate": "2010-09-01",
+      "endDate": "2014-06-30",
+      "relevantFocus": "software engineering, data structures"
+     },
+     {
+      "institution": "Example College",
+      "degree": null,
+      "field": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "relevantFocus": null
+     }
+    ],
+    "experiences": [
+     {
+      "company": "Example Corp",
+      "title": "Software Developer",
+      "location": "Montreal",
+      "startDate": "2016-01-01",
+      "endDate": null,
+      "description": "- Built the ingestion service for Example Corp.\n- Managed releases and deployments. Improved the test suite.",
+      "displayOrder": 0
+     },
+     {
+      "company": "Acme Example",
+      "title": "Full-Stack Developer",
+      "location": null,
+      "startDate": "2012-05-01",
+      "endDate": "2015-12-31",
+      "description": "Implemented JWT authentication. Supported the release process.",
+      "displayOrder": 1
+     },
+     {
+      "company": "Hidden Labs",
+      "title": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "1. First numbered line\n2) Second numbered line\n\n3. Third one\n4. Fourth one",
+      "displayOrder": 2
+     },
+     {
+      "company": null,
+      "title": "Consulting",
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "Single line only. With two sentences.",
+      "displayOrder": 3
+     }
+    ],
+    "projects": [
+     {
+      "name": "Ada Tools",
+      "url": "https://tools.example.com",
+      "description": "Open tooling for examples.",
+      "displayOrder": 0,
+      "technologies": [
+       {
+        "technology": "Rust",
+        "displayOrder": 0
+       },
+       {
+        "technology": "Python",
+        "displayOrder": 1
+       }
+      ]
+     },
+     {
+      "name": null,
+      "url": null,
+      "description": null,
+      "displayOrder": 1,
+      "technologies": []
+     }
+    ],
+    "projectTechnologies": [
+     {
+      "technology": "Rust",
+      "displayOrder": 0
+     },
+     {
+      "technology": "Python",
+      "displayOrder": 1
+     }
+    ]
+   },
+   "expected": {
+    "ok": false,
+    "error": {
+     "code": "validation_error",
+     "message": "French Canadian resume contains characters unsupported by the current PDF font",
+     "details": {
+      "field": "title",
+      "reason": "contains unsupported characters"
+     }
+    }
+   }
+  },
+  {
+   "id": "canadian-fr-body-font",
+   "kind": "canadian_fr",
+   "finder": "synthetic",
+   "graph": {
+    "profile": {
+     "fullName": "Ada Example",
+     "email": "ada@example.com",
+     "summary": "Built tools \u2022 more."
+    },
+    "contacts": [
+     {
+      "contactType": "phone",
+      "contactValue": "+1 555 0100",
+      "label": "Phone"
+     },
+     {
+      "contactType": "email",
+      "contactValue": "ada@example.com",
+      "label": null
+     },
+     {
+      "contactType": "location",
+      "contactValue": "Address 1 Example Street, Montreal",
+      "label": "Address"
+     }
+    ],
+    "links": [
+     {
+      "linkType": "github",
+      "url": "https://github.example/ada",
+      "label": "GitHub"
+     },
+     {
+      "linkType": "website",
+      "url": "https://ada.example.com",
+      "label": null
+     }
+    ],
+    "skills": [
+     {
+      "skill": "Python",
+      "category": "Backend",
+      "displayOrder": 0
+     },
+     {
+      "skill": "TypeScript",
+      "category": "Frontend",
+      "displayOrder": 1
+     },
+     {
+      "skill": "Docker",
+      "category": null,
+      "displayOrder": 2
+     },
+     {
+      "skill": "PostgreSQL",
+      "category": "Backend",
+      "displayOrder": 3
+     }
+    ],
+    "languages": [
+     {
+      "language": "English",
+      "proficiency": "Fluent",
+      "displayOrder": 0
+     },
+     {
+      "language": "French",
+      "proficiency": "Intermediate",
+      "displayOrder": 1
+     },
+     {
+      "language": "Klingon",
+      "proficiency": null,
+      "displayOrder": 2
+     }
+    ],
+    "education": [
+     {
+      "institution": "Example University",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "location": "Montreal",
+      "startDate": "2010-09-01",
+      "endDate": "2014-06-30",
+      "relevantFocus": "software engineering, data structures"
+     },
+     {
+      "institution": "Example College",
+      "degree": null,
+      "field": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "relevantFocus": null
+     }
+    ],
+    "experiences": [
+     {
+      "company": "Example Corp",
+      "title": "Software Developer",
+      "location": "Montreal",
+      "startDate": "2016-01-01",
+      "endDate": null,
+      "description": "- Built the ingestion service for Example Corp.\n- Managed releases and deployments. Improved the test suite.",
+      "displayOrder": 0
+     },
+     {
+      "company": "Acme Example",
+      "title": "Full-Stack Developer",
+      "location": null,
+      "startDate": "2012-05-01",
+      "endDate": "2015-12-31",
+      "description": "Implemented JWT authentication. Supported the release process.",
+      "displayOrder": 1
+     },
+     {
+      "company": "Hidden Labs",
+      "title": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "1. First numbered line\n2) Second numbered line\n\n3. Third one\n4. Fourth one",
+      "displayOrder": 2
+     },
+     {
+      "company": null,
+      "title": "Consulting",
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "Single line only. With two sentences.",
+      "displayOrder": 3
+     }
+    ],
+    "projects": [
+     {
+      "name": "Ada Tools",
+      "url": "https://tools.example.com",
+      "description": "Open tooling for examples.",
+      "displayOrder": 0,
+      "technologies": [
+       {
+        "technology": "Rust",
+        "displayOrder": 0
+       },
+       {
+        "technology": "Python",
+        "displayOrder": 1
+       }
+      ]
+     },
+     {
+      "name": null,
+      "url": null,
+      "description": null,
+      "displayOrder": 1,
+      "technologies": []
+     }
+    ],
+    "projectTechnologies": [
+     {
+      "technology": "Rust",
+      "displayOrder": 0
+     },
+     {
+      "technology": "Python",
+      "displayOrder": 1
+     }
+    ]
+   },
+   "expected": {
+    "ok": false,
+    "error": {
+     "code": "validation_error",
+     "message": "French Canadian resume contains characters unsupported by the current PDF font",
+     "details": {
+      "field": "body",
+      "reason": "contains unsupported characters"
+     }
+    }
+   }
+  },
+  {
+   "id": "master-body-too-long",
+   "kind": "master",
+   "finder": "synthetic",
+   "graph": {
+    "profile": {
+     "fullName": "Ada Example",
+     "email": "ada@example.com",
+     "summary": {
+      "repeat": "ab ",
+      "count": 20000
+     }
+    },
+    "contacts": [
+     {
+      "contactType": "phone",
+      "contactValue": "+1 555 0100",
+      "label": "Phone"
+     },
+     {
+      "contactType": "email",
+      "contactValue": "ada@example.com",
+      "label": null
+     },
+     {
+      "contactType": "location",
+      "contactValue": "Address 1 Example Street, Montreal",
+      "label": "Address"
+     }
+    ],
+    "links": [
+     {
+      "linkType": "github",
+      "url": "https://github.example/ada",
+      "label": "GitHub"
+     },
+     {
+      "linkType": "website",
+      "url": "https://ada.example.com",
+      "label": null
+     }
+    ],
+    "skills": [
+     {
+      "skill": "Python",
+      "category": "Backend",
+      "displayOrder": 0
+     },
+     {
+      "skill": "TypeScript",
+      "category": "Frontend",
+      "displayOrder": 1
+     },
+     {
+      "skill": "Docker",
+      "category": null,
+      "displayOrder": 2
+     },
+     {
+      "skill": "PostgreSQL",
+      "category": "Backend",
+      "displayOrder": 3
+     }
+    ],
+    "languages": [
+     {
+      "language": "English",
+      "proficiency": "Fluent",
+      "displayOrder": 0
+     },
+     {
+      "language": "French",
+      "proficiency": "Intermediate",
+      "displayOrder": 1
+     },
+     {
+      "language": "Klingon",
+      "proficiency": null,
+      "displayOrder": 2
+     }
+    ],
+    "education": [
+     {
+      "institution": "Example University",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "location": "Montreal",
+      "startDate": "2010-09-01",
+      "endDate": "2014-06-30",
+      "relevantFocus": "software engineering, data structures"
+     },
+     {
+      "institution": "Example College",
+      "degree": null,
+      "field": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "relevantFocus": null
+     }
+    ],
+    "experiences": [
+     {
+      "company": "Example Corp",
+      "title": "Software Developer",
+      "location": "Montreal",
+      "startDate": "2016-01-01",
+      "endDate": null,
+      "description": "- Built the ingestion service for Example Corp.\n- Managed releases and deployments. Improved the test suite.",
+      "displayOrder": 0
+     },
+     {
+      "company": "Acme Example",
+      "title": "Full-Stack Developer",
+      "location": null,
+      "startDate": "2012-05-01",
+      "endDate": "2015-12-31",
+      "description": "Implemented JWT authentication. Supported the release process.",
+      "displayOrder": 1
+     },
+     {
+      "company": "Hidden Labs",
+      "title": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "1. First numbered line\n2) Second numbered line\n\n3. Third one\n4. Fourth one",
+      "displayOrder": 2
+     },
+     {
+      "company": null,
+      "title": "Consulting",
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "Single line only. With two sentences.",
+      "displayOrder": 3
+     }
+    ],
+    "projects": [
+     {
+      "name": "Ada Tools",
+      "url": "https://tools.example.com",
+      "description": "Open tooling for examples.",
+      "displayOrder": 0,
+      "technologies": [
+       {
+        "technology": "Rust",
+        "displayOrder": 0
+       },
+       {
+        "technology": "Python",
+        "displayOrder": 1
+       }
+      ]
+     },
+     {
+      "name": null,
+      "url": null,
+      "description": null,
+      "displayOrder": 1,
+      "technologies": []
+     }
+    ],
+    "projectTechnologies": [
+     {
+      "technology": "Rust",
+      "displayOrder": 0
+     },
+     {
+      "technology": "Python",
+      "displayOrder": 1
+     }
+    ]
+   },
+   "expected": {
+    "ok": false,
+    "error": {
+     "code": "validation_error",
+     "message": "Invalid PDF generation request",
+     "details": {
+      "field": "body",
+      "reason": "must be less than or equal to 50000 characters"
+     }
+    }
+   }
+  },
+  {
+   "id": "canadian-profile-budget",
+   "kind": "canadian",
+   "finder": "synthetic",
+   "graph": {
+    "profile": {
+     "fullName": "Ada Example",
+     "email": "ada@example.com",
+     "summary": {
+      "repeat": "a",
+      "count": 1000001
+     }
+    },
+    "contacts": [
+     {
+      "contactType": "phone",
+      "contactValue": "+1 555 0100",
+      "label": "Phone"
+     },
+     {
+      "contactType": "email",
+      "contactValue": "ada@example.com",
+      "label": null
+     },
+     {
+      "contactType": "location",
+      "contactValue": "Address 1 Example Street, Montreal",
+      "label": "Address"
+     }
+    ],
+    "links": [
+     {
+      "linkType": "github",
+      "url": "https://github.example/ada",
+      "label": "GitHub"
+     },
+     {
+      "linkType": "website",
+      "url": "https://ada.example.com",
+      "label": null
+     }
+    ],
+    "skills": [
+     {
+      "skill": "Python",
+      "category": "Backend",
+      "displayOrder": 0
+     },
+     {
+      "skill": "TypeScript",
+      "category": "Frontend",
+      "displayOrder": 1
+     },
+     {
+      "skill": "Docker",
+      "category": null,
+      "displayOrder": 2
+     },
+     {
+      "skill": "PostgreSQL",
+      "category": "Backend",
+      "displayOrder": 3
+     }
+    ],
+    "languages": [
+     {
+      "language": "English",
+      "proficiency": "Fluent",
+      "displayOrder": 0
+     },
+     {
+      "language": "French",
+      "proficiency": "Intermediate",
+      "displayOrder": 1
+     },
+     {
+      "language": "Klingon",
+      "proficiency": null,
+      "displayOrder": 2
+     }
+    ],
+    "education": [
+     {
+      "institution": "Example University",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "location": "Montreal",
+      "startDate": "2010-09-01",
+      "endDate": "2014-06-30",
+      "relevantFocus": "software engineering, data structures"
+     },
+     {
+      "institution": "Example College",
+      "degree": null,
+      "field": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "relevantFocus": null
+     }
+    ],
+    "experiences": [
+     {
+      "company": "Example Corp",
+      "title": "Software Developer",
+      "location": "Montreal",
+      "startDate": "2016-01-01",
+      "endDate": null,
+      "description": "- Built the ingestion service for Example Corp.\n- Managed releases and deployments. Improved the test suite.",
+      "displayOrder": 0
+     },
+     {
+      "company": "Acme Example",
+      "title": "Full-Stack Developer",
+      "location": null,
+      "startDate": "2012-05-01",
+      "endDate": "2015-12-31",
+      "description": "Implemented JWT authentication. Supported the release process.",
+      "displayOrder": 1
+     },
+     {
+      "company": "Hidden Labs",
+      "title": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "1. First numbered line\n2) Second numbered line\n\n3. Third one\n4. Fourth one",
+      "displayOrder": 2
+     },
+     {
+      "company": null,
+      "title": "Consulting",
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "description": "Single line only. With two sentences.",
+      "displayOrder": 3
+     }
+    ],
+    "projects": [
+     {
+      "name": "Ada Tools",
+      "url": "https://tools.example.com",
+      "description": "Open tooling for examples.",
+      "displayOrder": 0,
+      "technologies": [
+       {
+        "technology": "Rust",
+        "displayOrder": 0
+       },
+       {
+        "technology": "Python",
+        "displayOrder": 1
+       }
+      ]
+     },
+     {
+      "name": null,
+      "url": null,
+      "description": null,
+      "displayOrder": 1,
+      "technologies": []
+     }
+    ],
+    "projectTechnologies": [
+     {
+      "technology": "Rust",
+      "displayOrder": 0
+     },
+     {
+      "technology": "Python",
+      "displayOrder": 1
+     }
+    ]
+   },
+   "expected": {
+    "ok": false,
+    "error": {
+     "code": "validation_error",
+     "message": "Resume preparation limit exceeded",
+     "details": {
+      "field": "profile",
+      "reason": "exceeds preparation safety budget"
+     }
+    }
+   }
+  },
+  {
+   "id": "canadian-fr-repeated-bullets",
+   "kind": "canadian_fr",
+   "finder": "synthetic",
+   "graph": {
+    "profile": {
+     "fullName": "Ada Example",
+     "email": "ada@example.com",
+     "summary": "Engineer who builds example systems for Example Corp."
+    },
+    "contacts": [
+     {
+      "contactType": "phone",
+      "contactValue": "+1 555 0100",
+      "label": "Phone"
+     },
+     {
+      "contactType": "email",
+      "contactValue": "ada@example.com",
+      "label": null
+     },
+     {
+      "contactType": "location",
+      "contactValue": "Address 1 Example Street, Montreal",
+      "label": "Address"
+     }
+    ],
+    "links": [
+     {
+      "linkType": "github",
+      "url": "https://github.example/ada",
+      "label": "GitHub"
+     },
+     {
+      "linkType": "website",
+      "url": "https://ada.example.com",
+      "label": null
+     }
+    ],
+    "skills": [
+     {
+      "skill": "Python",
+      "category": "Backend",
+      "displayOrder": 0
+     },
+     {
+      "skill": "TypeScript",
+      "category": "Frontend",
+      "displayOrder": 1
+     },
+     {
+      "skill": "Docker",
+      "category": null,
+      "displayOrder": 2
+     },
+     {
+      "skill": "PostgreSQL",
+      "category": "Backend",
+      "displayOrder": 3
+     }
+    ],
+    "languages": [
+     {
+      "language": "English",
+      "proficiency": "Fluent",
+      "displayOrder": 0
+     },
+     {
+      "language": "French",
+      "proficiency": "Intermediate",
+      "displayOrder": 1
+     },
+     {
+      "language": "Klingon",
+      "proficiency": null,
+      "displayOrder": 2
+     }
+    ],
+    "education": [
+     {
+      "institution": "Example University",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "location": "Montreal",
+      "startDate": "2010-09-01",
+      "endDate": "2014-06-30",
+      "relevantFocus": "software engineering, data structures"
+     },
+     {
+      "institution": "Example College",
+      "degree": null,
+      "field": null,
+      "location": null,
+      "startDate": null,
+      "endDate": null,
+      "relevantFocus": null
+     }
+    ],
+    "experiences": [
+     {
+      "company": "Example Corp",
+      "title": "Software Developer",
+      "location": "Montreal",
+      "startDate": "2016-01-01",
+      "endDate": null,
+      "description": "Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp. Built the Example platform for Example Corp.",
+      "displayOrder": 0
+     }
+    ],
+    "projects": [
+     {
+      "name": "Ada Tools",
+      "url": "https://tools.example.com",
+      "description": "Open tooling for examples.",
+      "displayOrder": 0,
+      "technologies": [
+       {
+        "technology": "Rust",
+        "displayOrder": 0
+       },
+       {
+        "technology": "Python",
+        "displayOrder": 1
+       }
+      ]
+     },
+     {
+      "name": null,
+      "url": null,
+      "description": null,
+      "displayOrder": 1,
+      "technologies": []
+     }
+    ],
+    "projectTechnologies": [
+     {
+      "technology": "Rust",
+      "displayOrder": 0
+     },
+     {
+      "technology": "Python",
+      "displayOrder": 1
+     }
+    ]
+   },
+   "expected": {
+    "ok": true,
+    "value": {
+     "title": "Ada Example",
+     "body": "Coordonn\u00e9es: ada@example.com | T\u00e9l\u00e9phone: +1 555 0100 | Adresse: Address 1 Example Street, Montreal\nLiens: GitHub: https://github.example/ada | Site Web: https://ada.example.com\n\nPROFIL PROFESSIONNEL\nEngineer who builds example syst\u00e8mes for Example Corp.\n\nCOMP\u00c9TENCES TECHNIQUES\nD\u00e9veloppement backend: Python, PostgreSQL\nD\u00e9veloppement frontend: TypeScript\nG\u00e9n\u00e9ral: Docker\n\nEXP\u00c9RIENCE PROFESSIONNELLE\nD\u00e9veloppeur logiciel | Example Corp\n2016-01 - Pr\u00e9sent | Montreal\n- \u00c9labor\u00e9 the Example platform for Example Corp.\n- \u00c9labor\u00e9 the Example platform for Example Corp.\n- \u00c9labor\u00e9 the Example platform for Example Corp.\n\nFORMATION\nBachelor of Science, Informatique\nExample University | Montreal\n2010-09 - 2014-06\n- G\u00e9nie logiciel, data structures\n\nDipl\u00f4me\nExample College\nDates non pr\u00e9cis\u00e9es\n\nLANGUES\nAnglais (Courant), Fran\u00e7ais (Interm\u00e9diaire), Klingon",
+     "resumeType": "canadian_resume_fr"
+    }
+   }
+  },
+  {
+   "id": "bullets-lines",
+   "kind": "bullets",
+   "finder": "synthetic",
+   "description": "- One\n* Two\n3. Three\nFour",
+   "expected": {
+    "ok": true,
+    "value": [
+     "One",
+     "Two",
+     "Three"
+    ]
+   }
+  },
+  {
+   "id": "bullets-single-two-sentences",
+   "kind": "bullets",
+   "finder": "synthetic",
+   "description": "Built A. Shipped B.",
+   "expected": {
+    "ok": true,
+    "value": [
+     "Built A.",
+     "Shipped B."
+    ]
+   }
+  },
+  {
+   "id": "bullets-single-three-sentences",
+   "kind": "bullets",
+   "finder": "synthetic",
+   "description": "One. Two. Three. Four. Five.",
+   "expected": {
+    "ok": true,
+    "value": [
+     "One.",
+     "Two.",
+     "Three."
+    ]
+   }
+  },
+  {
+   "id": "bullets-numbered-prefixes",
+   "kind": "bullets",
+   "finder": "synthetic",
+   "description": "1.Built\n2) Shipped\n3.\t Tested\n10. Ten",
+   "expected": {
+    "ok": true,
+    "value": [
+     "1.Built",
+     "Shipped",
+     "Tested"
+    ]
+   }
+  },
+  {
+   "id": "bullets-blank",
+   "kind": "bullets",
+   "finder": "synthetic",
+   "description": "   \n \t ",
+   "expected": {
+    "ok": true,
+    "value": []
+   }
+  },
+  {
+   "id": "bullets-none",
+   "kind": "bullets",
+   "finder": "synthetic",
+   "description": null,
+   "expected": {
+    "ok": true,
+    "value": []
+   }
+  },
+  {
+   "id": "bullets-raising",
+   "kind": "bullets",
+   "finder": "raise",
+   "description": "Only one line.",
+   "expected": {
+    "ok": false,
+    "error": {
+     "code": "internal_error",
+     "message": "Canadian sentence boundary backend failed",
+     "details": {}
+    }
+   }
+  },
+  {
+   "id": "bullets-invalid",
+   "kind": "bullets",
+   "finder": "invalid",
+   "description": "Only one line.",
+   "expected": {
+    "ok": false,
+    "error": {
+     "code": "internal_error",
+     "message": "Canadian sentence boundary backend returned invalid offsets",
+     "details": {}
+    }
+   }
+  },
+  {
+   "id": "bullets-crlf",
+   "kind": "bullets",
+   "finder": "synthetic",
+   "description": "- One\r\n- Two\rThree",
+   "expected": {
+    "ok": true,
+    "value": [
+     "One",
+     "Two",
+     "Three"
+    ]
+   }
+  },
+  {
+   "id": "bullets-trailing-split",
+   "kind": "bullets",
+   "finder": "synthetic",
+   "description": "Ends with dot. ",
+   "expected": {
+    "ok": true,
+    "value": [
+     "Ends with dot."
+    ]
+   }
+  }
+ ]
+}

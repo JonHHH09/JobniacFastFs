@@ -1,0 +1,320 @@
+{
+ "format": "jobniac-sentence-expected-errors",
+ "version": 1,
+ "surrogates": [
+  {
+   "id": "excluded-lone-surrogate-0179",
+   "category": "excluded-lone-surrogate",
+   "code_points": [
+    66,
+    114,
+    111,
+    107,
+    101,
+    110,
+    32,
+    55357,
+    32,
+    101,
+    115,
+    99,
+    97,
+    112,
+    101,
+    46,
+    32,
+    78,
+    101,
+    120,
+    116,
+    32,
+    115,
+    101,
+    110,
+    116,
+    101,
+    110,
+    99,
+    101,
+    46
+   ],
+   "reference": {
+    "boundaries": [
+     0,
+     17,
+     31
+    ]
+   }
+  },
+  {
+   "id": "excluded-lone-surrogate-0180",
+   "category": "excluded-lone-surrogate",
+   "code_points": [
+    69,
+    115,
+    99,
+    97,
+    112,
+    101,
+    100,
+    32,
+    108,
+    111,
+    119,
+    32,
+    56832,
+    32,
+    97,
+    108,
+    111,
+    110,
+    101,
+    46,
+    32,
+    78,
+    101,
+    120,
+    116,
+    32,
+    115,
+    101,
+    110,
+    116,
+    101,
+    110,
+    99,
+    101,
+    46
+   ],
+   "reference": {
+    "boundaries": [
+     0,
+     21,
+     35
+    ]
+   }
+  },
+  {
+   "id": "lone-surrogate-high-0502",
+   "category": "lone-surrogate-high",
+   "code_points": [
+    66,
+    114,
+    55357,
+    32,
+    46,
+    32,
+    78,
+    101,
+    120,
+    116,
+    46
+   ],
+   "reference": {
+    "boundaries": [
+     0,
+     6,
+     11
+    ]
+   }
+  },
+  {
+   "id": "lone-surrogate-low-0503",
+   "category": "lone-surrogate-low",
+   "code_points": [
+    65,
+    56832,
+    32,
+    66,
+    46,
+    32,
+    67,
+    46
+   ],
+   "reference": {
+    "boundaries": [
+     0,
+     6,
+     8
+    ]
+   }
+  },
+  {
+   "id": "explicit-pair-0504",
+   "category": "explicit-pair",
+   "code_points": [
+    69,
+    55357,
+    56832,
+    32,
+    65,
+    46,
+    32,
+    66,
+    46
+   ],
+   "reference": {
+    "boundaries": [
+     0,
+     7,
+     9
+    ]
+   }
+  },
+  {
+   "id": "explicit-pair-0505",
+   "category": "explicit-pair",
+   "code_points": [
+    55357,
+    56832,
+    32,
+    65,
+    46,
+    32,
+    66
+   ],
+   "reference": {
+    "boundaries": [
+     0,
+     6,
+     7
+    ]
+   }
+  },
+  {
+   "id": "explicit-pair-0506",
+   "category": "explicit-pair",
+   "code_points": [
+    80,
+    97,
+    105,
+    114,
+    32,
+    55357,
+    56832,
+    46,
+    32,
+    78,
+    101,
+    120,
+    116,
+    46
+   ],
+   "reference": {
+    "boundaries": [
+     0,
+     9,
+     14
+    ]
+   }
+  },
+  {
+   "id": "explicit-pair-0507",
+   "category": "explicit-pair",
+   "code_points": [
+    84,
+    119,
+    111,
+    32,
+    55357,
+    56832,
+    55357,
+    56832,
+    32,
+    112,
+    97,
+    105,
+    114,
+    115,
+    46
+   ],
+   "reference": {
+    "boundaries": [
+     0,
+     15
+    ]
+   }
+  },
+  {
+   "id": "explicit-pair-0508",
+   "category": "explicit-pair",
+   "code_points": [
+    80,
+    55357,
+    56832,
+    46,
+    32,
+    55357,
+    32,
+    108,
+    111,
+    110,
+    101,
+    46,
+    32,
+    68,
+    111,
+    110,
+    101,
+    46
+   ],
+   "reference": {
+    "boundaries": [
+     0,
+     13,
+     18
+    ]
+   }
+  }
+ ],
+ "budget": [
+  {
+   "id": "budget-units-at-cap",
+   "unit_code_point": "U+0061",
+   "repeat": 1000000,
+   "utf16_units": 1000000,
+   "reference": {
+    "boundaries": [
+     0,
+     1000000
+    ]
+   }
+  },
+  {
+   "id": "budget-units-over-cap",
+   "unit_code_point": "U+0061",
+   "repeat": 1000001,
+   "utf16_units": 1000001,
+   "reference": {
+    "error": {
+     "type": "ApplicationError",
+     "message": "Resume preparation limit exceeded"
+    }
+   }
+  },
+  {
+   "id": "budget-astral-at-cap",
+   "unit_code_point": "U+1F600",
+   "repeat": 500000,
+   "utf16_units": 1000000,
+   "reference": {
+    "boundaries": [
+     0,
+     500000
+    ]
+   }
+  },
+  {
+   "id": "budget-astral-over-cap",
+   "unit_code_point": "U+1F600",
+   "repeat": 500001,
+   "utf16_units": 1000002,
+   "reference": {
+    "error": {
+     "type": "ApplicationError",
+     "message": "Resume preparation limit exceeded"
+    }
+   }
+  }
+ ]
+}

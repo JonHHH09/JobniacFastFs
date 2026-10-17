@@ -1,0 +1,882 @@
+{
+  "version": 1,
+  "description": "Reviewed known-synthetic or intentionally public hits. Each entry is keyed by the SHA-256 of the file content (or blob content in history) and lists the classes it covers. A changed file has a different digest and triggers review again. Every entry needs a reason.",
+  "entries": [
+    {
+      "sha256": "1f3689f6374b0553996fdc99743799216703835070145d7f0e6ec11e6280139e",
+      "classes": ["binary-document"],
+      "paths": ["src-tauri/icons/128x128.png"],
+      "reason": "Application icon image (binary PNG/ICO/ICNS), no text content; reviewed as an icon asset."
+    },
+    {
+      "sha256": "3dc10493b7de48a61de58f768f8a5708d3a44a068c148cedf0502b9b9b71ba5d",
+      "classes": ["binary-document"],
+      "paths": ["src-tauri/icons/icon.icns"],
+      "reason": "Application icon image (binary PNG/ICO/ICNS), no text content; reviewed as an icon asset."
+    },
+    {
+      "sha256": "5412fce324344999aad82f6b69abcaa6c8792eac7b79a4b321aaaeacd0525eaf",
+      "classes": ["binary-document"],
+      "paths": ["src-tauri/icons/StoreLogo.png"],
+      "reason": "Application icon image (binary PNG/ICO/ICNS), no text content; reviewed as an icon asset."
+    },
+    {
+      "sha256": "624dd93ddb1f0d69f2a4aa7af0b0646ae3ae6347cbb42dab56ef88dba7f38d07",
+      "classes": ["binary-document"],
+      "paths": ["src-tauri/icons/Square310x310Logo.png"],
+      "reason": "Application icon image (binary PNG/ICO/ICNS), no text content; reviewed as an icon asset."
+    },
+    {
+      "sha256": "66a6b51da8962a9472c9d29b1b08e3309561521bf7fbaac52b9f680df13ff487",
+      "classes": ["binary-document"],
+      "paths": ["src-tauri/icons/Square71x71Logo.png"],
+      "reason": "Application icon image (binary PNG/ICO/ICNS), no text content; reviewed as an icon asset."
+    },
+    {
+      "sha256": "69194785eef4323955af73b0c03362ac0804db056c2424f9715076cabc0ed103",
+      "classes": ["binary-document"],
+      "paths": ["src-tauri/icons/128x128@2x.png"],
+      "reason": "Application icon image (binary PNG/ICO/ICNS), no text content; reviewed as an icon asset."
+    },
+    {
+      "sha256": "80d93a5257c89ea57023c30500c889b4df062430ffb0b4fed4ca4785d13e29ac",
+      "classes": ["binary-document"],
+      "paths": ["src-tauri/icons/Square284x284Logo.png"],
+      "reason": "Application icon image (binary PNG/ICO/ICNS), no text content; reviewed as an icon asset."
+    },
+    {
+      "sha256": "b5d93c8ec365c08b11bd006e46a46e227c681d30bb295af3d017573bfc752a83",
+      "classes": ["binary-document"],
+      "paths": ["src-tauri/icons/icon.png"],
+      "reason": "Application icon image (binary PNG/ICO/ICNS), no text content; reviewed as an icon asset."
+    },
+    {
+      "sha256": "c348fcf2d2f2f9714a41925184926f77f440676987d233ae1daf4fd94fda245f",
+      "classes": ["binary-document"],
+      "paths": ["src-tauri/icons/Square142x142Logo.png"],
+      "reason": "Application icon image (binary PNG/ICO/ICNS), no text content; reviewed as an icon asset."
+    },
+    {
+      "sha256": "c3ce70e22ec2ed3ea2d0362a767d087e6cadb93ec71e80010649f892520175f4",
+      "classes": ["binary-document"],
+      "paths": ["src-tauri/icons/Square30x30Logo.png"],
+      "reason": "Application icon image (binary PNG/ICO/ICNS), no text content; reviewed as an icon asset."
+    },
+    {
+      "sha256": "d151f11e325f7502de0c739a2e51697aa569fd4701ae6e11fae1a3b4c7d5f157",
+      "classes": ["binary-document"],
+      "paths": ["src-tauri/icons/32x32.png"],
+      "reason": "Application icon image (binary PNG/ICO/ICNS), no text content; reviewed as an icon asset."
+    },
+    {
+      "sha256": "d46dc2bc568f911b9cb978de68b4a7e3ad458fbac15196597849c43c40f4b65a",
+      "classes": ["binary-document"],
+      "paths": ["src-tauri/icons/Square150x150Logo.png"],
+      "reason": "Application icon image (binary PNG/ICO/ICNS), no text content; reviewed as an icon asset."
+    },
+    {
+      "sha256": "e38ca88e1d5490f3dcbc3c3fa525f7fcb7b80fff3cb2f3a4eb1b2d018c0915c1",
+      "classes": ["binary-document"],
+      "paths": ["src-tauri/icons/icon.ico"],
+      "reason": "Application icon image (binary PNG/ICO/ICNS), no text content; reviewed as an icon asset."
+    },
+    {
+      "sha256": "f9eca6f00dba41cfecfedbc9a6f88014b4ee0f9dbf016e202c7ede09c60107ef",
+      "classes": ["binary-document"],
+      "paths": ["src-tauri/icons/Square44x44Logo.png"],
+      "reason": "Application icon image (binary PNG/ICO/ICNS), no text content; reviewed as an icon asset."
+    },
+    {
+      "sha256": "fd8658ff0e2c177ce0779d11fea1574e9d7d82a52a3a9197038f37b07fe24475",
+      "classes": ["binary-document"],
+      "paths": ["src-tauri/icons/Square107x107Logo.png"],
+      "reason": "Application icon image (binary PNG/ICO/ICNS), no text content; reviewed as an icon asset."
+    },
+    {
+      "sha256": "fe8da53273722bb6fd66e98bf6810e8a7db22aeff27c6c1a096d57ba556b9ef4",
+      "classes": ["binary-document"],
+      "paths": ["src-tauri/icons/Square89x89Logo.png"],
+      "reason": "Application icon image (binary PNG/ICO/ICNS), no text content; reviewed as an icon asset."
+    },
+    {
+      "sha256": "1e75a982233df8e4eb4b570b3e2b318217d7c1e6cc1e91be81a5a5ff6399b544",
+      "classes": ["owner-identity"],
+      "paths": ["crates/pdf/tests/golden/pdf-font.json"],
+      "reason": "Escaped binary font bytes in a JSON vector; the short owner literal matches a coincidental byte sequence (reviewed)."
+    },
+    {
+      "sha256": "273442431ce1b8ee1ec7803cabceeb68087c1fc4d41a547a672016d6c5c97401",
+      "classes": ["personal-data"],
+      "paths": ["crates/pdf/tests/golden/german-pdf-source.json"],
+      "reason": "Phone-shaped values inside the invented German profile of the regenerated PDF fixtures; not real numbers (reviewed)."
+    },
+    {
+      "sha256": "4a77f885eda62baacbcc401b3162e05bf71823c12e9e94a16d9feddcf7d0f0da",
+      "classes": ["personal-data"],
+      "paths": [],
+      "reason": "Phone-shaped values inside the invented German profile of the regenerated PDF fixtures; not real numbers (reviewed)."
+    },
+    {
+      "sha256": "66a17d3b32a1d94e85aef323b17b05d54089df73e357e74a280623d30b992d2b",
+      "classes": ["personal-data"],
+      "paths": ["crates/pdf/tests/golden/german-content-streams.json"],
+      "reason": "Phone-shaped values inside the invented German profile of the regenerated PDF fixtures; not real numbers (reviewed)."
+    },
+    {
+      "sha256": "d5d149dd70da8e7808ac5a3eb6660bab1d592eee82b1c8423a68a14179eff989",
+      "classes": ["personal-data"],
+      "paths": ["crates/pdf/tests/golden/german-resume-source.json"],
+      "reason": "Phone-shaped values inside the invented German profile of the regenerated PDF fixtures; not real numbers (reviewed)."
+    },
+    {
+      "sha256": "1b15125fc1eaae72b834d7b36acd7ae8fe17b7958314276a23e282b51d15b92b",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/src/outbound/address.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "1f313fb788bdaa64b469d271b2ba1c7365487af8c0f879c15d1e51fbfd711340",
+      "classes": ["ip-address"],
+      "paths": ["crates/text/tests/golden/root-lower-jdk.json"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "2157ca460337a37625651fa64d51b867e244681396568dfbcef1acec5c7c5147",
+      "classes": ["ip-address"],
+      "paths": ["crates/mcp/tests/golden/http-guard.json"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "22a2604df3fd793fd410e9d3bbef567b0c7c4c3124f85987aa5170a99de5e87a",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/tests/golden/outbound-policy.json"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "326568c63e4984e937af989cc99dd1d76f728ae9ee8dc6b9b61108148f16e97f",
+      "classes": ["ip-address"],
+      "paths": ["crates/runtime/src/job_links.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "386f5335a4d44ba7940dc9d6037adda18b0cab26b095be0d53812cac528a366e",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/src/matching/privacy.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "3ade52bad01a759aec1830a5a4d159c769670498d59902495b2a022495954799",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/tests/matching_privacy.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "5c4a35f7c8a3c77a3d26fefc60cfbc090dc871ac33d1c821d657c53b2d96ee55",
+      "classes": ["ip-address"],
+      "paths": ["crates/infra/tests/fetch_board.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "62302ba2741eae6dc20025a61c52b3b0e89b7ef305d392eedbf6e5d0fa368b2b",
+      "classes": ["ip-address"],
+      "paths": [],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "6b8f9206283604ad2a88de0da4e19c3b6c5364f2cf294736d199eb92b4263728",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/tests/outbound_policy.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "847d40180e574718031d5e9e86888749d59593cdc321aada90b20181cf47426a",
+      "classes": ["ip-address"],
+      "paths": [],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "4aec04bb8e607fd6110316f0aefbf2d06385efb2310e4054bc2f763827cf6be3",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/tests/job_urls_wire.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "07ca5a2e7f4ac2e4ae9b9e32c235d7d546a7cde9f5cb750edc9b52f672b8c29d",
+      "classes": ["ip-address", "email"],
+      "paths": ["crates/core/tests/golden/job-urls.json"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed). Also URL userinfo vectors with a placeholder user name, the provider host constants (greenhouse and indeed names, and their lookalikes) that crates/core/src/job_links/urls.rs classifies, and the Java vectors. Real job-board hosts that are not product constants were replaced with example.* hosts. Reviewed."
+    },
+    {
+      "sha256": "a1b952b5fedf5c40e31cb0b90c842e3e54535c891ac7cfcf2975f3f88d84d37c",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/tests/golden/matching-privacy.json"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "bcfa0a60eaf8162c96803ec3f052158809848fb9c9a62b059105f44f64545180",
+      "classes": ["ip-address"],
+      "paths": ["crates/infra/tests/fetch_wire.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "bd7c01eb7e70a54f3df97809f8a372624840d400794e1cc63e9adc156ff77918",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/tests/golden/profile-links.json"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "c3094f0d96be43e3c8819867ca7e8fb60483bce641ef169aa321563a50cb83c2",
+      "classes": ["ip-address"],
+      "paths": ["crates/infra/tests/fetch_link.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "c519fbaa64963f09aa7acf1af4bb59742ba49fd280e1300b9fff710628d6fdc2",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/tests/matching_validation.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "c7498448a45dbfd61c62b4c209cae72875db5503405ef00a64b9f1f306bc7918",
+      "classes": ["ip-address"],
+      "paths": [],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "c7df29dfe0eb5de8515b599afb9e8cd72a2a4585c54d7699e44713acad556d6e",
+      "classes": ["ip-address"],
+      "paths": ["crates/runtime/src/worker_fetch.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "d5bf5b3776842aba54ab6318c8cfd0725fd25391ff287ad0995ddec1cbc306c0",
+      "classes": ["ip-address"],
+      "paths": [],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "e6c7c6c5384fbef1fcbb290f5b84dbe8d5b27f99910010467471ff6113c2791e",
+      "classes": ["ip-address"],
+      "paths": ["crates/cli/tests/fetch_worker.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "ac630ce26cf956c655a697ef8952acc857c1842570763ad15abbece79602affb",
+      "classes": ["ip-address"],
+      "paths": [],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "2dad4bf35bc32b3dc8ce985d2fcaefa88770925d786a8a49042041b12faddafa",
+      "classes": ["local-path"],
+      "paths": ["crates/core/tests/generated_root.rs"],
+      "reason": "Windows profile segments in path-handling tests and golden vectors are single-letter synthetic names (reviewed)."
+    },
+    {
+      "sha256": "4a8c6a8b349ee6f7984f3c3c56e5727fc4d5b723aa384bca0afb1d097524d13b",
+      "classes": ["local-path"],
+      "paths": [],
+      "reason": "Windows profile segments in path-handling tests and golden vectors are single-letter synthetic names (reviewed)."
+    },
+    {
+      "sha256": "4fd8d929cd7868aae4137c8aca4b62cecb0f405bb30cba25834204a9345d9e3b",
+      "classes": ["local-path"],
+      "paths": ["crates/infra/tests/golden/windows-path.json"],
+      "reason": "Windows profile segments in path-handling tests and golden vectors are single-letter synthetic names (reviewed)."
+    },
+    {
+      "sha256": "5263b61e7c9d25f922cc2b96aaceb5196df57a9960d1a6699a840215869530de",
+      "classes": ["local-path"],
+      "paths": ["crates/infra/tests/files_windows_path.rs"],
+      "reason": "Windows profile segments in path-handling tests and golden vectors are single-letter synthetic names (reviewed)."
+    },
+    {
+      "sha256": "a0d758444b80b07bfda86119bfa459e6840ab504d1194a0316bbe04f2ac8a55a",
+      "classes": ["local-path"],
+      "paths": ["crates/infra/src/files/windows_path.rs"],
+      "reason": "Windows profile segments in path-handling tests and golden vectors are single-letter synthetic names (reviewed)."
+    },
+    {
+      "sha256": "a46b1f877f7f9d42541595c28ceb27413b615afe7c9038d73a16d6d14aa3c6df",
+      "classes": ["local-path"],
+      "paths": [],
+      "reason": "Windows profile segments in path-handling tests and golden vectors are single-letter synthetic names (reviewed)."
+    },
+    {
+      "sha256": "a54a860e3dd7a5546d85353182000b4a6504a50507232ebe038a965f03c18e35",
+      "classes": ["local-path"],
+      "paths": ["src-tauri/src/document_dto.rs"],
+      "reason": "Windows profile segments in path-handling tests and golden vectors are single-letter synthetic names (reviewed)."
+    },
+    {
+      "sha256": "a63f2bc75b4eafbe1b8420978a83e5e784dd45f9578f103fa464e4e71682ed0a",
+      "classes": ["local-path"],
+      "paths": ["crates/core/tests/golden/generated-root.json"],
+      "reason": "Windows profile segments in path-handling tests and golden vectors are single-letter synthetic names (reviewed)."
+    },
+    {
+      "sha256": "b5748fe271e2ec7e186633b31f76ca09c000a182449e24ecf420aceb01367252",
+      "classes": ["local-path"],
+      "paths": [],
+      "reason": "Windows profile segments in path-handling tests and golden vectors are single-letter synthetic names (reviewed)."
+    },
+    {
+      "sha256": "bf526182daa5e8daccbecb56f1e5d20e9875daa61315ca661304708ad76dc194",
+      "classes": ["local-path"],
+      "paths": ["crates/core/tests/golden/generation/standalone-file-names.json"],
+      "reason": "Windows profile segments in path-handling tests and golden vectors are single-letter synthetic names (reviewed)."
+    },
+    {
+      "sha256": "10613a46b61ff2ae5341fa6e427a6eaf9ef51da915ed19a661bb3021d69d8d36",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/corpus/resume-simple.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "20b14015b4eabae0df0b85d299730c3d9267e1d8e6329f7c6ba3e931186dfe81",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/hostile/encrypted-empty-user.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "2d63fdaccdab54e54a039f52e1996ec1e284b4ff9fa5377b9a9278610ead4cc3",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/corpus/budget-100000.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "3d4b5baf6ed0fa2cb4b780ee16ccc49599da9e10fbce16b24253092f5fc01748",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/corpus/two-pages.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "45abe130382f32436782b05160a53a7dd1ddc3b696cfa61ed3e0be3750f20d3d",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/hostile/nested-objects.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "4b76d1767169b9550431a2e23e5a8c0f52200489fdb1699d5a2a5879f8a3bd4a",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/corpus/latin-accents.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "4e886fd70e6cb095dfda4e49a6dceda2959ac1e9f86950e36ddf0a35da5f8385",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/corpus/budget-250001.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "59b930292411df3206510890150a12bc86b842f291f074ecd8a08b5a2c772aaf",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/hostile/page-limit.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "5eeec9993e43a4447740d95dcd8893a6079501e7d5f31e4d7d71b3203ccd06d7",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/corpus/escapes.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "65f6ceca9cf196a0999e25d3ff98d376ba3d7d32533fcfe4d84813e13794d964",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/corpus/budget-250000.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "8702d8ce061fca405fd249f0e3d5bcfa5c0c20582c2946541c4cb5df71533f60",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/corpus/budget-250001-split-pair.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "88d99b905804585cde6428e07266ee6c3af5600c877160609ebf2ea262656e6e",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/hostile/truncated.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "95e66158dbcac12fabf7cf207ae3c40db01582cbc2d45e91df5e0d4b4e405702",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/hostile/decompression-bomb.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "a17d87258ae26238be1f8b8bf559877f197a9ba68e82b68bff63d19a89f05f86",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/corpus/supplementary.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "a3438f14e1d7e2f4b0dd9300182f69f90e3de879b2256c71165f1367987b6908",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/corpus/pages-200.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "a94096ff75a39de1648cda750f323792d2f02ddc4d2d666bf6332c483e03b249",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/corpus/long-pages.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "a9d01e7776c5e31a2dfece5c76ee9101add55f65a0aabc440087e97726143c8c",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/hostile/off-page-text.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "b6430eee4a8b072c41204074403f9ca137bad0595e14946de1f2404a9176840a",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/corpus/blank-page.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "cde7544a8da1fa3000b5c31c7d36b5c7e56d9a10a1bd1772391d208d2d9f282b",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/hostile/encrypted.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "d367ec832f2f90e5278dd6ef0243a8a44dc043ffbe26b6ac7f70af279e31e44b",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/hostile/malformed-xref.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "f4ce8a9c8ed38de6a098723e6ad1941eddf304bab37cc15f35d2d0a2accdba43",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/corpus/mixed-spacing.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "f8d210f74a0f4791b09fbfad879977e9d0a03dafdcb84e1c64c2f19a2587f862",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/corpus/budget-100001.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "fee769cb18df5f8e686855aa90f81c5e33dd58694a9cc5ffadecc43a98f560d3",
+      "classes": ["binary-document"],
+      "paths": ["crates/infra/tests/fixtures/pdf/hostile/huge-page-count.pdf"],
+      "reason": "Synthetic PDF generated from fixed text (corpus and hostile set); no personal content."
+    },
+    {
+      "sha256": "6bf35c650f71f6d6060dffd3abf31aa4aed471cf1dadca8467ee11792b220e8a",
+      "classes": ["email"],
+      "paths": ["crates/core/tests/golden/profile-write.json"],
+      "reason": "Invented profile values in golden vectors; example.* and invented domains only (reviewed)."
+    },
+    {
+      "sha256": "847d40180e574718031d5e9e86888749d59593cdc321aada90b20181cf47426a",
+      "classes": ["email"],
+      "paths": [],
+      "reason": "Invented profile values in golden vectors; example.* and invented domains only (reviewed)."
+    },
+    {
+      "sha256": "8aab447327ae77af1c1fb8802a0ccea45393f05cd22ab431a91cd59deefbf891",
+      "classes": ["email", "personal-data"],
+      "paths": ["crates/core/tests/golden/profile-text.json"],
+      "reason": "Invented profile values in golden vectors (reviewed)."
+    },
+    {
+      "sha256": "d159ea61f54ee1f60c32e32a70cb2657665222f0041a1daefe49b2e058188359",
+      "classes": ["email", "personal-data"],
+      "paths": [],
+      "reason": "Invented profile values in golden vectors (reviewed)."
+    },
+    {
+      "sha256": "2157ca460337a37625651fa64d51b867e244681396568dfbcef1acec5c7c5147",
+      "classes": ["secret-token"],
+      "paths": ["crates/mcp/tests/golden/http-guard.json"],
+      "reason": "Repeated-character bearer value in the HTTP guard test vector (synthetic, reviewed)."
+    },
+    {
+      "sha256": "a79aae0c0f21990d9d963bb3c5a79cdcea9a46f8523ba55c58d7fe776b6ebc84",
+      "classes": ["email"],
+      "paths": ["scripts/release/notices/npm-overrides/react-remove-scroll-bar@2.3.8/LICENSE"],
+      "reason": "Upstream copyright line with its contact address, kept verbatim in a notice file as the licence requires (third-party contact addresses)."
+    },
+    {
+      "sha256": "c3094f0d96be43e3c8819867ca7e8fb60483bce641ef169aa321563a50cb83c2",
+      "classes": ["personal-data"],
+      "paths": ["crates/infra/tests/fetch_link.rs"],
+      "reason": "Digit run inside a URL in the fetch test, not a phone number (reviewed)."
+    },
+    {
+      "sha256": "9da8700ca525f419a4f9586412a9bac04cb8ba5bb9fd5ef4215c349916121256",
+      "classes": ["ip-address"],
+      "paths": ["src-tauri/build.rs"],
+      "reason": "Version-like dotted number in the build script, not an address (reviewed)."
+    },
+    {
+      "sha256": "31c4e8f62bc2f40ec3027f6f7e868480ceb17ad06fce6e6161550b453a077568",
+      "classes": ["email"],
+      "paths": ["pnpm-lock.yaml"],
+      "reason": "Third-party package metadata: the deprecation notice of the glob package in the lockfile carries the package maintainer's published contact address, kept verbatim from the npm registry. The lockfile is not edited by hand. Reviewed."
+    },
+    {
+      "sha256": "25ff8cf340f213ea6c914ccbace50205ae3d9556b7b2a0aa00e3259124f518a4",
+      "classes": ["email"],
+      "paths": ["crates/core/tests/arbeitnow_board.rs"],
+      "reason": "Fixed Arbeitnow board host (HOST in crates/core/src/arbeitnow/board.rs) used in the userinfo rejection cases: the host after a userinfo part, and the host placed in userinfo before an example.* host. A product constant tested by the fixed-host rule. Reviewed."
+    },
+    {
+      "sha256": "da8eebe4cdb43fbcf77e3ad75a354240c6fb273cbf7ddb08f333b28ea07e3f91",
+      "classes": ["email"],
+      "paths": [".claude/skills/tauri-dev/skills/tauri-security/SKILL.md"],
+      "reason": "Upstream Tauri documentation text: the project security contact address, copied verbatim by the docs sync script. Vendor output, not edited. Owner decision: whether .claude/ is published."
+    },
+    {
+      "sha256": "b41015ec8c1d5dabc597d27399f0d4695eabac0c2a2983ed0ac12943946c96f1",
+      "classes": ["email"],
+      "paths": [".claude/skills/tauri-dev/skills/tauri-security/references/overview.md"],
+      "reason": "Upstream Tauri documentation text: the project security contact address, copied verbatim by the docs sync script. Vendor output, not edited. Owner decision: whether .claude/ is published."
+    },
+    {
+      "sha256": "5f14bfbd276d1997f731cc3c8fd18eb75dd3fc6498eb7b98e215601f7eedffff",
+      "classes": ["db-credentials"],
+      "paths": [".claude/skills/tauri-dev/skills/tauri-official-plugins/references/sql.md"],
+      "reason": "Upstream plugin documentation example: placeholder credentials in usage snippets. Vendor output, not edited. Owner decision: whether .claude/ is published."
+    },
+    {
+      "sha256": "c85971dd244714cd07cc99c99319f34dde7b18c01957bf0a06006bea06607730",
+      "classes": ["ip-address"],
+      "paths": [".claude/skills/tauri-dev/skills/tauri-distribute/references/microsoft-store.md"],
+      "reason": "Upstream Microsoft Store policy section number in the documentation text, not an address. Vendor output, not edited."
+    },
+    {
+      "sha256": "7bfb33d7d48a2742a351c1a2dcbe55befc48afde39851d61c4f0123d32ff085e",
+      "classes": ["local-path"],
+      "paths": [".claude/skills/tauri-dev/skills/tauri-distribute/references/rpm.md"],
+      "reason": "Upstream documentation example: placeholder home folder name in RPM signing snippets. Vendor output, not edited."
+    },
+    {
+      "sha256": "ddbc75fc913246a2527cbab0aacb1349e25f0f9f56152f4c7fd3744c3d050d17",
+      "classes": ["local-path"],
+      "paths": [".claude/skills/tauri-dev/skills/tauri-official-plugins/references/logging.md"],
+      "reason": "Upstream documentation example: placeholder user name in the log folder table. Vendor output, not edited."
+    },
+    {
+      "sha256": "5646a3fa5e7fe3c132b2e1906f7105f7358f28721631d8f5b544816f3d523992",
+      "classes": ["personal-phrase"],
+      "paths": ["crates/core/src/german/translation.rs"],
+      "reason": "Generic resume wording, not a personal phrase: the education-field heading, the degree-program template text and the Technologies heading are standard labels; the phrase fingerprint collides with a generic side. Reviewed."
+    },
+    {
+      "sha256": "b517805d496d90beb9e9c6fa27996f65fe4e29bb8ddd4249f6eacbd9d33d9c80",
+      "classes": ["personal-phrase"],
+      "paths": ["crates/core/src/german/resume.rs"],
+      "reason": "Generic resume wording, not a personal phrase: the education-field heading, the degree-program template text and the Technologies heading are standard labels; the phrase fingerprint collides with a generic side. Reviewed."
+    },
+    {
+      "sha256": "801948ae3650b1acf7dde9a683ffc0411c89800f9163c9e6005c4c47b93d0119",
+      "classes": ["personal-phrase"],
+      "paths": ["crates/core/tests/german_translation.rs"],
+      "reason": "Generic resume wording, not a personal phrase: the education-field heading, the degree-program template text and the Technologies heading are standard labels; the phrase fingerprint collides with a generic side. Reviewed."
+    },
+    {
+      "sha256": "4e8916c5095a36987dff3edd278423220394c2ab37ad51128fabe024b15856c7",
+      "classes": ["personal-phrase"],
+      "paths": ["crates/core/tests/golden/german/translation_pairs.json"],
+      "reason": "Generic resume wording, not a personal phrase: the education-field heading, the degree-program template text and the Technologies heading are standard labels; the phrase fingerprint collides with a generic side. Reviewed."
+    },
+    {
+      "sha256": "000c17e1d706e8c3aeb67545246d6b96904ae83c9a098c5d959750151b410a71",
+      "classes": ["personal-phrase"],
+      "paths": [],
+      "reason": "Generic resume wording, not a personal phrase: the education-field heading, the degree-program template text and the Technologies heading are standard labels; the phrase fingerprint collides with a generic side. Reviewed."
+    },
+    {
+      "sha256": "b6d2425ad2aa0ab75dc264caefe555aa7b5e1587568b2f10c157ce8d1a170943",
+      "classes": ["personal-phrase"],
+      "paths": ["crates/core/src/profiles/draft.rs"],
+      "reason": "Generic resume wording, not a personal phrase: the education-field heading, the degree-program template text and the Technologies heading are standard labels; the phrase fingerprint collides with a generic side. Reviewed."
+    },
+    {
+      "sha256": "35f790393940a2a41c495d7ba656bed09b3f2cfea0f32c54c34996773a6eeaef",
+      "classes": ["personal-phrase"],
+      "paths": ["crates/core/src/profiles/model.rs"],
+      "reason": "Generic resume wording, not a personal phrase: the education-field heading, the degree-program template text and the Technologies heading are standard labels; the phrase fingerprint collides with a generic side. Reviewed."
+    },
+    {
+      "sha256": "cb2d035b3ca03289be04ec648e7179482a907b5d8151b815d8345c5740ab2986",
+      "classes": ["personal-phrase"],
+      "paths": ["src/features/profiles/schema.ts"],
+      "reason": "Generic resume wording, not a personal phrase: the education-field heading, the degree-program template text and the Technologies heading are standard labels; the phrase fingerprint collides with a generic side. Reviewed."
+    },
+    {
+      "sha256": "cecc7bc97811ac6b98ee84467c7a45e49f68a88ef82e498fd9595134dd4a0be9",
+      "classes": ["personal-phrase", "personal-data"],
+      "paths": ["crates/core/tests/german_resume.rs"],
+      "reason": "Synthetic resume fixture: generic resume wording (the education-field heading and the degree-program template text, see the German phrase entries) and an invented birth-date value 1901-02-03 used as parser input (synthetic). Reviewed."
+    },
+    {
+      "sha256": "0ebac378c5fb51dc808a9b970045b5b6ee64ddbfe2be90a038f47aed706bf06b",
+      "classes": ["personal-data"],
+      "paths": ["src/dev/mocks/profiles.ts"],
+      "reason": "Development-only mock fixture: phone numbers come from the London number block Ofcom reserves for drama and fiction; names and emails are synthetic (example.com)."
+    },
+    {
+      "sha256": "380b0b08f4552d24fe72179b814a150f5f97313ec25e3e3c5ba2f55bd2eb98e4",
+      "classes": ["ip-address"],
+      "paths": ["crates/runtime/src/job_links.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed). (re-reviewed)"
+    },
+    {
+      "sha256": "46efa9b9f8a559ff4d5ac946ed45e71a7f4ee910a2d52b344615c2ea9cc418a7",
+      "classes": ["local-path"],
+      "paths": ["src-tauri/src/document_dto.rs"],
+      "reason": "Windows profile segments in path-handling tests and golden vectors are single-letter synthetic names (reviewed). (re-reviewed)"
+    },
+    {
+      "sha256": "75fbf4a47c6ce251111b07c105d87695b2e5a4933479013babaaecb887107d75",
+      "classes": ["ip-address"],
+      "paths": ["crates/cli/tests/fetch_worker.rs"],
+      "reason": "IP literal is a well-known public DNS resolver address used as a refused IP-literal target in a fetch-worker test; not personal data. (re-reviewed)"
+    },
+    {
+      "sha256": "7ff3000063ccbdfa73da291ee1c87ee78bed4057fd9edce54f04593022c0b719",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/tests/job_urls_wire.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed). (re-reviewed)"
+    },
+    {
+      "sha256": "ac0b421f87dbbf428f723791a3fc8ce819c2a61bd32cd8bc907336e0b5472628",
+      "classes": ["email"],
+      "paths": ["pnpm-lock.yaml"],
+      "reason": "Third-party package metadata: the deprecation notice of the glob package in the lockfile carries the package maintainer's published contact address, kept verbatim from the npm registry. The lockfile is not edited by hand. Reviewed. (re-reviewed)"
+    },
+    {
+      "sha256": "c84fb36cfb51b8678a42ec6ea74bfdfb814c0234c7ea6fcd9db67d72231ed36b",
+      "classes": ["local-path"],
+      "paths": ["crates/core/tests/documents_list.rs"],
+      "reason": "Synthetic Windows profile path with a single-letter user name in a file-name sanitising test; no real user."
+    },
+    {
+      "sha256": "f25dd96618ab79cadd3010a647f8bc5149c7b9a6bc3c2f2dafe407a7886fc69a",
+      "classes": ["secret-token"],
+      "paths": ["src-tauri/src/state.rs"],
+      "reason": "Literal placeholder tokens (secret-replacement-token, secret-selection-token) inside #[cfg(test)] Debug-redaction tests; not secrets. (re-reviewed)"
+    },
+    {
+      "sha256": "55ab6b8ac4b0280ca8d357fa88f7e2d8ed3d58740ac65d74c3ebe09a761048e3",
+      "classes": ["personal-data"],
+      "paths": ["src/dev/mocks/documents.ts"],
+      "reason": "Earlier version of the development-only mock document text with an invented phone number next to a synthetic example.com email; the number was removed in a later commit. Intermediate version from the history."
+    },
+    {
+      "sha256": "b47e9a79a307b54072bb6e1645df012e74081ed9220f1865fee07aba306ef22d",
+      "classes": ["local-path"],
+      "paths": ["crates/core/tests/documents_list.rs"],
+      "reason": "Synthetic Windows profile path with a single-letter user name in a file-name sanitising test; no real user. Intermediate version from the history."
+    },
+    {
+      "sha256": "b61cf4aecb0166af4846947384705c93b11d8563fa99ca582e9a4c89c35b5105",
+      "classes": ["secret-token"],
+      "paths": ["src-tauri/src/state.rs"],
+      "reason": "Literal placeholder tokens inside #[cfg(test)] Debug-redaction tests; not secrets. Intermediate version from the history."
+    },
+    {
+      "sha256": "dca22c83d30721e4b147528206b927ce5b3fdc7543d1c745c3d717f2a2b1e359",
+      "classes": ["local-path"],
+      "paths": ["src-tauri/src/document_dto.rs"],
+      "reason": "Windows profile segments in path-handling tests and golden vectors are single-letter synthetic names (reviewed). Intermediate version from the history."
+    },
+    {
+      "sha256": "e5adae15f736602f0c9f8bb91cf43821e4ca9c9d61d912d3bfa6549a0bd0c5c1",
+      "classes": ["personal-data"],
+      "paths": ["src/dev/mocks/documents.ts"],
+      "reason": "Earlier version of the development-only mock document text with an invented phone number next to a synthetic example.com email; the number was removed in a later commit. Intermediate version from the history."
+    },
+    {
+      "sha256": "e95077ab524d30c443dec7cc13502c83e3d06ed87131bfef8c8f210e9d81cff9",
+      "classes": ["personal-data"],
+      "paths": ["src/dev/mocks/documents.ts"],
+      "reason": "Earlier version of the development-only mock document text with an invented phone number next to a synthetic example.com email; the number was removed in a later commit. Intermediate version from the history."
+    },
+    {
+      "sha256": "88e994ce1774533075bd4684a931e0e152b9e222b44ca3d653cdb89fe2fcc476",
+      "classes": ["ip-address"],
+      "paths": ["crates/cli/tests/fetch_worker.rs"],
+      "reason": "IP literal is a well-known public DNS resolver address used as a refused IP-literal target in a fetch-worker test; not personal data. (re-reviewed)"
+    },
+    {
+      "sha256": "0a48959fea9065614588f94f5ba256878c824e149c1e03f2f2febf55fbc0a8d2",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/src/matching/privacy.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "8e351927ed09fb329bfc932ae802d3f6b29bffa64cb35fba5c36e42e6a58bf72",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/src/outbound/address.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "34780d38dfb9f67c1ef0a637e15f73b30b8f47a59d1e7a66140fbe78eef1044e",
+      "classes": ["email"],
+      "paths": ["crates/core/tests/arbeitnow_board.rs"],
+      "reason": "Fixed Arbeitnow board host (HOST in crates/core/src/arbeitnow/board.rs) used in the userinfo rejection cases: the host after a userinfo part, and the host placed in userinfo before an example.* host. A product constant tested by the fixed-host rule. Reviewed."
+    },
+    {
+      "sha256": "22928b5ca5fccce042443c0aeb8e9eb6f65a73a2aad845f7cfa5c477bc5e2245",
+      "classes": ["local-path"],
+      "paths": ["crates/core/tests/documents_list.rs"],
+      "reason": "Synthetic Windows profile path with a single-letter user name in a file-name sanitising test; no real user. Intermediate version from the history."
+    },
+    {
+      "sha256": "a40ad56b37824c26caac8fa72e78ebf5cada59fe8b8e99c0a1f9adbfa01a2da2",
+      "classes": ["local-path"],
+      "paths": ["crates/core/tests/generated_root.rs"],
+      "reason": "Windows profile segments in path-handling tests and golden vectors are single-letter synthetic names (reviewed)."
+    },
+    {
+      "sha256": "5e804a06156126022dbf564ed0f047c09cc84f58ed08de081c1b8e2344e3dfbe",
+      "classes": ["personal-data"],
+      "paths": ["crates/core/tests/german_resume.rs"],
+      "reason": "Synthetic resume fixture: generic resume wording (the education-field heading and the degree-program template text, see the German phrase entries) and an invented birth-date value 1901-02-03 used as parser input (synthetic). Reviewed."
+    },
+    {
+      "sha256": "bbe41e3989d9833a5898f30b346047033e49bab705bb21f82aea3f618f1d3795",
+      "classes": ["email", "ip-address"],
+      "paths": ["crates/core/tests/golden/job-urls.json"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed). Also URL userinfo vectors with a placeholder user name, the provider host constants (greenhouse and indeed names, and their lookalikes) that crates/core/src/job_links/urls.rs classifies, and the Java vectors. Real job-board hosts that are not product constants were replaced with example.* hosts. Reviewed."
+    },
+    {
+      "sha256": "ee373430261ca5016c76fa262ff92814abb5224e3cb52eec936c41f06e041366",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/tests/golden/matching-privacy.json"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "b4d21c091afb5f708f92af8a712b7e6109b98530a7fa4995af2d73609aef73b3",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/tests/golden/outbound-policy.json"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "02e4a902b4e8229d0978498ce266144a15215ef18af5e4f862345faee20ba2a6",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/tests/golden/profile-links.json"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "40779097a830c1a1e0be4b5aea591a5c7153d8fb57bd131dc99db761dda0aa00",
+      "classes": ["email"],
+      "paths": ["crates/core/tests/golden/profile-write.json"],
+      "reason": "Invented profile values in golden vectors; example.* and invented domains only (reviewed)."
+    },
+    {
+      "sha256": "f6a8f3100ed130c9e29cf0e2e185dd097c50fcdca8f676453cf9203f57b7e5a2",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/tests/job_urls_wire.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed). (re-reviewed)"
+    },
+    {
+      "sha256": "20426bfa7e3d1cd46f73ba35bfc2d54f68a032775cc226e6131d984f574f5911",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/tests/matching_privacy.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "8c193e1dd2c04e2b6b8774c0f75ff27a02ff60dda565ae29ab5fa6b1cfe03e93",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/tests/matching_validation.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "00ce2819ff4436e8ffeed01dfe02faf1a0034af425fd16042bf35f9c5ebabf58",
+      "classes": ["ip-address"],
+      "paths": ["crates/core/tests/outbound_policy.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "139b003d16dfc3fc5231a27c762106561fc6e7901256980ef8c984331525b962",
+      "classes": ["local-path"],
+      "paths": ["crates/infra/src/files/windows_path.rs"],
+      "reason": "Windows profile segments in path-handling tests and golden vectors are single-letter synthetic names (reviewed)."
+    },
+    {
+      "sha256": "63548b2ad5133b97a076170c5ae9acdd59de42424fe74d1041011cd4eaa0af71",
+      "classes": ["ip-address"],
+      "paths": ["crates/infra/tests/fetch_board.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "ace2ef0dedfef55508fb8fa7b20fea45bfd794ebaf5f2f90d09ac205abfad272",
+      "classes": ["ip-address", "personal-data"],
+      "paths": ["crates/infra/tests/fetch_link.rs"],
+      "reason": "Digit run inside a URL in the fetch test, not a phone number (reviewed). IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "35a04d5c48f6eba4a2feade4044f07859e49008034fb9a8f89aee928903762be",
+      "classes": ["ip-address"],
+      "paths": ["crates/infra/tests/fetch_wire.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "75a5d61dae4f625d8d49182d7ba8be31095b1a296c25e59e7ab7b89f8bcbc6c0",
+      "classes": ["local-path"],
+      "paths": ["crates/infra/tests/files_windows_path.rs"],
+      "reason": "Windows profile segments in path-handling tests and golden vectors are single-letter synthetic names (reviewed)."
+    },
+    {
+      "sha256": "81707313b04104e90f185c25a52503b90c459eb6a7fcac5b7f6740429e2af09a",
+      "classes": ["personal-data"],
+      "paths": ["crates/pdf/tests/golden/german-content-streams.json"],
+      "reason": "Phone-shaped values inside the invented German profile of the regenerated PDF fixtures; not real numbers (reviewed)."
+    },
+    {
+      "sha256": "df488b2d6931b30790407f62fac06355d8543b378ed55ed922ce44134093fa41",
+      "classes": ["personal-data"],
+      "paths": ["crates/pdf/tests/golden/german-pdf-source.json"],
+      "reason": "Phone-shaped values inside the invented German profile of the regenerated PDF fixtures; not real numbers (reviewed)."
+    },
+    {
+      "sha256": "ff17901fb5c787560fae42c43c2caa1d7aa85eee74a810b48a8d832e4677c0d0",
+      "classes": ["personal-data"],
+      "paths": ["crates/pdf/tests/golden/german-resume-source.json"],
+      "reason": "Phone-shaped values inside the invented German profile of the regenerated PDF fixtures; not real numbers (reviewed)."
+    },
+    {
+      "sha256": "374b2c93c1c52e8cbe688d10928d4e57cb32d66e6b6b8937746d6493e1b6af56",
+      "classes": ["ip-address"],
+      "paths": ["crates/runtime/src/job_links.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed). (re-reviewed)"
+    },
+    {
+      "sha256": "bcc952d934c51b3061307c04661370d0ca1a7cb44c0cc57e2cce423e9508b0be",
+      "classes": ["ip-address"],
+      "paths": ["crates/runtime/src/worker_fetch.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "cfe868180851cd8efd93181fc65a525ec91cbc085e0c279abbb53bdf48001923",
+      "classes": ["ip-address"],
+      "paths": ["crates/text/tests/golden/root-lower-jdk.json"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "14739e108d90b7f2ddb8e34186fc13b04a10404bb26786b47b95a85b15f3dab2",
+      "classes": ["email"],
+      "paths": ["pnpm-lock.yaml"],
+      "reason": "Third-party package metadata: the deprecation notice of the glob package in the lockfile carries the package maintainer's published contact address, kept verbatim from the npm registry. The lockfile is not edited by hand. Reviewed. (re-reviewed)"
+    },
+    {
+      "sha256": "125b92bb7e9b09c3cc12e934ef6801028106733bf4463836d7d3bacceba81b23",
+      "classes": ["local-path"],
+      "paths": ["src-tauri/src/document_dto.rs"],
+      "reason": "Windows profile segments in path-handling tests and golden vectors are single-letter synthetic names (reviewed). Intermediate version from the history."
+    },
+    {
+      "sha256": "8d60ff5b357fb6156760b59401d766fd43e3773745e0bd3142476a84b7d039c3",
+      "classes": ["secret-token"],
+      "paths": ["src-tauri/src/state.rs"],
+      "reason": "Literal placeholder tokens inside #[cfg(test)] Debug-redaction tests; not secrets. Intermediate version from the history."
+    }
+  ]
+}

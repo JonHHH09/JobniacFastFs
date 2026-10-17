@@ -1,0 +1,50 @@
+{
+  "schema": "jobniac-static-components/1",
+  "description": "Static components whose licence texts are copied verbatim into THIRD-PARTY-NOTICES.txt. payload_any lists the payload files that embed or ship the component (at least one must exist); external components are not in the payload. A text source of kind 'static' is a file under scripts/release/notices/texts/ (maintainer-supplied); kind 'sysroot' is a file of the Rust toolchain sysroot; kind 'repo' is a file of this repository; kind 'pdfium-archive' takes the LICENSE and licenses/ files of the fetched PDFium archives.",
+  "components": [
+    {
+      "id": "pdfium",
+      "title": "PDFium (bblanchon/pdfium-binaries, release chromium/7881; BSD-3-Clause upstream)",
+      "payload_any": ["pdfium/pdfium.dll", "pdfium/libpdfium.so"],
+      "texts": [{ "kind": "pdfium-archive" }]
+    },
+    {
+      "id": "adobe-core14-afm",
+      "title": "Adobe Core14 AFM font metrics (standard-14 metrics compiled into the application)",
+      "payload_any": ["jobniac.exe", "jobniac"],
+      "texts": [
+        {
+          "kind": "repo",
+          "path": "crates/pdf/src/metrics/NOTICE-Adobe-AFM.txt",
+          "label": "NOTICE-Adobe-AFM.txt"
+        }
+      ]
+    },
+    {
+      "id": "rust-toolchain",
+      "title": "Rust standard library and Cargo (statically linked; MIT OR Apache-2.0)",
+      "payload_any": ["jobniac.exe", "jobniac", "jobniac-cli.exe", "jobniac-cli"],
+      "texts": [
+        {
+          "kind": "sysroot",
+          "path": "share/doc/rust/COPYRIGHT-library.html",
+          "label": "COPYRIGHT-library.html"
+        },
+        { "kind": "sysroot", "path": "share/doc/cargo/LICENSE-MIT", "label": "LICENSE-MIT" },
+        { "kind": "sysroot", "path": "share/doc/cargo/LICENSE-APACHE", "label": "LICENSE-APACHE" }
+      ]
+    },
+    {
+      "id": "webview2",
+      "title": "Microsoft Edge WebView2 Runtime (installed at install time by the bootstrapper; not in the payload)",
+      "external": true,
+      "texts": [
+        {
+          "kind": "static",
+          "path": "webview2/EULA.txt",
+          "label": "Microsoft Edge WebView2 Runtime terms (verbatim)"
+        }
+      ]
+    }
+  ]
+}

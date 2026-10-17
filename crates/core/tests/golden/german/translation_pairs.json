@@ -1,0 +1,2035 @@
+{
+ "source": "jobniac.application.german_translation with a synthetic glossary",
+ "glossary": {
+  "labels": [
+   [
+    "cloud / ops",
+    "Cloud / Betrieb"
+   ],
+   [
+    "contact",
+    "Kontaktdaten"
+   ],
+   [
+    "email",
+    "E-Mail"
+   ],
+   [
+    "fluent",
+    "flie\u00dfend"
+   ],
+   [
+    "general",
+    "Allgemein"
+   ],
+   [
+    "native",
+    "Muttersprache"
+   ],
+   [
+    "placeholder",
+    ""
+   ],
+   [
+    "unknown",
+    "unbekannt"
+   ]
+  ],
+  "phrases": [
+   [
+    "widget builder",
+    "Widget-Bauer"
+   ],
+   [
+    "senior widget builder",
+    "Senior-Widget-Bauer"
+   ],
+   [
+    "b.a. widget science",
+    "B.A. Widget-Lehre"
+   ],
+   [
+    "widget science",
+    "Widget-Lehre"
+   ],
+   [
+    "field of study:",
+    "Studienfach:"
+   ],
+   [
+    "field test",
+    "Feldtest"
+   ],
+   [
+    "science lab",
+    "Wissenschaftslabor"
+   ],
+   [
+    "kit list",
+    "St\u00fcckliste"
+   ],
+   [
+    "caf\u00e9 table",
+    "Kaffeetisch"
+   ],
+   [
+    "stra\u00dfe map",
+    "Strassenkarte"
+   ],
+   [
+    "alpha",
+    "beta"
+   ],
+   [
+    "beta",
+    "gamma"
+   ],
+   [
+    "quorvex run of delivery",
+    "Quorvex-Lauf der Auslieferung"
+   ],
+   [
+    "quorvex run",
+    "Quorvex-Lauf"
+   ]
+  ],
+  "words": [
+   [
+    "a",
+    ""
+   ],
+   [
+    "ajota",
+    "\u1f80x"
+   ],
+   [
+    "an",
+    ""
+   ],
+   [
+    "and",
+    "und"
+   ],
+   [
+    "build",
+    "erstellen"
+   ],
+   [
+    "built",
+    "erstellte"
+   ],
+   [
+    "c++",
+    "C-Plus"
+   ],
+   [
+    "data",
+    "Daten"
+   ],
+   [
+    "delta",
+    "\u00dfdelta"
+   ],
+   [
+    "full-stack",
+    "Voll-Stack"
+   ],
+   [
+    "node.js",
+    "Knoten.js"
+   ],
+   [
+    "sigma",
+    "\ud801\udc28sigma"
+   ],
+   [
+    "support",
+    "Support"
+   ],
+   [
+    "system",
+    "System"
+   ],
+   [
+    "systems",
+    "Systeme"
+   ],
+   [
+    "the",
+    ""
+   ],
+   [
+    "tool",
+    "Werkzeug"
+   ],
+   [
+    "unknown",
+    "unbekannt"
+   ],
+   [
+    "using",
+    "mit"
+   ]
+  ]
+ },
+ "cases": [
+  {
+   "kind": "text",
+   "value": null,
+   "ok": true,
+   "output": null,
+   "id": "text-000"
+  },
+  {
+   "kind": "text",
+   "value": "",
+   "ok": true,
+   "output": "",
+   "id": "text-001"
+  },
+  {
+   "kind": "text",
+   "value": " ",
+   "ok": true,
+   "output": " ",
+   "id": "text-002"
+  },
+  {
+   "kind": "text",
+   "value": "   ",
+   "ok": true,
+   "output": "   ",
+   "id": "text-003"
+  },
+  {
+   "kind": "text",
+   "value": "\t",
+   "ok": true,
+   "output": "\t",
+   "id": "text-004"
+  },
+  {
+   "kind": "text",
+   "value": "\u00a0",
+   "ok": true,
+   "output": "\u00a0",
+   "id": "text-005"
+  },
+  {
+   "kind": "text",
+   "value": "\u00a0Built\u00a0",
+   "ok": true,
+   "output": "\u00a0Erstellte\u00a0",
+   "id": "text-006"
+  },
+  {
+   "kind": "text",
+   "value": "widget builder",
+   "ok": true,
+   "output": "Widget-Bauer",
+   "id": "text-007"
+  },
+  {
+   "kind": "text",
+   "value": "WIDGET BUILDER",
+   "ok": true,
+   "output": "Widget-Bauer",
+   "id": "text-008"
+  },
+  {
+   "kind": "text",
+   "value": "Widget Builder",
+   "ok": true,
+   "output": "Widget-Bauer",
+   "id": "text-009"
+  },
+  {
+   "kind": "text",
+   "value": "prefix WIDGET BUILDER suffix",
+   "ok": true,
+   "output": "prefix Widget-Bauer suffix",
+   "id": "text-010"
+  },
+  {
+   "kind": "text",
+   "value": "  widget builder  ",
+   "ok": true,
+   "output": "Widget-Bauer",
+   "id": "text-011"
+  },
+  {
+   "kind": "text",
+   "value": "\u00a0widget builder\u00a0",
+   "ok": true,
+   "output": "\u00a0Widget-Bauer\u00a0",
+   "id": "text-012"
+  },
+  {
+   "kind": "text",
+   "value": "widget builder.",
+   "ok": true,
+   "output": "Widget-Bauer.",
+   "id": "text-013"
+  },
+  {
+   "kind": "text",
+   "value": "senior widget builder",
+   "ok": true,
+   "output": "Senior-Widget-Bauer",
+   "id": "text-014"
+  },
+  {
+   "kind": "text",
+   "value": "SENIOR WIDGET BUILDER",
+   "ok": true,
+   "output": "Senior-Widget-Bauer",
+   "id": "text-015"
+  },
+  {
+   "kind": "text",
+   "value": "Senior Widget Builder",
+   "ok": true,
+   "output": "Senior-Widget-Bauer",
+   "id": "text-016"
+  },
+  {
+   "kind": "text",
+   "value": "prefix SENIOR WIDGET BUILDER suffix",
+   "ok": true,
+   "output": "prefix SENIOR Widget-Bauer suffix",
+   "id": "text-017"
+  },
+  {
+   "kind": "text",
+   "value": "  senior widget builder  ",
+   "ok": true,
+   "output": "Senior-Widget-Bauer",
+   "id": "text-018"
+  },
+  {
+   "kind": "text",
+   "value": "\u00a0senior widget builder\u00a0",
+   "ok": true,
+   "output": "\u00a0senior Widget-Bauer\u00a0",
+   "id": "text-019"
+  },
+  {
+   "kind": "text",
+   "value": "senior widget builder.",
+   "ok": true,
+   "output": "senior Widget-Bauer.",
+   "id": "text-020"
+  },
+  {
+   "kind": "text",
+   "value": "b.a. widget science",
+   "ok": true,
+   "output": "B.A. Widget-Lehre",
+   "id": "text-021"
+  },
+  {
+   "kind": "text",
+   "value": "B.A. WIDGET SCIENCE",
+   "ok": true,
+   "output": "B.A. Widget-Lehre",
+   "id": "text-022"
+  },
+  {
+   "kind": "text",
+   "value": "B.A. Widget Science",
+   "ok": true,
+   "output": "B.A. Widget-Lehre",
+   "id": "text-023"
+  },
+  {
+   "kind": "text",
+   "value": "prefix B.A. WIDGET SCIENCE suffix",
+   "ok": true,
+   "output": "prefix B.A. Widget-Lehre suffix",
+   "id": "text-024"
+  },
+  {
+   "kind": "text",
+   "value": "  b.a. widget science  ",
+   "ok": true,
+   "output": "B.A. Widget-Lehre",
+   "id": "text-025"
+  },
+  {
+   "kind": "text",
+   "value": "\u00a0b.a. widget science\u00a0",
+   "ok": true,
+   "output": "\u00a0B.A. Widget-Lehre\u00a0",
+   "id": "text-026"
+  },
+  {
+   "kind": "text",
+   "value": "b.a. widget science.",
+   "ok": true,
+   "output": "B.A. Widget-Lehre.",
+   "id": "text-027"
+  },
+  {
+   "kind": "text",
+   "value": "widget science",
+   "ok": true,
+   "output": "Widget-Lehre",
+   "id": "text-028"
+  },
+  {
+   "kind": "text",
+   "value": "WIDGET SCIENCE",
+   "ok": true,
+   "output": "Widget-Lehre",
+   "id": "text-029"
+  },
+  {
+   "kind": "text",
+   "value": "Widget Science",
+   "ok": true,
+   "output": "Widget-Lehre",
+   "id": "text-030"
+  },
+  {
+   "kind": "text",
+   "value": "prefix WIDGET SCIENCE suffix",
+   "ok": true,
+   "output": "prefix Widget-Lehre suffix",
+   "id": "text-031"
+  },
+  {
+   "kind": "text",
+   "value": "  widget science  ",
+   "ok": true,
+   "output": "Widget-Lehre",
+   "id": "text-032"
+  },
+  {
+   "kind": "text",
+   "value": "\u00a0widget science\u00a0",
+   "ok": true,
+   "output": "\u00a0Widget-Lehre\u00a0",
+   "id": "text-033"
+  },
+  {
+   "kind": "text",
+   "value": "widget science.",
+   "ok": true,
+   "output": "Widget-Lehre.",
+   "id": "text-034"
+  },
+  {
+   "kind": "text",
+   "value": "field of study:",
+   "ok": true,
+   "output": "Studienfach:",
+   "id": "text-035"
+  },
+  {
+   "kind": "text",
+   "value": "FIELD OF STUDY:",
+   "ok": true,
+   "output": "Studienfach:",
+   "id": "text-036"
+  },
+  {
+   "kind": "text",
+   "value": "Field Of Study:",
+   "ok": true,
+   "output": "Studienfach:",
+   "id": "text-037"
+  },
+  {
+   "kind": "text",
+   "value": "prefix FIELD OF STUDY: suffix",
+   "ok": true,
+   "output": "prefix Studienfach: suffix",
+   "id": "text-038"
+  },
+  {
+   "kind": "text",
+   "value": "  field of study:  ",
+   "ok": true,
+   "output": "Studienfach:",
+   "id": "text-039"
+  },
+  {
+   "kind": "text",
+   "value": "\u00a0field of study:\u00a0",
+   "ok": true,
+   "output": "\u00a0Studienfach:\u00a0",
+   "id": "text-040"
+  },
+  {
+   "kind": "text",
+   "value": "field of study:.",
+   "ok": true,
+   "output": "Studienfach:.",
+   "id": "text-041"
+  },
+  {
+   "kind": "text",
+   "value": "field test",
+   "ok": true,
+   "output": "Feldtest",
+   "id": "text-042"
+  },
+  {
+   "kind": "text",
+   "value": "FIELD TEST",
+   "ok": true,
+   "output": "Feldtest",
+   "id": "text-043"
+  },
+  {
+   "kind": "text",
+   "value": "Field Test",
+   "ok": true,
+   "output": "Feldtest",
+   "id": "text-044"
+  },
+  {
+   "kind": "text",
+   "value": "prefix FIELD TEST suffix",
+   "ok": true,
+   "output": "prefix Feldtest suffix",
+   "id": "text-045"
+  },
+  {
+   "kind": "text",
+   "value": "  field test  ",
+   "ok": true,
+   "output": "Feldtest",
+   "id": "text-046"
+  },
+  {
+   "kind": "text",
+   "value": "\u00a0field test\u00a0",
+   "ok": true,
+   "output": "\u00a0Feldtest\u00a0",
+   "id": "text-047"
+  },
+  {
+   "kind": "text",
+   "value": "field test.",
+   "ok": true,
+   "output": "Feldtest.",
+   "id": "text-048"
+  },
+  {
+   "kind": "text",
+   "value": "science lab",
+   "ok": true,
+   "output": "Wissenschaftslabor",
+   "id": "text-049"
+  },
+  {
+   "kind": "text",
+   "value": "SCIENCE LAB",
+   "ok": true,
+   "output": "Wissenschaftslabor",
+   "id": "text-050"
+  },
+  {
+   "kind": "text",
+   "value": "Science Lab",
+   "ok": true,
+   "output": "Wissenschaftslabor",
+   "id": "text-051"
+  },
+  {
+   "kind": "text",
+   "value": "prefix SCIENCE LAB suffix",
+   "ok": true,
+   "output": "prefix Wissenschaftslabor suffix",
+   "id": "text-052"
+  },
+  {
+   "kind": "text",
+   "value": "  science lab  ",
+   "ok": true,
+   "output": "Wissenschaftslabor",
+   "id": "text-053"
+  },
+  {
+   "kind": "text",
+   "value": "\u00a0science lab\u00a0",
+   "ok": true,
+   "output": "\u00a0Wissenschaftslabor\u00a0",
+   "id": "text-054"
+  },
+  {
+   "kind": "text",
+   "value": "science lab.",
+   "ok": true,
+   "output": "Wissenschaftslabor.",
+   "id": "text-055"
+  },
+  {
+   "kind": "text",
+   "value": "kit list",
+   "ok": true,
+   "output": "St\u00fcckliste",
+   "id": "text-056"
+  },
+  {
+   "kind": "text",
+   "value": "KIT LIST",
+   "ok": true,
+   "output": "St\u00fcckliste",
+   "id": "text-057"
+  },
+  {
+   "kind": "text",
+   "value": "Kit List",
+   "ok": true,
+   "output": "St\u00fcckliste",
+   "id": "text-058"
+  },
+  {
+   "kind": "text",
+   "value": "prefix KIT LIST suffix",
+   "ok": true,
+   "output": "prefix St\u00fcckliste suffix",
+   "id": "text-059"
+  },
+  {
+   "kind": "text",
+   "value": "  kit list  ",
+   "ok": true,
+   "output": "St\u00fcckliste",
+   "id": "text-060"
+  },
+  {
+   "kind": "text",
+   "value": "\u00a0kit list\u00a0",
+   "ok": true,
+   "output": "\u00a0St\u00fcckliste\u00a0",
+   "id": "text-061"
+  },
+  {
+   "kind": "text",
+   "value": "kit list.",
+   "ok": true,
+   "output": "St\u00fcckliste.",
+   "id": "text-062"
+  },
+  {
+   "kind": "text",
+   "value": "caf\u00e9 table",
+   "ok": true,
+   "output": "Kaffeetisch",
+   "id": "text-063"
+  },
+  {
+   "kind": "text",
+   "value": "CAF\u00c9 TABLE",
+   "ok": true,
+   "output": "Kaffeetisch",
+   "id": "text-064"
+  },
+  {
+   "kind": "text",
+   "value": "Caf\u00e9 Table",
+   "ok": true,
+   "output": "Kaffeetisch",
+   "id": "text-065"
+  },
+  {
+   "kind": "text",
+   "value": "prefix CAF\u00c9 TABLE suffix",
+   "ok": true,
+   "output": "prefix CAF\u00c9 TABLE suffix",
+   "id": "text-066"
+  },
+  {
+   "kind": "text",
+   "value": "  caf\u00e9 table  ",
+   "ok": true,
+   "output": "Kaffeetisch",
+   "id": "text-067"
+  },
+  {
+   "kind": "text",
+   "value": "\u00a0caf\u00e9 table\u00a0",
+   "ok": true,
+   "output": "\u00a0Kaffeetisch\u00a0",
+   "id": "text-068"
+  },
+  {
+   "kind": "text",
+   "value": "caf\u00e9 table.",
+   "ok": true,
+   "output": "Kaffeetisch.",
+   "id": "text-069"
+  },
+  {
+   "kind": "text",
+   "value": "stra\u00dfe map",
+   "ok": true,
+   "output": "Strassenkarte",
+   "id": "text-070"
+  },
+  {
+   "kind": "text",
+   "value": "STRASSE MAP",
+   "ok": true,
+   "output": "STRASSE MAP",
+   "id": "text-071"
+  },
+  {
+   "kind": "text",
+   "value": "Stra\u00dfe Map",
+   "ok": true,
+   "output": "Strassenkarte",
+   "id": "text-072"
+  },
+  {
+   "kind": "text",
+   "value": "prefix STRASSE MAP suffix",
+   "ok": true,
+   "output": "prefix STRASSE MAP suffix",
+   "id": "text-073"
+  },
+  {
+   "kind": "text",
+   "value": "  stra\u00dfe map  ",
+   "ok": true,
+   "output": "Strassenkarte",
+   "id": "text-074"
+  },
+  {
+   "kind": "text",
+   "value": "\u00a0stra\u00dfe map\u00a0",
+   "ok": true,
+   "output": "\u00a0Strassenkarte\u00a0",
+   "id": "text-075"
+  },
+  {
+   "kind": "text",
+   "value": "stra\u00dfe map.",
+   "ok": true,
+   "output": "Strassenkarte.",
+   "id": "text-076"
+  },
+  {
+   "kind": "text",
+   "value": "alpha",
+   "ok": true,
+   "output": "beta",
+   "id": "text-077"
+  },
+  {
+   "kind": "text",
+   "value": "ALPHA",
+   "ok": true,
+   "output": "beta",
+   "id": "text-078"
+  },
+  {
+   "kind": "text",
+   "value": "Alpha",
+   "ok": true,
+   "output": "beta",
+   "id": "text-079"
+  },
+  {
+   "kind": "text",
+   "value": "prefix ALPHA suffix",
+   "ok": true,
+   "output": "prefix gamma suffix",
+   "id": "text-080"
+  },
+  {
+   "kind": "text",
+   "value": "  alpha  ",
+   "ok": true,
+   "output": "beta",
+   "id": "text-081"
+  },
+  {
+   "kind": "text",
+   "value": "\u00a0alpha\u00a0",
+   "ok": true,
+   "output": "\u00a0gamma\u00a0",
+   "id": "text-082"
+  },
+  {
+   "kind": "text",
+   "value": "alpha.",
+   "ok": true,
+   "output": "gamma.",
+   "id": "text-083"
+  },
+  {
+   "kind": "text",
+   "value": "beta",
+   "ok": true,
+   "output": "gamma",
+   "id": "text-084"
+  },
+  {
+   "kind": "text",
+   "value": "BETA",
+   "ok": true,
+   "output": "gamma",
+   "id": "text-085"
+  },
+  {
+   "kind": "text",
+   "value": "Beta",
+   "ok": true,
+   "output": "gamma",
+   "id": "text-086"
+  },
+  {
+   "kind": "text",
+   "value": "prefix BETA suffix",
+   "ok": true,
+   "output": "prefix gamma suffix",
+   "id": "text-087"
+  },
+  {
+   "kind": "text",
+   "value": "  beta  ",
+   "ok": true,
+   "output": "gamma",
+   "id": "text-088"
+  },
+  {
+   "kind": "text",
+   "value": "\u00a0beta\u00a0",
+   "ok": true,
+   "output": "\u00a0gamma\u00a0",
+   "id": "text-089"
+  },
+  {
+   "kind": "text",
+   "value": "beta.",
+   "ok": true,
+   "output": "gamma.",
+   "id": "text-090"
+  },
+  {
+   "kind": "text",
+   "value": "quorvex run of delivery",
+   "ok": true,
+   "output": "Quorvex-Lauf der Auslieferung",
+   "id": "text-091"
+  },
+  {
+   "kind": "text",
+   "value": "QUORVEX RUN OF DELIVERY",
+   "ok": true,
+   "output": "Quorvex-Lauf der Auslieferung",
+   "id": "text-092"
+  },
+  {
+   "kind": "text",
+   "value": "Quorvex Run Of Delivery",
+   "ok": true,
+   "output": "Quorvex-Lauf der Auslieferung",
+   "id": "text-093"
+  },
+  {
+   "kind": "text",
+   "value": "prefix QUORVEX RUN OF DELIVERY suffix",
+   "ok": true,
+   "output": "prefix Quorvex-Lauf der Auslieferung suffix",
+   "id": "text-094"
+  },
+  {
+   "kind": "text",
+   "value": "  quorvex run of delivery  ",
+   "ok": true,
+   "output": "Quorvex-Lauf der Auslieferung",
+   "id": "text-095"
+  },
+  {
+   "kind": "text",
+   "value": "\u00a0quorvex run of delivery\u00a0",
+   "ok": true,
+   "output": "\u00a0Quorvex-Lauf der Auslieferung\u00a0",
+   "id": "text-096"
+  },
+  {
+   "kind": "text",
+   "value": "quorvex run of delivery.",
+   "ok": true,
+   "output": "Quorvex-Lauf der Auslieferung.",
+   "id": "text-097"
+  },
+  {
+   "kind": "text",
+   "value": "quorvex run",
+   "ok": true,
+   "output": "Quorvex-Lauf",
+   "id": "text-098"
+  },
+  {
+   "kind": "text",
+   "value": "QUORVEX RUN",
+   "ok": true,
+   "output": "Quorvex-Lauf",
+   "id": "text-099"
+  },
+  {
+   "kind": "text",
+   "value": "Quorvex Run",
+   "ok": true,
+   "output": "Quorvex-Lauf",
+   "id": "text-100"
+  },
+  {
+   "kind": "text",
+   "value": "prefix QUORVEX RUN suffix",
+   "ok": true,
+   "output": "prefix Quorvex-Lauf suffix",
+   "id": "text-101"
+  },
+  {
+   "kind": "text",
+   "value": "  quorvex run  ",
+   "ok": true,
+   "output": "Quorvex-Lauf",
+   "id": "text-102"
+  },
+  {
+   "kind": "text",
+   "value": "\u00a0quorvex run\u00a0",
+   "ok": true,
+   "output": "\u00a0Quorvex-Lauf\u00a0",
+   "id": "text-103"
+  },
+  {
+   "kind": "text",
+   "value": "quorvex run.",
+   "ok": true,
+   "output": "Quorvex-Lauf.",
+   "id": "text-104"
+  },
+  {
+   "kind": "text",
+   "value": "Built the data systems",
+   "ok": true,
+   "output": "Erstellte Daten Systeme",
+   "id": "text-105"
+  },
+  {
+   "kind": "text",
+   "value": "BUILT DATA SYSTEMS",
+   "ok": true,
+   "output": "ERSTELLTE DATEN SYSTEME",
+   "id": "text-106"
+  },
+  {
+   "kind": "text",
+   "value": "Built systems.",
+   "ok": true,
+   "output": "Erstellte systems.",
+   "id": "text-107"
+  },
+  {
+   "kind": "text",
+   "value": "a  an the",
+   "ok": true,
+   "output": "",
+   "id": "text-108"
+  },
+  {
+   "kind": "text",
+   "value": "Built\t\tdata",
+   "ok": true,
+   "output": "Erstellte Daten",
+   "id": "text-109"
+  },
+  {
+   "kind": "text",
+   "value": "Built\tdata",
+   "ok": true,
+   "output": "Erstellte\tDaten",
+   "id": "text-110"
+  },
+  {
+   "kind": "text",
+   "value": "Built\n\ndata",
+   "ok": true,
+   "output": "Erstellte Daten",
+   "id": "text-111"
+  },
+  {
+   "kind": "text",
+   "value": "Built \t data",
+   "ok": true,
+   "output": "Erstellte Daten",
+   "id": "text-112"
+  },
+  {
+   "kind": "text",
+   "value": "built@data",
+   "ok": true,
+   "output": "erstellte@Daten",
+   "id": "text-113"
+  },
+  {
+   "kind": "text",
+   "value": "tool@systems.example",
+   "ok": true,
+   "output": "Werkzeug@systems.example",
+   "id": "text-114"
+  },
+  {
+   "kind": "text",
+   "value": "https://unknown/data",
+   "ok": true,
+   "output": "https://unknown/data",
+   "id": "text-115"
+  },
+  {
+   "kind": "text",
+   "value": "\u672a\u77e5 \ud83d\ude00",
+   "ok": true,
+   "output": "\u672a\u77e5 \ud83d\ude00",
+   "id": "text-116"
+  },
+  {
+   "kind": "text",
+   "value": "science lab",
+   "ok": true,
+   "output": "Wissenschaftslabor",
+   "id": "text-117"
+  },
+  {
+   "kind": "text",
+   "value": "\u017fcience lab",
+   "ok": true,
+   "output": "Wissenschaftslabor",
+   "id": "text-118"
+  },
+  {
+   "kind": "text",
+   "value": "prefix \u017fcience lab",
+   "ok": true,
+   "output": "prefix \u017fcience lab",
+   "id": "text-119"
+  },
+  {
+   "kind": "text",
+   "value": "f\u0131eld test",
+   "ok": true,
+   "output": "Feldtest",
+   "id": "text-120"
+  },
+  {
+   "kind": "text",
+   "value": "F\u0130ELD TEST",
+   "ok": true,
+   "output": "Feldtest",
+   "id": "text-121"
+  },
+  {
+   "kind": "text",
+   "value": "field test",
+   "ok": true,
+   "output": "Feldtest",
+   "id": "text-122"
+  },
+  {
+   "kind": "text",
+   "value": "\u212ait list",
+   "ok": true,
+   "output": "St\u00fcckliste",
+   "id": "text-123"
+  },
+  {
+   "kind": "text",
+   "value": "caf\u00c9 TABLE",
+   "ok": true,
+   "output": "Kaffeetisch",
+   "id": "text-124"
+  },
+  {
+   "kind": "text",
+   "value": "CAF\u00c9 table",
+   "ok": true,
+   "output": "Kaffeetisch",
+   "id": "text-125"
+  },
+  {
+   "kind": "text",
+   "value": "prefix caf\u00e9 table",
+   "ok": true,
+   "output": "prefix Kaffeetisch",
+   "id": "text-126"
+  },
+  {
+   "kind": "text",
+   "value": "STRA\u00dfE MAP",
+   "ok": true,
+   "output": "Strassenkarte",
+   "id": "text-127"
+  },
+  {
+   "kind": "text",
+   "value": "stra\u00dfe map",
+   "ok": true,
+   "output": "Strassenkarte",
+   "id": "text-128"
+  },
+  {
+   "kind": "text",
+   "value": "Alpha",
+   "ok": true,
+   "output": "beta",
+   "id": "text-129"
+  },
+  {
+   "kind": "text",
+   "value": "ALPHA",
+   "ok": true,
+   "output": "beta",
+   "id": "text-130"
+  },
+  {
+   "kind": "text",
+   "value": "alpha beta",
+   "ok": true,
+   "output": "gamma gamma",
+   "id": "text-131"
+  },
+  {
+   "kind": "text",
+   "value": "Beta alpha",
+   "ok": true,
+   "output": "gamma gamma",
+   "id": "text-132"
+  },
+  {
+   "kind": "text",
+   "value": "senior widget builder",
+   "ok": true,
+   "output": "Senior-Widget-Bauer",
+   "id": "text-133"
+  },
+  {
+   "kind": "text",
+   "value": "prefix senior widget builder",
+   "ok": true,
+   "output": "prefix senior Widget-Bauer",
+   "id": "text-134"
+  },
+  {
+   "kind": "text",
+   "value": "The Full-Stack tool",
+   "ok": true,
+   "output": "Voll-Stack Werkzeug",
+   "id": "text-135"
+  },
+  {
+   "kind": "text",
+   "value": "FULL-STACK TOOL",
+   "ok": true,
+   "output": "VOLL-STACK WERKZEUG",
+   "id": "text-136"
+  },
+  {
+   "kind": "text",
+   "value": "node.js and c++ using Delta",
+   "ok": true,
+   "output": "Knoten.js und C-Plus mit \u00dfdelta",
+   "id": "text-137"
+  },
+  {
+   "kind": "text",
+   "value": "DELTA delta Delta",
+   "ok": true,
+   "output": "SSDELTA \u00dfdelta \u00dfdelta",
+   "id": "text-138"
+  },
+  {
+   "kind": "text",
+   "value": "Sigma sigma SIGMA",
+   "ok": true,
+   "output": "\ud801\udc28sigma \ud801\udc28sigma \ud801\udc00SIGMA",
+   "id": "text-139"
+  },
+  {
+   "kind": "text",
+   "value": "Ajota ajota AJOTA",
+   "ok": true,
+   "output": "\u1f88x \u1f80x \u1f08\u0399X",
+   "id": "text-140"
+  },
+  {
+   "kind": "text",
+   "value": "Systems, systems; system/system",
+   "ok": true,
+   "output": "Systeme, Systeme; system/system",
+   "id": "text-141"
+  },
+  {
+   "kind": "text",
+   "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "ok": true,
+   "output": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "id": "text-142"
+  },
+  {
+   "kind": "text",
+   "value": "tool-tool tool.tool tool+",
+   "ok": true,
+   "output": "tool-tool tool.tool tool+",
+   "id": "text-143"
+  },
+  {
+   "kind": "text",
+   "value": "a",
+   "ok": true,
+   "output": "",
+   "id": "text-144"
+  },
+  {
+   "kind": "text",
+   "value": "A",
+   "ok": true,
+   "output": "",
+   "id": "text-145"
+  },
+  {
+   "kind": "text",
+   "value": "Quorvex run of delivery",
+   "ok": true,
+   "output": "Quorvex-Lauf der Auslieferung",
+   "id": "text-146"
+  },
+  {
+   "kind": "text",
+   "value": "quorvex run of the delivery",
+   "ok": true,
+   "output": "Quorvex-Lauf of delivery",
+   "id": "text-147"
+  },
+  {
+   "kind": "text",
+   "value": "He led a quorvex run.",
+   "ok": true,
+   "output": "He led Quorvex-Lauf.",
+   "id": "text-148"
+  },
+  {
+   "kind": "text",
+   "value": "Field of study: data",
+   "ok": true,
+   "output": "Studienfach: Daten",
+   "id": "text-149"
+  },
+  {
+   "kind": "text",
+   "value": "Unknown",
+   "ok": true,
+   "output": "Unbekannt",
+   "id": "text-150"
+  },
+  {
+   "kind": "label",
+   "value": null,
+   "ok": true,
+   "output": null,
+   "id": "label-151"
+  },
+  {
+   "kind": "label",
+   "value": "",
+   "ok": true,
+   "output": "",
+   "id": "label-152"
+  },
+  {
+   "kind": "label",
+   "value": " ",
+   "ok": true,
+   "output": " ",
+   "id": "label-153"
+  },
+  {
+   "kind": "label",
+   "value": "\t",
+   "ok": true,
+   "output": "\t",
+   "id": "label-154"
+  },
+  {
+   "kind": "label",
+   "value": " email ",
+   "ok": true,
+   "output": "E-Mail",
+   "id": "label-155"
+  },
+  {
+   "kind": "label",
+   "value": "EMAIL",
+   "ok": true,
+   "output": "E-Mail",
+   "id": "label-156"
+  },
+  {
+   "kind": "label",
+   "value": "Contact",
+   "ok": true,
+   "output": "Kontaktdaten",
+   "id": "label-157"
+  },
+  {
+   "kind": "label",
+   "value": "cloud / ops",
+   "ok": true,
+   "output": "Cloud / Betrieb",
+   "id": "label-158"
+  },
+  {
+   "kind": "label",
+   "value": "Cloud / Ops",
+   "ok": true,
+   "output": "Cloud / Betrieb",
+   "id": "label-159"
+  },
+  {
+   "kind": "label",
+   "value": "fluent",
+   "ok": true,
+   "output": "flie\u00dfend",
+   "id": "label-160"
+  },
+  {
+   "kind": "label",
+   "value": "NATIVE",
+   "ok": true,
+   "output": "Muttersprache",
+   "id": "label-161"
+  },
+  {
+   "kind": "label",
+   "value": "Unknown",
+   "ok": true,
+   "output": "unbekannt",
+   "id": "label-162"
+  },
+  {
+   "kind": "label",
+   "value": "placeholder",
+   "ok": true,
+   "output": "placeholder",
+   "id": "label-163"
+  },
+  {
+   "kind": "label",
+   "value": "Placeholder tool",
+   "ok": true,
+   "output": "Placeholder Werkzeug",
+   "id": "label-164"
+  },
+  {
+   "kind": "label",
+   "value": "built data",
+   "ok": true,
+   "output": "erstellte Daten",
+   "id": "label-165"
+  },
+  {
+   "kind": "label",
+   "value": "Wohnort",
+   "ok": true,
+   "output": "Wohnort",
+   "id": "label-166"
+  },
+  {
+   "kind": "label",
+   "value": "\u0130ontact",
+   "ok": true,
+   "output": "\u0130ontact",
+   "id": "label-167"
+  },
+  {
+   "kind": "label",
+   "value": "f\u0131eld test",
+   "ok": true,
+   "output": "Feldtest",
+   "id": "label-168"
+  },
+  {
+   "kind": "personal",
+   "label": null,
+   "value": "Built data",
+   "ok": true,
+   "output": "Built data",
+   "id": "personal-169"
+  },
+  {
+   "kind": "personal",
+   "label": null,
+   "value": "ALPHA",
+   "ok": true,
+   "output": "ALPHA",
+   "id": "personal-170"
+  },
+  {
+   "kind": "personal",
+   "label": null,
+   "value": null,
+   "ok": true,
+   "output": null,
+   "id": "personal-171"
+  },
+  {
+   "kind": "personal",
+   "label": null,
+   "value": "  ",
+   "ok": true,
+   "output": "  ",
+   "id": "personal-172"
+  },
+  {
+   "kind": "personal",
+   "label": null,
+   "value": "tool@systems.example",
+   "ok": true,
+   "output": "tool@systems.example",
+   "id": "personal-173"
+  },
+  {
+   "kind": "personal",
+   "label": "",
+   "value": "Built data",
+   "ok": true,
+   "output": "Built data",
+   "id": "personal-174"
+  },
+  {
+   "kind": "personal",
+   "label": "",
+   "value": "ALPHA",
+   "ok": true,
+   "output": "ALPHA",
+   "id": "personal-175"
+  },
+  {
+   "kind": "personal",
+   "label": "",
+   "value": null,
+   "ok": true,
+   "output": null,
+   "id": "personal-176"
+  },
+  {
+   "kind": "personal",
+   "label": "",
+   "value": "  ",
+   "ok": true,
+   "output": "  ",
+   "id": "personal-177"
+  },
+  {
+   "kind": "personal",
+   "label": "",
+   "value": "tool@systems.example",
+   "ok": true,
+   "output": "tool@systems.example",
+   "id": "personal-178"
+  },
+  {
+   "kind": "personal",
+   "label": " ",
+   "value": "Built data",
+   "ok": true,
+   "output": "Built data",
+   "id": "personal-179"
+  },
+  {
+   "kind": "personal",
+   "label": " ",
+   "value": "ALPHA",
+   "ok": true,
+   "output": "ALPHA",
+   "id": "personal-180"
+  },
+  {
+   "kind": "personal",
+   "label": " ",
+   "value": null,
+   "ok": true,
+   "output": null,
+   "id": "personal-181"
+  },
+  {
+   "kind": "personal",
+   "label": " ",
+   "value": "  ",
+   "ok": true,
+   "output": "  ",
+   "id": "personal-182"
+  },
+  {
+   "kind": "personal",
+   "label": " ",
+   "value": "tool@systems.example",
+   "ok": true,
+   "output": "tool@systems.example",
+   "id": "personal-183"
+  },
+  {
+   "kind": "personal",
+   "label": "address",
+   "value": "Built data",
+   "ok": true,
+   "output": "Erstellte Daten",
+   "id": "personal-184"
+  },
+  {
+   "kind": "personal",
+   "label": "address",
+   "value": "ALPHA",
+   "ok": true,
+   "output": "beta",
+   "id": "personal-185"
+  },
+  {
+   "kind": "personal",
+   "label": "address",
+   "value": null,
+   "ok": true,
+   "output": null,
+   "id": "personal-186"
+  },
+  {
+   "kind": "personal",
+   "label": "address",
+   "value": "  ",
+   "ok": true,
+   "output": "  ",
+   "id": "personal-187"
+  },
+  {
+   "kind": "personal",
+   "label": "address",
+   "value": "tool@systems.example",
+   "ok": true,
+   "output": "Werkzeug@systems.example",
+   "id": "personal-188"
+  },
+  {
+   "kind": "personal",
+   "label": "Location",
+   "value": "Built data",
+   "ok": true,
+   "output": "Erstellte Daten",
+   "id": "personal-189"
+  },
+  {
+   "kind": "personal",
+   "label": "Location",
+   "value": "ALPHA",
+   "ok": true,
+   "output": "beta",
+   "id": "personal-190"
+  },
+  {
+   "kind": "personal",
+   "label": "Location",
+   "value": null,
+   "ok": true,
+   "output": null,
+   "id": "personal-191"
+  },
+  {
+   "kind": "personal",
+   "label": "Location",
+   "value": "  ",
+   "ok": true,
+   "output": "  ",
+   "id": "personal-192"
+  },
+  {
+   "kind": "personal",
+   "label": "Location",
+   "value": "tool@systems.example",
+   "ok": true,
+   "output": "Werkzeug@systems.example",
+   "id": "personal-193"
+  },
+  {
+   "kind": "personal",
+   "label": " NATIONALITY ",
+   "value": "Built data",
+   "ok": true,
+   "output": "Erstellte Daten",
+   "id": "personal-194"
+  },
+  {
+   "kind": "personal",
+   "label": " NATIONALITY ",
+   "value": "ALPHA",
+   "ok": true,
+   "output": "beta",
+   "id": "personal-195"
+  },
+  {
+   "kind": "personal",
+   "label": " NATIONALITY ",
+   "value": null,
+   "ok": true,
+   "output": null,
+   "id": "personal-196"
+  },
+  {
+   "kind": "personal",
+   "label": " NATIONALITY ",
+   "value": "  ",
+   "ok": true,
+   "output": "  ",
+   "id": "personal-197"
+  },
+  {
+   "kind": "personal",
+   "label": " NATIONALITY ",
+   "value": "tool@systems.example",
+   "ok": true,
+   "output": "Werkzeug@systems.example",
+   "id": "personal-198"
+  },
+  {
+   "kind": "personal",
+   "label": "email",
+   "value": "Built data",
+   "ok": true,
+   "output": "Built data",
+   "id": "personal-199"
+  },
+  {
+   "kind": "personal",
+   "label": "email",
+   "value": "ALPHA",
+   "ok": true,
+   "output": "ALPHA",
+   "id": "personal-200"
+  },
+  {
+   "kind": "personal",
+   "label": "email",
+   "value": null,
+   "ok": true,
+   "output": null,
+   "id": "personal-201"
+  },
+  {
+   "kind": "personal",
+   "label": "email",
+   "value": "  ",
+   "ok": true,
+   "output": "  ",
+   "id": "personal-202"
+  },
+  {
+   "kind": "personal",
+   "label": "email",
+   "value": "tool@systems.example",
+   "ok": true,
+   "output": "tool@systems.example",
+   "id": "personal-203"
+  },
+  {
+   "kind": "personal",
+   "label": "Wohnort",
+   "value": "Built data",
+   "ok": true,
+   "output": "Built data",
+   "id": "personal-204"
+  },
+  {
+   "kind": "personal",
+   "label": "Wohnort",
+   "value": "ALPHA",
+   "ok": true,
+   "output": "ALPHA",
+   "id": "personal-205"
+  },
+  {
+   "kind": "personal",
+   "label": "Wohnort",
+   "value": null,
+   "ok": true,
+   "output": null,
+   "id": "personal-206"
+  },
+  {
+   "kind": "personal",
+   "label": "Wohnort",
+   "value": "  ",
+   "ok": true,
+   "output": "  ",
+   "id": "personal-207"
+  },
+  {
+   "kind": "personal",
+   "label": "Wohnort",
+   "value": "tool@systems.example",
+   "ok": true,
+   "output": "tool@systems.example",
+   "id": "personal-208"
+  },
+  {
+   "kind": "personal",
+   "label": "ADDRESS\t",
+   "value": "Built data",
+   "ok": true,
+   "output": "Erstellte Daten",
+   "id": "personal-209"
+  },
+  {
+   "kind": "personal",
+   "label": "ADDRESS\t",
+   "value": "ALPHA",
+   "ok": true,
+   "output": "beta",
+   "id": "personal-210"
+  },
+  {
+   "kind": "personal",
+   "label": "ADDRESS\t",
+   "value": null,
+   "ok": true,
+   "output": null,
+   "id": "personal-211"
+  },
+  {
+   "kind": "personal",
+   "label": "ADDRESS\t",
+   "value": "  ",
+   "ok": true,
+   "output": "  ",
+   "id": "personal-212"
+  },
+  {
+   "kind": "personal",
+   "label": "ADDRESS\t",
+   "value": "tool@systems.example",
+   "ok": true,
+   "output": "Werkzeug@systems.example",
+   "id": "personal-213"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "BUILT",
+   "replacement": "erstellte",
+   "ok": true,
+   "output": "ERSTELLTE",
+   "id": "preserve_case-214"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "Built",
+   "replacement": "erstellte",
+   "ok": true,
+   "output": "Erstellte",
+   "id": "preserve_case-215"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "Built",
+   "replacement": "\ud801\udc28x",
+   "ok": true,
+   "output": "\ud801\udc28x",
+   "id": "preserve_case-216"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "built",
+   "replacement": "erstellte",
+   "ok": true,
+   "output": "erstellte",
+   "id": "preserve_case-217"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "A",
+   "replacement": "ersatz",
+   "ok": true,
+   "output": "Ersatz",
+   "id": "preserve_case-218"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "\ud801\udc00x",
+   "replacement": "ersatz",
+   "ok": true,
+   "output": "ersatz",
+   "id": "preserve_case-219"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "",
+   "replacement": "ersatz",
+   "ok": true,
+   "output": "ersatz",
+   "id": "preserve_case-220"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "Built",
+   "replacement": "",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid German translation input",
+    "details": {}
+   },
+   "id": "preserve_case-221"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "built",
+   "replacement": "",
+   "ok": true,
+   "output": "",
+   "id": "preserve_case-222"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "BUILT",
+   "replacement": "",
+   "ok": true,
+   "output": "",
+   "id": "preserve_case-223"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "X",
+   "replacement": "\u00dfa",
+   "ok": true,
+   "output": "\u00dfa",
+   "id": "preserve_case-224"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "X",
+   "replacement": "\u0149x",
+   "ok": true,
+   "output": "\u0149x",
+   "id": "preserve_case-225"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "X",
+   "replacement": "\u1f80x",
+   "ok": true,
+   "output": "\u1f88x",
+   "id": "preserve_case-226"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "X",
+   "replacement": "\u1fb3x",
+   "ok": true,
+   "output": "\u1fbcx",
+   "id": "preserve_case-227"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "X",
+   "replacement": "\u01c6x",
+   "ok": true,
+   "output": "\u01c4x",
+   "id": "preserve_case-228"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "ABC",
+   "replacement": "\u00dfa",
+   "ok": true,
+   "output": "SSA",
+   "id": "preserve_case-229"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "Ab",
+   "replacement": "\u01c6a",
+   "ok": true,
+   "output": "\u01c4a",
+   "id": "preserve_case-230"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "\u24b6",
+   "replacement": "x",
+   "ok": true,
+   "output": "X",
+   "id": "preserve_case-231"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "\u0130",
+   "replacement": "i",
+   "ok": true,
+   "output": "I",
+   "id": "preserve_case-232"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "I",
+   "replacement": "\u0131x",
+   "ok": true,
+   "output": "Ix",
+   "id": "preserve_case-233"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "\u01c5",
+   "replacement": "x",
+   "ok": true,
+   "output": "x",
+   "id": "preserve_case-234"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "A",
+   "replacement": "",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Invalid German translation input",
+    "details": {}
+   },
+   "id": "preserve_case-235"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "Ab",
+   "replacement": "a",
+   "ok": true,
+   "output": "A",
+   "id": "preserve_case-236"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "AB",
+   "replacement": "ab",
+   "ok": true,
+   "output": "AB",
+   "id": "preserve_case-237"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "Ab1",
+   "replacement": "ab",
+   "ok": true,
+   "output": "Ab",
+   "id": "preserve_case-238"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "1A",
+   "replacement": "ab",
+   "ok": true,
+   "output": "AB",
+   "id": "preserve_case-239"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "\u00c9cole",
+   "replacement": "abc",
+   "ok": true,
+   "output": "Abc",
+   "id": "preserve_case-240"
+  },
+  {
+   "kind": "preserve_case",
+   "original": "\u00e9cole",
+   "replacement": "abc",
+   "ok": true,
+   "output": "abc",
+   "id": "preserve_case-241"
+  },
+  {
+   "kind": "text",
+   "value_repeat": {
+    "text": "x",
+    "count": 1000000
+   },
+   "ok": true,
+   "output_same_as_input": true,
+   "id": "text-242"
+  },
+  {
+   "kind": "text",
+   "value_repeat": {
+    "text": "x",
+    "count": 1000001
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Resume preparation limit exceeded",
+    "details": {
+     "field": "text",
+     "reason": "exceeds preparation safety budget"
+    }
+   },
+   "id": "text-243"
+  },
+  {
+   "kind": "label",
+   "value_repeat": {
+    "text": "x",
+    "count": 1000001
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Resume preparation limit exceeded",
+    "details": {
+     "field": "text",
+     "reason": "exceeds preparation safety budget"
+    }
+   },
+   "id": "label-244"
+  },
+  {
+   "kind": "preserve_case",
+   "original_repeat": {
+    "text": "x",
+    "count": 1000001
+   },
+   "replacement": "a",
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Resume preparation limit exceeded",
+    "details": {
+     "field": "text",
+     "reason": "exceeds preparation safety budget"
+    }
+   },
+   "id": "preserve_case-245"
+  },
+  {
+   "kind": "personal",
+   "label_repeat": {
+    "text": "x",
+    "count": 600000
+   },
+   "value_repeat": {
+    "text": "x",
+    "count": 600000
+   },
+   "ok": false,
+   "error": {
+    "code": "validation_error",
+    "message": "Resume preparation limit exceeded",
+    "details": {
+     "field": "text",
+     "reason": "exceeds preparation safety budget"
+    }
+   },
+   "id": "personal-246"
+  }
+ ]
+}

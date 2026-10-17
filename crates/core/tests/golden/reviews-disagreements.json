@@ -1,0 +1,1669 @@
+{
+ "now": "2026-10-02T12:00:00.123456Z",
+ "reports": [
+  {
+   "id": "11111111-1111-4111-8111-000000000001",
+   "overallScore": 57,
+   "outcome": "PARTIAL_MATCH",
+   "blockerMismatch": false,
+   "components": [
+    {
+     "component": "TECHNICAL",
+     "earnedPoints": 24,
+     "availablePoints": 40,
+     "status": "PARTIAL"
+    },
+    {
+     "component": "EXPERIENCE_SENIORITY",
+     "earnedPoints": 13,
+     "availablePoints": 25,
+     "status": "PARTIAL"
+    },
+    {
+     "component": "DOMAIN",
+     "earnedPoints": 0,
+     "availablePoints": 15,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "DELIVERY",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "HARD_REQUIREMENTS",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    }
+   ],
+   "evidence": [
+    {
+     "component": "TECHNICAL",
+     "status": "MATCH",
+     "sourceType": "normalized_skill",
+     "fact": "java",
+     "outcomeChangingDefect": false
+    },
+    {
+     "component": "TECHNICAL",
+     "status": "MISMATCH",
+     "sourceType": "normalized_skill",
+     "fact": "kubernetes",
+     "outcomeChangingDefect": false
+    },
+    {
+     "component": "EXPERIENCE_SENIORITY",
+     "status": "PARTIAL",
+     "sourceType": "experience_dates",
+     "fact": "profile contains dated experience",
+     "outcomeChangingDefect": false
+    }
+   ]
+  },
+  {
+   "id": "11111111-1111-4111-8111-000000000002",
+   "overallScore": 100,
+   "outcome": "STRONG_MATCH",
+   "blockerMismatch": false,
+   "components": [
+    {
+     "component": "TECHNICAL",
+     "earnedPoints": 40,
+     "availablePoints": 40,
+     "status": "MATCH"
+    },
+    {
+     "component": "EXPERIENCE_SENIORITY",
+     "earnedPoints": 25,
+     "availablePoints": 25,
+     "status": "MATCH"
+    },
+    {
+     "component": "DOMAIN",
+     "earnedPoints": 0,
+     "availablePoints": 15,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "DELIVERY",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "HARD_REQUIREMENTS",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    }
+   ],
+   "evidence": [
+    {
+     "component": "TECHNICAL",
+     "status": "MATCH",
+     "sourceType": "normalized_skill",
+     "fact": "java",
+     "outcomeChangingDefect": false
+    },
+    {
+     "component": "TECHNICAL",
+     "status": "MATCH",
+     "sourceType": "normalized_skill",
+     "fact": "rust",
+     "outcomeChangingDefect": false
+    },
+    {
+     "component": "EXPERIENCE_SENIORITY",
+     "status": "MATCH",
+     "sourceType": "experience_dates",
+     "fact": "profile contains dated experience",
+     "outcomeChangingDefect": false
+    }
+   ]
+  },
+  {
+   "id": "11111111-1111-4111-8111-000000000003",
+   "overallScore": 0,
+   "outcome": "INSUFFICIENT_EVIDENCE",
+   "blockerMismatch": false,
+   "components": [
+    {
+     "component": "TECHNICAL",
+     "earnedPoints": 0,
+     "availablePoints": 40,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "EXPERIENCE_SENIORITY",
+     "earnedPoints": 0,
+     "availablePoints": 25,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "DOMAIN",
+     "earnedPoints": 0,
+     "availablePoints": 15,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "DELIVERY",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "HARD_REQUIREMENTS",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    }
+   ],
+   "evidence": []
+  },
+  {
+   "id": "11111111-1111-4111-8111-000000000004",
+   "overallScore": 50,
+   "outcome": "PARTIAL_MATCH",
+   "blockerMismatch": false,
+   "components": [
+    {
+     "component": "TECHNICAL",
+     "earnedPoints": 20,
+     "availablePoints": 40,
+     "status": "PARTIAL"
+    },
+    {
+     "component": "EXPERIENCE_SENIORITY",
+     "earnedPoints": 0,
+     "availablePoints": 25,
+     "status": "MISMATCH"
+    },
+    {
+     "component": "DOMAIN",
+     "earnedPoints": 0,
+     "availablePoints": 15,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "DELIVERY",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "HARD_REQUIREMENTS",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    }
+   ],
+   "evidence": [
+    {
+     "component": "TECHNICAL",
+     "status": "MATCH",
+     "sourceType": "notes",
+     "fact": "\uff01 full width",
+     "outcomeChangingDefect": false
+    },
+    {
+     "component": "TECHNICAL",
+     "status": "PARTIAL",
+     "sourceType": "notes",
+     "fact": "\ud83d\ude00 emoji",
+     "outcomeChangingDefect": false
+    }
+   ]
+  },
+  {
+   "id": "11111111-1111-4111-8111-000000000005",
+   "overallScore": 50,
+   "outcome": "PARTIAL_MATCH",
+   "blockerMismatch": false,
+   "components": [
+    {
+     "component": "TECHNICAL",
+     "earnedPoints": 10,
+     "availablePoints": 40,
+     "status": "PARTIAL"
+    },
+    {
+     "component": "TECHNICAL",
+     "earnedPoints": 30,
+     "availablePoints": 40,
+     "status": "MATCH"
+    },
+    {
+     "component": "EXPERIENCE_SENIORITY",
+     "earnedPoints": 13,
+     "availablePoints": 25,
+     "status": "PARTIAL"
+    },
+    {
+     "component": "DOMAIN",
+     "earnedPoints": 0,
+     "availablePoints": 15,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "DELIVERY",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    },
+    {
+     "component": "HARD_REQUIREMENTS",
+     "earnedPoints": 0,
+     "availablePoints": 10,
+     "status": "UNKNOWN"
+    }
+   ],
+   "evidence": [
+    {
+     "component": "TECHNICAL",
+     "status": "MATCH",
+     "sourceType": "normalized_skill",
+     "fact": "java",
+     "outcomeChangingDefect": false
+    }
+   ]
+  },
+  {
+   "id": "11111111-1111-4111-8111-000000000006",
+   "overallScore": 40,
+   "outcome": "WEAK_MATCH",
+   "blockerMismatch": false,
+   "components": [
+    {
+     "component": "TECHNICAL",
+     "earnedPoints": 24,
+     "availablePoints": 40,
+     "status": "PARTIAL"
+    }
+   ],
+   "evidence": [
+    {
+     "component": "TECHNICAL",
+     "status": "PARTIAL",
+     "sourceType": "normalized_skill",
+     "fact": "java",
+     "outcomeChangingDefect": false
+    }
+   ]
+  }
+ ],
+ "creations": [
+  {
+   "name": "consistent review has none",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 57,
+    "outcome": "PARTIAL_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 24,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [],
+    "summary": "score_adjustment"
+   },
+   "reviewId": "559128ed-0659-3454-9b0b-f317540c9be2",
+   "disagreement": null
+  },
+  {
+   "name": "overall and outcome",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 40,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 10,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     },
+     {
+      "component": "EXPERIENCE_SENIORITY",
+      "earnedPoints": 13,
+      "availablePoints": 25,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": false
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+   "disagreement": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   }
+  },
+  {
+   "name": "outcome only",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 57,
+    "outcome": "STRONG_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 24,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [],
+    "summary": "score_adjustment"
+   },
+   "reviewId": "01db09fe-71b8-3147-b100-be4977c9049a",
+   "disagreement": {
+    "id": "c3c9b200-259f-354d-8142-f1908d5a6acd",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "01db09fe-71b8-3147-b100-be4977c9049a",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   }
+  },
+  {
+   "name": "blocker only",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 57,
+    "outcome": "PARTIAL_MATCH",
+    "blockerMismatch": true,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 24,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [],
+    "summary": "score_adjustment"
+   },
+   "reviewId": "35864a6a-a679-3f9f-83a6-5915626ae7c6",
+   "disagreement": {
+    "id": "3a1f5c33-4f71-3ae2-a8cb-57f9f796e0c5",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "35864a6a-a679-3f9f-83a6-5915626ae7c6",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "BLOCKER_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   }
+  },
+  {
+   "name": "component delta",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 57,
+    "outcome": "PARTIAL_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 8,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [],
+    "summary": "score_adjustment"
+   },
+   "reviewId": "0a818110-e14f-375e-a021-99d74dd41176",
+   "disagreement": {
+    "id": "16afe806-e11b-33a9-bd1b-cef331a40259",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "0a818110-e14f-375e-a021-99d74dd41176",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "COMPONENT_DELTA"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   }
+  },
+  {
+   "name": "defect with codes",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 57,
+    "outcome": "PARTIAL_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 24,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "PARTIAL",
+      "sourceType": "notes",
+      "fact": "structured_evidence_missing",
+      "outcomeChangingDefect": true
+     },
+     {
+      "component": "TECHNICAL",
+      "status": "PARTIAL",
+      "sourceType": "notes",
+      "fact": "outcome_calibration_issue",
+      "outcomeChangingDefect": true
+     },
+     {
+      "component": "TECHNICAL",
+      "status": "PARTIAL",
+      "sourceType": "notes",
+      "fact": "structured_evidence_missing",
+      "outcomeChangingDefect": true
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "reviewId": "15ced40c-699a-3d78-9ee6-4b6afe2c8f62",
+   "disagreement": {
+    "id": "d1c9301e-9809-37a6-86d1-6a4edce4388a",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "15ced40c-699a-3d78-9ee6-4b6afe2c8f62",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "EVIDENCE_DEFECT"
+    ],
+    "evidenceDefectCodes": [
+     "outcome_calibration_issue",
+     "structured_evidence_missing"
+    ],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   }
+  },
+  {
+   "name": "defect without code",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 57,
+    "outcome": "PARTIAL_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 24,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "MATCH",
+      "sourceType": "normalized_skill",
+      "fact": "java",
+      "outcomeChangingDefect": true
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "reviewId": "c620c5ed-8893-3fa9-8337-18cd311dad0c",
+   "disagreement": {
+    "id": "958016b1-a934-3c59-a847-95b84ea14430",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "c620c5ed-8893-3fa9-8337-18cd311dad0c",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "EVIDENCE_DEFECT"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   }
+  },
+  {
+   "name": "all reasons with codes",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 20,
+    "outcome": "WEAK_MATCH",
+    "blockerMismatch": true,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 0,
+      "availablePoints": 40,
+      "status": "MISMATCH"
+     }
+    ],
+    "evidence": [
+     {
+      "component": "TECHNICAL",
+      "status": "PARTIAL",
+      "sourceType": "notes",
+      "fact": "requirement_provenance_missing",
+      "outcomeChangingDefect": true
+     }
+    ],
+    "summary": "score_adjustment"
+   },
+   "reviewId": "40a14aec-6a34-3dc4-a82a-ab6a02043e33",
+   "disagreement": {
+    "id": "28273537-8789-3d6b-88a5-955c44835a54",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "40a14aec-6a34-3dc4-a82a-ab6a02043e33",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH",
+     "BLOCKER_MISMATCH",
+     "COMPONENT_DELTA",
+     "EVIDENCE_DEFECT"
+    ],
+    "evidenceDefectCodes": [
+     "requirement_provenance_missing"
+    ],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   }
+  },
+  {
+   "name": "summary does not create",
+   "report": "A",
+   "draft": {
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewer": "reviewer-alpha",
+    "model": "model-test-1",
+    "reviewVersion": "review-v1",
+    "overallScore": 57,
+    "outcome": "PARTIAL_MATCH",
+    "blockerMismatch": false,
+    "components": [
+     {
+      "component": "TECHNICAL",
+      "earnedPoints": 24,
+      "availablePoints": 40,
+      "status": "PARTIAL"
+     }
+    ],
+    "evidence": [],
+    "summary": "evidence_defect_identified"
+   },
+   "reviewId": "8330704f-94ba-3b76-8311-47f06af35dc6",
+   "disagreement": null
+  }
+ ],
+ "fingerprints": [
+  {
+   "name": "base",
+   "reportId": "11111111-1111-4111-8111-000000000001",
+   "reasons": [
+    "OVERALL_DELTA",
+    "OUTCOME_MISMATCH"
+   ],
+   "defectCodes": [],
+   "policyVersion": null,
+   "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21"
+  },
+  {
+   "name": "reasons reversed",
+   "reportId": "11111111-1111-4111-8111-000000000001",
+   "reasons": [
+    "OUTCOME_MISMATCH",
+    "OVERALL_DELTA"
+   ],
+   "defectCodes": [],
+   "policyVersion": null,
+   "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21"
+  },
+  {
+   "name": "reasons duplicated",
+   "reportId": "11111111-1111-4111-8111-000000000001",
+   "reasons": [
+    "OVERALL_DELTA",
+    "OUTCOME_MISMATCH",
+    "OVERALL_DELTA"
+   ],
+   "defectCodes": [],
+   "policyVersion": null,
+   "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21"
+  },
+  {
+   "name": "codes unsorted and duplicated",
+   "reportId": "11111111-1111-4111-8111-000000000001",
+   "reasons": [
+    "OVERALL_DELTA",
+    "OUTCOME_MISMATCH"
+   ],
+   "defectCodes": [
+    "structured_evidence_missing",
+    "outcome_calibration_issue",
+    "structured_evidence_missing",
+    "outcome_calibration_issue",
+    "structured_evidence_missing"
+   ],
+   "policyVersion": null,
+   "id": "20f1f47a-0f76-3e46-a081-c1f0376cd22c"
+  },
+  {
+   "name": "codes sorted",
+   "reportId": "11111111-1111-4111-8111-000000000001",
+   "reasons": [
+    "OVERALL_DELTA",
+    "OUTCOME_MISMATCH"
+   ],
+   "defectCodes": [
+    "outcome_calibration_issue",
+    "structured_evidence_missing"
+   ],
+   "policyVersion": null,
+   "id": "20f1f47a-0f76-3e46-a081-c1f0376cd22c"
+  },
+  {
+   "name": "no reasons no codes",
+   "reportId": "11111111-1111-4111-8111-000000000001",
+   "reasons": [],
+   "defectCodes": [],
+   "policyVersion": null,
+   "id": "11720a2f-5e21-37d8-97b1-eef15d90575f"
+  },
+  {
+   "name": "all reasons",
+   "reportId": "11111111-1111-4111-8111-000000000001",
+   "reasons": [
+    "OVERALL_DELTA",
+    "OUTCOME_MISMATCH",
+    "BLOCKER_MISMATCH",
+    "COMPONENT_DELTA",
+    "EVIDENCE_DEFECT"
+   ],
+   "defectCodes": [
+    "structured_evidence_missing",
+    "outcome_calibration_issue"
+   ],
+   "policyVersion": null,
+   "id": "3ca87f45-b4c3-32c1-8d96-8d6535c3934f"
+  },
+  {
+   "name": "all reasons reversed",
+   "reportId": "11111111-1111-4111-8111-000000000001",
+   "reasons": [
+    "EVIDENCE_DEFECT",
+    "COMPONENT_DELTA",
+    "BLOCKER_MISMATCH",
+    "OUTCOME_MISMATCH",
+    "OVERALL_DELTA"
+   ],
+   "defectCodes": [
+    "structured_evidence_missing",
+    "outcome_calibration_issue"
+   ],
+   "policyVersion": null,
+   "id": "3ca87f45-b4c3-32c1-8d96-8d6535c3934f"
+  },
+  {
+   "name": "other report",
+   "reportId": "11111111-1111-4111-8111-000000000002",
+   "reasons": [
+    "OVERALL_DELTA",
+    "OUTCOME_MISMATCH"
+   ],
+   "defectCodes": [],
+   "policyVersion": null,
+   "id": "fa14d3a6-4ac5-3c23-836e-b4b279ce5c3d"
+  },
+  {
+   "name": "policy version given explicitly",
+   "reportId": "11111111-1111-4111-8111-000000000001",
+   "reasons": [
+    "OVERALL_DELTA",
+    "OUTCOME_MISMATCH"
+   ],
+   "defectCodes": [],
+   "policyVersion": "divergence-v1",
+   "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21"
+  },
+  {
+   "name": "policy version changed",
+   "reportId": "11111111-1111-4111-8111-000000000001",
+   "reasons": [
+    "OVERALL_DELTA",
+    "OUTCOME_MISMATCH"
+   ],
+   "defectCodes": [],
+   "policyVersion": "divergence-v2",
+   "id": "6d07f4d4-2715-3349-adcb-a1f0ac3fd8a1"
+  },
+  {
+   "name": "single reason",
+   "reportId": "11111111-1111-4111-8111-000000000001",
+   "reasons": [
+    "EVIDENCE_DEFECT"
+   ],
+   "defectCodes": [],
+   "policyVersion": null,
+   "id": "958016b1-a934-3c59-a847-95b84ea14430"
+  },
+  {
+   "name": "defect code only",
+   "reportId": "11111111-1111-4111-8111-000000000001",
+   "reasons": [
+    "EVIDENCE_DEFECT"
+   ],
+   "defectCodes": [
+    "requirement_provenance_missing"
+   ],
+   "policyVersion": null,
+   "id": "36830257-2079-3b36-83b0-54a974b009c5"
+  }
+ ],
+ "validations": [
+  {
+   "name": "stored record",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "ok": {
+     "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+     "reportId": "11111111-1111-4111-8111-000000000001",
+     "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+     "policyVersion": "divergence-v1",
+     "reasons": [
+      "OVERALL_DELTA",
+      "OUTCOME_MISMATCH"
+     ],
+     "evidenceDefectCodes": [],
+     "status": "PENDING_ESCALATION",
+     "linearIssueId": null,
+     "createdAt": "2026-10-02T12:00:00.123456Z",
+     "updatedAt": "2026-10-02T12:00:00.123456Z"
+    }
+   }
+  },
+  {
+   "name": "acknowledged with padded issue",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "ACKNOWLEDGED",
+    "linearIssueId": " LIN-1 ",
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "ok": {
+     "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+     "reportId": "11111111-1111-4111-8111-000000000001",
+     "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+     "policyVersion": "divergence-v1",
+     "reasons": [
+      "OVERALL_DELTA",
+      "OUTCOME_MISMATCH"
+     ],
+     "evidenceDefectCodes": [],
+     "status": "ACKNOWLEDGED",
+     "linearIssueId": " LIN-1 ",
+     "createdAt": "2026-10-02T12:00:00.123456Z",
+     "updatedAt": "2026-10-02T12:00:00.123456Z"
+    }
+   }
+  },
+  {
+   "name": "linked",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "LINKED",
+    "linearIssueId": "LIN-2",
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "ok": {
+     "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+     "reportId": "11111111-1111-4111-8111-000000000001",
+     "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+     "policyVersion": "divergence-v1",
+     "reasons": [
+      "OVERALL_DELTA",
+      "OUTCOME_MISMATCH"
+     ],
+     "evidenceDefectCodes": [],
+     "status": "LINKED",
+     "linearIssueId": "LIN-2",
+     "createdAt": "2026-10-02T12:00:00.123456Z",
+     "updatedAt": "2026-10-02T12:00:00.123456Z"
+    }
+   }
+  },
+  {
+   "name": "open status",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "OPEN",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "ok": {
+     "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+     "reportId": "11111111-1111-4111-8111-000000000001",
+     "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+     "policyVersion": "divergence-v1",
+     "reasons": [
+      "OVERALL_DELTA",
+      "OUTCOME_MISMATCH"
+     ],
+     "evidenceDefectCodes": [],
+     "status": "OPEN",
+     "linearIssueId": null,
+     "createdAt": "2026-10-02T12:00:00.123456Z",
+     "updatedAt": "2026-10-02T12:00:00.123456Z"
+    }
+   }
+  },
+  {
+   "name": "unknown status",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "CLOSED",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "error": {
+     "code": "validation_error",
+     "message": "invalid match disagreement status",
+     "details": {}
+    }
+   }
+  },
+  {
+   "name": "status null",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": null,
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "error": {
+     "code": "validation_error",
+     "message": "invalid match disagreement status",
+     "details": {}
+    }
+   }
+  },
+  {
+   "name": "reasons empty",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "error": {
+     "code": "validation_error",
+     "message": "reasons must not be empty or contain unknown reasons",
+     "details": {}
+    }
+   }
+  },
+  {
+   "name": "reasons absent",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "error": {
+     "code": "validation_error",
+     "message": "reasons must not be empty or contain unknown reasons",
+     "details": {}
+    }
+   }
+  },
+  {
+   "name": "reasons string",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": "OVERALL_DELTA",
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "error": {
+     "code": "validation_error",
+     "message": "reasons must not be empty or contain unknown reasons",
+     "details": {}
+    }
+   }
+  },
+  {
+   "name": "reasons unknown",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "UNKNOWN"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "error": {
+     "code": "validation_error",
+     "message": "reasons must not be empty or contain unknown reasons",
+     "details": {}
+    }
+   }
+  },
+  {
+   "name": "reasons duplicated",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OVERALL_DELTA"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "ok": {
+     "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+     "reportId": "11111111-1111-4111-8111-000000000001",
+     "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+     "policyVersion": "divergence-v1",
+     "reasons": [
+      "OVERALL_DELTA"
+     ],
+     "evidenceDefectCodes": [],
+     "status": "PENDING_ESCALATION",
+     "linearIssueId": null,
+     "createdAt": "2026-10-02T12:00:00.123456Z",
+     "updatedAt": "2026-10-02T12:00:00.123456Z"
+    }
+   }
+  },
+  {
+   "name": "reasons out of order",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OUTCOME_MISMATCH",
+     "OVERALL_DELTA"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "ok": {
+     "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+     "reportId": "11111111-1111-4111-8111-000000000001",
+     "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+     "policyVersion": "divergence-v1",
+     "reasons": [
+      "OVERALL_DELTA",
+      "OUTCOME_MISMATCH"
+     ],
+     "evidenceDefectCodes": [],
+     "status": "PENDING_ESCALATION",
+     "linearIssueId": null,
+     "createdAt": "2026-10-02T12:00:00.123456Z",
+     "updatedAt": "2026-10-02T12:00:00.123456Z"
+    }
+   }
+  },
+  {
+   "name": "codes absent",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "ok": {
+     "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+     "reportId": "11111111-1111-4111-8111-000000000001",
+     "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+     "policyVersion": "divergence-v1",
+     "reasons": [
+      "OVERALL_DELTA",
+      "OUTCOME_MISMATCH"
+     ],
+     "evidenceDefectCodes": [],
+     "status": "PENDING_ESCALATION",
+     "linearIssueId": null,
+     "createdAt": "2026-10-02T12:00:00.123456Z",
+     "updatedAt": "2026-10-02T12:00:00.123456Z"
+    }
+   }
+  },
+  {
+   "name": "codes null",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": null,
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "ok": {
+     "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+     "reportId": "11111111-1111-4111-8111-000000000001",
+     "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+     "policyVersion": "divergence-v1",
+     "reasons": [
+      "OVERALL_DELTA",
+      "OUTCOME_MISMATCH"
+     ],
+     "evidenceDefectCodes": [],
+     "status": "PENDING_ESCALATION",
+     "linearIssueId": null,
+     "createdAt": "2026-10-02T12:00:00.123456Z",
+     "updatedAt": "2026-10-02T12:00:00.123456Z"
+    }
+   }
+  },
+  {
+   "name": "codes unsorted and duplicated",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [
+     "structured_evidence_missing",
+     "outcome_calibration_issue",
+     "structured_evidence_missing"
+    ],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "ok": {
+     "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+     "reportId": "11111111-1111-4111-8111-000000000001",
+     "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+     "policyVersion": "divergence-v1",
+     "reasons": [
+      "OVERALL_DELTA",
+      "OUTCOME_MISMATCH"
+     ],
+     "evidenceDefectCodes": [
+      "outcome_calibration_issue",
+      "structured_evidence_missing"
+     ],
+     "status": "PENDING_ESCALATION",
+     "linearIssueId": null,
+     "createdAt": "2026-10-02T12:00:00.123456Z",
+     "updatedAt": "2026-10-02T12:00:00.123456Z"
+    }
+   }
+  },
+  {
+   "name": "codes unknown",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [
+     "made_up_code"
+    ],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "error": {
+     "code": "validation_error",
+     "message": "evidenceDefectCodes must contain only allowed advisory defect codes",
+     "details": {}
+    }
+   }
+  },
+  {
+   "name": "codes string",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": "structured_evidence_missing",
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "error": {
+     "code": "validation_error",
+     "message": "evidenceDefectCodes must contain only allowed advisory defect codes",
+     "details": {}
+    }
+   }
+  },
+  {
+   "name": "issue null",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "ok": {
+     "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+     "reportId": "11111111-1111-4111-8111-000000000001",
+     "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+     "policyVersion": "divergence-v1",
+     "reasons": [
+      "OVERALL_DELTA",
+      "OUTCOME_MISMATCH"
+     ],
+     "evidenceDefectCodes": [],
+     "status": "PENDING_ESCALATION",
+     "linearIssueId": null,
+     "createdAt": "2026-10-02T12:00:00.123456Z",
+     "updatedAt": "2026-10-02T12:00:00.123456Z"
+    }
+   }
+  },
+  {
+   "name": "issue empty",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": "",
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "error": {
+     "code": "validation_error",
+     "message": "linearIssueId must not be blank",
+     "details": {}
+    }
+   }
+  },
+  {
+   "name": "issue blank",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": "  ",
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "error": {
+     "code": "validation_error",
+     "message": "linearIssueId must not be blank",
+     "details": {}
+    }
+   }
+  },
+  {
+   "name": "issue integer",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": 7,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "error": {
+     "code": "validation_error",
+     "message": "linearIssueId must not be blank",
+     "details": {}
+    }
+   }
+  },
+  {
+   "name": "policy version other",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v2",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "ok": {
+     "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+     "reportId": "11111111-1111-4111-8111-000000000001",
+     "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+     "policyVersion": "divergence-v2",
+     "reasons": [
+      "OVERALL_DELTA",
+      "OUTCOME_MISMATCH"
+     ],
+     "evidenceDefectCodes": [],
+     "status": "PENDING_ESCALATION",
+     "linearIssueId": null,
+     "createdAt": "2026-10-02T12:00:00.123456Z",
+     "updatedAt": "2026-10-02T12:00:00.123456Z"
+    }
+   }
+  },
+  {
+   "name": "policy version unsafe",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "bad label!",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "error": {
+     "code": "validation_error",
+     "message": "policyVersion must be a normalized safe label",
+     "details": {}
+    }
+   }
+  },
+  {
+   "name": "id invalid",
+   "input": {
+    "id": "x",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "error": {
+     "code": "validation_error",
+     "message": "disagreementId must be a valid UUID",
+     "details": {}
+    }
+   }
+  },
+  {
+   "name": "reportId invalid",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "x",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "error": {
+     "code": "validation_error",
+     "message": "reportId must be a valid UUID",
+     "details": {}
+    }
+   }
+  },
+  {
+   "name": "reviewId invalid",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "x",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "error": {
+     "code": "validation_error",
+     "message": "reviewId must be a valid UUID",
+     "details": {}
+    }
+   }
+  },
+  {
+   "name": "reportId absent",
+   "input": {
+    "id": "6b41f544-2504-3fe1-b445-0a859a0b8f21",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "error": {
+     "code": "validation_error",
+     "message": "reportId must not be null",
+     "details": {}
+    }
+   }
+  },
+  {
+   "name": "reasons checked before id",
+   "input": {
+    "id": "x",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": null,
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "error": {
+     "code": "validation_error",
+     "message": "reasons must not be empty or contain unknown reasons",
+     "details": {}
+    }
+   }
+  },
+  {
+   "name": "issue checked before id",
+   "input": {
+    "id": "x",
+    "reportId": "11111111-1111-4111-8111-000000000001",
+    "reviewId": "384b4259-3eb5-3c9b-af17-0eb3d26549e5",
+    "policyVersion": "divergence-v1",
+    "reasons": [
+     "OVERALL_DELTA",
+     "OUTCOME_MISMATCH"
+    ],
+    "evidenceDefectCodes": [],
+    "status": "PENDING_ESCALATION",
+    "linearIssueId": "  ",
+    "createdAt": "2026-10-02T12:00:00.123456Z",
+    "updatedAt": "2026-10-02T12:00:00.123456Z"
+   },
+   "result": {
+    "error": {
+     "code": "validation_error",
+     "message": "linearIssueId must not be blank",
+     "details": {}
+    }
+   }
+  }
+ ]
+}

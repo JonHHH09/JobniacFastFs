@@ -1,0 +1,118 @@
+[workspace]
+resolver = "3"
+members = ["crates/*", "src-tauri"]
+default-members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.90"
+license = "MIT"
+authors = ["JonHHH09"]
+publish = false
+
+[workspace.dependencies]
+# Internal crates
+jobniac-core = { path = "crates/core" }
+jobniac-text = { path = "crates/text" }
+jobniac-pdf = { path = "crates/pdf" }
+jobniac-infra = { path = "crates/infra" }
+jobniac-mcp = { path = "crates/mcp" }
+jobniac-runtime = { path = "crates/runtime" }
+jobniac-testkit = { path = "crates/testkit" }
+
+# Shared third-party crates (versions resolved and locked in Cargo.lock). Pre-release or
+# fast-moving crates are pinned exactly.
+async-trait = "0.1"
+base64 = "0.23"
+clap = { version = "4.6", features = ["derive"] }
+getrandom = "0.4"
+hmac = "0.13"
+# PDFium bindings for the PDF worker. Pinned exactly: the bundled PDFium build (chromium/7881)
+# must match the binding's API version feature.
+pdfium-render = "=0.9.4"
+# Linux resource limits applied by the worker child to itself (no pre_exec).
+rlimit = "0.11"
+# Linux worker confinement: Landlock filesystem and TCP rules, and a seccomp-BPF filter,
+# applied by the worker child to itself (workers/platform/linux_sandbox.rs). Pinned exactly.
+landlock = "=0.4.7"
+seccompiler = "=0.5.0"
+# Linux safe syscall wrappers for the PDF exporter (files/export/platform_linux.rs): the fs and
+# process APIs only. Exact pin: already locked at 1.1.5 through the existing dependency graph.
+rustix = { version = "=1.1.5", features = ["fs", "process"] }
+# Structural readback of generated PDFs; pinned exactly like the writer.
+lopdf = "=0.45.0"
+# Deterministic PDF writer for generated resumes and cover letters.
+pdf-writer = "=0.15.0"
+rmcp = { version = "=3.5.1", features = ["server", "transport-io", "transport-streamable-http-server", "macros", "schemars"] }
+# Loopback Streamable HTTP MCP: the guard and listener in jobniac-mcp. Exact pins match the
+# versions already in Cargo.lock.
+hyper = { version = "=1.12.0", default-features = false, features = ["server", "client", "http1"] }
+hyper-util = { version = "=0.1.21", default-features = false, features = ["tokio"] }
+http = "=1.5.0"
+http-body = "=1.1.0"
+http-body-util = "=0.1.5"
+bytes = "=1.12.1"
+tower-service = "=0.3.3"
+schemars = "1.2"
+specta = { version = "=2.0.0-rc.25", features = ["derive"] }
+specta-typescript = "=0.0.12"
+tauri-specta = { version = "=2.0.0-rc.25", features = ["derive", "typescript"] }
+tempfile = "3"
+hex = "0.4"
+# Outbound fetch: hyper 1.x client over an own connector. TLS uses rustls with
+# the ring provider (no C toolchain beyond the one ring already needs, no NASM or CMake), the
+# system trust store through rustls-native-certs, and hickory-resolver for the one DNS answer per hop. Exact pins.
+hickory-resolver = "=0.26.3"
+rustls = { version = "=0.23.46", default-features = false, features = ["ring", "std", "tls12"] }
+tokio-rustls = { version = "=0.26.6", default-features = false, features = ["ring", "tls12"] }
+rustls-native-certs = "=0.8.5"
+# Authority joins of redirect targets (urljoin) and the URL checks of the pinned fetch child. Already
+# locked through idna and hickory; pinned exactly to the locked version.
+url = "=2.5.8"
+# Test-only TLS certificates for the loopback fixtures of the fetch tests (never a production dep).
+rcgen = { version = "=0.14.10", default-features = false, features = ["ring", "pem"] }
+# IDNA host names for the outbound policy (UTS 46). Pinned exactly to the version
+# already locked through `url`.
+idna = "=1.1.0"
+# PNG encoding of rendered PDF pages.
+image = { version = "0.25", default-features = false, features = ["png"] }
+indexmap = { version = "2", features = ["serde"] }
+# MD5 only for the UUIDv3 name-based identities.
+md-5 = "0.11"
+secrecy = "0.10"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+sha2 = "0.11"
+thiserror = "2"
+time = { version = "0.3", features = ["formatting", "macros", "parsing"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync", "time", "signal", "io-std", "io-util", "process"] }
+tokio-postgres = "0.7"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+unicode-general-category = "1.1.0"
+unicode-normalization = "0.1.25"
+# Pinned exactly: sentence boundaries are measured against this UAX 29 implementation.
+unicode-segmentation = "=1.13.3"
+uuid = { version = "1", features = ["v4", "serde"] }
+# Win32 Job Objects for worker isolation; used only by the platform module in jobniac-infra.
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Security", "Win32_Security_Authorization", "Win32_System_JobObjects", "Win32_System_Threading"] }
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+missing_debug_implementations = "warn"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+dbg_macro = "warn"
+print_stdout = "warn"
+todo = "warn"
+unwrap_used = "warn"
+
+# Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 3
+panic = "abort"
+strip = true

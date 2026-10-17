@@ -1,0 +1,2088 @@
+{
+ "source": {
+  "unicode": "16.0.0"
+ },
+ "vectors": {
+  "strip": [
+   {
+    "input": "",
+    "output": ""
+   },
+   {
+    "input": " ",
+    "output": ""
+   },
+   {
+    "input": "plain ascii",
+    "output": "plain ascii"
+   },
+   {
+    "input": "\t x \t",
+    "output": "x"
+   },
+   {
+    "input": "\n",
+    "output": ""
+   },
+   {
+    "input": "\r\n",
+    "output": ""
+   },
+   {
+    "input": "\r",
+    "output": ""
+   },
+   {
+    "input": "a\rb",
+    "output": "a\rb"
+   },
+   {
+    "input": "a\r\nb\n",
+    "output": "a\r\nb"
+   },
+   {
+    "input": "a\r\n\r\nb",
+    "output": "a\r\n\r\nb"
+   },
+   {
+    "input": "\n\r",
+    "output": ""
+   },
+   {
+    "input": "\u000b",
+    "output": ""
+   },
+   {
+    "input": "\f",
+    "output": ""
+   },
+   {
+    "input": "a\u000bb\fc",
+    "output": "a\u000bb\fc"
+   },
+   {
+    "input": "\u001c",
+    "output": ""
+   },
+   {
+    "input": "\u001d",
+    "output": ""
+   },
+   {
+    "input": "\u001e",
+    "output": ""
+   },
+   {
+    "input": "\u001f",
+    "output": ""
+   },
+   {
+    "input": "\u001c\u001dx\u001e\u001f",
+    "output": "x"
+   },
+   {
+    "input": "\u0085",
+    "output": ""
+   },
+   {
+    "input": "a\u0085b",
+    "output": "a\u0085b"
+   },
+   {
+    "input": "\u2028",
+    "output": ""
+   },
+   {
+    "input": "\u2029",
+    "output": ""
+   },
+   {
+    "input": "a\u2028b\u2029c",
+    "output": "a\u2028b\u2029c"
+   },
+   {
+    "input": "\u00a0x\u00a0",
+    "output": "x"
+   },
+   {
+    "input": "\u2007x",
+    "output": "x"
+   },
+   {
+    "input": "\u202fx",
+    "output": "x"
+   },
+   {
+    "input": "\u1680x\u3000",
+    "output": "x"
+   },
+   {
+    "input": "\u2000\u200a\u205f",
+    "output": ""
+   },
+   {
+    "input": "\u180ex",
+    "output": "\u180ex"
+   },
+   {
+    "input": "\u200bx",
+    "output": "\u200bx"
+   },
+   {
+    "input": "\ufeffx",
+    "output": "\ufeffx"
+   },
+   {
+    "input": "x\u200by",
+    "output": "x\u200by"
+   },
+   {
+    "input": "\ud83d\ude00 \ud83d\ude00",
+    "output": "\ud83d\ude00 \ud83d\ude00"
+   },
+   {
+    "input": "e\u0301",
+    "output": "e\u0301"
+   },
+   {
+    "input": "\u0301",
+    "output": "\u0301"
+   },
+   {
+    "input": "\u0130i",
+    "output": "\u0130i"
+   },
+   {
+    "input": "stra\u00dfe",
+    "output": "stra\u00dfe"
+   },
+   {
+    "input": "\u01c5",
+    "output": "\u01c5"
+   },
+   {
+    "input": "AB",
+    "output": "AB"
+   },
+   {
+    "input": "Ab1",
+    "output": "Ab1"
+   },
+   {
+    "input": "a1",
+    "output": "a1"
+   },
+   {
+    "input": "12",
+    "output": "12"
+   },
+   {
+    "input": "\u0661\u0662",
+    "output": "\u0661\u0662"
+   },
+   {
+    "input": "\u00b2",
+    "output": "\u00b2"
+   },
+   {
+    "input": "\u2168",
+    "output": "\u2168"
+   },
+   {
+    "input": "\u4e00",
+    "output": "\u4e00"
+   },
+   {
+    "input": "\u00df\u03a3",
+    "output": "\u00df\u03a3"
+   },
+   {
+    "input": "\u2160\u216f",
+    "output": "\u2160\u216f"
+   },
+   {
+    "input": "\ufe0f",
+    "output": "\ufe0f"
+   },
+   {
+    "input": "file\u0000name",
+    "output": "file\u0000name"
+   },
+   {
+    "input": "name with space",
+    "output": "name with space"
+   },
+   {
+    "input": "name\ttab",
+    "output": "name\ttab"
+   },
+   {
+    "input": "tail\u0085",
+    "output": "tail"
+   }
+  ],
+  "splitlines": [
+   {
+    "input": "",
+    "lines": []
+   },
+   {
+    "input": " ",
+    "lines": [
+     " "
+    ]
+   },
+   {
+    "input": "plain ascii",
+    "lines": [
+     "plain ascii"
+    ]
+   },
+   {
+    "input": "\t x \t",
+    "lines": [
+     "\t x \t"
+    ]
+   },
+   {
+    "input": "\n",
+    "lines": [
+     ""
+    ]
+   },
+   {
+    "input": "\r\n",
+    "lines": [
+     ""
+    ]
+   },
+   {
+    "input": "\r",
+    "lines": [
+     ""
+    ]
+   },
+   {
+    "input": "a\rb",
+    "lines": [
+     "a",
+     "b"
+    ]
+   },
+   {
+    "input": "a\r\nb\n",
+    "lines": [
+     "a",
+     "b"
+    ]
+   },
+   {
+    "input": "a\r\n\r\nb",
+    "lines": [
+     "a",
+     "",
+     "b"
+    ]
+   },
+   {
+    "input": "\n\r",
+    "lines": [
+     "",
+     ""
+    ]
+   },
+   {
+    "input": "\u000b",
+    "lines": [
+     ""
+    ]
+   },
+   {
+    "input": "\f",
+    "lines": [
+     ""
+    ]
+   },
+   {
+    "input": "a\u000bb\fc",
+    "lines": [
+     "a",
+     "b",
+     "c"
+    ]
+   },
+   {
+    "input": "\u001c",
+    "lines": [
+     ""
+    ]
+   },
+   {
+    "input": "\u001d",
+    "lines": [
+     ""
+    ]
+   },
+   {
+    "input": "\u001e",
+    "lines": [
+     ""
+    ]
+   },
+   {
+    "input": "\u001f",
+    "lines": [
+     "\u001f"
+    ]
+   },
+   {
+    "input": "\u001c\u001dx\u001e\u001f",
+    "lines": [
+     "",
+     "",
+     "x",
+     "\u001f"
+    ]
+   },
+   {
+    "input": "\u0085",
+    "lines": [
+     ""
+    ]
+   },
+   {
+    "input": "a\u0085b",
+    "lines": [
+     "a",
+     "b"
+    ]
+   },
+   {
+    "input": "\u2028",
+    "lines": [
+     ""
+    ]
+   },
+   {
+    "input": "\u2029",
+    "lines": [
+     ""
+    ]
+   },
+   {
+    "input": "a\u2028b\u2029c",
+    "lines": [
+     "a",
+     "b",
+     "c"
+    ]
+   },
+   {
+    "input": "\u00a0x\u00a0",
+    "lines": [
+     "\u00a0x\u00a0"
+    ]
+   },
+   {
+    "input": "\u2007x",
+    "lines": [
+     "\u2007x"
+    ]
+   },
+   {
+    "input": "\u202fx",
+    "lines": [
+     "\u202fx"
+    ]
+   },
+   {
+    "input": "\u1680x\u3000",
+    "lines": [
+     "\u1680x\u3000"
+    ]
+   },
+   {
+    "input": "\u2000\u200a\u205f",
+    "lines": [
+     "\u2000\u200a\u205f"
+    ]
+   },
+   {
+    "input": "\u180ex",
+    "lines": [
+     "\u180ex"
+    ]
+   },
+   {
+    "input": "\u200bx",
+    "lines": [
+     "\u200bx"
+    ]
+   },
+   {
+    "input": "\ufeffx",
+    "lines": [
+     "\ufeffx"
+    ]
+   },
+   {
+    "input": "x\u200by",
+    "lines": [
+     "x\u200by"
+    ]
+   },
+   {
+    "input": "\ud83d\ude00 \ud83d\ude00",
+    "lines": [
+     "\ud83d\ude00 \ud83d\ude00"
+    ]
+   },
+   {
+    "input": "e\u0301",
+    "lines": [
+     "e\u0301"
+    ]
+   },
+   {
+    "input": "\u0301",
+    "lines": [
+     "\u0301"
+    ]
+   },
+   {
+    "input": "\u0130i",
+    "lines": [
+     "\u0130i"
+    ]
+   },
+   {
+    "input": "stra\u00dfe",
+    "lines": [
+     "stra\u00dfe"
+    ]
+   },
+   {
+    "input": "\u01c5",
+    "lines": [
+     "\u01c5"
+    ]
+   },
+   {
+    "input": "AB",
+    "lines": [
+     "AB"
+    ]
+   },
+   {
+    "input": "Ab1",
+    "lines": [
+     "Ab1"
+    ]
+   },
+   {
+    "input": "a1",
+    "lines": [
+     "a1"
+    ]
+   },
+   {
+    "input": "12",
+    "lines": [
+     "12"
+    ]
+   },
+   {
+    "input": "\u0661\u0662",
+    "lines": [
+     "\u0661\u0662"
+    ]
+   },
+   {
+    "input": "\u00b2",
+    "lines": [
+     "\u00b2"
+    ]
+   },
+   {
+    "input": "\u2168",
+    "lines": [
+     "\u2168"
+    ]
+   },
+   {
+    "input": "\u4e00",
+    "lines": [
+     "\u4e00"
+    ]
+   },
+   {
+    "input": "\u00df\u03a3",
+    "lines": [
+     "\u00df\u03a3"
+    ]
+   },
+   {
+    "input": "\u2160\u216f",
+    "lines": [
+     "\u2160\u216f"
+    ]
+   },
+   {
+    "input": "\ufe0f",
+    "lines": [
+     "\ufe0f"
+    ]
+   },
+   {
+    "input": "file\u0000name",
+    "lines": [
+     "file\u0000name"
+    ]
+   },
+   {
+    "input": "name with space",
+    "lines": [
+     "name with space"
+    ]
+   },
+   {
+    "input": "name\ttab",
+    "lines": [
+     "name\ttab"
+    ]
+   },
+   {
+    "input": "tail\u0085",
+    "lines": [
+     "tail"
+    ]
+   }
+  ],
+  "isprintable": [
+   {
+    "input": "",
+    "result": true
+   },
+   {
+    "input": " ",
+    "result": true
+   },
+   {
+    "input": "plain ascii",
+    "result": true
+   },
+   {
+    "input": "\t x \t",
+    "result": false
+   },
+   {
+    "input": "\n",
+    "result": false
+   },
+   {
+    "input": "\r\n",
+    "result": false
+   },
+   {
+    "input": "\r",
+    "result": false
+   },
+   {
+    "input": "a\rb",
+    "result": false
+   },
+   {
+    "input": "a\r\nb\n",
+    "result": false
+   },
+   {
+    "input": "a\r\n\r\nb",
+    "result": false
+   },
+   {
+    "input": "\n\r",
+    "result": false
+   },
+   {
+    "input": "\u000b",
+    "result": false
+   },
+   {
+    "input": "\f",
+    "result": false
+   },
+   {
+    "input": "a\u000bb\fc",
+    "result": false
+   },
+   {
+    "input": "\u001c",
+    "result": false
+   },
+   {
+    "input": "\u001d",
+    "result": false
+   },
+   {
+    "input": "\u001e",
+    "result": false
+   },
+   {
+    "input": "\u001f",
+    "result": false
+   },
+   {
+    "input": "\u001c\u001dx\u001e\u001f",
+    "result": false
+   },
+   {
+    "input": "\u0085",
+    "result": false
+   },
+   {
+    "input": "a\u0085b",
+    "result": false
+   },
+   {
+    "input": "\u2028",
+    "result": false
+   },
+   {
+    "input": "\u2029",
+    "result": false
+   },
+   {
+    "input": "a\u2028b\u2029c",
+    "result": false
+   },
+   {
+    "input": "\u00a0x\u00a0",
+    "result": false
+   },
+   {
+    "input": "\u2007x",
+    "result": false
+   },
+   {
+    "input": "\u202fx",
+    "result": false
+   },
+   {
+    "input": "\u1680x\u3000",
+    "result": false
+   },
+   {
+    "input": "\u2000\u200a\u205f",
+    "result": false
+   },
+   {
+    "input": "\u180ex",
+    "result": false
+   },
+   {
+    "input": "\u200bx",
+    "result": false
+   },
+   {
+    "input": "\ufeffx",
+    "result": false
+   },
+   {
+    "input": "x\u200by",
+    "result": false
+   },
+   {
+    "input": "\ud83d\ude00 \ud83d\ude00",
+    "result": true
+   },
+   {
+    "input": "e\u0301",
+    "result": true
+   },
+   {
+    "input": "\u0301",
+    "result": true
+   },
+   {
+    "input": "\u0130i",
+    "result": true
+   },
+   {
+    "input": "stra\u00dfe",
+    "result": true
+   },
+   {
+    "input": "\u01c5",
+    "result": true
+   },
+   {
+    "input": "AB",
+    "result": true
+   },
+   {
+    "input": "Ab1",
+    "result": true
+   },
+   {
+    "input": "a1",
+    "result": true
+   },
+   {
+    "input": "12",
+    "result": true
+   },
+   {
+    "input": "\u0661\u0662",
+    "result": true
+   },
+   {
+    "input": "\u00b2",
+    "result": true
+   },
+   {
+    "input": "\u2168",
+    "result": true
+   },
+   {
+    "input": "\u4e00",
+    "result": true
+   },
+   {
+    "input": "\u00df\u03a3",
+    "result": true
+   },
+   {
+    "input": "\u2160\u216f",
+    "result": true
+   },
+   {
+    "input": "\ufe0f",
+    "result": true
+   },
+   {
+    "input": "file\u0000name",
+    "result": false
+   },
+   {
+    "input": "name with space",
+    "result": true
+   },
+   {
+    "input": "name\ttab",
+    "result": false
+   },
+   {
+    "input": "tail\u0085",
+    "result": false
+   }
+  ],
+  "isalpha": [
+   {
+    "input": "",
+    "result": false
+   },
+   {
+    "input": " ",
+    "result": false
+   },
+   {
+    "input": "plain ascii",
+    "result": false
+   },
+   {
+    "input": "\t x \t",
+    "result": false
+   },
+   {
+    "input": "\n",
+    "result": false
+   },
+   {
+    "input": "\r\n",
+    "result": false
+   },
+   {
+    "input": "\r",
+    "result": false
+   },
+   {
+    "input": "a\rb",
+    "result": false
+   },
+   {
+    "input": "a\r\nb\n",
+    "result": false
+   },
+   {
+    "input": "a\r\n\r\nb",
+    "result": false
+   },
+   {
+    "input": "\n\r",
+    "result": false
+   },
+   {
+    "input": "\u000b",
+    "result": false
+   },
+   {
+    "input": "\f",
+    "result": false
+   },
+   {
+    "input": "a\u000bb\fc",
+    "result": false
+   },
+   {
+    "input": "\u001c",
+    "result": false
+   },
+   {
+    "input": "\u001d",
+    "result": false
+   },
+   {
+    "input": "\u001e",
+    "result": false
+   },
+   {
+    "input": "\u001f",
+    "result": false
+   },
+   {
+    "input": "\u001c\u001dx\u001e\u001f",
+    "result": false
+   },
+   {
+    "input": "\u0085",
+    "result": false
+   },
+   {
+    "input": "a\u0085b",
+    "result": false
+   },
+   {
+    "input": "\u2028",
+    "result": false
+   },
+   {
+    "input": "\u2029",
+    "result": false
+   },
+   {
+    "input": "a\u2028b\u2029c",
+    "result": false
+   },
+   {
+    "input": "\u00a0x\u00a0",
+    "result": false
+   },
+   {
+    "input": "\u2007x",
+    "result": false
+   },
+   {
+    "input": "\u202fx",
+    "result": false
+   },
+   {
+    "input": "\u1680x\u3000",
+    "result": false
+   },
+   {
+    "input": "\u2000\u200a\u205f",
+    "result": false
+   },
+   {
+    "input": "\u180ex",
+    "result": false
+   },
+   {
+    "input": "\u200bx",
+    "result": false
+   },
+   {
+    "input": "\ufeffx",
+    "result": false
+   },
+   {
+    "input": "x\u200by",
+    "result": false
+   },
+   {
+    "input": "\ud83d\ude00 \ud83d\ude00",
+    "result": false
+   },
+   {
+    "input": "e\u0301",
+    "result": false
+   },
+   {
+    "input": "\u0301",
+    "result": false
+   },
+   {
+    "input": "\u0130i",
+    "result": true
+   },
+   {
+    "input": "stra\u00dfe",
+    "result": true
+   },
+   {
+    "input": "\u01c5",
+    "result": true
+   },
+   {
+    "input": "AB",
+    "result": true
+   },
+   {
+    "input": "Ab1",
+    "result": false
+   },
+   {
+    "input": "a1",
+    "result": false
+   },
+   {
+    "input": "12",
+    "result": false
+   },
+   {
+    "input": "\u0661\u0662",
+    "result": false
+   },
+   {
+    "input": "\u00b2",
+    "result": false
+   },
+   {
+    "input": "\u2168",
+    "result": false
+   },
+   {
+    "input": "\u4e00",
+    "result": true
+   },
+   {
+    "input": "\u00df\u03a3",
+    "result": true
+   },
+   {
+    "input": "\u2160\u216f",
+    "result": false
+   },
+   {
+    "input": "\ufe0f",
+    "result": false
+   },
+   {
+    "input": "file\u0000name",
+    "result": false
+   },
+   {
+    "input": "name with space",
+    "result": false
+   },
+   {
+    "input": "name\ttab",
+    "result": false
+   },
+   {
+    "input": "tail\u0085",
+    "result": false
+   }
+  ],
+  "isalnum": [
+   {
+    "input": "",
+    "result": false
+   },
+   {
+    "input": " ",
+    "result": false
+   },
+   {
+    "input": "plain ascii",
+    "result": false
+   },
+   {
+    "input": "\t x \t",
+    "result": false
+   },
+   {
+    "input": "\n",
+    "result": false
+   },
+   {
+    "input": "\r\n",
+    "result": false
+   },
+   {
+    "input": "\r",
+    "result": false
+   },
+   {
+    "input": "a\rb",
+    "result": false
+   },
+   {
+    "input": "a\r\nb\n",
+    "result": false
+   },
+   {
+    "input": "a\r\n\r\nb",
+    "result": false
+   },
+   {
+    "input": "\n\r",
+    "result": false
+   },
+   {
+    "input": "\u000b",
+    "result": false
+   },
+   {
+    "input": "\f",
+    "result": false
+   },
+   {
+    "input": "a\u000bb\fc",
+    "result": false
+   },
+   {
+    "input": "\u001c",
+    "result": false
+   },
+   {
+    "input": "\u001d",
+    "result": false
+   },
+   {
+    "input": "\u001e",
+    "result": false
+   },
+   {
+    "input": "\u001f",
+    "result": false
+   },
+   {
+    "input": "\u001c\u001dx\u001e\u001f",
+    "result": false
+   },
+   {
+    "input": "\u0085",
+    "result": false
+   },
+   {
+    "input": "a\u0085b",
+    "result": false
+   },
+   {
+    "input": "\u2028",
+    "result": false
+   },
+   {
+    "input": "\u2029",
+    "result": false
+   },
+   {
+    "input": "a\u2028b\u2029c",
+    "result": false
+   },
+   {
+    "input": "\u00a0x\u00a0",
+    "result": false
+   },
+   {
+    "input": "\u2007x",
+    "result": false
+   },
+   {
+    "input": "\u202fx",
+    "result": false
+   },
+   {
+    "input": "\u1680x\u3000",
+    "result": false
+   },
+   {
+    "input": "\u2000\u200a\u205f",
+    "result": false
+   },
+   {
+    "input": "\u180ex",
+    "result": false
+   },
+   {
+    "input": "\u200bx",
+    "result": false
+   },
+   {
+    "input": "\ufeffx",
+    "result": false
+   },
+   {
+    "input": "x\u200by",
+    "result": false
+   },
+   {
+    "input": "\ud83d\ude00 \ud83d\ude00",
+    "result": false
+   },
+   {
+    "input": "e\u0301",
+    "result": false
+   },
+   {
+    "input": "\u0301",
+    "result": false
+   },
+   {
+    "input": "\u0130i",
+    "result": true
+   },
+   {
+    "input": "stra\u00dfe",
+    "result": true
+   },
+   {
+    "input": "\u01c5",
+    "result": true
+   },
+   {
+    "input": "AB",
+    "result": true
+   },
+   {
+    "input": "Ab1",
+    "result": true
+   },
+   {
+    "input": "a1",
+    "result": true
+   },
+   {
+    "input": "12",
+    "result": true
+   },
+   {
+    "input": "\u0661\u0662",
+    "result": true
+   },
+   {
+    "input": "\u00b2",
+    "result": true
+   },
+   {
+    "input": "\u2168",
+    "result": true
+   },
+   {
+    "input": "\u4e00",
+    "result": true
+   },
+   {
+    "input": "\u00df\u03a3",
+    "result": true
+   },
+   {
+    "input": "\u2160\u216f",
+    "result": true
+   },
+   {
+    "input": "\ufe0f",
+    "result": false
+   },
+   {
+    "input": "file\u0000name",
+    "result": false
+   },
+   {
+    "input": "name with space",
+    "result": false
+   },
+   {
+    "input": "name\ttab",
+    "result": false
+   },
+   {
+    "input": "tail\u0085",
+    "result": false
+   }
+  ],
+  "isdecimal": [
+   {
+    "input": "",
+    "result": false
+   },
+   {
+    "input": " ",
+    "result": false
+   },
+   {
+    "input": "plain ascii",
+    "result": false
+   },
+   {
+    "input": "\t x \t",
+    "result": false
+   },
+   {
+    "input": "\n",
+    "result": false
+   },
+   {
+    "input": "\r\n",
+    "result": false
+   },
+   {
+    "input": "\r",
+    "result": false
+   },
+   {
+    "input": "a\rb",
+    "result": false
+   },
+   {
+    "input": "a\r\nb\n",
+    "result": false
+   },
+   {
+    "input": "a\r\n\r\nb",
+    "result": false
+   },
+   {
+    "input": "\n\r",
+    "result": false
+   },
+   {
+    "input": "\u000b",
+    "result": false
+   },
+   {
+    "input": "\f",
+    "result": false
+   },
+   {
+    "input": "a\u000bb\fc",
+    "result": false
+   },
+   {
+    "input": "\u001c",
+    "result": false
+   },
+   {
+    "input": "\u001d",
+    "result": false
+   },
+   {
+    "input": "\u001e",
+    "result": false
+   },
+   {
+    "input": "\u001f",
+    "result": false
+   },
+   {
+    "input": "\u001c\u001dx\u001e\u001f",
+    "result": false
+   },
+   {
+    "input": "\u0085",
+    "result": false
+   },
+   {
+    "input": "a\u0085b",
+    "result": false
+   },
+   {
+    "input": "\u2028",
+    "result": false
+   },
+   {
+    "input": "\u2029",
+    "result": false
+   },
+   {
+    "input": "a\u2028b\u2029c",
+    "result": false
+   },
+   {
+    "input": "\u00a0x\u00a0",
+    "result": false
+   },
+   {
+    "input": "\u2007x",
+    "result": false
+   },
+   {
+    "input": "\u202fx",
+    "result": false
+   },
+   {
+    "input": "\u1680x\u3000",
+    "result": false
+   },
+   {
+    "input": "\u2000\u200a\u205f",
+    "result": false
+   },
+   {
+    "input": "\u180ex",
+    "result": false
+   },
+   {
+    "input": "\u200bx",
+    "result": false
+   },
+   {
+    "input": "\ufeffx",
+    "result": false
+   },
+   {
+    "input": "x\u200by",
+    "result": false
+   },
+   {
+    "input": "\ud83d\ude00 \ud83d\ude00",
+    "result": false
+   },
+   {
+    "input": "e\u0301",
+    "result": false
+   },
+   {
+    "input": "\u0301",
+    "result": false
+   },
+   {
+    "input": "\u0130i",
+    "result": false
+   },
+   {
+    "input": "stra\u00dfe",
+    "result": false
+   },
+   {
+    "input": "\u01c5",
+    "result": false
+   },
+   {
+    "input": "AB",
+    "result": false
+   },
+   {
+    "input": "Ab1",
+    "result": false
+   },
+   {
+    "input": "a1",
+    "result": false
+   },
+   {
+    "input": "12",
+    "result": true
+   },
+   {
+    "input": "\u0661\u0662",
+    "result": true
+   },
+   {
+    "input": "\u00b2",
+    "result": false
+   },
+   {
+    "input": "\u2168",
+    "result": false
+   },
+   {
+    "input": "\u4e00",
+    "result": false
+   },
+   {
+    "input": "\u00df\u03a3",
+    "result": false
+   },
+   {
+    "input": "\u2160\u216f",
+    "result": false
+   },
+   {
+    "input": "\ufe0f",
+    "result": false
+   },
+   {
+    "input": "file\u0000name",
+    "result": false
+   },
+   {
+    "input": "name with space",
+    "result": false
+   },
+   {
+    "input": "name\ttab",
+    "result": false
+   },
+   {
+    "input": "tail\u0085",
+    "result": false
+   }
+  ],
+  "isspace": [
+   {
+    "input": "",
+    "result": false
+   },
+   {
+    "input": " ",
+    "result": true
+   },
+   {
+    "input": "plain ascii",
+    "result": false
+   },
+   {
+    "input": "\t x \t",
+    "result": false
+   },
+   {
+    "input": "\n",
+    "result": true
+   },
+   {
+    "input": "\r\n",
+    "result": true
+   },
+   {
+    "input": "\r",
+    "result": true
+   },
+   {
+    "input": "a\rb",
+    "result": false
+   },
+   {
+    "input": "a\r\nb\n",
+    "result": false
+   },
+   {
+    "input": "a\r\n\r\nb",
+    "result": false
+   },
+   {
+    "input": "\n\r",
+    "result": true
+   },
+   {
+    "input": "\u000b",
+    "result": true
+   },
+   {
+    "input": "\f",
+    "result": true
+   },
+   {
+    "input": "a\u000bb\fc",
+    "result": false
+   },
+   {
+    "input": "\u001c",
+    "result": true
+   },
+   {
+    "input": "\u001d",
+    "result": true
+   },
+   {
+    "input": "\u001e",
+    "result": true
+   },
+   {
+    "input": "\u001f",
+    "result": true
+   },
+   {
+    "input": "\u001c\u001dx\u001e\u001f",
+    "result": false
+   },
+   {
+    "input": "\u0085",
+    "result": true
+   },
+   {
+    "input": "a\u0085b",
+    "result": false
+   },
+   {
+    "input": "\u2028",
+    "result": true
+   },
+   {
+    "input": "\u2029",
+    "result": true
+   },
+   {
+    "input": "a\u2028b\u2029c",
+    "result": false
+   },
+   {
+    "input": "\u00a0x\u00a0",
+    "result": false
+   },
+   {
+    "input": "\u2007x",
+    "result": false
+   },
+   {
+    "input": "\u202fx",
+    "result": false
+   },
+   {
+    "input": "\u1680x\u3000",
+    "result": false
+   },
+   {
+    "input": "\u2000\u200a\u205f",
+    "result": true
+   },
+   {
+    "input": "\u180ex",
+    "result": false
+   },
+   {
+    "input": "\u200bx",
+    "result": false
+   },
+   {
+    "input": "\ufeffx",
+    "result": false
+   },
+   {
+    "input": "x\u200by",
+    "result": false
+   },
+   {
+    "input": "\ud83d\ude00 \ud83d\ude00",
+    "result": false
+   },
+   {
+    "input": "e\u0301",
+    "result": false
+   },
+   {
+    "input": "\u0301",
+    "result": false
+   },
+   {
+    "input": "\u0130i",
+    "result": false
+   },
+   {
+    "input": "stra\u00dfe",
+    "result": false
+   },
+   {
+    "input": "\u01c5",
+    "result": false
+   },
+   {
+    "input": "AB",
+    "result": false
+   },
+   {
+    "input": "Ab1",
+    "result": false
+   },
+   {
+    "input": "a1",
+    "result": false
+   },
+   {
+    "input": "12",
+    "result": false
+   },
+   {
+    "input": "\u0661\u0662",
+    "result": false
+   },
+   {
+    "input": "\u00b2",
+    "result": false
+   },
+   {
+    "input": "\u2168",
+    "result": false
+   },
+   {
+    "input": "\u4e00",
+    "result": false
+   },
+   {
+    "input": "\u00df\u03a3",
+    "result": false
+   },
+   {
+    "input": "\u2160\u216f",
+    "result": false
+   },
+   {
+    "input": "\ufe0f",
+    "result": false
+   },
+   {
+    "input": "file\u0000name",
+    "result": false
+   },
+   {
+    "input": "name with space",
+    "result": false
+   },
+   {
+    "input": "name\ttab",
+    "result": false
+   },
+   {
+    "input": "tail\u0085",
+    "result": false
+   }
+  ],
+  "isdigit": [
+   {
+    "input": "",
+    "result": false
+   },
+   {
+    "input": " ",
+    "result": false
+   },
+   {
+    "input": "plain ascii",
+    "result": false
+   },
+   {
+    "input": "\t x \t",
+    "result": false
+   },
+   {
+    "input": "\n",
+    "result": false
+   },
+   {
+    "input": "\r\n",
+    "result": false
+   },
+   {
+    "input": "\r",
+    "result": false
+   },
+   {
+    "input": "a\rb",
+    "result": false
+   },
+   {
+    "input": "a\r\nb\n",
+    "result": false
+   },
+   {
+    "input": "a\r\n\r\nb",
+    "result": false
+   },
+   {
+    "input": "\n\r",
+    "result": false
+   },
+   {
+    "input": "\u000b",
+    "result": false
+   },
+   {
+    "input": "\f",
+    "result": false
+   },
+   {
+    "input": "a\u000bb\fc",
+    "result": false
+   },
+   {
+    "input": "\u001c",
+    "result": false
+   },
+   {
+    "input": "\u001d",
+    "result": false
+   },
+   {
+    "input": "\u001e",
+    "result": false
+   },
+   {
+    "input": "\u001f",
+    "result": false
+   },
+   {
+    "input": "\u001c\u001dx\u001e\u001f",
+    "result": false
+   },
+   {
+    "input": "\u0085",
+    "result": false
+   },
+   {
+    "input": "a\u0085b",
+    "result": false
+   },
+   {
+    "input": "\u2028",
+    "result": false
+   },
+   {
+    "input": "\u2029",
+    "result": false
+   },
+   {
+    "input": "a\u2028b\u2029c",
+    "result": false
+   },
+   {
+    "input": "\u00a0x\u00a0",
+    "result": false
+   },
+   {
+    "input": "\u2007x",
+    "result": false
+   },
+   {
+    "input": "\u202fx",
+    "result": false
+   },
+   {
+    "input": "\u1680x\u3000",
+    "result": false
+   },
+   {
+    "input": "\u2000\u200a\u205f",
+    "result": false
+   },
+   {
+    "input": "\u180ex",
+    "result": false
+   },
+   {
+    "input": "\u200bx",
+    "result": false
+   },
+   {
+    "input": "\ufeffx",
+    "result": false
+   },
+   {
+    "input": "x\u200by",
+    "result": false
+   },
+   {
+    "input": "\ud83d\ude00 \ud83d\ude00",
+    "result": false
+   },
+   {
+    "input": "e\u0301",
+    "result": false
+   },
+   {
+    "input": "\u0301",
+    "result": false
+   },
+   {
+    "input": "\u0130i",
+    "result": false
+   },
+   {
+    "input": "stra\u00dfe",
+    "result": false
+   },
+   {
+    "input": "\u01c5",
+    "result": false
+   },
+   {
+    "input": "AB",
+    "result": false
+   },
+   {
+    "input": "Ab1",
+    "result": false
+   },
+   {
+    "input": "a1",
+    "result": false
+   },
+   {
+    "input": "12",
+    "result": true
+   },
+   {
+    "input": "\u0661\u0662",
+    "result": true
+   },
+   {
+    "input": "\u00b2",
+    "result": true
+   },
+   {
+    "input": "\u2168",
+    "result": false
+   },
+   {
+    "input": "\u4e00",
+    "result": false
+   },
+   {
+    "input": "\u00df\u03a3",
+    "result": false
+   },
+   {
+    "input": "\u2160\u216f",
+    "result": false
+   },
+   {
+    "input": "\ufe0f",
+    "result": false
+   },
+   {
+    "input": "file\u0000name",
+    "result": false
+   },
+   {
+    "input": "name with space",
+    "result": false
+   },
+   {
+    "input": "name\ttab",
+    "result": false
+   },
+   {
+    "input": "tail\u0085",
+    "result": false
+   }
+  ],
+  "isascii": [
+   {
+    "input": "",
+    "result": true
+   },
+   {
+    "input": " ",
+    "result": true
+   },
+   {
+    "input": "plain ascii",
+    "result": true
+   },
+   {
+    "input": "\t x \t",
+    "result": true
+   },
+   {
+    "input": "\n",
+    "result": true
+   },
+   {
+    "input": "\r\n",
+    "result": true
+   },
+   {
+    "input": "\r",
+    "result": true
+   },
+   {
+    "input": "a\rb",
+    "result": true
+   },
+   {
+    "input": "a\r\nb\n",
+    "result": true
+   },
+   {
+    "input": "a\r\n\r\nb",
+    "result": true
+   },
+   {
+    "input": "\n\r",
+    "result": true
+   },
+   {
+    "input": "\u000b",
+    "result": true
+   },
+   {
+    "input": "\f",
+    "result": true
+   },
+   {
+    "input": "a\u000bb\fc",
+    "result": true
+   },
+   {
+    "input": "\u001c",
+    "result": true
+   },
+   {
+    "input": "\u001d",
+    "result": true
+   },
+   {
+    "input": "\u001e",
+    "result": true
+   },
+   {
+    "input": "\u001f",
+    "result": true
+   },
+   {
+    "input": "\u001c\u001dx\u001e\u001f",
+    "result": true
+   },
+   {
+    "input": "\u0085",
+    "result": false
+   },
+   {
+    "input": "a\u0085b",
+    "result": false
+   },
+   {
+    "input": "\u2028",
+    "result": false
+   },
+   {
+    "input": "\u2029",
+    "result": false
+   },
+   {
+    "input": "a\u2028b\u2029c",
+    "result": false
+   },
+   {
+    "input": "\u00a0x\u00a0",
+    "result": false
+   },
+   {
+    "input": "\u2007x",
+    "result": false
+   },
+   {
+    "input": "\u202fx",
+    "result": false
+   },
+   {
+    "input": "\u1680x\u3000",
+    "result": false
+   },
+   {
+    "input": "\u2000\u200a\u205f",
+    "result": false
+   },
+   {
+    "input": "\u180ex",
+    "result": false
+   },
+   {
+    "input": "\u200bx",
+    "result": false
+   },
+   {
+    "input": "\ufeffx",
+    "result": false
+   },
+   {
+    "input": "x\u200by",
+    "result": false
+   },
+   {
+    "input": "\ud83d\ude00 \ud83d\ude00",
+    "result": false
+   },
+   {
+    "input": "e\u0301",
+    "result": false
+   },
+   {
+    "input": "\u0301",
+    "result": false
+   },
+   {
+    "input": "\u0130i",
+    "result": false
+   },
+   {
+    "input": "stra\u00dfe",
+    "result": false
+   },
+   {
+    "input": "\u01c5",
+    "result": false
+   },
+   {
+    "input": "AB",
+    "result": true
+   },
+   {
+    "input": "Ab1",
+    "result": true
+   },
+   {
+    "input": "a1",
+    "result": true
+   },
+   {
+    "input": "12",
+    "result": true
+   },
+   {
+    "input": "\u0661\u0662",
+    "result": false
+   },
+   {
+    "input": "\u00b2",
+    "result": false
+   },
+   {
+    "input": "\u2168",
+    "result": false
+   },
+   {
+    "input": "\u4e00",
+    "result": false
+   },
+   {
+    "input": "\u00df\u03a3",
+    "result": false
+   },
+   {
+    "input": "\u2160\u216f",
+    "result": false
+   },
+   {
+    "input": "\ufe0f",
+    "result": false
+   },
+   {
+    "input": "file\u0000name",
+    "result": true
+   },
+   {
+    "input": "name with space",
+    "result": true
+   },
+   {
+    "input": "name\ttab",
+    "result": true
+   },
+   {
+    "input": "tail\u0085",
+    "result": false
+   }
+  ]
+ }
+}

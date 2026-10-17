@@ -1,0 +1,28 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\n  \"status\": \"UP\",\n  \"errorCategory\": \"NONE\",\n  \"metadata\": {\n    \"checkedAt\": \"2026-01-02T03:04:05.000006Z\",\n    \"totalChecks\": 1,\n    \"successfulChecks\": 1,\n    \"failedChecks\": 0\n  },\n  \"generatedResumeCleanup\": {\n    \"status\": \"UNKNOWN\",\n    \"pendingCount\": 0,\n    \"processingCount\": 0,\n    \"expiredCompletedCount\": 0,\n    \"oldestDueAgeSeconds\": 0,\n    \"repeatedFailure\": false\n  }\n}"
+    }
+  ],
+  "structuredContent": {
+    "status": "UP",
+    "errorCategory": "NONE",
+    "metadata": {
+      "checkedAt": "2026-01-02T03:04:05.000006Z",
+      "totalChecks": 1,
+      "successfulChecks": 1,
+      "failedChecks": 0
+    },
+    "generatedResumeCleanup": {
+      "status": "UNKNOWN",
+      "pendingCount": 0,
+      "processingCount": 0,
+      "expiredCompletedCount": 0,
+      "oldestDueAgeSeconds": 0,
+      "repeatedFailure": false
+    }
+  },
+  "isError": false,
+  "resultType": "complete"
+}

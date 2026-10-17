@@ -1,0 +1,2021 @@
+{
+ "scenarios": [
+  {
+   "name": "prefix matches score each field once and skills separately",
+   "request": {
+    "query": "java"
+   },
+   "candidates": {
+    "matchedCount": 4,
+    "hasMore": false,
+    "aggregates": [
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Acme",
+       "location": null,
+       "description": "Works with Java daily.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c1",
+       "title": "Javascript Engineer"
+      },
+      "skills": [
+       {
+        "id": "00000000-0000-0000-0000-0000000000d1",
+        "jobId": "00000000-0000-0000-0000-0000000000c1",
+        "skill": "Java",
+        "normalizedSkill": "java",
+        "required": true,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      ],
+      "linkIngestion": null,
+      "textIngestion": null
+     },
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Beta",
+       "location": "Java Island",
+       "description": "Synthetic description.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c2",
+       "title": "Java Developer"
+      },
+      "skills": [
+       {
+        "id": "00000000-0000-0000-0000-0000000000d2",
+        "jobId": "00000000-0000-0000-0000-0000000000c2",
+        "skill": "Python",
+        "normalizedSkill": "python",
+        "required": true,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      ],
+      "linkIngestion": null,
+      "textIngestion": null
+     },
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Gamma",
+       "location": null,
+       "description": "Java java JAVA and more java.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c3",
+       "title": "Backend"
+      },
+      "skills": [],
+      "linkIngestion": null,
+      "textIngestion": null
+     },
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Ajava Inc",
+       "location": null,
+       "description": "nothing here",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c5",
+       "title": "Ajava platform"
+      },
+      "skills": [],
+      "linkIngestion": null,
+      "textIngestion": null
+     }
+    ]
+   },
+   "repoCalls": [
+    "search_job_candidates"
+   ],
+   "searchArguments": {
+    "queryTokens": [
+     "java"
+    ],
+    "limit": 20
+   },
+   "expect": {
+    "result": {
+     "query": "java",
+     "queryTokens": [
+      "java"
+     ],
+     "totalMatches": 4,
+     "matchedCount": 4,
+     "hasMore": false,
+     "returnedCount": 3,
+     "jobs": [
+      {
+       "job": {
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "company": "Acme",
+        "location": null,
+        "description": "Works with Java daily.",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0,
+        "id": "00000000-0000-0000-0000-0000000000c1",
+        "title": "Javascript Engineer"
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-0000000000d1",
+         "jobId": "00000000-0000-0000-0000-0000000000c1",
+         "skill": "Java",
+         "normalizedSkill": "java",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "score": 18,
+       "matchedFields": [
+        "job.title",
+        "job.description",
+        "job.skills"
+       ]
+      },
+      {
+       "job": {
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "company": "Beta",
+        "location": "Java Island",
+        "description": "Synthetic description.",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0,
+        "id": "00000000-0000-0000-0000-0000000000c2",
+        "title": "Java Developer"
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-0000000000d2",
+         "jobId": "00000000-0000-0000-0000-0000000000c2",
+         "skill": "Python",
+         "normalizedSkill": "python",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "score": 11,
+       "matchedFields": [
+        "job.title",
+        "job.location"
+       ]
+      },
+      {
+       "job": {
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "company": "Gamma",
+        "location": null,
+        "description": "Java java JAVA and more java.",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0,
+        "id": "00000000-0000-0000-0000-0000000000c3",
+        "title": "Backend"
+       },
+       "skills": [],
+       "score": 3,
+       "matchedFields": [
+        "job.description"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "bidirectional prefixes and accent folding",
+   "request": {
+    "query": "javascript"
+   },
+   "candidates": {
+    "matchedCount": 2,
+    "hasMore": false,
+    "aggregates": [
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Acme",
+       "location": null,
+       "description": "Works with Java daily.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c1",
+       "title": "Javascript Engineer"
+      },
+      "skills": [
+       {
+        "id": "00000000-0000-0000-0000-0000000000d1",
+        "jobId": "00000000-0000-0000-0000-0000000000c1",
+        "skill": "Java",
+        "normalizedSkill": "java",
+        "required": true,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      ],
+      "linkIngestion": null,
+      "textIngestion": null
+     },
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Beta",
+       "location": "Java Island",
+       "description": "Synthetic description.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c2",
+       "title": "Java Developer"
+      },
+      "skills": [
+       {
+        "id": "00000000-0000-0000-0000-0000000000d2",
+        "jobId": "00000000-0000-0000-0000-0000000000c2",
+        "skill": "Python",
+        "normalizedSkill": "python",
+        "required": true,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      ],
+      "linkIngestion": null,
+      "textIngestion": null
+     }
+    ]
+   },
+   "repoCalls": [
+    "search_job_candidates"
+   ],
+   "searchArguments": {
+    "queryTokens": [
+     "javascript"
+    ],
+    "limit": 20
+   },
+   "expect": {
+    "result": {
+     "query": "javascript",
+     "queryTokens": [
+      "javascript"
+     ],
+     "totalMatches": 2,
+     "matchedCount": 2,
+     "hasMore": false,
+     "returnedCount": 2,
+     "jobs": [
+      {
+       "job": {
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "company": "Acme",
+        "location": null,
+        "description": "Works with Java daily.",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0,
+        "id": "00000000-0000-0000-0000-0000000000c1",
+        "title": "Javascript Engineer"
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-0000000000d1",
+         "jobId": "00000000-0000-0000-0000-0000000000c1",
+         "skill": "Java",
+         "normalizedSkill": "java",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "score": 18,
+       "matchedFields": [
+        "job.title",
+        "job.description",
+        "job.skills"
+       ]
+      },
+      {
+       "job": {
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "company": "Beta",
+        "location": "Java Island",
+        "description": "Synthetic description.",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0,
+        "id": "00000000-0000-0000-0000-0000000000c2",
+        "title": "Java Developer"
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-0000000000d2",
+         "jobId": "00000000-0000-0000-0000-0000000000c2",
+         "skill": "Python",
+         "normalizedSkill": "python",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "score": 11,
+       "matchedFields": [
+        "job.title",
+        "job.location"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "multiple query tokens sum their matches",
+   "request": {
+    "query": "  java javascript  ",
+    "limit": 2
+   },
+   "candidates": {
+    "matchedCount": 3,
+    "hasMore": false,
+    "aggregates": [
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Acme",
+       "location": null,
+       "description": "Works with Java daily.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c1",
+       "title": "Javascript Engineer"
+      },
+      "skills": [
+       {
+        "id": "00000000-0000-0000-0000-0000000000d1",
+        "jobId": "00000000-0000-0000-0000-0000000000c1",
+        "skill": "Java",
+        "normalizedSkill": "java",
+        "required": true,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      ],
+      "linkIngestion": null,
+      "textIngestion": null
+     },
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Beta",
+       "location": "Java Island",
+       "description": "Synthetic description.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c2",
+       "title": "Java Developer"
+      },
+      "skills": [
+       {
+        "id": "00000000-0000-0000-0000-0000000000d2",
+        "jobId": "00000000-0000-0000-0000-0000000000c2",
+        "skill": "Python",
+        "normalizedSkill": "python",
+        "required": true,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      ],
+      "linkIngestion": null,
+      "textIngestion": null
+     },
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Gamma",
+       "location": null,
+       "description": "Java java JAVA and more java.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c3",
+       "title": "Backend"
+      },
+      "skills": [],
+      "linkIngestion": null,
+      "textIngestion": null
+     }
+    ]
+   },
+   "repoCalls": [
+    "search_job_candidates"
+   ],
+   "searchArguments": {
+    "queryTokens": [
+     "java",
+     "javascript"
+    ],
+    "limit": 2
+   },
+   "expect": {
+    "result": {
+     "query": "java javascript",
+     "queryTokens": [
+      "java",
+      "javascript"
+     ],
+     "totalMatches": 3,
+     "matchedCount": 3,
+     "hasMore": false,
+     "returnedCount": 2,
+     "jobs": [
+      {
+       "job": {
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "company": "Acme",
+        "location": null,
+        "description": "Works with Java daily.",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0,
+        "id": "00000000-0000-0000-0000-0000000000c1",
+        "title": "Javascript Engineer"
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-0000000000d1",
+         "jobId": "00000000-0000-0000-0000-0000000000c1",
+         "skill": "Java",
+         "normalizedSkill": "java",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "score": 36,
+       "matchedFields": [
+        "job.title",
+        "job.description",
+        "job.skills"
+       ]
+      },
+      {
+       "job": {
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "company": "Beta",
+        "location": "Java Island",
+        "description": "Synthetic description.",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0,
+        "id": "00000000-0000-0000-0000-0000000000c2",
+        "title": "Java Developer"
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-0000000000d2",
+         "jobId": "00000000-0000-0000-0000-0000000000c2",
+         "skill": "Python",
+         "normalizedSkill": "python",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "score": 22,
+       "matchedFields": [
+        "job.title",
+        "job.location"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "ties are ordered by identifier text",
+   "request": {
+    "query": "backend developer"
+   },
+   "candidates": {
+    "matchedCount": 3,
+    "hasMore": false,
+    "aggregates": [
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Gamma",
+       "location": null,
+       "description": "Java java JAVA and more java.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c3",
+       "title": "Backend"
+      },
+      "skills": [],
+      "linkIngestion": null,
+      "textIngestion": null
+     },
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Beta",
+       "location": "Java Island",
+       "description": "Synthetic description.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c2",
+       "title": "Java Developer"
+      },
+      "skills": [
+       {
+        "id": "00000000-0000-0000-0000-0000000000d2",
+        "jobId": "00000000-0000-0000-0000-0000000000c2",
+        "skill": "Python",
+        "normalizedSkill": "python",
+        "required": true,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      ],
+      "linkIngestion": null,
+      "textIngestion": null
+     },
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Acme",
+       "location": null,
+       "description": "Works with Java daily.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c1",
+       "title": "Javascript Engineer"
+      },
+      "skills": [
+       {
+        "id": "00000000-0000-0000-0000-0000000000d1",
+        "jobId": "00000000-0000-0000-0000-0000000000c1",
+        "skill": "Java",
+        "normalizedSkill": "java",
+        "required": true,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      ],
+      "linkIngestion": null,
+      "textIngestion": null
+     }
+    ]
+   },
+   "repoCalls": [
+    "search_job_candidates"
+   ],
+   "searchArguments": {
+    "queryTokens": [
+     "backend",
+     "developer"
+    ],
+    "limit": 20
+   },
+   "expect": {
+    "result": {
+     "query": "backend developer",
+     "queryTokens": [
+      "backend",
+      "developer"
+     ],
+     "totalMatches": 3,
+     "matchedCount": 3,
+     "hasMore": false,
+     "returnedCount": 2,
+     "jobs": [
+      {
+       "job": {
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "company": "Beta",
+        "location": "Java Island",
+        "description": "Synthetic description.",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0,
+        "id": "00000000-0000-0000-0000-0000000000c2",
+        "title": "Java Developer"
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-0000000000d2",
+         "jobId": "00000000-0000-0000-0000-0000000000c2",
+         "skill": "Python",
+         "normalizedSkill": "python",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "score": 8,
+       "matchedFields": [
+        "job.title"
+       ]
+      },
+      {
+       "job": {
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "company": "Gamma",
+        "location": null,
+        "description": "Java java JAVA and more java.",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0,
+        "id": "00000000-0000-0000-0000-0000000000c3",
+        "title": "Backend"
+       },
+       "skills": [],
+       "score": 8,
+       "matchedFields": [
+        "job.title"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "partial pool keeps the lower bound and a null total",
+   "request": {
+    "query": "java"
+   },
+   "candidates": {
+    "matchedCount": 7,
+    "hasMore": true,
+    "aggregates": [
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Acme",
+       "location": null,
+       "description": "Works with Java daily.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c1",
+       "title": "Javascript Engineer"
+      },
+      "skills": [
+       {
+        "id": "00000000-0000-0000-0000-0000000000d1",
+        "jobId": "00000000-0000-0000-0000-0000000000c1",
+        "skill": "Java",
+        "normalizedSkill": "java",
+        "required": true,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      ],
+      "linkIngestion": null,
+      "textIngestion": null
+     },
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Beta",
+       "location": "Java Island",
+       "description": "Synthetic description.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c2",
+       "title": "Java Developer"
+      },
+      "skills": [
+       {
+        "id": "00000000-0000-0000-0000-0000000000d2",
+        "jobId": "00000000-0000-0000-0000-0000000000c2",
+        "skill": "Python",
+        "normalizedSkill": "python",
+        "required": true,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      ],
+      "linkIngestion": null,
+      "textIngestion": null
+     }
+    ]
+   },
+   "repoCalls": [
+    "search_job_candidates"
+   ],
+   "searchArguments": {
+    "queryTokens": [
+     "java"
+    ],
+    "limit": 20
+   },
+   "expect": {
+    "result": {
+     "query": "java",
+     "queryTokens": [
+      "java"
+     ],
+     "totalMatches": null,
+     "matchedCount": 7,
+     "hasMore": true,
+     "returnedCount": 2,
+     "jobs": [
+      {
+       "job": {
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "company": "Acme",
+        "location": null,
+        "description": "Works with Java daily.",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0,
+        "id": "00000000-0000-0000-0000-0000000000c1",
+        "title": "Javascript Engineer"
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-0000000000d1",
+         "jobId": "00000000-0000-0000-0000-0000000000c1",
+         "skill": "Java",
+         "normalizedSkill": "java",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "score": 18,
+       "matchedFields": [
+        "job.title",
+        "job.description",
+        "job.skills"
+       ]
+      },
+      {
+       "job": {
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "company": "Beta",
+        "location": "Java Island",
+        "description": "Synthetic description.",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0,
+        "id": "00000000-0000-0000-0000-0000000000c2",
+        "title": "Java Developer"
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-0000000000d2",
+         "jobId": "00000000-0000-0000-0000-0000000000c2",
+         "skill": "Python",
+         "normalizedSkill": "python",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "score": 11,
+       "matchedFields": [
+        "job.title",
+        "job.location"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "negative known count falls back to the recomputed matches",
+   "request": {
+    "query": "java"
+   },
+   "candidates": {
+    "matchedCount": -1,
+    "hasMore": false,
+    "aggregates": [
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Beta",
+       "location": "Java Island",
+       "description": "Synthetic description.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c2",
+       "title": "Java Developer"
+      },
+      "skills": [
+       {
+        "id": "00000000-0000-0000-0000-0000000000d2",
+        "jobId": "00000000-0000-0000-0000-0000000000c2",
+        "skill": "Python",
+        "normalizedSkill": "python",
+        "required": true,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      ],
+      "linkIngestion": null,
+      "textIngestion": null
+     },
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Delta",
+       "location": null,
+       "description": "Synthetic description.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": "senior",
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c4",
+       "title": "C++ C# .NET"
+      },
+      "skills": [],
+      "linkIngestion": null,
+      "textIngestion": null
+     }
+    ]
+   },
+   "repoCalls": [
+    "search_job_candidates"
+   ],
+   "searchArguments": {
+    "queryTokens": [
+     "java"
+    ],
+    "limit": 20
+   },
+   "expect": {
+    "result": {
+     "query": "java",
+     "queryTokens": [
+      "java"
+     ],
+     "totalMatches": 1,
+     "matchedCount": 1,
+     "hasMore": false,
+     "returnedCount": 1,
+     "jobs": [
+      {
+       "job": {
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "company": "Beta",
+        "location": "Java Island",
+        "description": "Synthetic description.",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0,
+        "id": "00000000-0000-0000-0000-0000000000c2",
+        "title": "Java Developer"
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-0000000000d2",
+         "jobId": "00000000-0000-0000-0000-0000000000c2",
+         "skill": "Python",
+         "normalizedSkill": "python",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "score": 11,
+       "matchedFields": [
+        "job.title",
+        "job.location"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "punctuation tokens and separators in the query",
+   "request": {
+    "query": "C++ / c#  .net"
+   },
+   "candidates": {
+    "matchedCount": 1,
+    "hasMore": false,
+    "aggregates": [
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Delta",
+       "location": null,
+       "description": "Synthetic description.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": "senior",
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c4",
+       "title": "C++ C# .NET"
+      },
+      "skills": [],
+      "linkIngestion": null,
+      "textIngestion": null
+     }
+    ]
+   },
+   "repoCalls": [
+    "search_job_candidates"
+   ],
+   "searchArguments": {
+    "queryTokens": [
+     "c++",
+     "c#",
+     ".net"
+    ],
+    "limit": 20
+   },
+   "expect": {
+    "result": {
+     "query": "C++ / c#  .net",
+     "queryTokens": [
+      "c++",
+      "c#",
+      ".net"
+     ],
+     "totalMatches": 1,
+     "matchedCount": 1,
+     "hasMore": false,
+     "returnedCount": 1,
+     "jobs": [
+      {
+       "job": {
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "company": "Delta",
+        "location": null,
+        "description": "Synthetic description.",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": "senior",
+        "postedAt": null,
+        "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0,
+        "id": "00000000-0000-0000-0000-0000000000c4",
+        "title": "C++ C# .NET"
+       },
+       "skills": [],
+       "score": 24,
+       "matchedFields": [
+        "job.title"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "dotless i and emoji in the query",
+   "request": {
+    "query": "java\u0131 \ud83d\ude00"
+   },
+   "candidates": {
+    "matchedCount": 1,
+    "hasMore": false,
+    "aggregates": [
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Acme",
+       "location": null,
+       "description": "Works with Java daily.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c1",
+       "title": "Javascript Engineer"
+      },
+      "skills": [
+       {
+        "id": "00000000-0000-0000-0000-0000000000d1",
+        "jobId": "00000000-0000-0000-0000-0000000000c1",
+        "skill": "Java",
+        "normalizedSkill": "java",
+        "required": true,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      ],
+      "linkIngestion": null,
+      "textIngestion": null
+     }
+    ]
+   },
+   "repoCalls": [
+    "search_job_candidates"
+   ],
+   "searchArguments": {
+    "queryTokens": [
+     "java"
+    ],
+    "limit": 20
+   },
+   "expect": {
+    "result": {
+     "query": "java\u0131 \ud83d\ude00",
+     "queryTokens": [
+      "java"
+     ],
+     "totalMatches": 1,
+     "matchedCount": 1,
+     "hasMore": false,
+     "returnedCount": 1,
+     "jobs": [
+      {
+       "job": {
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "company": "Acme",
+        "location": null,
+        "description": "Works with Java daily.",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0,
+        "id": "00000000-0000-0000-0000-0000000000c1",
+        "title": "Javascript Engineer"
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-0000000000d1",
+         "jobId": "00000000-0000-0000-0000-0000000000c1",
+         "skill": "Java",
+         "normalizedSkill": "java",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "score": 18,
+       "matchedFields": [
+        "job.title",
+        "job.description",
+        "job.skills"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "default limit is 20 and the limit of 1 truncates the ranking",
+   "request": {
+    "query": "java",
+    "limit": 1
+   },
+   "candidates": {
+    "matchedCount": 3,
+    "hasMore": false,
+    "aggregates": [
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Acme",
+       "location": null,
+       "description": "Works with Java daily.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c1",
+       "title": "Javascript Engineer"
+      },
+      "skills": [
+       {
+        "id": "00000000-0000-0000-0000-0000000000d1",
+        "jobId": "00000000-0000-0000-0000-0000000000c1",
+        "skill": "Java",
+        "normalizedSkill": "java",
+        "required": true,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      ],
+      "linkIngestion": null,
+      "textIngestion": null
+     },
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Beta",
+       "location": "Java Island",
+       "description": "Synthetic description.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c2",
+       "title": "Java Developer"
+      },
+      "skills": [
+       {
+        "id": "00000000-0000-0000-0000-0000000000d2",
+        "jobId": "00000000-0000-0000-0000-0000000000c2",
+        "skill": "Python",
+        "normalizedSkill": "python",
+        "required": true,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      ],
+      "linkIngestion": null,
+      "textIngestion": null
+     },
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Gamma",
+       "location": null,
+       "description": "Java java JAVA and more java.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c3",
+       "title": "Backend"
+      },
+      "skills": [],
+      "linkIngestion": null,
+      "textIngestion": null
+     }
+    ]
+   },
+   "repoCalls": [
+    "search_job_candidates"
+   ],
+   "searchArguments": {
+    "queryTokens": [
+     "java"
+    ],
+    "limit": 1
+   },
+   "expect": {
+    "result": {
+     "query": "java",
+     "queryTokens": [
+      "java"
+     ],
+     "totalMatches": 3,
+     "matchedCount": 3,
+     "hasMore": false,
+     "returnedCount": 1,
+     "jobs": [
+      {
+       "job": {
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "company": "Acme",
+        "location": null,
+        "description": "Works with Java daily.",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0,
+        "id": "00000000-0000-0000-0000-0000000000c1",
+        "title": "Javascript Engineer"
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-0000000000d1",
+         "jobId": "00000000-0000-0000-0000-0000000000c1",
+         "skill": "Java",
+         "normalizedSkill": "java",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "score": 18,
+       "matchedFields": [
+        "job.title",
+        "job.description",
+        "job.skills"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "search without matches returns an empty page",
+   "request": {
+    "query": "rust"
+   },
+   "candidates": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "aggregates": []
+   },
+   "repoCalls": [
+    "search_job_candidates"
+   ],
+   "searchArguments": {
+    "queryTokens": [
+     "rust"
+    ],
+    "limit": 20
+   },
+   "expect": {
+    "result": {
+     "query": "rust",
+     "queryTokens": [
+      "rust"
+     ],
+     "totalMatches": 0,
+     "matchedCount": 0,
+     "hasMore": false,
+     "returnedCount": 0,
+     "jobs": []
+    }
+   }
+  },
+  {
+   "name": "invalid request is refused before the repository",
+   "request": null,
+   "candidates": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "aggregates": []
+   },
+   "repoCalls": [],
+   "searchArguments": null,
+   "expect": {
+    "error": {
+     "code": "validation_error",
+     "message": "Invalid job request",
+     "details": {
+      "field": "request",
+      "reason": "must not be null"
+     }
+    }
+   }
+  },
+  {
+   "name": "blank query is refused before the repository",
+   "request": {
+    "query": "   "
+   },
+   "candidates": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "aggregates": []
+   },
+   "repoCalls": [],
+   "searchArguments": null,
+   "expect": {
+    "error": {
+     "code": "validation_error",
+     "message": "Invalid job request",
+     "details": {
+      "field": "query",
+      "reason": "must not be blank"
+     }
+    }
+   }
+  },
+  {
+   "name": "query without a query key is refused",
+   "request": {},
+   "candidates": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "aggregates": []
+   },
+   "repoCalls": [],
+   "searchArguments": null,
+   "expect": {
+    "error": {
+     "code": "validation_error",
+     "message": "Invalid job request",
+     "details": {
+      "field": "query",
+      "reason": "must not be blank"
+     }
+    }
+   }
+  },
+  {
+   "name": "query without searchable text is refused",
+   "request": {
+    "query": "---"
+   },
+   "candidates": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "aggregates": []
+   },
+   "repoCalls": [],
+   "searchArguments": null,
+   "expect": {
+    "error": {
+     "code": "validation_error",
+     "message": "Invalid job request",
+     "details": {
+      "field": "query",
+      "reason": "must contain searchable text"
+     }
+    }
+   }
+  },
+  {
+   "name": "dotless i alone is not searchable",
+   "request": {
+    "query": "\u0131"
+   },
+   "candidates": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "aggregates": []
+   },
+   "repoCalls": [],
+   "searchArguments": null,
+   "expect": {
+    "error": {
+     "code": "validation_error",
+     "message": "Invalid job request",
+     "details": {
+      "field": "query",
+      "reason": "must contain searchable text"
+     }
+    }
+   }
+  },
+  {
+   "name": "query of 256 code points is accepted and 257 is refused",
+   "request": {
+    "query": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "candidates": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "aggregates": []
+   },
+   "repoCalls": [
+    "search_job_candidates"
+   ],
+   "searchArguments": {
+    "queryTokens": [
+     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    ],
+    "limit": 20
+   },
+   "expect": {
+    "result": {
+     "query": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "queryTokens": [
+      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+     ],
+     "totalMatches": 0,
+     "matchedCount": 0,
+     "hasMore": false,
+     "returnedCount": 0,
+     "jobs": []
+    }
+   }
+  },
+  {
+   "name": "query of 257 code points is refused",
+   "request": {
+    "query": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "candidates": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "aggregates": []
+   },
+   "repoCalls": [],
+   "searchArguments": null,
+   "expect": {
+    "error": {
+     "code": "validation_error",
+     "message": "Invalid job request",
+     "details": {
+      "field": "query",
+      "reason": "must not exceed 256 characters"
+     }
+    }
+   }
+  },
+  {
+   "name": "query with 17 distinct terms is refused",
+   "request": {
+    "query": "t0 t1 t2 t3 t4 t5 t6 t7 t8 t9 t10 t11 t12 t13 t14 t15 t16"
+   },
+   "candidates": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "aggregates": []
+   },
+   "repoCalls": [],
+   "searchArguments": null,
+   "expect": {
+    "error": {
+     "code": "validation_error",
+     "message": "Invalid job request",
+     "details": {
+      "field": "query",
+      "reason": "must contain at most 16 searchable terms"
+     }
+    }
+   }
+  },
+  {
+   "name": "query with 50 repeated terms dedupes to one token",
+   "request": {
+    "query": "java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java"
+   },
+   "candidates": {
+    "matchedCount": 1,
+    "hasMore": false,
+    "aggregates": [
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Acme",
+       "location": null,
+       "description": "Works with Java daily.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c1",
+       "title": "Javascript Engineer"
+      },
+      "skills": [
+       {
+        "id": "00000000-0000-0000-0000-0000000000d1",
+        "jobId": "00000000-0000-0000-0000-0000000000c1",
+        "skill": "Java",
+        "normalizedSkill": "java",
+        "required": true,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      ],
+      "linkIngestion": null,
+      "textIngestion": null
+     }
+    ]
+   },
+   "repoCalls": [
+    "search_job_candidates"
+   ],
+   "searchArguments": {
+    "queryTokens": [
+     "java"
+    ],
+    "limit": 20
+   },
+   "expect": {
+    "result": {
+     "query": "java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java java",
+     "queryTokens": [
+      "java"
+     ],
+     "totalMatches": 1,
+     "matchedCount": 1,
+     "hasMore": false,
+     "returnedCount": 1,
+     "jobs": [
+      {
+       "job": {
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "company": "Acme",
+        "location": null,
+        "description": "Works with Java daily.",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0,
+        "id": "00000000-0000-0000-0000-0000000000c1",
+        "title": "Javascript Engineer"
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-0000000000d1",
+         "jobId": "00000000-0000-0000-0000-0000000000c1",
+         "skill": "Java",
+         "normalizedSkill": "java",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "score": 18,
+       "matchedFields": [
+        "job.title",
+        "job.description",
+        "job.skills"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "limit 0 is refused",
+   "request": {
+    "query": "java",
+    "limit": 0
+   },
+   "candidates": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "aggregates": []
+   },
+   "repoCalls": [],
+   "searchArguments": null,
+   "expect": {
+    "error": {
+     "code": "validation_error",
+     "message": "Invalid job request",
+     "details": {
+      "field": "limit",
+      "reason": "must be between 1 and 100"
+     }
+    }
+   }
+  },
+  {
+   "name": "limit 101 is refused",
+   "request": {
+    "query": "java",
+    "limit": 101
+   },
+   "candidates": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "aggregates": []
+   },
+   "repoCalls": [],
+   "searchArguments": null,
+   "expect": {
+    "error": {
+     "code": "validation_error",
+     "message": "Invalid job request",
+     "details": {
+      "field": "limit",
+      "reason": "must be between 1 and 100"
+     }
+    }
+   }
+  },
+  {
+   "name": "boolean limit is refused",
+   "request": {
+    "query": "java",
+    "limit": true
+   },
+   "candidates": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "aggregates": []
+   },
+   "repoCalls": [],
+   "searchArguments": null,
+   "expect": {
+    "error": {
+     "code": "validation_error",
+     "message": "Invalid job request",
+     "details": {
+      "field": "limit",
+      "reason": "must be between 1 and 100"
+     }
+    }
+   }
+  },
+  {
+   "name": "string limit is not coerced",
+   "request": {
+    "query": "java",
+    "limit": "1"
+   },
+   "candidates": {
+    "matchedCount": 0,
+    "hasMore": false,
+    "aggregates": []
+   },
+   "repoCalls": [],
+   "searchArguments": null,
+   "expect": {
+    "error": {
+     "code": "validation_error",
+     "message": "Invalid job request",
+     "details": {
+      "field": "limit",
+      "reason": "must be between 1 and 100"
+     }
+    }
+   }
+  },
+  {
+   "name": "limit of 100 is accepted",
+   "request": {
+    "query": "java",
+    "limit": 100
+   },
+   "candidates": {
+    "matchedCount": 2,
+    "hasMore": false,
+    "aggregates": [
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Acme",
+       "location": null,
+       "description": "Works with Java daily.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c1",
+       "title": "Javascript Engineer"
+      },
+      "skills": [
+       {
+        "id": "00000000-0000-0000-0000-0000000000d1",
+        "jobId": "00000000-0000-0000-0000-0000000000c1",
+        "skill": "Java",
+        "normalizedSkill": "java",
+        "required": true,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      ],
+      "linkIngestion": null,
+      "textIngestion": null
+     },
+     {
+      "job": {
+       "sourceMethod": "text",
+       "sourceLabel": null,
+       "company": "Beta",
+       "location": "Java Island",
+       "description": "Synthetic description.",
+       "experienceRequirement": null,
+       "employmentType": null,
+       "seniority": null,
+       "postedAt": null,
+       "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+       "createdAt": "2026-09-28T12:30:15.123Z",
+       "updatedAt": "2026-09-28T12:30:15.123Z",
+       "revision": 0,
+       "id": "00000000-0000-0000-0000-0000000000c2",
+       "title": "Java Developer"
+      },
+      "skills": [
+       {
+        "id": "00000000-0000-0000-0000-0000000000d2",
+        "jobId": "00000000-0000-0000-0000-0000000000c2",
+        "skill": "Python",
+        "normalizedSkill": "python",
+        "required": true,
+        "displayOrder": 0,
+        "createdAt": "2026-09-28T12:30:15.123Z"
+       }
+      ],
+      "linkIngestion": null,
+      "textIngestion": null
+     }
+    ]
+   },
+   "repoCalls": [
+    "search_job_candidates"
+   ],
+   "searchArguments": {
+    "queryTokens": [
+     "java"
+    ],
+    "limit": 100
+   },
+   "expect": {
+    "result": {
+     "query": "java",
+     "queryTokens": [
+      "java"
+     ],
+     "totalMatches": 2,
+     "matchedCount": 2,
+     "hasMore": false,
+     "returnedCount": 2,
+     "jobs": [
+      {
+       "job": {
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "company": "Acme",
+        "location": null,
+        "description": "Works with Java daily.",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0,
+        "id": "00000000-0000-0000-0000-0000000000c1",
+        "title": "Javascript Engineer"
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-0000000000d1",
+         "jobId": "00000000-0000-0000-0000-0000000000c1",
+         "skill": "Java",
+         "normalizedSkill": "java",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "score": 18,
+       "matchedFields": [
+        "job.title",
+        "job.description",
+        "job.skills"
+       ]
+      },
+      {
+       "job": {
+        "sourceMethod": "text",
+        "sourceLabel": null,
+        "company": "Beta",
+        "location": "Java Island",
+        "description": "Synthetic description.",
+        "experienceRequirement": null,
+        "employmentType": null,
+        "seniority": null,
+        "postedAt": null,
+        "canonicalFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "createdAt": "2026-09-28T12:30:15.123Z",
+        "updatedAt": "2026-09-28T12:30:15.123Z",
+        "revision": 0,
+        "id": "00000000-0000-0000-0000-0000000000c2",
+        "title": "Java Developer"
+       },
+       "skills": [
+        {
+         "id": "00000000-0000-0000-0000-0000000000d2",
+         "jobId": "00000000-0000-0000-0000-0000000000c2",
+         "skill": "Python",
+         "normalizedSkill": "python",
+         "required": true,
+         "displayOrder": 0,
+         "createdAt": "2026-09-28T12:30:15.123Z"
+        }
+       ],
+       "score": 11,
+       "matchedFields": [
+        "job.title",
+        "job.location"
+       ]
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

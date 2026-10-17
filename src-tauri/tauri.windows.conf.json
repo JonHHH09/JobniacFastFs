@@ -1,0 +1,8 @@
+{
+  "bundle": {
+    "targets": ["nsis"],
+    "resources": {
+      "../vendor/pdfium/windows-x64/pdfium.dll": "pdfium/pdfium.dll"
+    }
+  }
+}

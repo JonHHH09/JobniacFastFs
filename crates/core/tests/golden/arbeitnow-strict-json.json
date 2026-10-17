@@ -1,0 +1,1962 @@
+{
+ "source": "Arbeitnow board strict JSON admission",
+ "bodyForm": "prefixHex + unitHex * count + suffixHex",
+ "cases": [
+  {
+   "id": "empty",
+   "prefixHex": "",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "empty"
+   },
+   "rust": {
+    "result": "empty"
+   }
+  },
+  {
+   "id": "whitespace-only",
+   "prefixHex": "20090d0a",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "empty"
+   },
+   "rust": {
+    "result": "empty"
+   }
+  },
+  {
+   "id": "bom-only",
+   "prefixHex": "efbbbf",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "bomOnly"
+   }
+  },
+  {
+   "id": "bom-whitespace",
+   "prefixHex": "efbbbf200a",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "empty"
+   },
+   "rust": {
+    "result": "empty"
+   }
+  },
+  {
+   "id": "bom-object",
+   "prefixHex": "efbbbf7b2261223a317d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "o": [
+      [
+       "a",
+       {
+        "i": "1"
+       }
+      ]
+     ]
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "object",
+   "prefixHex": "7b2264617461223a5b5d2c226c696e6b73223a7b226e657874223a6e756c6c7d2c226d657461223a7b2263757272656e745f70616765223a312c226c6173745f70616765223a317d7d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "o": [
+      [
+       "data",
+       []
+      ],
+      [
+       "links",
+       {
+        "o": [
+         [
+          "next",
+          null
+         ]
+        ]
+       }
+      ],
+      [
+       "meta",
+       {
+        "o": [
+         [
+          "current_page",
+          {
+           "i": "1"
+          }
+         ],
+         [
+          "last_page",
+          {
+           "i": "1"
+          }
+         ]
+        ]
+       }
+      ]
+     ]
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "top-level-scalars",
+   "prefixHex": "203120",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "i": "1"
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "top-level-string",
+   "prefixHex": "227822",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": "x"
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "top-level-true",
+   "prefixHex": "74727565",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": true
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "nested",
+   "prefixHex": "7b2261223a5b312c322e352c7b2262223a6e756c6c2c2263223a5b747275652c66616c73655d7d5d2c2264223a2265227d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "o": [
+      [
+       "a",
+       [
+        {
+         "i": "1"
+        },
+        {
+         "f": "2.5"
+        },
+        {
+         "o": [
+          [
+           "b",
+           null
+          ],
+          [
+           "c",
+           [
+            true,
+            false
+           ]
+          ]
+         ]
+        }
+       ]
+      ],
+      [
+       "d",
+       "e"
+      ]
+     ]
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "numbers",
+   "prefixHex": "5b302c2d312c31322c312e3565332c2d302e302c32452b322c31652d322c31303030303030303030303030303030303030303030305d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": [
+     {
+      "i": "0"
+     },
+     {
+      "i": "-1"
+     },
+     {
+      "i": "12"
+     },
+     {
+      "f": "1500.0"
+     },
+     {
+      "f": "-0.0"
+     },
+     {
+      "f": "200.0"
+     },
+     {
+      "f": "0.01"
+     },
+     {
+      "i": "10000000000000000000000"
+     }
+    ]
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "number-leading-zero",
+   "prefixHex": "3031",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "trailingData"
+   }
+  },
+  {
+   "id": "number-lone-minus",
+   "prefixHex": "2d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  },
+  {
+   "id": "number-exponent-overflow",
+   "prefixHex": "5b31653939395d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": [
+     {
+      "f": "inf"
+     }
+    ]
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "string-escapes",
+   "prefixHex": "225c75303034315c6e5c745c2f5c5c5c225c625c665c7222",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": "A\n\t/\\\"\b\f\r"
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "utf8-two-byte",
+   "prefixHex": "7b226b223a22c3a9227d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "o": [
+      [
+       "k",
+       "\u00e9"
+      ]
+     ]
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "utf8-four-byte",
+   "prefixHex": "7b226b223a22f09f9880227d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "o": [
+      [
+       "k",
+       "\ud83d\ude00"
+      ]
+     ]
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "utf8-escaped-pair",
+   "prefixHex": "7b226b223a225c75643833645c7564653030227d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "o": [
+      [
+       "k",
+       "\ud83d\ude00"
+      ]
+     ]
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "utf8-non-ascii-outside-string",
+   "prefixHex": "7b2261223a317dc3a9",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "invalidEncoding"
+   }
+  },
+  {
+   "id": "utf8-non-ascii-after-backslash",
+   "prefixHex": "225cc3a922",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "invalidEncoding"
+   }
+  },
+  {
+   "id": "utf8-truncated-lead",
+   "prefixHex": "22c3",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "invalidEncoding"
+   }
+  },
+  {
+   "id": "utf8-bad-continuation",
+   "prefixHex": "22c32822",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "invalidEncoding"
+   }
+  },
+  {
+   "id": "utf8-stray-continuation",
+   "prefixHex": "228022",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "invalidEncoding"
+   }
+  },
+  {
+   "id": "utf8-encoded-surrogate",
+   "prefixHex": "22eda08022",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "invalidEncoding"
+   }
+  },
+  {
+   "id": "utf8-overlong-two-byte",
+   "prefixHex": "22c08022",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": "\u0000"
+   },
+   "rust": {
+    "result": "error",
+    "error": "invalidEncoding"
+   },
+   "deviation": "The recorded decoder admits this malformed UTF-8; the Rust parser refuses invalid UTF-8."
+  },
+  {
+   "id": "utf8-overlong-two-byte-slash",
+   "prefixHex": "22c1af22",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": "o"
+   },
+   "rust": {
+    "result": "error",
+    "error": "invalidEncoding"
+   },
+   "deviation": "The recorded decoder admits this malformed UTF-8; the Rust parser refuses invalid UTF-8."
+  },
+  {
+   "id": "utf8-overlong-three-byte",
+   "prefixHex": "22e0808022",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": "\u0000"
+   },
+   "rust": {
+    "result": "error",
+    "error": "invalidEncoding"
+   },
+   "deviation": "The recorded decoder admits this malformed UTF-8; the Rust parser refuses invalid UTF-8."
+  },
+  {
+   "id": "utf8-lead-f5",
+   "prefixHex": "22f580808022",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "loneSurrogate"
+   },
+   "rust": {
+    "result": "error",
+    "error": "invalidEncoding"
+   },
+   "deviation": "The recorded decoder admits this malformed UTF-8; the Rust parser refuses invalid UTF-8."
+  },
+  {
+   "id": "utf8-lead-f8",
+   "prefixHex": "22f88080808022",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "invalidEncoding"
+   }
+  },
+  {
+   "id": "utf8-above-10ffff",
+   "prefixHex": "22f490808022",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "loneSurrogate"
+   },
+   "rust": {
+    "result": "error",
+    "error": "invalidEncoding"
+   },
+   "deviation": "The recorded decoder admits this malformed UTF-8; the Rust parser refuses invalid UTF-8."
+  },
+  {
+   "id": "utf16le-bom",
+   "prefixHex": "fffe7b0022006b0022003a002200e9003dd800de22007d00",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "o": [
+      [
+       "k",
+       "\u00e9\ud83d\ude00"
+      ]
+     ]
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "utf16be-bom",
+   "prefixHex": "feff007b0022006b0022003a002200e9d83dde000022007d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "o": [
+      [
+       "k",
+       "\u00e9\ud83d\ude00"
+      ]
+     ]
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "utf16le-zero-pattern",
+   "prefixHex": "7b0022006b0022003a002200e9003dd800de22007d00",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "o": [
+      [
+       "k",
+       "\u00e9\ud83d\ude00"
+      ]
+     ]
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "utf16be-zero-pattern",
+   "prefixHex": "007b0022006b0022003a002200e9d83dde000022007d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "o": [
+      [
+       "k",
+       "\u00e9\ud83d\ude00"
+      ]
+     ]
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "utf32le-bom",
+   "prefixHex": "fffe00007b000000220000006b000000220000003a00000022000000e900000000f60100220000007d000000",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "o": [
+      [
+       "k",
+       "\u00e9\ud83d\ude00"
+      ]
+     ]
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "utf32be-bom",
+   "prefixHex": "0000feff0000007b000000220000006b000000220000003a00000022000000e90001f600000000220000007d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "o": [
+      [
+       "k",
+       "\u00e9\ud83d\ude00"
+      ]
+     ]
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "utf32le-zero-pattern",
+   "prefixHex": "7b000000220000006b000000220000003a00000022000000e900000000f60100220000007d000000",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "o": [
+      [
+       "k",
+       "\u00e9\ud83d\ude00"
+      ]
+     ]
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "utf32be-zero-pattern",
+   "prefixHex": "0000007b000000220000006b000000220000003a00000022000000e90001f600000000220000007d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "o": [
+      [
+       "k",
+       "\u00e9\ud83d\ude00"
+      ]
+     ]
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "utf16le-bom-only",
+   "prefixHex": "fffe",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "empty"
+   },
+   "rust": {
+    "result": "empty"
+   }
+  },
+  {
+   "id": "utf16be-bom-only",
+   "prefixHex": "feff",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "empty"
+   },
+   "rust": {
+    "result": "empty"
+   }
+  },
+  {
+   "id": "utf32le-bom-only",
+   "prefixHex": "fffe0000",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "empty"
+   },
+   "rust": {
+    "result": "empty"
+   }
+  },
+  {
+   "id": "utf16-odd-length",
+   "prefixHex": "fffe7b0022006b0022003a002200e9003dd800de22007d0000",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "invalidEncoding"
+   }
+  },
+  {
+   "id": "utf32-length-not-multiple",
+   "prefixHex": "fffe00007b000000220000006b000000220000003a00000022000000e900000000f60100220000007d00000000",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "invalidEncoding"
+   }
+  },
+  {
+   "id": "utf32-above-10ffff",
+   "prefixHex": "fffe0000220000000000110022000000",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "invalidEncoding"
+   }
+  },
+  {
+   "id": "utf16-lone-high-swallows-quote",
+   "prefixHex": "fffe220000d82200",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  },
+  {
+   "id": "utf16-lone-high-swallows-next",
+   "prefixHex": "fffe220000d8610062002200",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": "\ufffdb"
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "utf16-lone-low-replaced",
+   "prefixHex": "fffe220000dc2200",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": "\ufffd"
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "utf16-two-highs-replaced",
+   "prefixHex": "fffe220000d800d862002200",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": "\ufffdb"
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "utf16-high-at-end",
+   "prefixHex": "feff00220078d800",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  },
+  {
+   "id": "utf32-surrogate-code-point",
+   "prefixHex": "fffe00002200000000d8000022000000",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "loneSurrogate"
+   },
+   "rust": {
+    "result": "error",
+    "error": "loneSurrogate"
+   },
+   "deviation": "The recorded decoder keeps the lone surrogate; the Rust parser refuses an unpaired surrogate."
+  },
+  {
+   "id": "utf16-non-ascii-outside-string",
+   "prefixHex": "fffe7b002200610022003a0031007d00e900",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "trailingData"
+   }
+  },
+  {
+   "id": "utf16-bom-then-feff",
+   "prefixHex": "fffefffe7b007d00",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  },
+  {
+   "id": "depth-500-arrays",
+   "prefixHex": "",
+   "unitHex": "5b",
+   "count": 500,
+   "suffixHex": "5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "deep"
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "depth-501-arrays",
+   "prefixHex": "",
+   "unitHex": "5b",
+   "count": 501,
+   "suffixHex": "5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d5d",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "tooDeep"
+   }
+  },
+  {
+   "id": "depth-500-objects",
+   "prefixHex": "",
+   "unitHex": "7b2261223a",
+   "count": 500,
+   "suffixHex": "317d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "deep"
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "depth-501-objects",
+   "prefixHex": "",
+   "unitHex": "7b2261223a",
+   "count": 501,
+   "suffixHex": "317d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d7d",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "tooDeep"
+   }
+  },
+  {
+   "id": "depth-brackets-in-strings",
+   "prefixHex": "5b225b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b5b7b225d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": [
+     "[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{[{"
+    ]
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "key-50000-ascii",
+   "prefixHex": "7b22",
+   "unitHex": "61",
+   "count": 50000,
+   "suffixHex": "223a317d",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "large"
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "key-50001-ascii",
+   "prefixHex": "7b22",
+   "unitHex": "61",
+   "count": 50001,
+   "suffixHex": "223a317d",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "keyTooLong"
+   }
+  },
+  {
+   "id": "key-50000-escaped",
+   "prefixHex": "7b22",
+   "unitHex": "5c7530303631",
+   "count": 50000,
+   "suffixHex": "223a317d",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "large"
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "key-50001-escaped",
+   "prefixHex": "7b22",
+   "unitHex": "5c7530303631",
+   "count": 50001,
+   "suffixHex": "223a317d",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "keyTooLong"
+   }
+  },
+  {
+   "id": "key-25000-two-byte",
+   "prefixHex": "7b22",
+   "unitHex": "c3a9",
+   "count": 25000,
+   "suffixHex": "223a317d",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "large"
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "key-25001-two-byte",
+   "prefixHex": "7b22",
+   "unitHex": "c3a9",
+   "count": 25001,
+   "suffixHex": "223a317d",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "keyTooLong"
+   }
+  },
+  {
+   "id": "key-three-byte-16667",
+   "prefixHex": "7b22",
+   "unitHex": "e282ac",
+   "count": 16667,
+   "suffixHex": "223a317d",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "keyTooLong"
+   }
+  },
+  {
+   "id": "key-three-byte-16666",
+   "prefixHex": "7b22",
+   "unitHex": "e282ac",
+   "count": 16666,
+   "suffixHex": "223a317d",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "large"
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "value-60000-ascii",
+   "prefixHex": "7b226b223a22",
+   "unitHex": "61",
+   "count": 60000,
+   "suffixHex": "227d",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "large"
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "array-element-60000-ascii",
+   "prefixHex": "5b22",
+   "unitHex": "61",
+   "count": 60000,
+   "suffixHex": "225d",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "large"
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "utf16-key-25000-astral",
+   "prefixHex": "fffe7b002200",
+   "unitHex": "3dd800de",
+   "count": 25000,
+   "suffixHex": "22003a0031007d00",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "large"
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "utf16-key-25001-astral",
+   "prefixHex": "fffe7b002200",
+   "unitHex": "3dd800de",
+   "count": 25001,
+   "suffixHex": "22003a0031007d00",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "keyTooLong"
+   }
+  },
+  {
+   "id": "utf8-key-25000-astral",
+   "prefixHex": "7b22",
+   "unitHex": "f09f9880",
+   "count": 25000,
+   "suffixHex": "223a317d",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "keyTooLong"
+   }
+  },
+  {
+   "id": "utf8-key-12500-astral",
+   "prefixHex": "7b22",
+   "unitHex": "f09f9880",
+   "count": 12500,
+   "suffixHex": "223a317d",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "large"
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "int-1000-digits",
+   "prefixHex": "31",
+   "unitHex": "30",
+   "count": 999,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "i": "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "int-1001-digits",
+   "prefixHex": "31",
+   "unitHex": "30",
+   "count": 1000,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "numberTooLong"
+   }
+  },
+  {
+   "id": "int-negative-1000-digits",
+   "prefixHex": "2d31",
+   "unitHex": "30",
+   "count": 999,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "i": "-1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "int-negative-1001-digits",
+   "prefixHex": "2d31",
+   "unitHex": "30",
+   "count": 1000,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "numberTooLong"
+   }
+  },
+  {
+   "id": "float-1000-digits",
+   "prefixHex": "302e",
+   "unitHex": "31",
+   "count": 999,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "f": "0.1111111111111111"
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "float-1001-digits",
+   "prefixHex": "302e",
+   "unitHex": "31",
+   "count": 1000,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "numberTooLong"
+   }
+  },
+  {
+   "id": "exponent-1001-digits",
+   "prefixHex": "3165",
+   "unitHex": "30",
+   "count": 1000,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "numberTooLong"
+   }
+  },
+  {
+   "id": "exponent-1000-digits",
+   "prefixHex": "3165",
+   "unitHex": "30",
+   "count": 999,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "f": "1.0"
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "nan",
+   "prefixHex": "7b2264617461223a5b5d2c226c696e6b73223a7b226e657874223a6e756c6c7d2c226d657461223a7b2263757272656e745f70616765223a312c226c6173745f70616765223a317d2c2278223a4e614e7d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "nonFinite"
+   }
+  },
+  {
+   "id": "infinity",
+   "prefixHex": "7b2264617461223a5b5d2c226c696e6b73223a7b226e657874223a6e756c6c7d2c226d657461223a7b2263757272656e745f70616765223a312c226c6173745f70616765223a317d2c2278223a496e66696e6974797d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "nonFinite"
+   }
+  },
+  {
+   "id": "negative-infinity",
+   "prefixHex": "5b2d496e66696e6974795d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "nonFinite"
+   }
+  },
+  {
+   "id": "nan-top-level",
+   "prefixHex": "4e614e",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "nonFinite"
+   }
+  },
+  {
+   "id": "bad-exponent",
+   "prefixHex": "7b2264617461223a5b5d2c226c696e6b73223a7b226e657874223a6e756c6c7d2c226d657461223a7b2263757272656e745f70616765223a312c226c6173745f70616765223a317d2c2278223a31657d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  },
+  {
+   "id": "bad-fraction",
+   "prefixHex": "5b312e5d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  },
+  {
+   "id": "duplicate-keys",
+   "prefixHex": "7b2261223a312c2261223a327d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "duplicateKey"
+   }
+  },
+  {
+   "id": "duplicate-escaped",
+   "prefixHex": "7b2261223a312c225c7530303631223a327d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "duplicateKey"
+   }
+  },
+  {
+   "id": "duplicate-astral-spelled-two-ways",
+   "prefixHex": "7b22f09f9880223a312c225c75643833645c7564653030223a327d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "duplicateKey"
+   }
+  },
+  {
+   "id": "duplicate-nested",
+   "prefixHex": "7b2261223a7b2262223a312c2262223a327d7d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "duplicateKey"
+   }
+  },
+  {
+   "id": "duplicate-in-array",
+   "prefixHex": "5b7b2261223a312c2261223a317d5d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "ValueError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "duplicateKey"
+   }
+  },
+  {
+   "id": "same-key-different-objects",
+   "prefixHex": "7b2261223a7b2261223a317d2c2262223a7b2261223a327d7d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "o": [
+      [
+       "a",
+       {
+        "o": [
+         [
+          "a",
+          {
+           "i": "1"
+          }
+         ]
+        ]
+       }
+      ],
+      [
+       "b",
+       {
+        "o": [
+         [
+          "a",
+          {
+           "i": "2"
+          }
+         ]
+        ]
+       }
+      ]
+     ]
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "keys-differ-by-case",
+   "prefixHex": "7b2261223a312c2241223a327d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "o": [
+      [
+       "a",
+       {
+        "i": "1"
+       }
+      ],
+      [
+       "A",
+       {
+        "i": "2"
+       }
+      ]
+     ]
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "trailing-garbage",
+   "prefixHex": "7b7d2078",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "trailingData"
+   }
+  },
+  {
+   "id": "trailing-second-value",
+   "prefixHex": "7b7d7b7d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "trailingData"
+   }
+  },
+  {
+   "id": "trailing-bracket",
+   "prefixHex": "5b315d5d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "trailingData"
+   }
+  },
+  {
+   "id": "trailing-second-number",
+   "prefixHex": "312032",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "trailingData"
+   }
+  },
+  {
+   "id": "trailing-whitespace",
+   "prefixHex": "7b7d200d0a09",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": {
+     "o": []
+    }
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "lone-high-escape",
+   "prefixHex": "225c756438303022",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "loneSurrogate"
+   },
+   "rust": {
+    "result": "error",
+    "error": "loneSurrogate"
+   },
+   "deviation": "The recorded decoder keeps the lone surrogate; the Rust parser refuses an unpaired surrogate."
+  },
+  {
+   "id": "lone-low-escape",
+   "prefixHex": "225c756463303022",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "loneSurrogate"
+   },
+   "rust": {
+    "result": "error",
+    "error": "loneSurrogate"
+   },
+   "deviation": "The recorded decoder keeps the lone surrogate; the Rust parser refuses an unpaired surrogate."
+  },
+  {
+   "id": "high-then-ascii-escape",
+   "prefixHex": "225c75643830305c753030343122",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "loneSurrogate"
+   },
+   "rust": {
+    "result": "error",
+    "error": "loneSurrogate"
+   },
+   "deviation": "The recorded decoder keeps the lone surrogate; the Rust parser refuses an unpaired surrogate."
+  },
+  {
+   "id": "high-then-char",
+   "prefixHex": "225c75643830307822",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "loneSurrogate"
+   },
+   "rust": {
+    "result": "error",
+    "error": "loneSurrogate"
+   },
+   "deviation": "The recorded decoder keeps the lone surrogate; the Rust parser refuses an unpaired surrogate."
+  },
+  {
+   "id": "reversed-pair-escape",
+   "prefixHex": "225c75646330305c756438303022",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "loneSurrogate"
+   },
+   "rust": {
+    "result": "error",
+    "error": "loneSurrogate"
+   },
+   "deviation": "The recorded decoder keeps the lone surrogate; the Rust parser refuses an unpaired surrogate."
+  },
+  {
+   "id": "lone-high-key",
+   "prefixHex": "7b225c7564383030223a317d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "valueOmitted": "loneSurrogate"
+   },
+   "rust": {
+    "result": "error",
+    "error": "loneSurrogate"
+   },
+   "deviation": "The recorded decoder keeps the lone surrogate; the Rust parser refuses an unpaired surrogate."
+  },
+  {
+   "id": "valid-pair-escape-uppercase",
+   "prefixHex": "225c75443833445c754445303022",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "value",
+    "value": "\ud83d\ude00"
+   },
+   "rust": {
+    "result": "value"
+   }
+  },
+  {
+   "id": "unterminated-object",
+   "prefixHex": "7b",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  },
+  {
+   "id": "trailing-comma-array",
+   "prefixHex": "5b312c5d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  },
+  {
+   "id": "trailing-comma-object",
+   "prefixHex": "7b2261223a312c7d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  },
+  {
+   "id": "single-quotes",
+   "prefixHex": "7b2761273a317d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  },
+  {
+   "id": "raw-control-in-string",
+   "prefixHex": "2261096222",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  },
+  {
+   "id": "invalid-escape",
+   "prefixHex": "225c78343122",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  },
+  {
+   "id": "short-unicode-escape",
+   "prefixHex": "225c75313222",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  },
+  {
+   "id": "unicode-escape-plus-sign",
+   "prefixHex": "225c752b30343122",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  },
+  {
+   "id": "unicode-escape-underscore",
+   "prefixHex": "225c75305f343122",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  },
+  {
+   "id": "truncated-literal",
+   "prefixHex": "747275",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  },
+  {
+   "id": "missing-colon",
+   "prefixHex": "7b22612220317d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  },
+  {
+   "id": "unquoted-key",
+   "prefixHex": "7b613a317d",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  },
+  {
+   "id": "unterminated-string",
+   "prefixHex": "22616263",
+   "unitHex": "",
+   "count": 1,
+   "suffixHex": "",
+   "recorded": {
+    "result": "error",
+    "class": "JSONDecodeError"
+   },
+   "rust": {
+    "result": "error",
+    "error": "syntax"
+   }
+  }
+ ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema": "jobniac-payload-owners/1",
+  "description": "Owner of every file in the staged payload (paths relative to the payload root). A file without a rule fails the inventory. Owners are crate:<name> (a Cargo package of the SBOM) or static:<id> (a component of scripts/release/notices/static-components.json).",
+  "rules": [
+    { "path": "jobniac.exe", "owner": "crate:jobniac-desktop" },
+    { "path": "jobniac", "owner": "crate:jobniac-desktop" },
+    { "path": "jobniac-cli.exe", "owner": "crate:jobniac-cli" },
+    { "path": "jobniac-cli", "owner": "crate:jobniac-cli" },
+    { "path": "pdfium/pdfium.dll", "owner": "static:pdfium" },
+    { "path": "pdfium/libpdfium.so", "owner": "static:pdfium" },
+    { "path": "THIRD-PARTY-NOTICES.txt", "owner": "self:notices" }
+  ]
+}

@@ -1,0 +1,773 @@
+{
+ "format": 1,
+ "notes": [
+  "Synthetic inputs only. No database, no network, no personal data.",
+  "Lone surrogates are excluded."
+ ],
+ "components": [
+  {
+   "input": {
+    "component": "TECHNICAL",
+    "status": "MATCH",
+    "earnedPoints": 40,
+    "availablePoints": 40
+   },
+   "result": {
+    "ok": {
+     "component": "TECHNICAL",
+     "earnedPoints": 40,
+     "availablePoints": 40,
+     "status": "MATCH"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "TECHNICAL",
+    "status": "PARTIAL",
+    "availablePoints": 40
+   },
+   "result": {
+    "ok": {
+     "component": "TECHNICAL",
+     "earnedPoints": 0,
+     "availablePoints": 40,
+     "status": "PARTIAL"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "TECHNICAL",
+    "status": "MISMATCH",
+    "earnedPoints": 41,
+    "availablePoints": 40
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "component score must be within its configured available points"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "TECHNICAL",
+    "status": "UNKNOWN",
+    "earnedPoints": -1,
+    "availablePoints": 40
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "component score must be within its configured available points"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "TECHNICAL",
+    "status": "MATCH",
+    "earnedPoints": 0,
+    "availablePoints": 39
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "component score must be within its configured available points"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "MATCH",
+    "earnedPoints": true,
+    "availablePoints": 15
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "component score must be within its configured available points"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "MATCH",
+    "earnedPoints": 1.0,
+    "availablePoints": 15
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "component score must be within its configured available points"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "MATCH",
+    "earnedPoints": null,
+    "availablePoints": 15
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "component score must be within its configured available points"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "MATCH",
+    "earnedPoints": 2,
+    "availablePoints": 15.0
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "component score must be within its configured available points"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "MATCH",
+    "earnedPoints": 2,
+    "availablePoints": true
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "component score must be within its configured available points"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DELIVERY",
+    "status": "UNKNOWN",
+    "earnedPoints": 10,
+    "availablePoints": 10,
+    "note": "x"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "invalid persisted match component"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "FOO",
+    "status": "MATCH",
+    "availablePoints": 10
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "invalid persisted match component"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DELIVERY",
+    "status": "OK",
+    "availablePoints": 10
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "invalid persisted match component"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DELIVERY",
+    "availablePoints": 10
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "invalid persisted match component"
+    }
+   }
+  },
+  {
+   "input": {
+    "status": "MATCH",
+    "availablePoints": 10
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "invalid persisted match component"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "HARD_REQUIREMENTS",
+    "status": "MATCH",
+    "earnedPoints": 10,
+    "availablePoints": 10
+   },
+   "result": {
+    "ok": {
+     "component": "HARD_REQUIREMENTS",
+     "earnedPoints": 10,
+     "availablePoints": 10,
+     "status": "MATCH"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "EXPERIENCE_SENIORITY",
+    "status": "PARTIAL",
+    "earnedPoints": 13,
+    "availablePoints": 25
+   },
+   "result": {
+    "ok": {
+     "component": "EXPERIENCE_SENIORITY",
+     "earnedPoints": 13,
+     "availablePoints": 25,
+     "status": "PARTIAL"
+    }
+   }
+  },
+  {
+   "input": [],
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "invalid persisted match component"
+    }
+   }
+  },
+  {
+   "input": null,
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "invalid persisted match component"
+    }
+   }
+  },
+  {
+   "input": "TECHNICAL",
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "invalid persisted match component"
+    }
+   }
+  }
+ ],
+ "evidence": [
+  {
+   "input": {
+    "component": "TECHNICAL",
+    "status": "MATCH",
+    "sourceType": "normalized_skill",
+    "fact": " java ",
+    "outcomeChangingDefect": false
+   },
+   "result": {
+    "ok": {
+     "component": "TECHNICAL",
+     "status": "MATCH",
+     "sourceType": "normalized_skill",
+     "fact": "java",
+     "outcomeChangingDefect": false
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "TECHNICAL",
+    "status": "MATCH",
+    "sourceType": "normalized_skill",
+    "fact": "Java"
+   },
+   "result": {
+    "ok": {
+     "component": "TECHNICAL",
+     "status": "MATCH",
+     "sourceType": "normalized_skill",
+     "fact": "Java",
+     "outcomeChangingDefect": false
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "TECHNICAL",
+    "status": "MATCH",
+    "sourceType": "normalized_skill",
+    "fact": "secret"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "fact must be a normalized privacy-safe skill"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "TECHNICAL",
+    "status": "MATCH",
+    "sourceType": "normalized_skill",
+    "fact": "email@example.test"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "fact must be a normalized privacy-safe skill"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "TECHNICAL",
+    "status": "MISMATCH",
+    "sourceType": "normalized_skill",
+    "fact": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "fact must be a normalized privacy-safe skill"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "TECHNICAL",
+    "status": "MISMATCH",
+    "sourceType": "normalized_skill",
+    "fact": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+   },
+   "result": {
+    "ok": {
+     "component": "TECHNICAL",
+     "status": "MISMATCH",
+     "sourceType": "normalized_skill",
+     "fact": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "outcomeChangingDefect": false
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "EXPERIENCE_SENIORITY",
+    "status": "PARTIAL",
+    "sourceType": "experience_dates",
+    "fact": "profile contains dated experience",
+    "outcomeChangingDefect": false
+   },
+   "result": {
+    "ok": {
+     "component": "EXPERIENCE_SENIORITY",
+     "status": "PARTIAL",
+     "sourceType": "experience_dates",
+     "fact": "profile contains dated experience",
+     "outcomeChangingDefect": false
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "EXPERIENCE_SENIORITY",
+    "status": "PARTIAL",
+    "sourceType": "notes",
+    "fact": "reviewed by hand",
+    "outcomeChangingDefect": true
+   },
+   "result": {
+    "ok": {
+     "component": "EXPERIENCE_SENIORITY",
+     "status": "PARTIAL",
+     "sourceType": "notes",
+     "fact": "reviewed by hand",
+     "outcomeChangingDefect": true
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "notes",
+    "fact": ""
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "fact must be normalized privacy-safe text"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "notes",
+    "fact": "   "
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "fact must be normalized privacy-safe text"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "notes",
+    "fact": "line\nbreak"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "fact must be normalized privacy-safe text"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "notes",
+    "fact": "carriage\rreturn"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "fact must be normalized privacy-safe text"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "notes",
+    "fact": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "result": {
+    "ok": {
+     "component": "DOMAIN",
+     "status": "UNKNOWN",
+     "sourceType": "notes",
+     "fact": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "outcomeChangingDefect": false
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "notes",
+    "fact": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "fact must be normalized privacy-safe text"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "notes",
+    "fact": "\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "fact must be normalized privacy-safe text"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "notes",
+    "fact": "\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00"
+   },
+   "result": {
+    "ok": {
+     "component": "DOMAIN",
+     "status": "UNKNOWN",
+     "sourceType": "notes",
+     "fact": "\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00\ud83d\ude00",
+     "outcomeChangingDefect": false
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "notes",
+    "fact": "contact the hiring team"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "fact must be normalized privacy-safe text"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "notes",
+    "fact": "visit example.com"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "fact must be normalized privacy-safe text"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "notes",
+    "fact": "reasoning trace kept"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "fact must be normalized privacy-safe text"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "notes",
+    "fact": "call +355 123456789"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "fact must be normalized privacy-safe text"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "notes",
+    "fact": 5
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "fact must be normalized privacy-safe text"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": 5,
+    "fact": "text"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "sourceType must be a normalized safe label"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "api-key",
+    "fact": "text"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "sourceType must be a normalized safe label"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": " notes ",
+    "fact": "text"
+   },
+   "result": {
+    "ok": {
+     "component": "DOMAIN",
+     "status": "UNKNOWN",
+     "sourceType": "notes",
+     "fact": "text",
+     "outcomeChangingDefect": false
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "notes\u00a0",
+    "fact": "text"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "sourceType must be a normalized safe label"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "_notes",
+    "fact": "text"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "sourceType must be a normalized safe label"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "notes",
+    "fact": "text",
+    "outcomeChangingDefect": "yes"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "invalid persisted match evidence"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "notes",
+    "fact": "text",
+    "outcomeChangingDefect": 1
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "invalid persisted match evidence"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "notes",
+    "fact": "text",
+    "extra": "x"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "invalid persisted match evidence"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "NOPE",
+    "status": "UNKNOWN",
+    "sourceType": "notes",
+    "fact": "text"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "invalid persisted match evidence"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "NOPE",
+    "sourceType": "notes",
+    "fact": "text"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "invalid persisted match evidence"
+    }
+   }
+  },
+  {
+   "input": {
+    "component": "DOMAIN",
+    "status": "UNKNOWN",
+    "sourceType": "notes"
+   },
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "fact must be normalized privacy-safe text"
+    }
+   }
+  },
+  {
+   "input": [],
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "invalid persisted match evidence"
+    }
+   }
+  },
+  {
+   "input": null,
+   "result": {
+    "error": {
+     "kind": "DomainValue",
+     "message": "invalid persisted match evidence"
+    }
+   }
+  }
+ ]
+}

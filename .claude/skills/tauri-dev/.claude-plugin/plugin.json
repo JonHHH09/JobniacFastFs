@@ -1,0 +1,9 @@
+{
+  "name": "tauri-dev",
+  "version": "0.1.0",
+  "description": "Tauri 2 development skills grounded in local copies of the official v2.tauri.app docs: architecture, IPC, security, develop, testing, plugin development, official plugins, distribution.",
+  "author": {
+    "name": "JonHHH09"
+  },
+  "keywords": ["tauri", "rust", "desktop"]
+}

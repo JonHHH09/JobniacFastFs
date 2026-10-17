@@ -1,0 +1,3376 @@
+{
+ "format": 1,
+ "notes": [
+  "Synthetic inputs only. No database, no network, no personal data.",
+  "Lone surrogates are excluded."
+ ],
+ "cases": [
+  {
+   "value": "",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "java",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "c++",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "node.js",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "a",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "AbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAbAb",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "1password",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "_x",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "x@y",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "localhost",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "Localhost",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "localhost2",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "my localhost",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "127.0.0.1",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "x127.0.0.1",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "127.0.0.x",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "10.2.3.4",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "110.2.3.4",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "192.168.2.1",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "192.168.2",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "172.16.0.1",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "172.31.0.1",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "172.32.0.1",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "172.15.0.1",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "172.2.0.1",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "172.20.0.1",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "172.3.0.1",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "http://example.invalid",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "https:/x",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "://x",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "prompt",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "PROMPTS",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "prompt-x",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "chain of thought",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "chain_of_thought",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "Chain-Of-Thought",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "chainofthought",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "chain of  thought",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "reasoning trace",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "reasoning  trace",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "reasoning",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "resume",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "curriculum vitae",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "contact",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "address",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "phone",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "password",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "secret",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "secrets",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "api key",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "api_key",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "api-key",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "apikey",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "api kex",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "access token",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "access-token",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "accesstoken",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "bearer",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "bearers",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "example.com",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "example.community",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "a.b.io",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "a.b.io-x",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "a.b.iox",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "x.test",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "x.testing",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "x.local.",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "ex-ample.org",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "a..com",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": ".com",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "com",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "build.example.internal",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "+355 123456789",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "355 123456789",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "1234567",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "12345678",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "123456789",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "(555) 123-4567",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "555-123-4567",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "1 2 3 4 5 6 7 8",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "Stra\u00dfe",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "\u00fcnicode",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "\u00a0java",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "java\u00a0",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "java\t",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "#c",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "c#",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "skill-07",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "x y",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "555172localhost.",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "key",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "curriculum.",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": ":9+",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "127promptprompt555reasoningvitae",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "x)10#x",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "secretlocal",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "31",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": ")comresumesecret",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "::apiaddress",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "16)com",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "a168keylocalphonekey",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "localhostthoughtthoughtlocalhost9reasoning",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "io.curriculum10accessz ",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "access#phonereasoningaddress(password",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": ")",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "31/+ 123 16",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "resumetracecontact:passwordchainvitae",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "api31",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "of",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "prompttestcurriculum168-bearera",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "@",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "(a.9secrettest",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "\u00a0",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "thoughtxa.",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "secret()addressxof",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "accessthought",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "a ",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": ")@curriculum10@example",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "x(vitaesecret",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "bearerphoneio(io127",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "thoughtchain:local.",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "token",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "secretpasswordcontact",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "reasoningaccess9phoneexample",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "-bearer_127local16",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "192172",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "resume/()trace- 123 reasoning",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": ".localhost+-555testcurriculum",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "B9apassword+",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "curriculum:",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "address172.a168secretphone",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "password192accesskey:",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "168",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "resumeB",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "@of9\u00a0",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "9192curriculum",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "test(@_",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "+curriculum:z",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "chainB",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "bearer)contact:168\u00e9com",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "127",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "B9ioxaddress",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "_()172",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "localtrace#curriculumio",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": ".bearer-passwordaccessbearerio",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "Bz",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "api192",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "#-resume)(16",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "example)",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "127_example@(",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "chain",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "+prompt@9z",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "localhost127contact",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "-555172\u00a0127(",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "secretaddressthoughtaccessbearer",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": " 123 9bearer)",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "31chain#9reasoningpromptchain",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "tokenvitae@ io-vitae",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "168z",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "\u00a0_)",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": ")access",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "vitae",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "192 ",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "chainBkey",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "31thought access()#",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "31apitrace ",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "passwordx555.",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "#vitae#10z",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "168access-",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "-",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "\u00e9127x19216resumetrace",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "/localioio_contacttrace",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "access192(a-(",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "comsecret)127910",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "iocurriculum",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "io curriculumaapi#thought",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "-172com ",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "10secret#16@()",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "\u00a0reasoningpromptcontactreasoningcomio",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "example 123 ()trace",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "secret9trace curriculum555192",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "phone172x",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "B31bearerx",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "resume ",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "password172example9-/com",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "()127password",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "prompt172",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "((tokenresumeztokenchain",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "chain@555z@com9",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": ".bearer",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "apicurriculum127io555passwordthought",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "( (/chain-\u00a0",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "localhost\u00e9)10keysecret",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "comz",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "vitae:phonepromptz",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "contactapilocalhost",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": ")chain0",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "10192BBlocal",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": ")io",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "-172()B19210",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "168exampleB31localpasswordtoken",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "vitae-test172bearer@",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "chain of@:(curriculum",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "192:168",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": ":io#16+",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "curriculum())Bthought",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "31:",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "access\u00a0",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "vitaevitaeabearer(@)",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": ")reasoningcomsecret",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "examplea",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "192",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "curriculumtoken",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "ofofresumevitaekeyresumeio",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "reasoningpasswordapi31password10\u00e9",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "@resumeBthoughtsecret",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "+(",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "10curriculumBaddress0z",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "0/com19216.",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": ".reasoning@:resume",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": " prompt00",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "0.16.address",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "phonea192",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "@()io127curriculumlocalhostcurriculum",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "chainexample@_: 123 ",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "#localhost",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "examplea-192\u00e9",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": ":api+",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "comz31\u00a0tracetoken",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "16(a_",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "\u00e9comcom127.:a",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "reasoning0",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "token/traceresumereasoning)(",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "-:localB192",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "reasoningsecret555+",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "io016thought+",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "127#testchain16555prompt",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "bearerof9resume",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "\u00e9xz",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "api",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "iothought319-",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "ofthoughtcontactkey",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": ":_",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": ")/passwordreasoning",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "+resume@-\u00e9",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "+secret127_token168",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "9xtokenpasswordkeylocalz",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "xsecretpasswordz0555of",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "io-9thought",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "bearer)\u00e9prompt",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "curriculumlocalhostx 123 31resume",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "192()localhost",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "localcontactchain172xprompt",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "curriculum-curriculumof.a",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "172(",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": " 10",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "x#168vitae-0localhost",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "zlocalhost-192",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "contactpassword127",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "example/  123 (168localhost",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "xaddress(zaccesscurriculum)",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "resume 123 +of",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "(contactcom #key",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": " 127",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "tokenkey@contactreasoning192",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "9+addresstrace31",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "contactexamplex#",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "io(acurriculumioreasoning",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "++reasoning127@@",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "xof",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "555172",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "-bearer192-",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "tokentestz9",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "curriculum/)",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "addressz_555reasoningapi_",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": ")access(",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "akeytestexamplechain",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "0:",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "17231-555password",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "example()",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "9127access",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "reasoning16 100",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "vitae#accessofkeysecret",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "127bearerexampleresumeexample ",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "\u00a0trace.bearerbearer",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "local172vitae",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": ")#resume1729",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "access",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "exampletrace",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": " 123 (resumetoken192",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "z1270resumeprompt10key",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "promptsecretchainio127",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "#31",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "B():a",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "10-phone",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "()#thoughtof31apireasoning",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "-168oftesta",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "chain.9api16\u00a0z",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "31com@16promptapi",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "trace",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "-9#curriculum",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "passwordthoughtpassword-x",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "keycurriculum192",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "\u00a010 tracereasoningzpassword",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "()",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "555@16",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "chain9secretphone\u00e9x127",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "._testtrace172",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "phone16prompt@curriculum",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "chain10Bprompt#172",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "xaddress127secretphonethoughttest",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "keypassword",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "Btokenpasswordexample",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "\u00a0127password0",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "z_\u00e9apicurriculumvitae",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "zx",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "172tokenaccess1721729local",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "chain 123 )",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "16816-thought localhost10",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "secret()#chain)-168",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "secretz168-resumechain",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "()-accessreasoning",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "0x",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "192thought+#9",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "0curriculum",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "bearer#@31/reasoning",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "zsecretresumetraceexample10-",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "#-testthoughtBaddress",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": " 123 bearercomthought",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": " 123 ",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "of172password()com()",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "contact@resume",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "chaincontactvitae /",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "com 123 ",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "16io",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "secret_key",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "#chain#",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "/",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "key)io10reasoningresumephone",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "a1055510-555",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "//\u00a0ofcomaccess",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "password/",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "prompttoken",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "io",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": " 123 #10keyvitae)/",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "localhost168",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "vitae com",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "16\u00e9()chaincurriculum127",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "//chainphone",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "::+localhosttokenkey",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "@zaccessthought",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "test192-",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "access\u00e9@thought",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "_accesstoken9/(",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "-keysecret168localhost",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "9 123 example-16",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "test)password127",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "test127vitaebearerpassword",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "exampleof127io",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "172access\u00e9-555.address",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "31exampletracecurriculumxcontact",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "168key9api",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "promptphonepromptresume127chain",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "io555_trace_",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "-Btoken#",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": " 123 aio",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "bearer31com555password168",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "contactlocalhost",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "/password",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "x-apia",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "thought 123  123 phone",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "+reasoning:)",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "chain172io10phone",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "ofresumecurriculum16",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "555555local0",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "curriculum(  testzx",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "io\u00a0bearercontact",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "B0Bprompt_172resume",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "()key31vitaea_localhost",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "@test@\u00a0resumecontactcom",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "_",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "@16",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "1616reasoning 123 ",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "555",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "resume31localhost",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "test(localhostcurriculumB",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "com+168",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "ofbearer:@contact",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "addresstrace",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "apitoken+",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "contact99172",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "localhostapia\u00a0_reasoning",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "curriculum))10",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "vitae-tracetokenaddress",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "ofcom",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "19231accesslocalzio",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "com\u00e9",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "tokena-@",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "#ioiotrace",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "test127.iothoughtphoneaccess",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": ".()password",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "curriculumzreasoning172",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "10",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "- 123 -com",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "\u00e9key",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "io\u00e9.127curriculum16",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "key_curriculum\u00e9192()",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "168 123 secret",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "accessx#10api(",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "a192address()10",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": ":555token192",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "ax trace@#",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "vitaeaddress",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "bearertestlocalhost",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "555127z168+",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "example\u00a0)",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "@--\u00a0",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "secretreasoning",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "B.",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "x127chaincurriculum",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "api@ofofx127\u00a0",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "iotrace0reasoningcom",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "address/x",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "z/Baccessapi\u00e9",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "key16example@",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "/address16thought#",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "reasoningz",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": ")#0resume(192",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": ".address",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": ".curriculum",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "apia16555192/",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "555B31",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "prompt 123 phone31B10prompt",
+   "safeSkill": true,
+   "sensitiveSkill": true,
+   "safeLabel": true,
+   "sensitiveText": true
+  },
+  {
+   "value": "B.promptB+tokenlocal",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "address_+a9localhostchain",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "apicurriculumkeyio",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "contactchainexamplesecret-",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "-0reasoningpasswordexample168:",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "0tokenthought172\u00a0+",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "password(-tracea@",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": ".reasoning",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": " phoneexamplea\u00e9@contact",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "prompt127chain.secretlocal",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": " 123 tokenlocalsecretBkeyB",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "-phoneapi192chain",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": ".",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "#reasoningaddress",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "192555prompt",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "password172",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "\u00a0addressa",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "@passwordlocalhost/vitae555172",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "test31xresumeexample",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "address+168reasoning()\u00e9",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "bearerbearer",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": " ",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "secret192secretxphone",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "0172phone/31",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "1631vitaetoken-",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "token172B:trace-555",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "reasoningresume0thought()",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "+0#127phone",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "168127test\u00e9localhost",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "promptresume()trace10( ",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "..@contactapi",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "localhostlocalhostvitae319",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "comlocalhost",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "168 123 a#",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": " 123 examplelocal@local",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "z",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "io+password1729\u00e9api",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "secretaccess",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "tracepassword31access\u00e9_",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "1720chainexample",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  },
+  {
+   "value": "-\u00a0xtraceB@()",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "()examplethought:resume",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": ":example()10traceaddresskey",
+   "safeSkill": false,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "com/reasoning172",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": false,
+   "sensitiveText": false
+  },
+  {
+   "value": "172thought@localhostphone127prompt",
+   "safeSkill": false,
+   "sensitiveSkill": true,
+   "safeLabel": false,
+   "sensitiveText": true
+  },
+  {
+   "value": "0",
+   "safeSkill": true,
+   "sensitiveSkill": false,
+   "safeLabel": true,
+   "sensitiveText": false
+  }
+ ]
+}
