@@ -177,11 +177,14 @@ pub fn request(
     })
 }
 
+/// One stored posting: field key, term and weight.
+pub type Posting = (String, String, i16);
+
 /// Reads `(field_key, term, weight)` postings of one profile, ordered by field key and term.
 pub fn postings(
     connection: &Connection,
     profile_id: uuid::Uuid,
-) -> Result<Vec<(String, String, i16)>, Box<dyn Error + Send + Sync>> {
+) -> Result<Vec<Posting>, Box<dyn Error + Send + Sync>> {
     let mut statement = connection.prepare(
         "SELECT field_key, term, weight FROM profile_search_terms \
          WHERE profile_id = ?1 ORDER BY field_key, term",
@@ -193,12 +196,7 @@ pub fn postings(
 }
 
 /// True when `postings` holds the exact `(field_key, term, weight)` triple.
-pub fn has_posting(
-    postings: &[(String, String, i16)],
-    field_key: &str,
-    term: &str,
-    weight: i16,
-) -> bool {
+pub fn has_posting(postings: &[Posting], field_key: &str, term: &str, weight: i16) -> bool {
     postings
         .iter()
         .any(|(key, value, found)| key == field_key && value == term && *found == weight)
