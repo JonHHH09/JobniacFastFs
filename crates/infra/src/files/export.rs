@@ -76,6 +76,7 @@ pub fn create_private_directory(path: &Path) -> std::io::Result<()> {
 }
 
 /// The internal failure. `Refused` leaves no name; `Published` means the link or rename succeeded.
+#[derive(Debug)]
 enum Failure {
     Refused,
     Published,
