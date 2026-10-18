@@ -8,9 +8,11 @@
 pub mod artifacts;
 pub mod cleanup;
 pub mod codec;
+pub mod deletion;
 pub mod documents;
 pub mod error;
 pub mod generated;
+pub mod german;
 pub mod health;
 pub mod jobs;
 pub mod location;
