@@ -9,14 +9,26 @@
 //!   reuse, bounded by a semaphore. A read-only scope takes one for its snapshot.
 //!
 //! Pragmas applied to every connection: `foreign_keys=ON`, `busy_timeout=10000` (the old
-//! `lock_timeout`), `synchronous=NORMAL`; the writer also switches the file to `journal_mode=WAL`
-//! (a persistent property of the database file).
+//! `lock_timeout`), `synchronous=FULL` (a generated file on disk must not outlive the intent that
+//! committed it, so a commit is durable across power loss); the writer also switches the file to
+//! `journal_mode=WAL` (a persistent property of the database file).
+//!
+//! The writer is opened in this order: refuse a foreign file (another `application_id`, tables
+//! without Jobniac history, a foreign `user_version`) on a plain read-only connection, before any
+//! persistent pragma; create the file owner-only (see [`crate::sqlite::location`]); switch to WAL
+//! only when the file is not in WAL mode yet, retrying `SQLITE_BUSY` for a bounded time (the
+//! engine answers that pragma with BUSY at once, ignoring `busy_timeout`, when another process is
+//! converting the same new file); and run `PRAGMA quick_check` once. The health probe does not
+//! repeat the check.
 //!
 //! A caller waits at most [`DEFAULT_ACQUIRE_TIMEOUT`] for a free connection; then the database is
-//! reported unavailable. A connection is returned to the pool only by its release (crate-internal),
-//! after the owning transaction ended. A reader that was dropped without release (for example
-//! because its future was cancelled) is closed, which rolls back its transaction. A writer that
-//! was dropped inside a transaction is rolled back by the next acquire.
+//! reported unavailable. The wait is derived from the longest a holder of the writer can legitimately
+//! spend in the engine (see [`writer_hold_bound`]), so a queued writer is not refused while the
+//! holder is still waiting for the file lock. A connection is returned to the pool only by its
+//! release (crate-internal), after the owning transaction ended. A reader that was dropped without
+//! release (for example because its future was cancelled) is closed, which rolls back its
+//! transaction. A writer lease that is dropped inside a transaction rolls it back in `drop`, so the
+//! write lock of the file is gone as soon as the cancelled future is.
 //!
 //! Opening and the first use of a reader run blocking file I/O: call [`SqlitePool::open`] from
 //! startup code, not from an async worker without [`crate::blocking::run_blocking`].
@@ -25,14 +37,16 @@ use std::fmt;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
-use rusqlite::{Connection, OpenFlags};
+use rusqlite::{Connection, ErrorCode, OpenFlags};
 use tokio::sync::{OwnedMutexGuard, OwnedSemaphorePermit, Semaphore};
 
 use crate::blocking::run_blocking;
 use crate::sqlite::error::SqliteError;
-use crate::sqlite::health::check_engine_version;
+use crate::sqlite::health::{check_engine_version, quick_check};
+use crate::sqlite::location::secure_database_file;
+use crate::sqlite::migrations::foreign_reason;
 
 /// `busy_timeout` of application connections.
 pub const BUSY_TIMEOUT: Duration = Duration::from_secs(10);
@@ -40,16 +54,44 @@ pub const BUSY_TIMEOUT: Duration = Duration::from_secs(10);
 /// Default number of reader connections.
 pub const DEFAULT_READERS: usize = 3;
 
-/// How long [`SqlitePool::acquire`] waits for a free connection before it reports the database
-/// unavailable.
-pub const DEFAULT_ACQUIRE_TIMEOUT: Duration = Duration::from_secs(5);
-
 /// How often the unit of work retries `BEGIN` or `COMMIT` after `SQLITE_BUSY` (on top of the
 /// engine's own `busy_timeout` wait per attempt).
 pub const DEFAULT_BUSY_RETRIES: u32 = 2;
 
 /// Pause between two busy retries.
 pub const DEFAULT_BUSY_RETRY_DELAY: Duration = Duration::from_millis(50);
+
+/// The longest a holder of the writer can legitimately spend waiting on the file lock: `BEGIN` and
+/// `COMMIT` each take up to `busy_timeout` per attempt, for the first attempt and every retry,
+/// with a pause before each retry.
+pub const fn writer_hold_bound(
+    busy_timeout: Duration,
+    busy_retries: u32,
+    busy_retry_delay: Duration,
+) -> Duration {
+    let attempts = busy_retries.saturating_add(1);
+    let one_statement = busy_timeout
+        .saturating_mul(attempts)
+        .saturating_add(busy_retry_delay.saturating_mul(busy_retries));
+    one_statement.saturating_mul(2)
+}
+
+/// Extra wait on top of [`writer_hold_bound`] for the holder's own work between `BEGIN` and
+/// `COMMIT`.
+const ACQUIRE_MARGIN: Duration = Duration::from_secs(5);
+
+/// How long [`SqlitePool::acquire`] waits for a free connection before it reports the database
+/// unavailable: at least the longest a writer holder can legitimately take, so one constant
+/// ([`BUSY_TIMEOUT`] with the retry settings) sets both.
+pub const DEFAULT_ACQUIRE_TIMEOUT: Duration =
+    writer_hold_bound(BUSY_TIMEOUT, DEFAULT_BUSY_RETRIES, DEFAULT_BUSY_RETRY_DELAY)
+        .saturating_add(ACQUIRE_MARGIN);
+
+/// Pause between two attempts to switch a new file to WAL while another process holds it.
+const WAL_RETRY_DELAY: Duration = Duration::from_millis(50);
+
+/// Total time spent retrying the WAL switch.
+const WAL_RETRY_BUDGET: Duration = Duration::from_secs(5);
 
 /// Prepared statements cached per connection.
 const STATEMENT_CACHE: usize = 64;
@@ -67,6 +109,13 @@ pub struct PoolOptions {
     pub busy_retries: u32,
     /// Pause between busy retries.
     pub busy_retry_delay: Duration,
+}
+
+impl PoolOptions {
+    /// The longest a writer holder can wait on the file lock with these limits.
+    pub const fn writer_hold_bound(&self) -> Duration {
+        writer_hold_bound(self.busy_timeout, self.busy_retries, self.busy_retry_delay)
+    }
 }
 
 impl Default for PoolOptions {
@@ -106,7 +155,7 @@ impl Conn {
 
 struct Target {
     path: PathBuf,
-    writer: Arc<tokio::sync::Mutex<Conn>>,
+    writer: Arc<tokio::sync::Mutex<WriterConn>>,
     reader_permits: Arc<Semaphore>,
     idle_readers: Mutex<Vec<Conn>>,
     max_idle: usize,
@@ -166,7 +215,7 @@ impl SqlitePool {
         let readers = options.readers.max(1);
         let target = Target {
             path,
-            writer: Arc::new(tokio::sync::Mutex::new(writer)),
+            writer: Arc::new(tokio::sync::Mutex::new(WriterConn(writer))),
             reader_permits: Arc::new(Semaphore::new(readers)),
             idle_readers: Mutex::new(Vec::new()),
             max_idle: readers,
@@ -234,13 +283,7 @@ impl SqlitePool {
             let guard = tokio::time::timeout(timeout, Arc::clone(&target.writer).lock_owned())
                 .await
                 .map_err(|_| SqliteError::Unavailable)?;
-            // A scope whose future was cancelled left its transaction open on the writer.
-            guard.with(|connection| {
-                if !connection.is_autocommit() {
-                    let _ = connection.execute_batch("ROLLBACK");
-                }
-            });
-            Lease::Writer(guard)
+            Lease::Writer(WriterLease(guard))
         };
         Ok(PooledConnection {
             lease,
@@ -278,8 +321,39 @@ impl Target {
     }
 }
 
+/// The writer connection. Dropping its guard (a released lease, or a scope whose future was
+/// cancelled) leaves no transaction behind: a still-open one is rolled back here, so the file's
+/// write lock is released with the lease and no other writer waits for it.
+struct WriterConn(Conn);
+
+impl WriterConn {
+    fn with<R>(&self, work: impl FnOnce(&Connection) -> R) -> R {
+        self.0.with(work)
+    }
+
+    fn roll_back_open_transaction(&self) {
+        // Drop must not panic: a failed ROLLBACK is ignored (the connection is then reset by the
+        // engine when it is closed) and a poisoned lock still yields the connection.
+        self.0.with(|connection| {
+            if !connection.is_autocommit() {
+                let _ = connection.execute_batch("ROLLBACK");
+            }
+        });
+    }
+}
+
+/// The lease on the writer: the mutex guard, whose release rolls back an open transaction.
+struct WriterLease(OwnedMutexGuard<WriterConn>);
+
+impl Drop for WriterLease {
+    fn drop(&mut self) {
+        // The connection is still locked by this guard, so no other scope can interleave.
+        self.0.roll_back_open_transaction();
+    }
+}
+
 enum Lease {
-    Writer(OwnedMutexGuard<Conn>),
+    Writer(WriterLease),
     Reader {
         conn: Conn,
         permit: OwnedSemaphorePermit,
@@ -312,7 +386,7 @@ impl PooledConnection {
     /// Run `work` on the connection.
     pub fn with<R>(&self, work: impl FnOnce(&Connection) -> R) -> R {
         match &self.lease {
-            Lease::Writer(guard) => guard.with(work),
+            Lease::Writer(lease) => lease.0.with(work),
             Lease::Reader { conn, .. } => conn.with(work),
         }
     }
@@ -322,7 +396,7 @@ impl PooledConnection {
     pub(crate) fn release(self, reusable: bool) {
         let Self { lease, shared } = self;
         match lease {
-            Lease::Writer(guard) => drop(guard),
+            Lease::Writer(lease) => drop(lease),
             Lease::Reader { conn, permit } => {
                 if let Some(target) = shared.target.as_ref() {
                     let mut idle = target.lock_idle();
@@ -348,27 +422,78 @@ fn configure(
 ) -> Result<(), SqliteError> {
     connection.busy_timeout(options.busy_timeout)?;
     if writer {
-        let mode: String =
-            connection.pragma_update_and_check(None, "journal_mode", "WAL", |row| row.get(0))?;
-        if !mode.eq_ignore_ascii_case("wal") {
-            return Err(SqliteError::Unavailable);
-        }
+        enable_wal(connection)?;
     }
-    connection.pragma_update(None, "synchronous", "NORMAL")?;
+    connection.pragma_update(None, "synchronous", "FULL")?;
     connection.pragma_update(None, "foreign_keys", "ON")?;
     connection.set_prepared_statement_cache_capacity(STATEMENT_CACHE);
     Ok(())
 }
 
+/// Put the file in WAL mode unless it already is.
+///
+/// Reading the mode needs no write lock. The switch answers `SQLITE_BUSY` at once, without waiting
+/// for `busy_timeout`, when another process holds the file (two processes starting on the same new
+/// file), so it is retried every [`WAL_RETRY_DELAY`] for up to [`WAL_RETRY_BUDGET`].
+fn enable_wal(connection: &Connection) -> Result<(), SqliteError> {
+    let current = |connection: &Connection| -> Result<bool, SqliteError> {
+        let mode: String = connection.pragma_query_value(None, "journal_mode", |row| row.get(0))?;
+        Ok(mode.eq_ignore_ascii_case("wal"))
+    };
+    if current(connection)? {
+        return Ok(());
+    }
+    let started = Instant::now();
+    loop {
+        let switched: rusqlite::Result<String> =
+            connection.pragma_update_and_check(None, "journal_mode", "WAL", |row| row.get(0));
+        match switched {
+            Ok(mode) if mode.eq_ignore_ascii_case("wal") => return Ok(()),
+            // The other process finished its switch first, or the mode is still unchanged.
+            Ok(_) if current(connection)? => return Ok(()),
+            Ok(_) => {}
+            Err(rusqlite::Error::SqliteFailure(failure, _))
+                if matches!(
+                    failure.code,
+                    ErrorCode::DatabaseBusy | ErrorCode::DatabaseLocked
+                ) => {}
+            Err(error) => return Err(error.into()),
+        }
+        if started.elapsed() >= WAL_RETRY_BUDGET {
+            return Err(SqliteError::Unavailable);
+        }
+        std::thread::sleep(WAL_RETRY_DELAY);
+    }
+}
+
+/// Refuse a file that exists and is not a Jobniac database, before any persistent change (journal
+/// mode, permissions) touches it. A missing file, an empty one and a Jobniac one pass.
+fn refuse_foreign(path: &Path) -> Result<(), SqliteError> {
+    match foreign_reason(path) {
+        Ok(None) => Ok(()),
+        Ok(Some(_)) | Err(_) => Err(SqliteError::Unavailable),
+    }
+}
+
 /// Open the writer: read-write, created when missing, in WAL mode. The file name is never read as
 /// a URI.
 fn open_writer(path: &Path, options: &PoolOptions) -> Result<Conn, SqliteError> {
+    let connection = open_read_write(path, options)?;
+    quick_check(&connection)?;
+    Ok(Conn::new(connection))
+}
+
+/// The read-write open shared by the writer and the one-shot tasks: foreign files are refused, the
+/// file is created owner-only, then the pragmas (WAL included) are applied.
+fn open_read_write(path: &Path, options: &PoolOptions) -> Result<Connection, SqliteError> {
+    refuse_foreign(path)?;
+    secure_database_file(path).map_err(|_| SqliteError::Unavailable)?;
     let flags = OpenFlags::SQLITE_OPEN_READ_WRITE
         | OpenFlags::SQLITE_OPEN_CREATE
         | OpenFlags::SQLITE_OPEN_NO_MUTEX;
     let connection = Connection::open_with_flags(path, flags)?;
     configure(&connection, options, true)?;
-    Ok(Conn::new(connection))
+    Ok(connection)
 }
 
 /// Open a reader: read-only, so a write in a read-only scope fails in the engine.
@@ -391,15 +516,12 @@ pub(crate) fn open_standalone(
         busy_timeout,
         ..PoolOptions::default()
     };
-    let flags = if read_only {
-        OpenFlags::SQLITE_OPEN_READ_ONLY | OpenFlags::SQLITE_OPEN_NO_MUTEX
-    } else {
-        OpenFlags::SQLITE_OPEN_READ_WRITE
-            | OpenFlags::SQLITE_OPEN_CREATE
-            | OpenFlags::SQLITE_OPEN_NO_MUTEX
-    };
+    if !read_only {
+        return open_read_write(path, &options);
+    }
+    let flags = OpenFlags::SQLITE_OPEN_READ_ONLY | OpenFlags::SQLITE_OPEN_NO_MUTEX;
     let connection = Connection::open_with_flags(path, flags)?;
-    configure(&connection, &options, !read_only)?;
+    configure(&connection, &options, false)?;
     Ok(connection)
 }
 
@@ -452,7 +574,7 @@ mod tests {
         })?;
         assert_eq!(mode, "wal");
         assert_eq!(keys, 1);
-        assert_eq!(sync, 1, "NORMAL");
+        assert_eq!(sync, 2, "FULL");
         assert_eq!(busy, 10_000);
         Ok(())
     }
@@ -494,6 +616,15 @@ mod tests {
         first.release(true);
         pool.acquire(false).await?.release(true);
         Ok(())
+    }
+
+    #[test]
+    fn the_default_acquire_wait_covers_the_longest_writer_hold() {
+        let options = PoolOptions::default();
+        // BEGIN and COMMIT, each up to three busy_timeout waits plus the pauses.
+        assert!(options.writer_hold_bound() >= Duration::from_secs(60));
+        assert!(options.acquire_timeout >= options.writer_hold_bound());
+        assert_eq!(options.acquire_timeout, DEFAULT_ACQUIRE_TIMEOUT);
     }
 
     #[tokio::test]

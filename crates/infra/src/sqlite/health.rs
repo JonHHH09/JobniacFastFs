@@ -1,8 +1,9 @@
 //! Sanitized, read-only SQLite readiness probe.
 //!
-//! The probe checks the bundled engine version, runs `SELECT 1` and `PRAGMA quick_check` on a
-//! short-lived read-only connection. It never returns or logs error text; it reports only an
-//! [`ErrorCategory`].
+//! The probe checks the bundled engine version, runs `SELECT 1` and reads the schema table on a
+//! short-lived read-only connection (the read fails on a file that is not a database). It is cheap
+//! enough to run on every health call: the full `PRAGMA quick_check` runs once when the pool is
+//! opened. It never returns or logs error text; it reports only an [`ErrorCategory`].
 
 use std::path::PathBuf;
 use std::time::Duration;
@@ -35,7 +36,7 @@ pub fn check_engine_version() -> Result<(), SqliteError> {
     }
 }
 
-/// Run `PRAGMA quick_check` and accept only the single answer `ok`.
+/// Run `PRAGMA quick_check` (once, when the pool opens) and accept only the single answer `ok`.
 ///
 /// The failure never carries the engine's report, which can name tables and pages.
 ///
@@ -109,7 +110,13 @@ fn run_probe(path: &std::path::Path) -> Result<(), ErrorCategory> {
     if one != 1 {
         return Err(ErrorCategory::QueryFailed);
     }
-    quick_check(&connection).map_err(|error| categorize(&error))
+    // Reads the first page: a damaged header or a file that is not a database fails here.
+    connection
+        .query_row("SELECT count(*) FROM sqlite_master", [], |row| {
+            row.get::<_, i64>(0)
+        })
+        .map(|_| ())
+        .map_err(|error| categorize(&SqliteError::from(error)))
 }
 
 /// The category of a failure, without keeping its text: a lock wait that ran out is a timeout, an

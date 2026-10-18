@@ -68,7 +68,9 @@ const CLEANUP_UNAVAILABLE: &str =
 /// prints nothing in any mode.
 const INTERRUPTED: u8 = 130;
 
-/// Apply pending schema migrations: the only command that writes the schema.
+/// Apply pending schema migrations on demand. Every start of the app, the CLI modes that open the
+/// database and the MCP server migrates too, so this command is for running the step on its own
+/// (and for the explicit report of what was applied).
 pub fn run_migrate() -> ExitCode {
     let env = jobniac_runtime::process_environment();
     let Some(path) = database_path(&env) else {

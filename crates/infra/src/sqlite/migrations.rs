@@ -3,13 +3,18 @@
 //! The packaged `V<NNNN>__<description>.sql` files (under `sql/sqlite/`) are applied in version
 //! order, each in one `BEGIN IMMEDIATE` transaction together with its history row and the
 //! `PRAGMA user_version` mirror. SQLite DDL is transactional, so a failed migration leaves the file
-//! as it was. Nothing runs implicitly: [`inspect_schema`] only reads, and [`migrate`] is the sole
-//! writer.
+//! as it was. [`inspect_schema`] only reads; [`migrate`] is the only code that changes the schema,
+//! and every application start (desktop, CLI, MCP server) runs it before it opens the pool, so a
+//! database is always brought up to date by whichever process starts first.
 //!
 //! Fail-closed rules, all checked before any write: an applied migration whose packaged checksum
 //! changed, an applied version unknown to this build (a newer database: an older app refuses it
 //! instead of damaging it), a non-contiguous history, a `user_version` that does not match the
 //! history, and a database that holds tables without Jobniac history.
+//!
+//! A file is inspected on a plain read-only connection before any persistent pragma touches it
+//! ([`foreign_reason`]): a foreign SQLite file is refused with its journal mode, permissions and
+//! content unchanged.
 //!
 //! The history table is `schema_migrations`. Concurrent runners (the desktop app and the CLI)
 //! serialize on the write lock: each migration re-reads the history after taking it and skips a
@@ -203,6 +208,11 @@ pub fn inspect_schema(path: Option<&Path>) -> Result<SchemaStatus, MigrationErro
 /// A fail-closed [`MigrationError`] (see the module documentation), or the sanitized failure of a
 /// migration, which leaves earlier migrations committed and the failing one rolled back.
 pub fn migrate(path: &Path) -> Result<Vec<u32>, MigrationError> {
+    match foreign_reason(path) {
+        Ok(None) => {}
+        Ok(Some(message)) => return Err(MigrationError(message.to_owned())),
+        Err(_) => return Err(MigrationError(CONNECTION_FAILED.to_owned())),
+    }
     let mut connection = open_standalone(path, false, MIGRATION_BUSY_TIMEOUT)
         .map_err(|_| MigrationError(CONNECTION_FAILED.to_owned()))?;
     migrate_connection(&mut connection)
@@ -217,9 +227,63 @@ pub fn migrate_connection(connection: &mut Connection) -> Result<Vec<u32>, Migra
     let migrations = packaged_migrations()?;
     match apply_steps(connection, &migrations) {
         Ok(applied) => Ok(applied),
-        Err(Step::Refused(error)) => Err(error),
+        Err(Step::Refused(error)) => {
+            if is_ahead(&error) {
+                // The user-visible text stays the generic unavailable one; the log says why.
+                tracing::warn!(
+                    "the database was written by a newer JobniacFast version; update the \
+                     application to use it"
+                );
+            }
+            Err(error)
+        }
         Err(Step::Database(error)) => Err(failure(&error)),
     }
+}
+
+/// Why the file at `path` is not a Jobniac database, or `None` when it is new, empty or ours.
+///
+/// Reads on a plain read-only connection (no pragma that persists, no write), so a refused file
+/// keeps its journal mode. A missing file passes. The reasons are the fixed refusal texts.
+///
+/// # Errors
+///
+/// The driver error when the file cannot be read as a database.
+pub(crate) fn foreign_reason(path: &Path) -> Result<Option<&'static str>, rusqlite::Error> {
+    if !path.exists() {
+        return Ok(None);
+    }
+    let connection = Connection::open_with_flags(
+        path,
+        rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NO_MUTEX,
+    )?;
+    connection.busy_timeout(MIGRATION_BUSY_TIMEOUT)?;
+    // One read transaction, so another process that bootstraps meanwhile cannot show this
+    // inspection half of its work (history absent, then tables present).
+    connection.execute_batch("BEGIN")?;
+    let reason = foreign_reason_in(&connection)?;
+    connection.execute_batch("COMMIT")?;
+    Ok(reason)
+}
+
+fn foreign_reason_in(connection: &Connection) -> Result<Option<&'static str>, rusqlite::Error> {
+    if !application_id_is_ours(connection)? {
+        return Ok(Some(FOREIGN_APPLICATION_MESSAGE));
+    }
+    if history_exists(connection)? {
+        return Ok(None);
+    }
+    let user_version: i64 =
+        connection.pragma_query_value(None, "user_version", |row| row.get(0))?;
+    if foreign_objects_exist(connection)? || user_version != 0 {
+        return Ok(Some(FOREIGN_MESSAGE));
+    }
+    Ok(None)
+}
+
+/// A refusal because the history holds a version this build does not know (a newer database).
+fn is_ahead(error: &MigrationError) -> bool {
+    error.0.contains("unknown")
 }
 
 /// What the database holds, read before any verification.
@@ -473,7 +537,7 @@ fn classify(snapshot: &Snapshot, migrations: &[Migration]) -> SchemaStatus {
             let checked =
                 verify(rows, migrations).and_then(|()| verify_marker(rows, *user_version));
             if let Err(error) = checked {
-                let state = if error.0.contains("unknown") {
+                let state = if is_ahead(&error) {
                     SchemaState::Ahead
                 } else {
                     SchemaState::Foreign

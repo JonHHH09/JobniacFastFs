@@ -2,9 +2,12 @@
 //!
 //! The location comes from the environment snapshot (`JOBNIAC_DB_PATH` or the per-user default, see
 //! [`jobniac_core::database_location`]). Opening creates the owner-only directory, brings the schema
-//! up to date and opens the connection pool. Every failure is collapsed to `None`: the callers keep
-//! their fixed `Local database is not configured` and health DOWN behaviour, and no message names
-//! a path.
+//! up to date and opens the connection pool, so every start (desktop, CLI, MCP server) migrates; the
+//! `migrate` command is the same step run on its own. Concurrent starters serialize on the write
+//! lock and the second finds nothing to apply. Every failure is collapsed to `None`: the callers
+//! keep their fixed `Local database is not configured` and health DOWN behaviour, and no message
+//! names a path. A database written by a newer version is one such failure; the migration runner
+//! logs one warning for it, without a path.
 
 use std::path::PathBuf;
 

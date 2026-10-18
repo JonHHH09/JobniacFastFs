@@ -51,8 +51,12 @@
 //!
 //! # Cancellation
 //!
-//! Dropping the future of a read-write scope before it completes leaves its transaction open on the
-//! writer; the next acquire rolls it back. Its hooks do not run.
+//! Dropping the future of a read-write scope before it completes drops its connection lease, and
+//! the lease runs a synchronous `ROLLBACK` when the writer is still inside a transaction (see
+//! [`crate::sqlite::pool`]). The write lock of the file is released at once, for the other scopes
+//! of the process and for other processes, and nothing the scope wrote is kept. Its hooks do not
+//! run. A blocking phase ([`crate::blocking::run_blocking`]) is never interrupted by a drop: the
+//! future is only cancelled at an `.await`.
 
 use std::fmt;
 use std::future::Future;
@@ -496,13 +500,17 @@ mod tests {
     }
 
     impl SqlitePool {
-        /// Create the test table on the writer.
+        /// Create the test table. A stub history table keeps the file from being refused as foreign
+        /// when a second pool opens it.
         fn open_schema_for_tests(&self) -> Result<(), SqliteError> {
             let Some(path) = self.path() else {
                 return Err(SqliteError::NotConfigured);
             };
             let connection = Connection::open(path)?;
-            connection.execute_batch("CREATE TABLE t (x INTEGER PRIMARY KEY) STRICT")?;
+            connection.execute_batch(
+                "CREATE TABLE schema_migrations (version INTEGER); \
+                 CREATE TABLE t (x INTEGER PRIMARY KEY) STRICT",
+            )?;
             Ok(())
         }
     }
