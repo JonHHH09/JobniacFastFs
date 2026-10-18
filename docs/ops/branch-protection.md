@@ -35,6 +35,27 @@ Required status checks (named as the jobs are named in the workflows): `Branch p
 requiring them would block every pull request, including the fix. Add them to both rulesets once
 they are green.
 
+### Skipped checks and the passed marker
+
+A required check whose job is skipped counts as passed, so `ci.yml` and `e2e.yml` skip work safely:
+
+- A `Changes` job (`scripts/ci/gate.sh`) path-filters pull requests: a docs-only change skips `UI`,
+  `Rust (...)` and `E2E (...)`; Rust-only changes skip `UI`.
+- `Rust (windows-latest)` and `E2E (windows-latest)` do not run on pull requests, only on pushes to
+  `development` and `main`, on manual runs (`workflow_dispatch`) and, for Rust, on the release call.
+- Every job that is a required check must keep a literal `name:`. Do not turn the Rust or E2E jobs
+  back into a matrix: a skipped matrix job reports its unexpanded name, and the required check would
+  stay pending forever.
+- The gate fails open: every heavy job runs when the `Changes` job did not succeed
+  (`needs.changes.result != 'success'`), because a job skipped behind a failed gate would otherwise
+  count as passed. `PostgreSQL 18 integration` keeps its push and release-call restriction in that case.
+- After a fully green push run, `Mark tree as passed` saves a cache entry `ci-passed-<tree SHA>` (or
+  `e2e-passed-<tree SHA>`). The gate skips the heavy jobs for a tree whose entry exists and was saved
+  by a push to `development` or `main` (pull request caches are never trusted). The promotion pull
+  request, the push to `main` and the release `checks` call therefore skip when the tree is the one
+  that passed on `development`. Entries expire after 7 days without use; a rerun is then full, which is
+  safe.
+
 `PostgreSQL 18 integration` is not listed: it is opt-in on pull requests, so it does not report
 there. It runs on every push to `development` and `main`, and `release.yml` requires it on the
 promotion merge commit.

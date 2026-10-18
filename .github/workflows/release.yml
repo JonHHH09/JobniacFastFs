@@ -34,6 +34,11 @@ jobs:
       && github.event.pull_request.base.ref == 'main'
       && github.event.pull_request.head.repo.full_name == github.repository
     uses: ./.github/workflows/ci.yml
+    # The called workflow cannot hold more than its caller grants: its `changes` job reads the
+    # Actions cache list to find the passed marker of this tree.
+    permissions:
+      contents: read
+      actions: read
     with:
       postgres-required: true
 
