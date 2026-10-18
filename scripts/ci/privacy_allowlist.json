@@ -534,19 +534,19 @@
       "sha256": "da8eebe4cdb43fbcf77e3ad75a354240c6fb273cbf7ddb08f333b28ea07e3f91",
       "classes": ["email"],
       "paths": [".claude/skills/tauri-dev/skills/tauri-security/SKILL.md"],
-      "reason": "Upstream Tauri documentation text: the project security contact address, copied verbatim by the docs sync script. Vendor output, not edited. Owner decision: whether .claude/ is published."
+      "reason": "Upstream Tauri documentation text: the project security contact address, copied verbatim by the docs sync script. Vendor output, not edited. .claude/ is no longer tracked; the entry covers the blob in history."
     },
     {
       "sha256": "b41015ec8c1d5dabc597d27399f0d4695eabac0c2a2983ed0ac12943946c96f1",
       "classes": ["email"],
       "paths": [".claude/skills/tauri-dev/skills/tauri-security/references/overview.md"],
-      "reason": "Upstream Tauri documentation text: the project security contact address, copied verbatim by the docs sync script. Vendor output, not edited. Owner decision: whether .claude/ is published."
+      "reason": "Upstream Tauri documentation text: the project security contact address, copied verbatim by the docs sync script. Vendor output, not edited. .claude/ is no longer tracked; the entry covers the blob in history."
     },
     {
       "sha256": "5f14bfbd276d1997f731cc3c8fd18eb75dd3fc6498eb7b98e215601f7eedffff",
       "classes": ["db-credentials"],
       "paths": [".claude/skills/tauri-dev/skills/tauri-official-plugins/references/sql.md"],
-      "reason": "Upstream plugin documentation example: placeholder credentials in usage snippets. Vendor output, not edited. Owner decision: whether .claude/ is published."
+      "reason": "Upstream plugin documentation example: placeholder credentials in usage snippets. Vendor output, not edited. .claude/ is no longer tracked; the entry covers the blob in history."
     },
     {
       "sha256": "c85971dd244714cd07cc99c99319f34dde7b18c01957bf0a06006bea06607730",

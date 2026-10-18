@@ -750,9 +750,14 @@ mod tests {
 
     use super::*;
 
-    /// A fresh owner-only directory under the system temporary folder.
+    /// A fresh owner-only directory under the system temporary folder, in its final-path form. The
+    /// publication refuses a parent whose text differs from its final path, and `%TEMP%` can be an
+    /// 8.3 alias (`RUNNER~1`) that the final path expands, so the base is canonicalized first.
     fn fresh_dir(label: &str) -> PathBuf {
-        let path = std::env::temp_dir().join(format!(
+        let base = std::fs::canonicalize(std::env::temp_dir()).expect("canonical temp directory");
+        let base = base.to_string_lossy();
+        let base = Path::new(base.strip_prefix(r"\\?\").unwrap_or(&base)).to_path_buf();
+        let path = base.join(format!(
             "jobniac-platform-{label}-{}",
             Uuid::new_v4().simple()
         ));
@@ -889,7 +894,10 @@ mod tests {
     fn partial_writes_are_completed_without_a_named_partial_file() {
         let dir = fresh_dir("partial");
         let (outcome, published) = run(&dir, &ShortWrites, 4096);
-        assert!(matches!(outcome.as_deref(), Ok("selected.pdf")));
+        assert!(
+            matches!(outcome.as_deref(), Ok("selected.pdf")),
+            "{outcome:?}"
+        );
         assert!(published);
         assert_eq!(names_in(&dir), ["selected.pdf"]);
         assert_eq!(
@@ -929,7 +937,7 @@ mod tests {
     fn a_failure_after_the_rename_is_uncertain_and_keeps_the_complete_file() {
         let dir = fresh_dir("uncertain");
         let (outcome, published) = run(&dir, &FailingAfterRename, 64);
-        assert!(matches!(outcome, Err(Failure::Published)));
+        assert!(matches!(outcome, Err(Failure::Published)), "{outcome:?}");
         assert!(published);
         assert_eq!(names_in(&dir), ["selected.pdf"]);
         assert_eq!(
@@ -976,7 +984,7 @@ mod tests {
             assert!(names_in(&moved).is_empty());
             remove(&moved);
         } else {
-            assert!(outcome.is_ok());
+            assert!(outcome.is_ok(), "{outcome:?}");
         }
         remove(&dir);
     }

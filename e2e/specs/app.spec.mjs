@@ -124,6 +124,8 @@ describe("JobniacFast desktop workflows (default session)", function () {
 
   it("3 pastes a job posting and sees it in the saved list", async () => {
     await openSection(browser, "jobs");
+    // The paste panel is hidden until "Add posting" is pressed.
+    await click(browser, "addPostingToggleButton");
     await fill(browser, "jobTextInput", JOB_POSTING);
     await click(browser, "addJobButton");
     await waitForText(browser, "jobSaveStatusLabel", "Job posting saved.");
@@ -137,7 +139,9 @@ describe("JobniacFast desktop workflows (default session)", function () {
       process.env,
     );
     const jobId = queryScalar(
-      "select id from job_schema.jobs where title = 'Senior Rust Engineer'",
+      // A prefix match: a WebDriver that types the newlines as nothing turns the whole posting
+      // into the first line, which becomes the title.
+      "select id from job_schema.jobs where title like 'Senior Rust Engineer%'",
       process.env,
     );
     await openSection(browser, "matching");
