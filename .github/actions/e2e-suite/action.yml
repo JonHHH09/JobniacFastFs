@@ -50,6 +50,9 @@ runs:
       with:
         toolchain: stable
     - uses: swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+      with:
+        # Pull request caches are unreadable by other pull requests and fill the quota.
+        save-if: ${{ github.event_name != 'pull_request' }}
 
     - name: Fetch the pinned PDFium library (Linux)
       if: runner.os == 'Linux'

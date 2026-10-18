@@ -25,8 +25,10 @@ env:
   RELEASE_OUT: release-out
 
 jobs:
-  # 1. Every CI gate on the merge commit, including the PostgreSQL 18 job, which is required here.
-  #    ci.yml declares `workflow_call` with the input `postgres-required`, which makes that job required.
+  # 1. Every CI and E2E gate on the merge commit, including the PostgreSQL 18 job, which is required
+  #    here. ci.yml declares `workflow_call` with the input `postgres-required`, which makes that job
+  #    required; e2e.yml declares `workflow_call` with the input `release-call`. Both skip the work
+  #    when the promotion pull request already passed them on this exact tree.
   checks:
     if: >-
       github.event.pull_request.merged == true
@@ -35,16 +37,33 @@ jobs:
       && github.event.pull_request.head.repo.full_name == github.repository
     uses: ./.github/workflows/ci.yml
     # The called workflow cannot hold more than its caller grants: its `changes` job reads the
-    # Actions cache list to find the passed marker of this tree.
+    # Actions cache list to find the passed marker of this tree, and the pull request that saved it.
     permissions:
       contents: read
       actions: read
+      pull-requests: read
     with:
       postgres-required: true
 
+  # The end-to-end suite on the merge commit, on Linux and Windows, called like `checks`.
+  e2e:
+    if: >-
+      github.event.pull_request.merged == true
+      && github.event.pull_request.head.ref == 'development'
+      && github.event.pull_request.base.ref == 'main'
+      && github.event.pull_request.head.repo.full_name == github.repository
+    uses: ./.github/workflows/e2e.yml
+    # Same reason as `checks`: the called `changes` job reads the Actions cache list.
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    with:
+      release-call: true
+
   # 2. Read-only: checks out MERGE_SHA, asserts HEAD and resolves the version intent.
   prepare:
-    needs: checks
+    needs: [checks, e2e]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
