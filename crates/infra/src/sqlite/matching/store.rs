@@ -1,7 +1,7 @@
 //! Profile and job reads of the pair analysis, the insert-only report store and the report views.
 //!
 //! The SQL uses `?n` binds. Stored instants and the report revisions are fixed-width RFC 3339 text
-//! (see [`crate::sqlite::jobs::codec`]), so equal instants are equal text.
+//! (see [`crate::sqlite::codec`]), so equal instants are equal text.
 
 use std::collections::HashMap;
 
@@ -18,7 +18,7 @@ use super::value::{
     Failure, components_json, corrupted, evidence_json, instant_column, json_array,
     outcome_from_text, outcome_text, run, uuid_column,
 };
-use crate::sqlite::jobs::codec::{instant_text, json_text, uuid_array_text, uuid_text};
+use crate::sqlite::codec::{instant_text, json_text, uuid_array_text, uuid_text};
 use crate::sqlite::unit_of_work::SqliteTransaction;
 
 /// The profile root and whether it has an experience row.

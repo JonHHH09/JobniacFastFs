@@ -12,7 +12,7 @@ use jobniac_core::generated_assets::sha256_hex;
 use rusqlite::{Connection, OptionalExtension, params};
 use uuid::Uuid;
 
-use super::codec::{id, parse_id, parse_ts, ts};
+use crate::sqlite::codec::{instant_text, parse_id, parse_ts, uuid_text};
 use crate::sqlite::error::SqliteError;
 
 /// The upper bound of a stored document, in bytes (10 MiB).
@@ -23,7 +23,7 @@ fn unavailable() -> AppError {
 }
 
 fn stored_instant(text: &str) -> Result<String, AppError> {
-    parse_instant(text).map(ts)
+    parse_instant(text).map(instant_text)
 }
 
 /// Deduplicates a blob by digest and inserts the document reference. The caller owns the
@@ -47,7 +47,7 @@ pub fn save_file(
              VALUES (?1, ?2, ?3, ?4, ?5)
              ON CONFLICT (sha256) DO NOTHING RETURNING id",
             params![
-                id(Uuid::new_v4()),
+                uuid_text(Uuid::new_v4()),
                 metadata.sha256,
                 byte_size,
                 content,
@@ -84,7 +84,7 @@ pub fn save_file(
              (id, blob_id, original_file_name, media_type, created_at, updated_at)
          VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
         params![
-            id(metadata.id),
+            uuid_text(metadata.id),
             blob_id,
             metadata.original_file_name,
             metadata.media_type,
@@ -114,7 +114,7 @@ pub fn find_content(
                          THEN blob.content END
              FROM document_documents file JOIN document_blobs blob ON blob.id = file.blob_id
              WHERE file.id = ?2",
-            params![MAX_DOCUMENT_BYTES, id(document_id)],
+            params![MAX_DOCUMENT_BYTES, uuid_text(document_id)],
             |row| {
                 Ok((
                     row.get::<_, String>(0)?,

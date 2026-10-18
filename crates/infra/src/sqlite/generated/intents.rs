@@ -19,12 +19,14 @@ use uuid::Uuid;
 
 use super::IntentError;
 use super::bindings::{ASSET_COLUMNS, AssetRow, verify_pdf_binding};
-use super::codec::{get_id, get_opt_id, get_opt_ts, get_ts, id, opt_ts, ts};
 use super::guards::{
     check_abandoned_retirement, generated_asset_referenced, guard_intent_insert,
     guard_intent_update,
 };
 use super::run_with;
+use crate::sqlite::codec::{
+    get_id, get_opt_id, get_opt_ts, get_ts, instant_text, optional_instant_text, uuid_text,
+};
 use crate::sqlite::unit_of_work::SqliteTransaction;
 
 /// Columns of a generation intent row, in the order the queries select them.
@@ -74,7 +76,7 @@ pub(crate) fn find_intent_in(
 ) -> Result<Option<GenerationIntent>, IntentError> {
     let sql =
         format!("SELECT {INTENT_COLUMNS} FROM jobniac_generation_intents WHERE asset_id = ?1");
-    conn.query_row(&sql, [id(asset_id)], |row| Ok(intent_from_row(row)))
+    conn.query_row(&sql, [uuid_text(asset_id)], |row| Ok(intent_from_row(row)))
         .optional()?
         .transpose()
 }
@@ -82,9 +84,11 @@ pub(crate) fn find_intent_in(
 /// Reads one asset row on `conn`.
 fn find_asset_in(conn: &Connection, asset_id: Uuid) -> Result<Option<AssetRow>, IntentError> {
     let sql = format!("SELECT {ASSET_COLUMNS} FROM jobniac_generated_assets WHERE asset_id = ?1");
-    conn.query_row(&sql, [id(asset_id)], |row| Ok(AssetRow::from_row(row)))
-        .optional()?
-        .transpose()
+    conn.query_row(&sql, [uuid_text(asset_id)], |row| {
+        Ok(AssetRow::from_row(row))
+    })
+    .optional()?
+    .transpose()
 }
 
 /// Reads the intent of one asset. With `for_update` (the PostgreSQL row and owner locks) an asset
@@ -103,7 +107,7 @@ pub async fn find_generation_intent(
             let document: Option<Option<String>> = conn
                 .query_row(
                     "SELECT document_id FROM jobniac_generated_assets WHERE asset_id = ?1",
-                    [id(asset_id)],
+                    [uuid_text(asset_id)],
                     |row| row.get(0),
                 )
                 .optional()?;
@@ -171,18 +175,18 @@ pub async fn insert_generation_intent(
                  VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13)"
             ),
             params![
-                id(pending.asset_id),
-                id(descriptor.operation_id),
+                uuid_text(pending.asset_id),
+                uuid_text(descriptor.operation_id),
                 purpose,
-                descriptor.profile_id.map(id),
-                descriptor.job_id.map(id),
-                descriptor.resume_id.map(id),
+                descriptor.profile_id.map(uuid_text),
+                descriptor.job_id.map(uuid_text),
+                descriptor.resume_id.map(uuid_text),
                 descriptor.output_scope,
                 state,
-                pending.lease_token.map(id),
-                opt_ts(pending.lease_started_at),
-                opt_ts(pending.lease_expires_at),
-                ts(pending.created_at),
+                pending.lease_token.map(uuid_text),
+                optional_instant_text(pending.lease_started_at),
+                optional_instant_text(pending.lease_expires_at),
+                instant_text(pending.created_at),
                 Option::<String>::None,
             ],
         )?;
@@ -266,7 +270,7 @@ pub async fn complete_generation_intent(
             "UPDATE jobniac_generation_intents SET state = 'COMPLETED', lease_token = NULL, \
              lease_started_at = NULL, lease_expires_at = NULL, finished_at = ?1 \
              WHERE asset_id = ?2",
-            params![ts(now), id(found.asset_id)],
+            params![instant_text(now), uuid_text(found.asset_id)],
         )?;
         match find_intent_in(conn, found.asset_id)? {
             Some(intent) if intent.state == GenerationState::Completed => Ok(intent),
@@ -310,7 +314,12 @@ pub async fn renew_generation_intent(
         conn.execute(
             "UPDATE jobniac_generation_intents SET lease_token = ?1, lease_started_at = ?2, \
              lease_expires_at = ?3 WHERE asset_id = ?4",
-            params![id(new_token), ts(now), ts(expiry), id(found.asset_id)],
+            params![
+                uuid_text(new_token),
+                instant_text(now),
+                instant_text(expiry),
+                uuid_text(found.asset_id)
+            ],
         )?;
         if find_intent_in(conn, found.asset_id)?.as_ref() != Some(&renewed) {
             return Err(unavailable_database());
@@ -352,7 +361,7 @@ pub async fn abandon_generation_intent(
             "UPDATE jobniac_generation_intents SET state = 'ABANDONED', lease_token = NULL, \
              lease_started_at = NULL, lease_expires_at = NULL, finished_at = ?1 \
              WHERE asset_id = ?2",
-            params![ts(now), id(found.asset_id)],
+            params![instant_text(now), uuid_text(found.asset_id)],
         )?;
         match find_intent_in(conn, found.asset_id)? {
             Some(intent) if intent.state == GenerationState::Abandoned => Ok(Some((intent, asset))),

@@ -16,8 +16,8 @@ use jobniac_core::jobs::JobSearchRepository;
 use jobniac_core::jobs::JobSearchService;
 #[cfg(feature = "test-hooks")]
 use jobniac_core::profiles::repository::READ_ONLY;
+use jobniac_infra::sqlite::codec::{instant_text, uuid_text};
 use jobniac_infra::sqlite::jobs::SqliteJobRepository;
-use jobniac_infra::sqlite::jobs::codec::{instant_text, uuid_text};
 #[cfg(feature = "test-hooks")]
 use jobniac_infra::sqlite::jobs::search::statements_on_this_thread;
 use jobniac_infra::sqlite::jobs::search::{

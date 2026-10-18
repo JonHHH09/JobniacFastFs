@@ -20,8 +20,8 @@ use jobniac_core::jobs::{
     JobAggregate, JobRecord, JobSearchService, JobService, JobSkillRecord, TextIngestionRecord,
 };
 use jobniac_core::pagination::{CursorCodec, CursorKey};
+use jobniac_infra::sqlite::codec::{instant_text, uuid_text};
 use jobniac_infra::sqlite::jobs::SqliteJobRepository;
-use jobniac_infra::sqlite::jobs::codec::{instant_text, uuid_text};
 use jobniac_infra::sqlite::pool::SqlitePool;
 use jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork;
 use rusqlite::Connection;

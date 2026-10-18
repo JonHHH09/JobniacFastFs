@@ -9,12 +9,12 @@ use async_trait::async_trait;
 use jobniac_core::artifacts::{
     ArtifactLookupError, ArtifactRepository, DocumentArtifact, validate_artifact,
 };
-use jobniac_core::clock::{format_instant, parse_instant};
 use jobniac_core::documents::DocumentMetadata;
 use jobniac_core::errors::{AppError, ErrorCode};
 use rusqlite::OptionalExtension;
 use uuid::Uuid;
 
+use super::codec::{instant_text, parse_instant_text, parse_uuid};
 use super::unit_of_work::SqliteTransaction;
 
 /// The artifact read: the document, its blob and the bounded content, by identifier. Name and
@@ -112,17 +112,18 @@ impl ArtifactRepository for SqliteArtifactRepository {
 }
 
 /// The wire metadata of a stored row; `None` for a NULL (over-bound) name or media type, or an
-/// unreadable identifier or instant. The core validation re-checks the remaining bounds.
+/// unreadable identifier or instant. The core validation re-checks the remaining bounds and
+/// writes the wire form of the instants (`format_instant`), so the output is unchanged.
 fn metadata_from_row(row: &ArtifactRow) -> Option<DocumentMetadata> {
-    let created = parse_instant(&row.created_at).ok()?;
-    let updated = parse_instant(&row.updated_at).ok()?;
+    let created = parse_instant_text(&row.created_at)?;
+    let updated = parse_instant_text(&row.updated_at)?;
     Some(DocumentMetadata {
-        id: Uuid::parse_str(&row.id).ok()?,
+        id: parse_uuid(&row.id)?,
         original_file_name: row.original_file_name.clone()?,
         media_type: row.media_type.clone()?,
         byte_size: row.byte_size,
         sha256: row.sha256.clone(),
-        created_at: format_instant(created),
-        updated_at: format_instant(updated),
+        created_at: instant_text(created),
+        updated_at: instant_text(updated),
     })
 }

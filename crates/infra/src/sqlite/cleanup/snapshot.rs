@@ -7,8 +7,8 @@ use jobniac_core::transactions::TransactionOptions;
 use rusqlite::params;
 use time::OffsetDateTime;
 
+use crate::sqlite::codec::{instant_text, parse_ts};
 use crate::sqlite::error::SqliteError;
-use crate::sqlite::generated::codec::{parse_ts, ts};
 use crate::sqlite::generated::run_with;
 use crate::sqlite::unit_of_work::SqliteUnitOfWork;
 
@@ -63,7 +63,7 @@ pub(super) async fn read_queue_snapshot(
             let row = run_with::<_, SqliteError>(tx, |conn| {
                 Ok(conn.query_row(
                     SNAPSHOT_SQL,
-                    params![ts(completed_before), ts(now), attempts],
+                    params![instant_text(completed_before), instant_text(now), attempts],
                     |row| {
                         Ok((
                             row.get::<_, i64>("pending")?,

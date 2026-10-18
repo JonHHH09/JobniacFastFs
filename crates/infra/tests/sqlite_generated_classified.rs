@@ -28,7 +28,7 @@ use jobniac_core::generated_assets::{
     PublicationOutcome,
 };
 use jobniac_infra::sqlite::cleanup::SqliteCleanupRepository;
-use jobniac_infra::sqlite::generated::codec::{get_opt_id, get_opt_ts};
+use jobniac_infra::sqlite::codec::{get_opt_id, get_opt_ts};
 use jobniac_infra::sqlite::generated::repository::SqliteGeneratedAssetRepository;
 use jobniac_infra::sqlite::pool::SqlitePool;
 use jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork;

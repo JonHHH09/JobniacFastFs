@@ -32,7 +32,7 @@ pub fn instant(seconds: i64) -> OffsetDateTime {
 
 /// The stored text of an instant, as the adapters write it.
 pub fn stored(at: OffsetDateTime) -> String {
-    jobniac_infra::sqlite::generated::codec::ts(at)
+    jobniac_infra::sqlite::codec::instant_text(at)
 }
 
 pub fn lock<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {

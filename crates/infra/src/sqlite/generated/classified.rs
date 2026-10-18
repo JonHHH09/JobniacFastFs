@@ -28,7 +28,6 @@ use uuid::Uuid;
 use super::IntentError;
 use super::assets::retire_asset;
 use super::bindings::AssetRow;
-use super::codec::{get_id, get_opt_id, id, ts};
 use super::guards::check_birth_intents;
 use super::intents::{
     abandon_generation_intent, admit_generation_claim, complete_generation_intent,
@@ -41,6 +40,7 @@ use super::repository::{
 use super::run_with;
 use super::writer::run_file_phase;
 use crate::generated::asset_files::RemovalFailureCategory;
+use crate::sqlite::codec::{get_id, get_opt_id, instant_text, uuid_text};
 use crate::sqlite::error::SqliteError;
 
 /// Whether a stored row and intent are the generation a claim describes.
@@ -336,7 +336,7 @@ impl GeneratedAssetRepository for SqliteGeneratedAssetRepository {
                                AND intent.state = 'PENDING' AND intent.lease_expires_at <= ?2 \
                              ORDER BY intent.lease_expires_at, asset.asset_id",
                         )?;
-                        let mut rows = statement.query(params![id(root_id), ts(now)])?;
+                        let mut rows = statement.query(params![uuid_text(root_id), instant_text(now)])?;
                         let mut found = Vec::new();
                         while let Some(row) = rows.next()? {
                             let path: String = row.get("relative_path")?;

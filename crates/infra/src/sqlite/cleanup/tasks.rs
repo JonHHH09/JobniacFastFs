@@ -12,8 +12,8 @@ use rusqlite::{Connection, OptionalExtension, Row, params};
 use time::OffsetDateTime;
 use uuid::Uuid;
 
+use crate::sqlite::codec::{get_id, get_opt_id, get_opt_ts, get_ts, instant_text, uuid_text};
 use crate::sqlite::error::SqliteError;
-use crate::sqlite::generated::codec::{get_id, get_opt_id, get_opt_ts, get_ts, id, ts};
 use crate::sqlite::generated::guards::{
     generated_asset_referenced, guard_cleanup_delete, guard_cleanup_write, guard_deletion,
 };
@@ -108,7 +108,7 @@ impl TaskRow {
 fn task_row(conn: &Connection, task_id: Uuid) -> Result<Option<TaskRow>, AppError> {
     conn.query_row(
         &format!("{TASK_SELECT} WHERE task.task_id = ?1"),
-        [id(task_id)],
+        [uuid_text(task_id)],
         |row| Ok(TaskRow::from_row(row)),
     )
     .optional()
@@ -139,10 +139,10 @@ fn fail(
         params![
             status,
             category.as_str(),
-            ts(now + RETRY_DELAY),
-            ts(now),
-            id(row.task_id),
-            id(lease_token),
+            instant_text(now + RETRY_DELAY),
+            instant_text(now),
+            uuid_text(row.task_id),
+            uuid_text(lease_token),
         ],
     )
     .map_err(SqliteError::from)?;
@@ -188,7 +188,7 @@ fn claim_in(
             )
             .map_err(SqliteError::from)?;
         let mut rows = statement
-            .query(params![id(root_id), ts(now), limit])
+            .query(params![uuid_text(root_id), instant_text(now), limit])
             .map_err(SqliteError::from)?;
         let mut found = Vec::new();
         while let Some(row) = rows.next().map_err(SqliteError::from)? {
@@ -213,7 +213,12 @@ fn claim_in(
              SET status = 'PROCESSING', attempt_count = attempt_count + 1, \
                  lease_token = ?1, lease_expires_at = ?2, updated_at = ?3 \
              WHERE task_id = ?4",
-            params![id(token), ts(expiry), ts(now), id(row.task_id)],
+            params![
+                uuid_text(token),
+                instant_text(expiry),
+                instant_text(now),
+                uuid_text(row.task_id)
+            ],
         )
         .map_err(SqliteError::from)?;
         let attempt =
@@ -253,7 +258,11 @@ pub(super) async fn renew_claim(
             conn.execute(
                 "UPDATE jobniac_generated_asset_cleanups \
                  SET lease_expires_at = ?1, updated_at = ?2 WHERE task_id = ?3",
-                params![ts(expiry), ts(now), id(claim.task_id())],
+                params![
+                    instant_text(expiry),
+                    instant_text(now),
+                    uuid_text(claim.task_id())
+                ],
             )
             .map_err(SqliteError::from)?;
             Ok(Some(
@@ -346,7 +355,11 @@ pub(super) async fn execute_claim(
                  SET status = 'COMPLETED', completed_at = ?1, updated_at = ?1, \
                      lease_token = NULL, lease_expires_at = NULL, failure_category = NULL \
                  WHERE task_id = ?2 AND lease_token = ?3",
-                params![ts(now), id(claim.task_id()), id(claim.lease_token())],
+                params![
+                    instant_text(now),
+                    uuid_text(claim.task_id()),
+                    uuid_text(claim.lease_token())
+                ],
             )
             .map_err(SqliteError::from)?;
             // The asset becomes DELETED only after its completed task exists.
@@ -355,9 +368,9 @@ pub(super) async fn execute_claim(
                 "UPDATE jobniac_generated_assets SET lifecycle = 'DELETED', deleted_at = ?1 \
                  WHERE asset_id = ?2 AND retirement_id = ?3",
                 params![
-                    ts(now),
-                    id(claim.asset().asset_id()),
-                    id(claim.retirement_id())
+                    instant_text(now),
+                    uuid_text(claim.asset().asset_id()),
+                    uuid_text(claim.retirement_id())
                 ],
             )
             .map_err(SqliteError::from)?;
@@ -390,7 +403,7 @@ pub(super) async fn prune_completed(
                     )
                     .map_err(SqliteError::from)?;
                 let mut rows = statement
-                    .query(params![ts(completed_before), limit])
+                    .query(params![instant_text(completed_before), limit])
                     .map_err(SqliteError::from)?;
                 let mut found = Vec::new();
                 while let Some(row) = rows.next().map_err(SqliteError::from)? {
@@ -402,7 +415,7 @@ pub(super) async fn prune_completed(
                 guard_cleanup_delete(conn, *task_id)?;
                 conn.execute(
                     "DELETE FROM jobniac_generated_asset_cleanups WHERE task_id = ?1",
-                    [id(*task_id)],
+                    [uuid_text(*task_id)],
                 )
                 .map_err(SqliteError::from)?;
             }

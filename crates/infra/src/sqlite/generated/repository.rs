@@ -27,13 +27,13 @@ use uuid::Uuid;
 use super::IntentError;
 use super::assets::retire_asset;
 use super::bindings::{ASSET_COLUMNS, AssetRow};
-use super::codec::{get_id, id, ts};
 use super::documents::{find_content, save_file};
 use super::guards::{NewAsset, generated_asset_referenced, guard_asset_insert};
 use super::intents::find_generation_intent;
 use super::run_with;
 use super::writer::run_file_phase;
 use crate::generated::asset_files::RemovalFailureCategory;
+use crate::sqlite::codec::{get_id, instant_text, uuid_text};
 use crate::sqlite::error::SqliteError;
 use crate::sqlite::unit_of_work::{SqliteTransaction, SqliteUnitOfWork};
 
@@ -82,7 +82,7 @@ pub(crate) fn find_asset_in(
 ) -> Result<Option<AssetRow>, IntentError> {
     conn.query_row(
         &format!("SELECT {ASSET_COLUMNS} FROM jobniac_generated_assets WHERE asset_id = ?1"),
-        [id(asset_id)],
+        [uuid_text(asset_id)],
         |row| Ok(AssetRow::from_row(row)),
     )
     .optional()?
@@ -175,13 +175,13 @@ pub(super) fn reserve_rows(
           document_id, lifecycle, created_at, generation_intent_required) \
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'RESERVED', ?7, ?8)",
         params![
-            id(identity.asset_id()),
-            id(identity.root_id()),
+            uuid_text(identity.asset_id()),
+            uuid_text(identity.root_id()),
             identity.relative_path(),
             identity.sha256(),
             size,
-            id(document_id),
-            ts(now),
+            uuid_text(document_id),
+            instant_text(now),
             generation_intent_required,
         ],
     )
@@ -234,7 +234,7 @@ pub(super) async fn activate_reserved(
             "UPDATE jobniac_generated_assets \
              SET lifecycle = 'ACTIVE', materialized_at = ?1 \
              WHERE asset_id = ?2 AND lifecycle = 'RESERVED'",
-            params![ts(now), id(asset_id)],
+            params![instant_text(now), uuid_text(asset_id)],
         )?)
     })?)
 }
@@ -405,8 +405,11 @@ impl StandaloneAssetRepository for SqliteGeneratedAssetRepository {
                                            WHERE intent.asset_id = asset.asset_id) \
                          ORDER BY created_at, asset_id LIMIT ?3",
                     )?;
-                    let mut rows =
-                        statement.query(params![id(root_id), ts(stale_before), limit])?;
+                    let mut rows = statement.query(params![
+                        uuid_text(root_id),
+                        instant_text(stale_before),
+                        limit
+                    ])?;
                     let mut found = Vec::new();
                     while let Some(row) = rows.next()? {
                         found.push(get_id(row, "asset_id")?);

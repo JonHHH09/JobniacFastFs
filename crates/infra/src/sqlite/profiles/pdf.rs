@@ -15,8 +15,8 @@ use jobniac_core::profiles::pdf_ingest::{
 use rusqlite::Row;
 use uuid::Uuid;
 
-use super::codec::{Id, Instant};
 use super::{assert_generated_document_attachable, col, db, execute, query_rows, with_connection};
+use crate::sqlite::codec::{Id, Instant};
 use crate::sqlite::unit_of_work::SqliteTransaction;
 
 /// The transaction-scoped savepoint of a PDF ingestion write.

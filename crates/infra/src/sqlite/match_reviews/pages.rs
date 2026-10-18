@@ -12,7 +12,7 @@ use super::store::{
     RawDisagreement, RawReview, disagreement_columns, read_disagreement, read_review,
     review_columns,
 };
-use crate::sqlite::jobs::codec::{instant_text, uuid_text};
+use crate::sqlite::codec::{instant_text, uuid_text};
 use crate::sqlite::matching::value::{Failure, fetch_limit, run, select_page, snapshot_at};
 use crate::sqlite::unit_of_work::SqliteTransaction;
 

@@ -19,7 +19,7 @@ use jobniac_text::str_rules::strip_text;
 use rusqlite::Connection;
 use time::OffsetDateTime;
 
-use crate::sqlite::profiles::codec::{Id, Instant};
+use crate::sqlite::codec::{Id, Instant};
 use crate::sqlite::profiles::{query_rows, unavailable};
 
 use super::rows::column;

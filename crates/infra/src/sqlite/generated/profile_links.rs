@@ -24,11 +24,11 @@ use uuid::Uuid;
 use super::IntentError;
 use super::assets::retire_asset;
 use super::bindings::{lock_pdf_bindings, removed_assets, verify_pdf_binding};
-use super::codec::{get_id, get_ts, id, parse_ts, ts};
 use super::guards::{generated_asset_referenced, guard_document_path_reference};
 use super::intents::{admit_generation_bindings, complete_generation_bindings};
 use super::repository::find_asset_in;
 use super::run_with;
+use crate::sqlite::codec::{get_id, get_ts, instant_text, parse_ts, uuid_text};
 use crate::sqlite::error::SqliteError;
 use crate::sqlite::unit_of_work::{SqliteTransaction, SqliteUnitOfWork};
 
@@ -79,7 +79,7 @@ fn find(
         "SELECT {LINK_COLUMNS} FROM profile_profile_resume_documents \
          WHERE profile_id = ?1 AND resume_type = ?2"
     );
-    conn.query_row(&sql, params![id(profile_id), resume_type], |row| {
+    conn.query_row(&sql, params![uuid_text(profile_id), resume_type], |row| {
         Ok(link_from_row(row))
     })
     .optional()
@@ -219,7 +219,7 @@ fn read_owner(
     let owner: Option<(i64, String)> = conn
         .query_row(
             "SELECT revision, updated_at FROM profile_profiles WHERE id = ?1",
-            [id(profile_id)],
+            [uuid_text(profile_id)],
             |row| Ok((row.get(0)?, row.get(1)?)),
         )
         .optional()
@@ -245,23 +245,23 @@ fn write_link(
                  VALUES (?1,?2,?3,?4,?5,?6,?7)"
             ),
             params![
-                id(saved.id),
-                id(saved.profile_id),
-                id(saved.document_id),
+                uuid_text(saved.id),
+                uuid_text(saved.profile_id),
+                uuid_text(saved.document_id),
                 saved.file_path,
                 saved.resume_type,
-                ts(saved.created_at),
-                ts(saved.updated_at),
+                instant_text(saved.created_at),
+                instant_text(saved.updated_at),
             ],
         ),
         Some(_) => conn.execute(
             "UPDATE profile_profile_resume_documents SET document_id = ?1, \
              file_path = ?2, updated_at = ?3 WHERE id = ?4",
             params![
-                id(saved.document_id),
+                uuid_text(saved.document_id),
                 saved.file_path,
-                ts(saved.updated_at),
-                id(saved.id),
+                instant_text(saved.updated_at),
+                uuid_text(saved.id),
             ],
         ),
     }

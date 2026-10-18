@@ -7,6 +7,7 @@
 
 pub mod artifacts;
 pub mod cleanup;
+pub mod codec;
 pub mod documents;
 pub mod error;
 pub mod generated;

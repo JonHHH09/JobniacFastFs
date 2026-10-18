@@ -23,7 +23,7 @@ use rusqlite::Connection;
 use uuid::Uuid;
 
 use crate::blocking::run_blocking as run_file_phase;
-use crate::sqlite::profiles::codec::{Id, Instant};
+use crate::sqlite::codec::{Id, Instant};
 use crate::sqlite::profiles::{
     assert_generated_document_attachable, execute, query_rows, unavailable, with_connection,
 };

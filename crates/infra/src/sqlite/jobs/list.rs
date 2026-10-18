@@ -10,9 +10,9 @@ use jobniac_core::pagination::{Page, PageRequest, keyset_page};
 use rusqlite::params;
 use time::OffsetDateTime;
 
-use super::codec::{instant_text, parse_instant_text, uuid_text};
 use super::graph::read_job;
 use super::{db, invalid_shape, run};
+use crate::sqlite::codec::{instant_text, parse_instant_text, uuid_text};
 use crate::sqlite::unit_of_work::SqliteTransaction;
 
 /// The job listing query. The binds are the snapshot, the anchor's created-at, its identifier and

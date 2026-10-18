@@ -17,8 +17,8 @@ use serde_json::{Map, Value, json};
 use time::OffsetDateTime;
 use uuid::Uuid;
 
+use crate::sqlite::codec::{instant_text, json_text, uuid_text};
 use crate::sqlite::error::SqliteError;
-use crate::sqlite::jobs::codec::{instant_text, json_text, uuid_text};
 use crate::sqlite::matching::store::{read_report, report_columns};
 use crate::sqlite::matching::value::{
     Failure, components_json, corrupted, evidence_json, instant_column, json_array, outcome_text,

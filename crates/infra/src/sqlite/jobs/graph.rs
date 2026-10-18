@@ -20,11 +20,11 @@ use serde_json::{Map, Value};
 use time::OffsetDateTime;
 use uuid::Uuid;
 
-use super::codec::{
-    instant_text, optional_instant_text, parse_instant_text, parse_uuid, uuid_text,
-};
 use super::terms::job_search_terms;
 use super::{db, invalid_shape, non_blank, run, unavailable};
+use crate::sqlite::codec::{
+    instant_text, optional_instant_text, parse_instant_text, parse_uuid, uuid_text,
+};
 use crate::sqlite::error::SqliteError;
 use crate::sqlite::unit_of_work::{PreCommitCheck, SqliteTransaction};
 

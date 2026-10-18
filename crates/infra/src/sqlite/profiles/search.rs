@@ -18,8 +18,8 @@ use jobniac_core::profiles::search::ProfileSearchCandidate;
 use jobniac_text::search::prefixes;
 use rusqlite::Connection;
 
-use super::codec::{Id, Instant};
 use super::{col, query_rows};
+use crate::sqlite::codec::{Id, Instant};
 
 /// Largest number of candidate profiles returned by one search.
 pub const MAX_SEARCH_CANDIDATES: usize = 500;

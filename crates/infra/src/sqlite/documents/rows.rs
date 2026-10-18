@@ -18,7 +18,7 @@ use serde_json::{Map, Value};
 use sha2::{Digest, Sha256};
 use time::OffsetDateTime;
 
-use crate::sqlite::profiles::codec::{Id, Instant};
+use crate::sqlite::codec::{Id, Instant};
 use crate::sqlite::profiles::unavailable;
 
 /// Largest UTF-16 length of a stored character count (the `integer` range of the contract).

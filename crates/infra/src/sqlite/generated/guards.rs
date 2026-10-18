@@ -25,7 +25,7 @@ use jobniac_core::generated_assets::{
 use rusqlite::{Connection, OptionalExtension, params};
 use uuid::Uuid;
 
-use super::codec::{id, parse_id, ts};
+use crate::sqlite::codec::{instant_text, parse_id, uuid_text};
 use crate::sqlite::error::SqliteError;
 
 /// The refusal of a guard: a check violation without a constraint name.
@@ -82,7 +82,7 @@ pub fn generated_document_referenced(
                  JOIN jobniac_generated_assets asset ON asset.asset_id = intent.asset_id
                  WHERE intent.state = 'COMPLETED' AND intent.purpose = 'STANDALONE_PDF'
                    AND asset.document_id = ?1)",
-        params![id(document_id)],
+        params![uuid_text(document_id)],
     )
 }
 
@@ -146,7 +146,7 @@ pub fn guard_asset_insert(conn: &Connection, asset: &NewAsset<'_>) -> Result<(),
                  SELECT 1 FROM document_documents file
                  JOIN document_blobs blob ON blob.id = file.blob_id
                  WHERE file.id = ?1 AND blob.sha256 = ?2 AND blob.byte_size = ?3)",
-            params![id(document_id), asset.sha256, asset.size_bytes],
+            params![uuid_text(document_id), asset.sha256, asset.size_bytes],
         )?;
         refuse_if(!consistent)?;
     }
@@ -163,7 +163,7 @@ pub fn guard_retirement(conn: &Connection, asset_id: Uuid) -> Result<(), SqliteE
     let row: Option<(Option<String>, String)> = conn
         .query_row(
             "SELECT document_id, relative_path FROM jobniac_generated_assets WHERE asset_id = ?1",
-            params![id(asset_id)],
+            params![uuid_text(asset_id)],
             |row| Ok((row.get(0)?, row.get(1)?)),
         )
         .optional()?;
@@ -180,7 +180,7 @@ pub fn guard_retirement(conn: &Connection, asset_id: Uuid) -> Result<(), SqliteE
         conn,
         "SELECT EXISTS (SELECT 1 FROM jobniac_generation_intents
                         WHERE asset_id = ?1 AND state = 'PENDING')",
-        params![id(asset_id)],
+        params![uuid_text(asset_id)],
     )?)
 }
 
@@ -200,7 +200,7 @@ pub fn guard_deletion(
         conn,
         "SELECT EXISTS (SELECT 1 FROM jobniac_generated_asset_cleanups
                         WHERE asset_id = ?1 AND retirement_id = ?2 AND status = 'COMPLETED')",
-        params![id(asset_id), id(retirement_id)],
+        params![uuid_text(asset_id), uuid_text(retirement_id)],
     )?)
 }
 
@@ -220,7 +220,7 @@ pub fn guard_cleanup_write(
         "SELECT EXISTS (SELECT 1 FROM jobniac_generated_assets
                         WHERE asset_id = ?1 AND retirement_id = ?2
                           AND lifecycle IN ('RETIRING', 'DELETED'))",
-        params![id(asset_id), id(retirement_id)],
+        params![uuid_text(asset_id), uuid_text(retirement_id)],
     )?)
 }
 
@@ -238,7 +238,7 @@ pub fn guard_cleanup_delete(conn: &Connection, task_id: Uuid) -> Result<(), Sqli
                         WHERE task.task_id = ?1 AND task.status = 'COMPLETED'
                           AND asset.lifecycle = 'DELETED'
                           AND asset.retirement_id = task.retirement_id)",
-        params![id(task_id)],
+        params![uuid_text(task_id)],
     )?)
 }
 
@@ -283,7 +283,7 @@ fn intent_asset(conn: &Connection, asset_id: Uuid) -> Result<Option<IntentAsset>
                         SELECT 1 FROM jobniac_generation_intents intent
                         WHERE intent.asset_id = jobniac_generated_assets.asset_id) AS born_here
              FROM jobniac_generated_assets WHERE asset_id = ?1",
-            params![id(asset_id)],
+            params![uuid_text(asset_id)],
             |row| {
                 Ok((
                     row.get::<_, Option<String>>(0)?,
@@ -325,7 +325,7 @@ pub fn guard_intent_insert(
         intent.state != GenerationState::Pending
             || asset.lifecycle != "RESERVED"
             || !asset.born_here
-            || ts(intent.created_at) != asset.created_at
+            || instant_text(intent.created_at) != asset.created_at
             || intent.lease_started_at != Some(intent.created_at),
     )?;
     guard_lease_bound(intent)
@@ -389,7 +389,7 @@ fn completion_linked(
     path: &str,
 ) -> Result<bool, SqliteError> {
     let descriptor = &intent.descriptor;
-    let optional = |value: Option<Uuid>| value.map(id);
+    let optional = |value: Option<Uuid>| value.map(uuid_text);
     match descriptor.purpose {
         GenerationPurpose::StandalonePdf => Ok(true),
         GenerationPurpose::ProfileResume => exists(
@@ -400,7 +400,7 @@ fn completion_linked(
             params![
                 optional(descriptor.profile_id),
                 descriptor.output_scope,
-                id(document_id),
+                uuid_text(document_id),
                 path
             ],
         ),
@@ -417,7 +417,7 @@ fn completion_linked(
                 optional(descriptor.profile_id),
                 optional(descriptor.job_id),
                 descriptor.output_scope,
-                id(document_id),
+                uuid_text(document_id),
                 path
             ],
         ),
@@ -434,7 +434,7 @@ fn completion_linked(
                 optional(descriptor.profile_id),
                 optional(descriptor.job_id),
                 descriptor.output_scope,
-                id(document_id),
+                uuid_text(document_id),
                 path
             ],
         ),
@@ -459,7 +459,7 @@ pub fn check_birth_intents(conn: &Connection, asset_ids: &[Uuid]) -> Result<(), 
                             WHERE asset.asset_id = ?1 AND asset.generation_intent_required = 1
                               AND NOT EXISTS (SELECT 1 FROM jobniac_generation_intents intent
                                               WHERE intent.asset_id = asset.asset_id))",
-            params![id(*asset_id)],
+            params![uuid_text(*asset_id)],
         )?)?;
     }
     Ok(())
@@ -478,7 +478,7 @@ pub fn check_abandoned_retirement(conn: &Connection, asset_id: Uuid) -> Result<(
                         JOIN jobniac_generated_assets asset ON asset.asset_id = intent.asset_id
                         WHERE intent.asset_id = ?1 AND intent.state = 'ABANDONED'
                           AND asset.lifecycle NOT IN ('RETIRING', 'DELETED'))",
-        params![id(asset_id)],
+        params![uuid_text(asset_id)],
     )?)
 }
 
@@ -502,7 +502,7 @@ pub fn assert_generated_document_attachable(
     let lifecycle: Option<String> = conn
         .query_row(
             "SELECT lifecycle FROM jobniac_generated_assets WHERE document_id = ?1",
-            params![id(document_id)],
+            params![uuid_text(document_id)],
             |row| row.get(0),
         )
         .optional()?;
@@ -544,13 +544,13 @@ pub fn guard_document_path_reference(
         )
         .optional()?;
     if let Some(mapped) = mapped {
-        refuse_if(mapped.as_deref() != Some(id(document_id).as_str()))?;
+        refuse_if(mapped.as_deref() != Some(uuid_text(document_id).as_str()))?;
     }
     refuse_if(exists(
         conn,
         "SELECT EXISTS (SELECT 1 FROM jobniac_generated_assets
                         WHERE document_id = ?1 AND relative_path <> ?2)",
-        params![id(document_id), file_path],
+        params![uuid_text(document_id), file_path],
     )?)
 }
 
@@ -565,7 +565,7 @@ pub fn guard_pdf_source(conn: &Connection, extraction_id: Uuid) -> Result<(), Sq
     let document: Option<String> = conn
         .query_row(
             "SELECT file_id FROM document_pdf_extractions WHERE id = ?1",
-            params![id(extraction_id)],
+            params![uuid_text(extraction_id)],
             |row| row.get(0),
         )
         .optional()?;
@@ -590,7 +590,7 @@ pub fn guard_document_content(
                         WHERE file.id = ?1 AND file.blob_id <> ?2
                           AND EXISTS (SELECT 1 FROM jobniac_generated_assets
                                       WHERE document_id = file.id))",
-        params![id(document_id), id(new_blob_id)],
+        params![uuid_text(document_id), uuid_text(new_blob_id)],
     )?)
 }
 
@@ -606,6 +606,6 @@ pub fn guard_blob_content(conn: &Connection, blob_id: Uuid) -> Result<(), Sqlite
         "SELECT EXISTS (SELECT 1 FROM jobniac_generated_assets asset
                         JOIN document_documents file ON file.id = asset.document_id
                         WHERE file.blob_id = ?1)",
-        params![id(blob_id)],
+        params![uuid_text(blob_id)],
     )?)
 }

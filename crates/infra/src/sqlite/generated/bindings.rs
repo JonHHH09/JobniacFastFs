@@ -9,9 +9,9 @@ use time::OffsetDateTime;
 use uuid::Uuid;
 
 use super::IntentError;
-use super::codec::{get_id, get_opt_id, get_ts, id};
 use super::documents::find_content;
 use super::run_with;
+use crate::sqlite::codec::{get_id, get_opt_id, get_ts, uuid_text};
 use crate::sqlite::error::SqliteError;
 use crate::sqlite::unit_of_work::SqliteTransaction;
 
@@ -90,7 +90,7 @@ pub async fn removed_assets(
         return Ok(Vec::new());
     }
     run_with(tx, |conn| {
-        let documents: Vec<String> = document_ids.iter().copied().map(id).collect();
+        let documents: Vec<String> = document_ids.iter().copied().map(uuid_text).collect();
         let marks = |count: usize, start: usize| -> String {
             (start..start + count)
                 .map(|index| format!("?{index}"))
@@ -150,7 +150,7 @@ pub async fn verify_pdf_binding(
     run_with(tx, |conn| {
         let row = conn.query_row(
             &format!("SELECT {ASSET_COLUMNS} FROM jobniac_generated_assets WHERE asset_id = ?1"),
-            [id(binding.asset.asset_id())],
+            [uuid_text(binding.asset.asset_id())],
             |row| Ok(AssetRow::from_row(row)),
         );
         let row = match row {

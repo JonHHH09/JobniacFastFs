@@ -11,8 +11,8 @@ use jobniac_core::profiles::model::ProfileIdentity;
 use rusqlite::Connection;
 use time::OffsetDateTime;
 
-use super::codec::{Id, Instant};
 use super::{col, query_rows};
+use crate::sqlite::codec::{Id, Instant};
 
 /// The profile listing query. The binds are the snapshot watermark, the anchor's created-at, its
 /// identifier and the fetch limit, in that order. The anchor binds are NULL on the first page.

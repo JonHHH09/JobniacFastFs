@@ -14,7 +14,7 @@ use super::store::{
     RawJobRoot, RawView, attach_skills, load_profile, read_job_root, read_view, report_columns,
 };
 use super::value::{Failure, fetch_limit, run, select_page, snapshot_at};
-use crate::sqlite::jobs::codec::{instant_text, uuid_text};
+use crate::sqlite::codec::{instant_text, uuid_text};
 use crate::sqlite::unit_of_work::SqliteTransaction;
 
 /// One bounded page of jobs, newest first, from one snapshot. Binds: snapshot, cursor created-at,

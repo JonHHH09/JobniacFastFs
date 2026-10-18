@@ -12,8 +12,8 @@ use jobniac_text::java::java_strip;
 use rusqlite::Connection;
 use uuid::Uuid;
 
-use super::codec::{Day, Id, Instant};
 use super::{col, execute, query_rows, unavailable};
+use crate::sqlite::codec::{Day, Id, Instant};
 
 /// The profile compare-and-set. `max` keeps the stored instant monotonic (fixed-width instants
 /// compare as strings).

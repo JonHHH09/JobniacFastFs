@@ -11,8 +11,6 @@
 //! * [`list`]: the bounded keyset listing with the `created_at` watermark.
 //! * [`search`]: the bounded candidate sample and the batch hydration.
 //! * [`terms`]: the search postings of a job (field keys and weights of the search index).
-//! * [`codec`]: the text form of uuids, instants and JSON columns, shared with the matching and
-//!   review adapters.
 //!
 //! Every write scope is `BEGIN IMMEDIATE` on the single writer, so the advisory locks and the
 //! `FOR SHARE` reads of the PostgreSQL create paths are not needed: a create reads, then writes,
@@ -28,7 +26,6 @@
 //! * The search path does not map decoding failures: a row that does not decode is an internal
 //!   error there.
 
-pub mod codec;
 pub mod graph;
 pub mod list;
 pub mod search;

@@ -10,8 +10,8 @@ use jobniac_core::jobs::{
     CaptureStatus, JobAggregate, JobRepository, JobSearchResponse, JobSkillRecord,
 };
 use jobniac_core::profiles::repository::READ_WRITE;
+use jobniac_infra::sqlite::codec::{instant_text, uuid_text};
 use jobniac_infra::sqlite::jobs::SqliteJobRepository;
-use jobniac_infra::sqlite::jobs::codec::{instant_text, uuid_text};
 use jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};

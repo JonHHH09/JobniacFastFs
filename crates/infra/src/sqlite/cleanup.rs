@@ -35,11 +35,11 @@ use uuid::Uuid;
 
 use super::error::SqliteError;
 use super::generated::assets::retire_asset;
-use super::generated::codec::{id, ts};
 use super::generated::intents::find_generation_intent;
 use super::generated::repository::{app, find_asset, referenced};
 use super::generated::run_with;
 use super::unit_of_work::SqliteUnitOfWork;
+use crate::sqlite::codec::{instant_text, uuid_text};
 
 pub use remover::OwnedFileAdapter;
 
@@ -81,7 +81,7 @@ impl SqliteCleanupRepository {
                     conn.execute(
                         "INSERT INTO jobniac_generated_asset_roots (id, created_at) \
                          VALUES (?1, ?2) ON CONFLICT (id) DO NOTHING",
-                        params![id(root_id), ts(now)],
+                        params![uuid_text(root_id), instant_text(now)],
                     )?;
                     Ok(())
                 })?;
@@ -156,7 +156,7 @@ impl GenerationRootRepository for SqliteCleanupRepository {
                                WHERE asset.root_id = ?1 AND asset.lifecycle IN ('RESERVED', 'ACTIVE')
                                  AND intent.state = 'PENDING' AND intent.lease_expires_at <= ?2
                              )",
-                            params![id(root_id), ts(now)],
+                            params![uuid_text(root_id), instant_text(now)],
                             |row| Ok((row.get::<_, bool>(0)?, row.get::<_, bool>(1)?)),
                         )?;
                         Ok(GenerationRootState {

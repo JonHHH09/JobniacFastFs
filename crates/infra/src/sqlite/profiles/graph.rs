@@ -18,8 +18,8 @@ use jobniac_core::profiles::search_terms::profile_search_terms;
 use rusqlite::Connection;
 use uuid::Uuid;
 
-use super::codec::{Day, Id, Instant};
 use super::{col, db, execute, order_value, query_rows, unavailable, weight_value};
+use crate::sqlite::codec::{Day, Id, Instant};
 
 /// The root query of the profile load.
 const PROFILE_SQL: &str = r#"

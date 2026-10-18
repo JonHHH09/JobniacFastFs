@@ -12,7 +12,7 @@ use std::sync::Arc;
 
 use jobniac_core::errors::error_envelope;
 use jobniac_core::matching::{MatchView, MatchingRepository};
-use jobniac_infra::sqlite::jobs::codec::{instant_text, uuid_text};
+use jobniac_infra::sqlite::codec::{instant_text, uuid_text};
 use jobniac_infra::sqlite::matching::SqliteMatchingRepository;
 use serde_json::{Value, json};
 use sqlite_match_support::sqlite_job_support::closed_uow;

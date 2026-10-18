@@ -14,9 +14,7 @@
 //! * [`personal`]: the optional personal-details row under the profile revision check.
 //! * [`list`]: the bounded keyset listing of identities.
 //! * [`search`]: the bounded candidate search over the posting index.
-//! * [`codec`]: the column forms of uuids, instants and dates.
 
-pub(crate) mod codec;
 pub mod graph;
 pub mod list;
 pub mod pdf;
@@ -213,7 +211,7 @@ pub(crate) fn assert_generated_document_attachable(
     let lifecycles = query_rows(
         conn,
         "SELECT lifecycle FROM jobniac_generated_assets WHERE document_id = ?1",
-        &[&codec::Id(document_id)],
+        &[&crate::sqlite::codec::Id(document_id)],
         |row| col::<String>(row, "lifecycle"),
     )?;
     match lifecycles.first().map(String::as_str) {

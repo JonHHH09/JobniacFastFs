@@ -14,7 +14,7 @@ use std::sync::Arc;
 use jobniac_core::errors::error_envelope;
 use jobniac_core::matching::{MatchReport, Outcome};
 use jobniac_core::reviews::{MatchDisagreement, MatchReview};
-use jobniac_infra::sqlite::jobs::codec::{instant_text, uuid_text};
+use jobniac_infra::sqlite::codec::{instant_text, uuid_text};
 use jobniac_infra::sqlite::match_reviews::SqliteMatchReviewRepository;
 use jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork;
 use serde_json::{Value, json};

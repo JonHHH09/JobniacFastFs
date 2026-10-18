@@ -21,11 +21,11 @@ use jobniac_text::search::prefixes;
 use rusqlite::{Connection, params};
 use uuid::Uuid;
 
-use super::codec::{parse_uuid, uuid_array_text};
 use super::graph::{
     JOB_SELECT_BATCH_SQL, RawJob, RawSkill, SKILLS_BATCH_SQL, read_job, read_skill,
 };
 use super::{db, run, unavailable};
+use crate::sqlite::codec::{parse_uuid, uuid_array_text};
 use crate::sqlite::unit_of_work::SqliteTransaction;
 
 #[cfg(feature = "test-hooks")]

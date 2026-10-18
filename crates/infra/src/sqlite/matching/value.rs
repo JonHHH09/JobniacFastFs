@@ -16,8 +16,8 @@ use serde_json::{Value, json};
 use time::OffsetDateTime;
 use uuid::Uuid;
 
+use crate::sqlite::codec::{instant_text, parse_instant_text, parse_uuid};
 use crate::sqlite::error::{SqliteError, details_app_error};
-use crate::sqlite::jobs::codec::{instant_text, parse_instant_text, parse_uuid};
 use crate::sqlite::unit_of_work::SqliteTransaction;
 
 /// Why a transaction body stopped: a public error.
