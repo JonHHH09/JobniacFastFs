@@ -20,7 +20,8 @@ Step 5 (import a PDF through the Documents screen) is `it.skip`: see Deviations.
 
 Prerequisites: Node 24, pnpm 12.10.1, Rust (stable), PostgreSQL 18 binaries, `tauri-driver`
 (`cargo install tauri-driver --locked`), and a WebDriver for the platform: `msedgedriver` matching the
-installed WebView2 runtime on Windows, `WebKitWebDriver` (package `webkit2gtk-driver`) and `xvfb` on Linux.
+installed WebView2 runtime on Windows, `WebKitWebDriver` (package `webkitgtk-webdriver` on Ubuntu 26.04, `webkit2gtk-driver` on older
+releases) and `xvfb` on Linux.
 
 ```text
 pnpm install --frozen-lockfile
@@ -81,9 +82,7 @@ reads the page text and every attribute value. The suite refuses any database ho
 
 ## CI
 
-`.github/workflows/e2e.yml` runs the same steps on `windows-latest` and `ubuntu-24.04`. The Windows job
+`.github/workflows/e2e.yml` runs the same steps on `windows-latest` and `ubuntu-26.04`. The Windows job
 installs `msedgedriver` from the Microsoft endpoint for the runner's WebView2 version and checks its
-Authenticode signature. The Linux job installs `webkit2gtk-driver` and `xvfb`, and PostgreSQL 18 through
-`scripts/ci/install-postgresql-18.sh`. Neither job has been run: the GitHub Actions runners are not
-available for this account, so the workflow is validated with actionlint only. The Windows PostgreSQL
-install through Chocolatey (`postgresql18`) is unverified.
+Authenticode signature. The Linux job installs `webkitgtk-webdriver` and `xvfb`, and PostgreSQL 18
+through `scripts/ci/install-postgresql-18.sh`.

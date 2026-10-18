@@ -17,7 +17,7 @@ name: CI
 #   - pull requests restore the Rust caches but never save them (`save-if`).
 # Skipped jobs report as skipped, which a required status check treats as passed. That is why the Rust
 # job is two plain jobs with literal names instead of a matrix (a skipped matrix job reports its
-# unexpanded name and would leave `Rust (ubuntu-22.04)` pending forever).
+# unexpanded name and would leave `Rust (ubuntu-26.04)` pending forever).
 
 on:
   pull_request:
@@ -49,7 +49,7 @@ env:
 jobs:
   changes:
     name: Changes
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     permissions:
       contents: read
@@ -85,7 +85,7 @@ jobs:
     needs: changes
     # Fail open: when the gate itself did not succeed, run (a skipped required check counts as passed).
     if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.ui == 'true') }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -110,10 +110,10 @@ jobs:
 
   # The two Rust jobs share their steps through a local composite action.
   rust-linux:
-    name: Rust (ubuntu-22.04)
+    name: Rust (ubuntu-26.04)
     needs: changes
     if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.rust == 'true') }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -138,7 +138,7 @@ jobs:
 
   supply-chain:
     name: Supply chain (cargo-deny)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -158,7 +158,7 @@ jobs:
     # marker is only saved by a run that ran this job. A failed gate fails open for the same events
     # only (a pull request into development stays opt-in).
     if: ${{ !cancelled() && (inputs.postgres-required || github.event_name != 'pull_request' || github.base_ref == 'main') && (needs.changes.result != 'success' || needs.changes.outputs.already-passed != 'true') }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -195,7 +195,7 @@ jobs:
 
   release-tools:
     name: Release tool unit tests
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -211,7 +211,7 @@ jobs:
 
   privacy-scan:
     name: Privacy scan (working tree and history, generic classes)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -249,7 +249,7 @@ jobs:
       && needs.rust-linux.result == 'success'
       && needs.rust-windows.result == 'success'
       && needs.postgres.result == 'success' }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     steps:
       - name: Write the marker file
