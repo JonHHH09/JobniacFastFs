@@ -1,6 +1,7 @@
 //! The persisted application settings: `settings.json` in the app config directory.
 //!
-//! The file holds `{ "mcp": { "enabled": false, "port": 8765 } }` and nothing else. It never holds
+//! The file holds `{ "mcp": { "enabled": false, "port": 8765 }, "updates": { "autoCheck": false } }` and
+//! nothing else. It never holds
 //! the bearer token: the token is generated per start and kept in memory only (see
 //! [`crate::mcp_server`]). The caller supplies the directory, so tests use a temporary one and the
 //! file path never crosses IPC.
@@ -56,12 +57,23 @@ impl Default for McpSettings {
     }
 }
 
+/// The settings of the in-app updater.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct UpdateSettings {
+    /// Whether the app checks for a new version once after startup. Off on a first run: no network
+    /// request is made until the user turns it on or presses the check button.
+    pub auto_check: bool,
+}
+
 /// All application settings.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct AppSettings {
     /// The MCP server section.
     pub mcp: McpSettings,
+    /// The updater section.
+    pub updates: UpdateSettings,
 }
 
 /// The settings could not be written. The text names no path and no cause.
@@ -152,6 +164,7 @@ mod tests {
                 enabled: true,
                 port: 4321,
             },
+            updates: UpdateSettings { auto_check: true },
         };
         settings.save(dir.path())?;
         assert_eq!(AppSettings::load(dir.path()), settings);
@@ -169,8 +182,26 @@ mod tests {
             serde_json::from_str(&fs::read_to_string(dir.path().join(SETTINGS_FILE))?)?;
         assert_eq!(
             value,
-            serde_json::json!({ "mcp": { "enabled": false, "port": 8765 } })
+            serde_json::json!({
+                "mcp": { "enabled": false, "port": 8765 },
+                "updates": { "autoCheck": false }
+            })
         );
+        Ok(())
+    }
+
+    #[test]
+    fn the_update_auto_check_is_off_by_default_and_for_an_older_file()
+    -> Result<(), Box<dyn std::error::Error>> {
+        assert!(!AppSettings::default().updates.auto_check);
+        let dir = directory()?;
+        fs::write(
+            dir.path().join(SETTINGS_FILE),
+            r#"{"mcp":{"enabled":true,"port":4000}}"#,
+        )?;
+        let settings = AppSettings::load(dir.path());
+        assert!(settings.mcp.enabled);
+        assert!(!settings.updates.auto_check);
         Ok(())
     }
 
@@ -259,6 +290,7 @@ mod tests {
                 enabled: true,
                 port: 80,
             },
+            updates: UpdateSettings::default(),
         };
         assert_eq!(settings.save(dir.path()), Err(SettingsSaveError));
         assert!(!dir.path().join(SETTINGS_FILE).exists());

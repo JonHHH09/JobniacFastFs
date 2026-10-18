@@ -251,6 +251,19 @@ export const commands = {
 	 *  never returned to the webview. Refused while the server is not running.
 	 */
 	mcpServerCopyConnection: () => typedError<null, CommandError>(__TAURI_INVOKE("mcp_server_copy_connection")),
+	/**  Checks for a new version. A failed check is an error, not "no update". */
+	checkForUpdate: () => typedError<UpdateCheckDto, CommandError>(__TAURI_INVOKE("check_for_update")),
+	/**
+	 *  Downloads the newer version, verifies its signature against the public key of the build,
+	 *  installs it and restarts the app. A copy installed from a `.deb` is refused. On success the
+	 *  process restarts, so the call does not return; any failure leaves the installed version as it
+	 *  was.
+	 */
+	installUpdate: () => typedError<null, CommandError>(__TAURI_INVOKE("install_update")),
+	/**  Reads the auto-check switch, whether this build can update, and the startup check result. */
+	updateSettingsGet: () => typedError<UpdateSettingsDto, CommandError>(__TAURI_INVOKE("update_settings_get")),
+	/**  Turns the startup check on or off and saves the switch. It makes no request itself. */
+	updateSetAutoCheck: (enabled: boolean) => typedError<UpdateSettingsDto, CommandError>(__TAURI_INVOKE("update_set_auto_check", { enabled })),
 };
 
 /* Types */
@@ -699,6 +712,16 @@ existingProfileId: string;
 expectedRevision: string; 
 /**  The stored document the replacement is built from. */
 documentId: string };
+
+/**  How this copy of the app was installed, which decides whether it can replace itself. */
+export type InstallKindDto = 
+/**  A Windows installer or a Linux AppImage: the app downloads, verifies and installs updates. */
+"installer" | 
+/**
+ *  A Linux `.deb` package: the package manager owns the files, so the app only points to the
+ *  releases page.
+ */
+"deb";
 
 /**  The result of a capture: the status and the saved job. */
 export type JobCaptureDto = {
@@ -1266,6 +1289,30 @@ export type TextPreviewDto = {
 	text: string,
 	/**  Whether the text was cut at the budget. */
 	truncated: boolean,
+};
+
+/**  The answer of one update check. */
+export type UpdateCheckDto = {
+	/**  Whether a newer version is published. */
+	available: boolean,
+	/**  The newer version, set only when `available`. */
+	version: string | null,
+	/**  The release notes of the newer version, shortened to [`MAX_NOTES_CHARS`]. */
+	notes: string | null,
+	/**  How this copy was installed. */
+	installKind: InstallKindDto,
+};
+
+/**  The updater section of the Settings screen. */
+export type UpdateSettingsDto = {
+	/**  Whether the app checks once after startup (the persisted switch, off by default). */
+	autoCheck: boolean,
+	/**  False in a build without updater configuration (a development build). */
+	supported: boolean,
+	/**  How this copy was installed. */
+	installKind: InstallKindDto,
+	/**  The update the startup check found, if it ran and found one. */
+	pending: UpdateCheckDto | null,
 };
 
 /* Tauri Specta runtime */

@@ -42,6 +42,10 @@ tauri-plugin-dialog = "=2.8.2"
 # Writes the MCP endpoint and token to the system clipboard. Called from Rust only (the Settings
 # copy command), so the webview is granted no clipboard permission and the token never crosses IPC.
 tauri-plugin-clipboard-manager = "=2.5.0"
+# In-app updates (Settings: check and install). Called from Rust only, so the webview is granted no
+# updater permission. It is registered only when the build carries `plugins.updater` (the release
+# config), so a development build starts without a signing key.
+tauri-plugin-updater = "=2.14.0"
 tauri-specta.workspace = true
 time.workspace = true
 tokio.workspace = true

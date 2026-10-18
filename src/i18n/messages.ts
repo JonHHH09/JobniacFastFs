@@ -777,6 +777,12 @@ export const messages = {
   "settings.mcp.failed": "The MCP server command could not run. Please try again.",
   "settings.mcp.notRunning": "The MCP server is not running.",
   "settings.mcp.clipboardFailed": "Unable to copy to the clipboard.",
+
+  "update.unavailable": "Updates are unavailable in this build.",
+  "update.checkFailed": "Unable to check for updates. Check your connection and try again.",
+  "update.installFailed": "The update could not be installed. The installed version is unchanged.",
+  "update.managedByPackage":
+    "This copy was installed from a package and cannot update itself. Use the releases page.",
 } as const;
 
 /** O(1) own-key check without allocating a key array (`Object.hasOwn` needs ES2022). */

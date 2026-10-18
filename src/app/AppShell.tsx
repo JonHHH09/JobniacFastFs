@@ -2,6 +2,7 @@ import { Outlet } from "@tanstack/react-router";
 import { Menu, Search, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useCallback, useEffect, useState } from "react";
+import { UpdateBanner } from "../features/updates/UpdateBanner";
 import { copy } from "../i18n/copy";
 import { formatMessage } from "../i18n/messages";
 import { Button } from "../ui/button";
@@ -254,6 +255,7 @@ export function AppShell() {
               </Button>
             </div>
           ) : null}
+          <UpdateBanner />
           <Outlet />
         </main>
         <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} select={select} />

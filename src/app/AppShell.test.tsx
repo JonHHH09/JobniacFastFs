@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createMemoryHistory, RouterProvider } from "@tanstack/react-router";
 import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -23,7 +24,12 @@ vi.mock("../features/health/HealthPage", () => ({
 
 async function renderShell(path = "/") {
   const router = createAppRouter(createMemoryHistory({ initialEntries: [path] }));
-  render(<RouterProvider router={router} />);
+  // The update banner reads the updater state through React Query (a stand-in answers null).
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>,
+  );
   await screen.findByRole("navigation", { name: "Main navigation" });
   return router;
 }
