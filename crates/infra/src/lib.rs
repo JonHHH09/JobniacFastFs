@@ -8,4 +8,5 @@ pub mod blocking;
 pub mod files;
 pub mod generated;
 pub mod postgres;
+pub mod sqlite;
 pub mod workers;

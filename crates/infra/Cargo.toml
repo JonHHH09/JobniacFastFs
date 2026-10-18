@@ -20,6 +20,8 @@ hyper-util.workspace = true
 hickory-resolver.workspace = true
 jobniac-core.workspace = true
 jobniac-text.workspace = true
+# Embedded SQLite (bundled): the sqlite module replaces the postgres module.
+rusqlite.workspace = true
 rustls.workspace = true
 rustls-native-certs.workspace = true
 secrecy.workspace = true
@@ -62,6 +64,7 @@ postgres-tests = []
 jobniac-testkit.workspace = true
 jobniac-infra = { path = ".", features = ["test-hooks"] }
 rcgen.workspace = true
+tempfile.workspace = true
 
 [[test]]
 name = "postgres_job_search"
