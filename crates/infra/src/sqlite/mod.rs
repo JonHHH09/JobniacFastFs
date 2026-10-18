@@ -5,6 +5,7 @@
 //! `sql/sqlite/V0001__baseline.sql`. `RULES_TO_PORT.md` lists the PostgreSQL rules that the
 //! repositories enforce in Rust instead of SQL.
 
+pub mod artifacts;
 pub mod error;
 pub mod health;
 pub mod location;
