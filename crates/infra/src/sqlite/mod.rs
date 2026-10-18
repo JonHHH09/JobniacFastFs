@@ -8,7 +8,10 @@
 pub mod documents;
 pub mod error;
 pub mod health;
+pub mod jobs;
 pub mod location;
+pub mod match_reviews;
+pub mod matching;
 pub mod migrations;
 pub mod pool;
 pub mod profiles;
