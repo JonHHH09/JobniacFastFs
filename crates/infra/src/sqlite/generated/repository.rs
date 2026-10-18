@@ -4,6 +4,11 @@
 //! that can touch the asset, and a recovery candidate is never "busy": it is either still eligible
 //! at the reread inside its own transaction, or it changed since the candidate scan and is skipped
 //! for that reason.
+//!
+//! The standalone materialization keeps its file write inside the transaction on purpose: it has no
+//! lease, so the writer is the only thing that keeps a recovery or retirement of the same asset
+//! from deleting the still absent file mid-write (see [`super::classified`]). The write is one
+//! bounded PDF, far below the busy timeout of the writers that wait.
 
 use std::sync::Arc;
 

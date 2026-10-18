@@ -281,8 +281,8 @@ pub(super) async fn renew_claim(
     .await
 }
 
-/// Runs the file phase of a removal (hashing and fsync) on the transaction's task without
-/// parking an async worker (see [`run_file_phase`]).
+/// Runs the file phase of a removal (hashing and fsync) without parking an async worker (see
+/// [`run_file_phase`]).
 fn remove_on_worker(
     remover: &dyn OwnedAssetRemover,
     asset: &AssetIdentity,
@@ -295,41 +295,70 @@ fn read_task(tx: &SqliteTransaction, task_id: Uuid) -> Result<Option<TaskRow>, A
     run_with(tx, |conn| task_row(conn, task_id))
 }
 
-/// Runs the fenced removal of one claim and finalizes it.
+/// What the first transaction of [`execute_claim`] decided.
+enum Admission {
+    /// The claim is live and the asset unreferenced: run the file phase.
+    Proceed,
+    /// The claim ended here (lost fence, or the asset is referenced and the task was blocked).
+    Done(CleanupOutcome),
+}
+
+/// Runs the fenced removal of one claim and finalizes it, in two short transactions around a file
+/// phase that holds no transaction.
 ///
-/// The transaction holds the writer from the first check through the removal and the token-checked
-/// finalization. A removal failure is recorded with the same fence; a lost fence records nothing.
+/// The file phase (hashing and fsync) must not run under `BEGIN IMMEDIATE`, which would block every
+/// writer of every process for its length. The claim protocol makes the split safe:
+///
+/// * The first transaction checks the fence (`PROCESSING`, this lease token, attempt count,
+///   retirement identity, lease not expired) and that the asset is unreferenced.
+/// * While the file phase runs, the asset is `RETIRING`. The lifecycle only moves forward, and an
+///   owned document attaches only to an `ACTIVE` asset, so no new reference can appear. Another
+///   claim of the task needs an expired lease and changes the attempt count and token.
+/// * The second transaction rereads the task and finalizes only under the same fence (the lease
+///   expiry is not checked again, as before: an expired but untouched claim may still finish). A
+///   rotated fence records nothing. The deletion guard rechecks references and the completed task.
+///   A file removed for a claim that lost its fence is harmless: the next claim finds it absent.
+///
+/// A removal failure is recorded with the same fence.
 pub(super) async fn execute_claim(
     uow: &SqliteUnitOfWork,
     clock: &dyn Clock,
     claim: &CleanupClaim,
     remover: &dyn OwnedAssetRemover,
 ) -> Result<CleanupOutcome, AppError> {
-    uow.transaction(TransactionOptions::default(), async |tx| {
-        let Some(row) = read_task(tx, claim.task_id())? else {
-            return Ok(CleanupOutcome::LeaseLost);
-        };
-        if !row.matches(claim, Some(truncate_to_micros(clock.now())))? {
-            return Ok(CleanupOutcome::LeaseLost);
-        }
-        let still_referenced = run_with::<_, SqliteError>(tx, |conn| {
-            generated_asset_referenced(conn, row.document_id, &row.relative_path)
-        })?;
-        if still_referenced {
-            let now = truncate_to_micros(clock.now());
-            run_with(tx, |conn| {
-                fail(
-                    conn,
-                    &row,
-                    claim.lease_token(),
-                    RemovalFailureCategory::OwnershipUnproven,
-                    now,
-                )
+    let admission = uow
+        .transaction(TransactionOptions::default(), async |tx| {
+            let Some(row) = read_task(tx, claim.task_id())? else {
+                return Ok(Admission::Done(CleanupOutcome::LeaseLost));
+            };
+            if !row.matches(claim, Some(truncate_to_micros(clock.now())))? {
+                return Ok(Admission::Done(CleanupOutcome::LeaseLost));
+            }
+            let still_referenced = run_with::<_, SqliteError>(tx, |conn| {
+                generated_asset_referenced(conn, row.document_id, &row.relative_path)
             })?;
-            return Ok(CleanupOutcome::Blocked);
-        }
-        let removal = remove_on_worker(remover, claim.asset());
-
+            if still_referenced {
+                let now = truncate_to_micros(clock.now());
+                run_with(tx, |conn| {
+                    fail(
+                        conn,
+                        &row,
+                        claim.lease_token(),
+                        RemovalFailureCategory::OwnershipUnproven,
+                        now,
+                    )
+                })?;
+                return Ok(Admission::Done(CleanupOutcome::Blocked));
+            }
+            Ok::<_, AppError>(Admission::Proceed)
+        })
+        .await?;
+    if let Admission::Done(outcome) = admission {
+        return Ok(outcome);
+    }
+    // No transaction is open here: other writers commit while the file work runs.
+    let removal = remove_on_worker(remover, claim.asset());
+    uow.transaction(TransactionOptions::default(), async |tx| {
         let Some(current) = read_task(tx, claim.task_id())? else {
             return Ok(CleanupOutcome::LeaseLost);
         };

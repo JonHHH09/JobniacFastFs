@@ -5,7 +5,12 @@
 //! renewal or recovery that meets another writer runs after that writer committed and rereads its
 //! row, so it refuses by the same state checks (a rotated fence, a retired asset, a finished intent).
 //! Publication runs inside the materialization transaction, so the writer spans the file write and
-//! the finalization.
+//! the finalization. Unlike a cleanup removal, this file phase is not split out of the transaction:
+//! a concurrent abandon, expired recovery or cleanup of the same asset could otherwise retire it
+//! and delete its (still absent) file while the write is in flight, leaving an orphan file. The
+//! PostgreSQL adapter held a per-asset advisory lock here; the single writer is the equivalent. The
+//! phase is one PDF write bounded by the owned-file limits, far below the busy timeout of the
+//! writers that queue behind it ([`crate::sqlite::pool::BUSY_TIMEOUT`]).
 
 use async_trait::async_trait;
 use jobniac_core::clock::truncate_to_micros;
