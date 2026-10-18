@@ -1,7 +1,7 @@
 name: End-to-end suite
 description: >-
-  Builds the debug desktop application and runs the WebDriver suite (e2e/README.md) over a disposable
-  PostgreSQL 18 cluster. Shared by the `E2E (ubuntu-26.04)` and `E2E (windows-latest)` jobs of e2e.yml.
+  Builds the debug desktop application and runs the WebDriver suite (e2e/README.md) over a temporary
+  SQLite database file. Shared by the `E2E (ubuntu-26.04)` and `E2E (windows-latest)` jobs of e2e.yml.
   The caller checks out first.
 
 inputs:
@@ -18,22 +18,6 @@ runs:
       run: |
         sudo apt-get update
         sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf webkitgtk-webdriver xvfb
-
-    - name: Install PostgreSQL 18 (Linux, signing key fingerprint pinned)
-      if: runner.os == 'Linux'
-      shell: bash
-      run: bash scripts/ci/install-postgresql-18.sh
-
-    - name: Install PostgreSQL 18 (Windows, only when the runner image lacks it)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: |
-        if (-not (Test-Path -LiteralPath 'C:\Program Files\PostgreSQL\18\bin\pg_ctl.exe' -PathType Leaf)) {
-          choco install postgresql18 --yes --no-progress
-        }
-        $service = Get-Service -Name 'postgresql-x64-18' -ErrorAction SilentlyContinue
-        if ($service) { Stop-Service -Name 'postgresql-x64-18' -Force }
-        if (-not (Test-Path -LiteralPath 'C:\Program Files\PostgreSQL\18\bin\postgres.exe' -PathType Leaf)) { throw 'PostgreSQL 18 binaries were not found' }
 
     - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
       with:
@@ -68,9 +52,9 @@ runs:
       shell: bash
       run: pnpm tauri build --debug --no-bundle --config src-tauri/tauri.e2e.conf.json
 
-    - name: Build the console binary and pg-run
+    - name: Build the console binary
       shell: bash
-      run: cargo build --locked -p jobniac-cli -p jobniac-testkit --bins
+      run: cargo build --locked -p jobniac-cli
 
     - name: Install tauri-driver
       shell: bash
@@ -100,16 +84,12 @@ runs:
     - name: Run the end-to-end suite (Windows)
       if: runner.os == 'Windows'
       shell: pwsh
-      env:
-        JOBNIAC_POSTGRES_BIN: C:\Program Files\PostgreSQL\18\bin
-      run: ./target/debug/pg-run.exe node e2e/run.mjs
+      run: node e2e/run.mjs
 
     - name: Run the end-to-end suite (Linux, under xvfb)
       if: runner.os == 'Linux'
       shell: bash
-      env:
-        JOBNIAC_POSTGRES_BIN: /usr/lib/postgresql/18/bin
-      run: xvfb-run --auto-servernum ./target/debug/pg-run node e2e/run.mjs
+      run: xvfb-run --auto-servernum node e2e/run.mjs
 
     - name: Upload failure screenshots
       if: failure()

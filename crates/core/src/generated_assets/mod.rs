@@ -1,7 +1,7 @@
 //! Generated-asset lifecycle: immutable identities, classified generation intents with leases and
-//! fencing, and the ports and service that the PostgreSQL and file adapters implement.
+//! fencing, and the ports and service that the SQLite and file adapters implement.
 //!
-//! Pure rules live here; the transactions live in `jobniac_infra::postgres::generated`.
+//! Pure rules live here; the transactions live in `jobniac_infra::sqlite::generated`.
 
 pub mod identity;
 pub mod intents;

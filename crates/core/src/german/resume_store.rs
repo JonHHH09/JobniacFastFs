@@ -1,5 +1,5 @@
 //! Source-shaped Germany resume writes, immutable bounded admission and the pure content mapping.
-//! It holds no SQL: the PostgreSQL adapter
+//! It holds no SQL: the SQLite adapter
 //! implements [`GermanResumeRepository`] in `jobniac_infra`.
 //!
 //! Every row has private fields and a checked constructor. The constructor first admits the raw
@@ -114,7 +114,7 @@ pub fn validate_revision(value: i128) -> Result<Revision, ApplicationError> {
     Revision::from_wide(value).ok_or_else(invalid)
 }
 
-/// A stored position: an exact integer in `0..=i32::MAX` (a PostgreSQL non-negative `integer`).
+/// A stored position: an exact integer in `0..=i32::MAX` (a non-negative SQLite `INTEGER`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DisplayOrder(i32);
 
@@ -1155,9 +1155,9 @@ pub struct ReplaceResult {
     pub previous_variants: Vec<ResumeVariant>,
 }
 
-/// Persistence port of the German resume. The PostgreSQL
-/// adapter is `jobniac_infra::postgres::german`; the replace transaction takes the pair advisory
-/// lock ([`PairKey::lock_name`]), then the rows in the fixed order.
+/// Persistence port of the German resume. The SQLite
+/// adapter is `jobniac_infra::sqlite::german`; the replace transaction runs on the single writer
+/// ([`PairKey::lock_name`] names the pair), then writes the rows in the fixed order.
 #[async_trait]
 pub trait GermanResumeRepository: Send + Sync {
     /// Reads a resume by id.

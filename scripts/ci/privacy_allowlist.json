@@ -883,6 +883,24 @@
       "classes": ["secret-token"],
       "paths": ["src-tauri/src/state.rs"],
       "reason": "Literal placeholder tokens inside #[cfg(test)] Debug-redaction tests; not secrets. Intermediate version from the history."
+    },
+    {
+      "sha256": "af38457a3c945bd5a4ab39053692561e9805fe2dd180e145fd84d1e522894096",
+      "classes": ["ip-address"],
+      "paths": ["crates/cli/tests/fetch_worker.rs"],
+      "reason": "IP literal is a well-known public DNS resolver address used as a refused IP-literal target in a fetch-worker test; not personal data. (re-reviewed)"
+    },
+    {
+      "sha256": "5f1c1e14fdef0016507b3008cd8b327c0fc58b57927e25c7b59317b7a221a4b2",
+      "classes": ["ip-address"],
+      "paths": ["crates/runtime/src/job_links.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed). (re-reviewed)"
+    },
+    {
+      "sha256": "ba0bc52208c1c55a72f477a1d5520fec0ac553bf153edf7c926bd74ac5a90d6a",
+      "classes": ["local-path"],
+      "paths": ["crates/core/src/database_location.rs"],
+      "reason": "Home and profile segments in the database-location tests are single-word synthetic names such as someone (reviewed)."
     }
   ]
 }

@@ -25,10 +25,9 @@ hosted runner yet.
   2. **Branch protection on `development` and `main`:** configured as recorded in
      [branch-protection.md](branch-protection.md) (rulesets, required checks, merge methods). The older
      notes below predate it. Required checks named as the CI jobs are named
-     in `ci.yml`: `rust` (both systems), `supply-chain`, `ui`, `bindings` and
-     `postgres-18`. The names in `ci.yml` today are `ui`, `rust`, `supply-chain` and `postgres`; the
-     `bindings` check is a step of `rust`, and the `postgres-18` job is required on the promotion
-     pull request. Confirm the names in the GitHub picker before you save.
+     in `ci.yml`: `rust` (both systems), `supply-chain`, `ui` and `bindings`. The names in `ci.yml`
+     today are `ui`, `rust` and `supply-chain`; the `bindings` check is a step of `rust`. Confirm the
+     names in the GitHub picker before you save.
   3. **Pull request rules:** pull requests into `development` and `main`, one approval if you
      want one (single maintainer; owner choice).
   4. **Tag protection:** tags `v*` restricted to the owner, because the release tag must point at the
@@ -51,6 +50,14 @@ hosted runner yet.
   step, never in pull-request workflows. `release.yml` has NO signing step yet, so no secret name exists:
   adding the chosen route (its own pull request) defines the names. Do not create secrets from this
   checklist.
+- **Updater signing key (separate from the Windows code-signing route above).** The in-app updater
+  refuses any update that is not signed with this key, and the release stops until it is in place.
+  **Done:** the public key is committed as `plugins.updater.pubkey` in
+  `src-tauri/tauri.release.conf.json`, and the repository secrets `TAURI_SIGNING_PRIVATE_KEY` and
+  `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` are set; only the tauri-action step of the build reads them.
+  `release.py` still refuses the placeholder `REPLACE_WITH_UPDATER_PUBLIC_KEY`, which matters for forks
+  (they generate their own key with `pnpm tauri signer generate -w <path outside the repository>`).
+  Keep an offline backup of the private key: losing it means installed copies can never update again.
 - **Each route is its own pull request with its own gate.** The route is not chosen by this checklist.
 - **Failure:** no route decided. Keep the release unsigned and say so in the release notes.
 
@@ -123,15 +130,21 @@ hosted runner yet.
 - **Expected:** the repository is public and the first Scorecard and CodeQL runs complete (check the logs).
 - **Failure:** a run fails on visibility. Read the log before you treat it as a regression.
 
-## G9 Publish the draft and announce
+## G9 CI publishes after the gates, then announce
 
-- **Who:** owner. **Where:** GitHub Releases.
-- **What:** read the draft body (from `CHANGELOG.md`), check the assets and the `SHA256SUMS`, and publish
-  the release manually. No workflow publishes it.
-  Then announce where you choose. The announcement text is yours.
+- **Who:** `release.yml` publishes; the owner announces. **Where:** GitHub Releases.
+- **What:** the last job (`publish`) runs only when every other job has passed, including the draft
+  verification (exact asset set, digests, `latest.json` and the update signatures). It creates the tag
+  `vX.Y.Z` on the merge commit (it fails if the tag exists on another commit) and publishes the draft:
+  the latest release for `X.Y.Z`, a prerelease for `X.Y.Z-dev.N` (never the latest, so the updater
+  ignores it). To stop a release, do not merge the promotion pull request; a failed job leaves the draft
+  unpublished. To cut a release, bump on `development` first with
+  `py -I scripts/release/release.py bump X.Y.Z` (then `cargo update -w` if it was not run) and open the
+  `chore: release X.Y.Z` pull request. Then announce where you choose. The announcement text is yours.
 - **Expected:** the release is public, the installer digest matches `SHA256SUMS`, and the release notes
   include the SmartScreen guidance from the [README](../../README.md#install).
-- **Failure:** a digest mismatch. Do not publish; start again from G4.
+- **Failure:** a job fails, so nothing is published. Read the log, fix, and re-run; a rerun reuses the
+  draft. A digest mismatch: start again from G4.
 
 ## Open questions for the owner
 
@@ -139,8 +152,9 @@ These are not facts in the repository. Each needs an answer from you before the 
 
 1. Which MCP protocol version does the release snapshot pin: `2025-06-18` or another
    value? The server negotiates up to `2025-11-25`. ([clean-machine smoke, step 22](clean-machine-smoke-checklist.md#11-mcp-exercise).)
-2. Whether `JOBNIAC_DB_PASSWORD` goes into each client's JSON file or into a user environment variable
-   ([MCP client registration, section 1](mcp-client-registration.md#1-database-settings)).
+2. Whether the default database file (`%LOCALAPPDATA%\Jobniac\data\jobniac.sqlite3`) is an allowed
+   residue of the manual smoke, or is removed by hand
+   ([clean-machine smoke, step 26](clean-machine-smoke-checklist.md#13-uninstall-and-residue)).
 3. Whether `%LOCALAPPDATA%\Jobniac\generated` is an allowed residue of the manual smoke, or is removed by hand
    ([clean-machine smoke, step 26](clean-machine-smoke-checklist.md#13-uninstall-and-residue)).
 4. Which signing route (G3) and who applies for it.
@@ -152,9 +166,8 @@ These are not facts in the repository. Each needs an answer from you before the 
 
 Each one is decided in writing before the gate it belongs to.
 
-- **G10 PostgreSQL on pull requests.** Decide whether the `postgres` job runs on every pull request or stays on pushes and the release. Today it does not run on pull requests.
 - **G11 Privacy history.** Decide between a history rewrite and acceptance before G7 step 3. Until then the `privacy-scan` job of `ci.yml` fails on pushes and pull requests. A rewrite changes every commit id, so every open branch and pull request must be redone.
 - **G12 Installed-application checks before G5.** On an installed desktop build, exercise what the hosted smoke cannot: the 60-second timeout and the refusal paths of the smoke hook, a PDF extraction from the installed application, and an NSIS install with the silent switch confirmed on the built installer. Record each result outside the repository.
-- **G13 Linux results.** Read the logs of the first `ci.yml` run (the `Rust (ubuntu-26.04)` job and the `postgres` job), the Linux leg of `e2e.yml` and the Linux leg of `release.yml`. The Linux-only code is verified by CI only.
+- **G13 Linux results.** Read the logs of the first `ci.yml` run (the `Rust (ubuntu-26.04)` job), the Linux leg of `e2e.yml` and the Linux leg of `release.yml`. The Linux-only code is verified by CI only.
 - **G14 Notice items.** Decide whether the PDFBox Apache-2.0 notice, the HTML4 NOTICE and the W3C entity-set licence (G6, point 3) are needed in `THIRD-PARTY-NOTICES.txt`, and record the decision with G6.
 - **G15 Two behaviour choices.** Decide the smoke outcome for a DOWN health report (exit 0 now) and the artifact and generation controls when their services are absent (not rendered now).

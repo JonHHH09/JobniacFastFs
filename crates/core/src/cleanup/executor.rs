@@ -30,7 +30,7 @@ pub trait OwnedAssetRemover: Send + Sync {
 }
 
 /// Persistence port of the cleanup ledger. Each method is one repository operation; the
-/// PostgreSQL adapter lives in `jobniac_infra::postgres::cleanup`.
+/// SQLite adapter lives in `jobniac_infra::sqlite::cleanup`.
 #[async_trait]
 pub trait CleanupRepository: CleanupHealthRepository {
     /// Commits retirement and task intent of an unreferenced asset under the common serialization.

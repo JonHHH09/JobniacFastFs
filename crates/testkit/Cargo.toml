@@ -1,6 +1,6 @@
 [package]
 name = "jobniac-testkit"
-description = "Disposable PostgreSQL 18 harness and fixture helpers for Jobniac tests"
+description = "Temporary SQLite database helper for Jobniac tests"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -9,29 +9,8 @@ authors.workspace = true
 publish.workspace = true
 
 [dependencies]
-# Interrupt handling of `pg-test`: a Ctrl-C ends the test tree and the cluster is still cleaned up.
-ctrlc = "3.4"
-getrandom.workspace = true
-hex.workspace = true
 jobniac-core.workspace = true
-serde_json.workspace = true
 tempfile.workspace = true
-tokio.workspace = true
-tokio-postgres.workspace = true
-
-# `pg-test` runs `cargo test` as a child process. The binary is kept out of test builds, and the
-# crate has no integration-test targets (cargo builds bins for those), so the child never relinks
-# the running executable, which Windows refuses to overwrite. The runner lives in the library.
-[[bin]]
-name = "pg-test"
-path = "src/bin/pg-test.rs"
-test = false
-
-# `pg-run` runs one command (the end-to-end suite) against a disposable cluster, see runner::run_command_cli.
-[[bin]]
-name = "pg-run"
-path = "src/bin/pg-run.rs"
-test = false
 
 [lints]
 workspace = true

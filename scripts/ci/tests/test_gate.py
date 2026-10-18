@@ -113,7 +113,7 @@ class GateTests(unittest.TestCase):
                 "GITHUB_REPOSITORY": REPO,
                 "EVENT_NAME": event,
                 "BASE_REF": base_ref,
-                "POSTGRES_REQUIRED": required,
+                "RELEASE_CALL": required,
             }
         )
         completed = subprocess.run(["bash", str(GATE), workflow], cwd=self.repo, env=env, capture_output=True, text=True)

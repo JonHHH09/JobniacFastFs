@@ -11,7 +11,10 @@
 //! - **Child environment.** The child starts from an empty environment: the `JOBNIAC_*` variables of
 //!   the app (database settings and flags) minus any inherited `JOBNIAC_HTTP_*` and the internal
 //!   worker marker and parent-pipe marker, the minimal OS variables of the worker allowlist, and the
-//!   port, token and `JOBNIAC_INTERNAL_PARENT_PIPE=1`. Its stdout and stderr are null.
+//!   port, token and `JOBNIAC_INTERNAL_PARENT_PIPE=1`. Its stdout and stderr are null. The home and
+//!   data-directory variables do not cross, so the child could not find the per-user default
+//!   database: the app passes the database file it resolved and opened as `JOBNIAC_DB_PATH`
+//!   ([`McpSupervisor::with_database_path`]). The path travels only in the child's environment.
 //! - **Lifetime.** The child's stdin is a pipe whose write end the supervisor holds. The OS closes
 //!   it when the app dies for any reason (SIGKILL, crash, force-close), the child sees EOF and shuts
 //!   down, so a hard-killed app leaves no listener behind. The std pipe is close-on-exec (Unix) or
@@ -26,7 +29,7 @@
 use std::ffi::OsString;
 use std::fmt;
 use std::net::{Ipv4Addr, SocketAddr, TcpListener, TcpStream};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::{Child, ChildStdin, Command, Stdio};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use std::time::{Duration, Instant};
@@ -47,6 +50,9 @@ pub const SIDECAR_NAME: &str = "jobniac-cli";
 
 /// How long a start waits for the child to accept a connection.
 pub const READY_DEADLINE: Duration = Duration::from_secs(15);
+
+/// The environment variable that carries the database file to the child.
+const DATABASE_PATH_VARIABLE: &str = "JOBNIAC_DB_PATH";
 
 /// The inherited prefix that never crosses into the child (the supervisor sets its own values).
 const HTTP_VARIABLE_PREFIX: &str = "JOBNIAC_HTTP_";
@@ -296,18 +302,32 @@ pub fn generate_token() -> Result<SecretString, TokenError> {
 /// markers, and the variables of the worker allowlist (`PATH`, the temp and locale variables, the
 /// Windows system root). Everything else (proxy settings, interpreter overrides, other secrets) is
 /// dropped. The supervisor's port, token and parent-pipe marker are added last, so no inherited
-/// value can replace them.
+/// value can replace them. With a `database` file, that file is the child's `JOBNIAC_DB_PATH`
+/// whatever the app inherited.
 #[must_use]
 pub fn child_environment(
     source: &[(OsString, OsString)],
     port: u16,
     token: &SecretString,
+    database: Option<&Path>,
 ) -> Vec<(OsString, OsString)> {
     let mut environment: Vec<(OsString, OsString)> = source
         .iter()
         .filter(|(name, _)| name.to_str().is_some_and(crosses_into_child))
+        .filter(|(name, _)| {
+            database.is_none()
+                || !name
+                    .to_str()
+                    .is_some_and(|name| name.eq_ignore_ascii_case(DATABASE_PATH_VARIABLE))
+        })
         .cloned()
         .collect();
+    if let Some(database) = database {
+        environment.push((
+            DATABASE_PATH_VARIABLE.into(),
+            database.as_os_str().to_owned(),
+        ));
+    }
     environment.push((HTTP_PORT_VARIABLE.into(), port.to_string().into()));
     environment.push((HTTP_TOKEN_VARIABLE.into(), token.expose_secret().into()));
     environment.push((PARENT_PIPE_VARIABLE.into(), "1".into()));
@@ -372,6 +392,7 @@ impl Inner {
 pub struct McpSupervisor {
     spawner: Arc<dyn Spawner>,
     source_environment: Vec<(OsString, OsString)>,
+    database_path: Option<PathBuf>,
     ready_deadline: Duration,
     inner: Mutex<Inner>,
 }
@@ -393,6 +414,7 @@ impl McpSupervisor {
         Self {
             spawner,
             source_environment,
+            database_path: None,
             ready_deadline: READY_DEADLINE,
             inner: Mutex::new(Inner {
                 status: McpServerStatus::Stopped,
@@ -404,6 +426,13 @@ impl McpSupervisor {
                 closed: false,
             }),
         }
+    }
+
+    /// The database file the app opened; every child gets it as `JOBNIAC_DB_PATH`.
+    #[must_use]
+    pub fn with_database_path(mut self, path: Option<PathBuf>) -> Self {
+        self.database_path = path;
+        self
     }
 
     /// Replaces the readiness deadline (tests use a short one).
@@ -483,7 +512,12 @@ impl McpSupervisor {
                 return inner.status;
             };
             let request = SpawnRequest {
-                environment: child_environment(&self.source_environment, port, &token),
+                environment: child_environment(
+                    &self.source_environment,
+                    port,
+                    &token,
+                    self.database_path.as_deref(),
+                ),
             };
             match self.spawner.spawn(request) {
                 Ok(child) => {
@@ -684,7 +718,10 @@ mod tests {
 
     fn supervisor(spawner: &Arc<FakeSpawner>) -> McpSupervisor {
         let source = vec![
-            (OsString::from("JOBNIAC_DB_HOST"), OsString::from("db.test")),
+            (
+                OsString::from("JOBNIAC_DB_PATH"),
+                OsString::from("/srv/jobniac-synthetic/jobniac.sqlite3"),
+            ),
             (
                 OsString::from("JOBNIAC_HTTP_BEARER_TOKEN"),
                 OsString::from("inherited-token"),
@@ -942,6 +979,66 @@ mod tests {
     }
 
     #[test]
+    fn the_child_gets_the_database_the_app_resolved_without_home_variables()
+    -> Result<(), std::io::Error> {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        // The app resolved the per-user default (no JOBNIAC_DB_PATH) from its own HOME.
+        let source = vec![
+            (OsString::from("HOME"), OsString::from("/home/synthetic")),
+            (
+                OsString::from("XDG_DATA_HOME"),
+                OsString::from("/home/synthetic/data"),
+            ),
+            (OsString::from("PATH"), OsString::from("/usr/bin")),
+        ];
+        let resolved = PathBuf::from("/home/synthetic/data/jobniac/jobniac.sqlite3");
+        let supervisor = McpSupervisor::new(Arc::new(Arc::clone(&spawner)), source)
+            .with_ready_deadline(SHORT_DEADLINE)
+            .with_database_path(Some(resolved.clone()));
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        assert_eq!(
+            spawner.last_value("JOBNIAC_DB_PATH"),
+            Some(resolved.to_string_lossy().into_owned())
+        );
+        assert_eq!(spawner.last_value("HOME"), None);
+        assert_eq!(spawner.last_value("XDG_DATA_HOME"), None);
+        Ok(())
+    }
+
+    #[test]
+    fn the_resolved_database_replaces_an_inherited_override() {
+        let source = vec![
+            (OsString::from("jobniac_db_path"), OsString::from("/old/db")),
+            (
+                OsString::from("JOBNIAC_DB_PATH"),
+                OsString::from("/older/db"),
+            ),
+        ];
+        let token = SecretString::from("t".repeat(64));
+        let environment = child_environment(&source, 4000, &token, Some(Path::new("/new/db")));
+        let values: Vec<&OsString> = environment
+            .iter()
+            .filter(|(name, _)| {
+                name.to_string_lossy()
+                    .eq_ignore_ascii_case("JOBNIAC_DB_PATH")
+            })
+            .map(|(_, value)| value)
+            .collect();
+        assert_eq!(values, [&OsString::from("/new/db")]);
+        // Without a resolved path the inherited value is left as it is.
+        let kept = child_environment(&source, 4000, &token, None);
+        assert_eq!(
+            kept.iter()
+                .filter(|(name, _)| name
+                    .to_string_lossy()
+                    .eq_ignore_ascii_case("JOBNIAC_DB_PATH"))
+                .count(),
+            2
+        );
+    }
+
+    #[test]
     fn the_child_environment_has_the_port_and_a_valid_token_and_no_inherited_http_values()
     -> Result<(), std::io::Error> {
         let (_listener, port) = open_port()?;
@@ -991,7 +1088,10 @@ mod tests {
                 .any(|name| name.eq_ignore_ascii_case("JOBNIAC_HTTP_EXTRA"))
         );
         // Database settings and the minimal OS variables cross; the rest does not.
-        assert_eq!(value("JOBNIAC_DB_HOST"), Some("db.test".to_owned()));
+        assert_eq!(
+            value("JOBNIAC_DB_PATH"),
+            Some("/srv/jobniac-synthetic/jobniac.sqlite3".to_owned())
+        );
         assert_eq!(value("PATH"), Some("/usr/bin".to_owned()));
         assert_eq!(value("HTTPS_PROXY"), None);
         assert_eq!(value("UNRELATED_SECRET"), None);

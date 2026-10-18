@@ -24,7 +24,7 @@ use super::repository::JobRepository;
 use super::request::JOB_REQUEST_MESSAGE;
 use super::update::{build_update, parse_update, planned_fingerprint};
 
-/// The largest revision the aggregate accepts (PostgreSQL `bigint` maximum).
+/// The largest revision the aggregate accepts (`i64::MAX`).
 const MAX_REVISION: i64 = i64::MAX;
 
 /// The job use cases over a unit of work, a repository, a clock and a cursor codec.

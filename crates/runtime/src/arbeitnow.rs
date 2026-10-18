@@ -20,10 +20,9 @@ use jobniac_core::clock::SystemClock;
 use jobniac_core::env::Environment;
 use jobniac_core::errors::{ApplicationError, ErrorCode};
 use jobniac_infra::arbeitnow::board::admit_board_result;
-use jobniac_infra::arbeitnow::repository::PostgresArbeitnowImportRepository;
-use jobniac_infra::postgres::config::DatabaseConfig;
-use jobniac_infra::postgres::pool::PgPool;
-use jobniac_infra::postgres::unit_of_work::PgUnitOfWork;
+use jobniac_infra::arbeitnow::sqlite_repository::SqliteArbeitnowImportRepository;
+use jobniac_infra::sqlite::pool::SqlitePool;
+use jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork;
 use jobniac_infra::workers::WorkerSupervisor;
 use secrecy::{ExposeSecret, SecretSlice};
 
@@ -112,8 +111,8 @@ pub fn load_arbeitnow_config(
 /// The scan use case over the sandboxed board transport.
 pub type ArbeitnowScanUseCase = ArbeitnowScanService<WorkerArbeitnowBoard>;
 
-/// The trusted import use case over the PostgreSQL import repository.
-pub type ArbeitnowImportUseCase = ArbeitnowJobImportService<PostgresArbeitnowImportRepository>;
+/// The trusted import use case over the SQLite import repository.
+pub type ArbeitnowImportUseCase = ArbeitnowJobImportService<SqliteArbeitnowImportRepository>;
 
 /// The opt-in Arbeitnow use cases, composed only behind the flag, valid keys and a database.
 #[derive(Debug, Clone)]
@@ -273,7 +272,7 @@ const fn platform_supported() -> bool {
 /// [`OptInConfigError`] when a key is refused by the codec or the cursor authority.
 pub fn compose_arbeitnow_services(
     config: &ArbeitnowConfig,
-    uow: PgUnitOfWork,
+    uow: SqliteUnitOfWork,
     supervisor: Option<Arc<WorkerSupervisor>>,
 ) -> Result<ArbeitnowServices, OptInConfigError> {
     let clock = Arc::new(SystemClock);
@@ -289,7 +288,7 @@ pub fn compose_arbeitnow_services(
     );
     let import = ArbeitnowJobImportService::new(
         import_codec,
-        PostgresArbeitnowImportRepository::new(uow),
+        SqliteArbeitnowImportRepository::new(uow),
         clock,
     );
     Ok(ArbeitnowServices {
@@ -311,7 +310,7 @@ pub fn compose_arbeitnow_services(
 /// [`OptInConfigError`] for an unsupported platform or unusable keys.
 pub fn compose_arbeitnow(
     env: &Environment,
-    database: Option<&DatabaseConfig>,
+    database: Option<&SqlitePool>,
 ) -> Result<Option<ArbeitnowServices>, OptInConfigError> {
     compose_arbeitnow_on(env, database, platform_supported())
 }
@@ -319,7 +318,7 @@ pub fn compose_arbeitnow(
 /// [`compose_arbeitnow`] with the platform decision passed in, so the gate can be tested on every host.
 fn compose_arbeitnow_on(
     env: &Environment,
-    database: Option<&DatabaseConfig>,
+    database: Option<&SqlitePool>,
     platform_supported: bool,
 ) -> Result<Option<ArbeitnowServices>, OptInConfigError> {
     if !env.flag_enabled(FLAG_KEY) {
@@ -334,7 +333,7 @@ fn compose_arbeitnow_on(
     let Some(database) = database else {
         return Ok(None);
     };
-    let uow = PgUnitOfWork::new(PgPool::new(Some(database.clone())));
+    let uow = SqliteUnitOfWork::new(database.clone());
     let supervisor = crate::diagnostics::current_process_supervisor();
     compose_arbeitnow_services(&config, uow, supervisor).map(Some)
 }
@@ -690,24 +689,23 @@ mod tests {
         assert_eq!(decode_base64url("QUJDQ"), None);
     }
 
-    const DATABASE_PAIRS: [(&str, &str); 5] = [
-        ("JOBNIAC_DB_HOST", "127.0.0.1"),
-        ("JOBNIAC_DB_PORT", "5432"),
-        ("JOBNIAC_DB_NAME", "jobniac_test"),
-        ("JOBNIAC_DB_USER", "app_user"),
-        ("JOBNIAC_DB_PASSWORD", "synthetic-password"),
-    ];
-
-    fn composed(pairs: &[(&str, &str)]) -> Result<Option<ArbeitnowServices>, OptInConfigError> {
-        let environment = env(pairs);
-        let database = jobniac_infra::postgres::config::load_database_config(&environment);
-        compose_arbeitnow(&environment, database.as_ref())
+    /// A pool over a fresh temporary database file. Opening creates the file and the writer
+    /// connection only.
+    fn pool() -> Result<(tempfile::TempDir, SqlitePool), Box<dyn std::error::Error>> {
+        let root = tempfile::tempdir()?;
+        let pool = SqlitePool::open(root.path().join("jobniac.sqlite3"))?;
+        Ok((root, pool))
     }
 
-    fn with_database<'a>(extra: &[(&'a str, &'a str)]) -> Vec<(&'a str, &'a str)> {
-        let mut pairs = DATABASE_PAIRS.to_vec();
-        pairs.extend_from_slice(extra);
-        pairs
+    fn composed(pairs: &[(&str, &str)]) -> Result<Option<ArbeitnowServices>, OptInConfigError> {
+        compose_arbeitnow(&env(pairs), None)
+    }
+
+    fn composed_with_database(
+        pairs: &[(&str, &str)],
+    ) -> Result<Option<ArbeitnowServices>, Box<dyn std::error::Error>> {
+        let (_root, pool) = pool()?;
+        Ok(compose_arbeitnow(&env(pairs), Some(&pool))?)
     }
 
     #[test]
@@ -725,7 +723,7 @@ mod tests {
                 extra.push((FLAG_KEY, flag));
             }
             assert!(
-                matches!(composed(&with_database(&extra)), Ok(None)),
+                matches!(composed_with_database(&extra), Ok(None)),
                 "flag {flag:?} must compose nothing"
             );
         }
@@ -733,7 +731,7 @@ mod tests {
 
     #[test]
     fn an_enabled_flag_with_a_missing_key_fails_with_the_fixed_error() {
-        let pairs = with_database(&[(FLAG_KEY, "1"), (CURSOR_SECRET_KEY, CURSOR_SECRET)]);
+        let pairs = [(FLAG_KEY, "1"), (CURSOR_SECRET_KEY, CURSOR_SECRET)];
         let Err(error) = composed(&pairs) else {
             panic!("a missing candidate key must stop composition");
         };
@@ -746,13 +744,14 @@ mod tests {
     }
 
     #[test]
-    fn valid_keys_with_a_database_compose_both_use_cases() -> Result<(), OptInConfigError> {
-        let pairs = with_database(&[
+    fn valid_keys_with_a_database_compose_both_use_cases() -> Result<(), Box<dyn std::error::Error>>
+    {
+        let pairs = [
             (FLAG_KEY, "1"),
             (CANDIDATE_KEY, KEY32),
             (CURSOR_SECRET_KEY, CURSOR_SECRET),
-        ]);
-        let services = composed(&pairs)?;
+        ];
+        let services = composed_with_database(&pairs)?;
         if cfg!(any(target_os = "linux", target_os = "windows")) {
             assert!(services.is_some());
         } else {
@@ -814,32 +813,18 @@ mod tests {
     }
 
     #[test]
-    fn enabled_composition_performs_no_io() -> Result<(), Box<dyn std::error::Error>> {
-        // A listener stands in for the database: composition must not connect to it, and the
-        // accept below must find no connection.
-        let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
-        listener.set_nonblocking(true)?;
-        let port = listener.local_addr()?.port().to_string();
-        let env = env(&[
-            (FLAG_KEY, "1"),
-            (CANDIDATE_KEY, KEY32),
-            (CURSOR_SECRET_KEY, CURSOR_SECRET),
-            ("JOBNIAC_DB_HOST", "127.0.0.1"),
-            ("JOBNIAC_DB_PORT", port.as_str()),
-            ("JOBNIAC_DB_NAME", "jobniac"),
-            ("JOBNIAC_DB_USER", "jobniac"),
-            ("JOBNIAC_DB_PASSWORD", "synthetic-password"),
-        ]);
-        let database = jobniac_infra::postgres::config::load_database_config(&env)
-            .ok_or("synthetic database settings must load")?;
-        let composed = compose_arbeitnow_on(&env, Some(&database), true)?;
+    fn enabled_composition_opens_no_further_connection() -> Result<(), Box<dyn std::error::Error>> {
+        let (_root, pool) = pool()?;
+        let env = env_with_flag("1");
+        let composed = compose_arbeitnow_on(&env, Some(&pool), true)?;
         assert!(
             composed.is_some(),
             "a valid enabled flag composes the services"
         );
-        assert!(
-            matches!(listener.accept(), Err(ref error) if error.kind() == std::io::ErrorKind::WouldBlock),
-            "composition must not open a database connection"
+        assert_eq!(
+            pool.idle_readers(),
+            0,
+            "composition must not open a reader connection"
         );
         Ok(())
     }

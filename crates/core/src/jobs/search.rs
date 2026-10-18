@@ -1,7 +1,7 @@
 //! Bounded job search: request validation, weighted prefix re-scoring of
 //! the hydrated candidates, ordering, and the response envelope.
 //!
-//! The repository returns at most a bounded sample of candidate aggregates (the PostgreSQL adapter samples
+//! The repository returns at most a bounded sample of candidate aggregates (the SQLite adapter samples
 //! at most 500 jobs). This module scores each candidate, drops the candidates with a score of zero or
 //! less, orders the rest by score (descending) and identifier (ascending), and truncates to the
 //! validated limit. A token of the query matches a token of a field when one is a prefix of the other,

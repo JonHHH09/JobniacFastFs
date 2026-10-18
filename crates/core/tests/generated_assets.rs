@@ -223,7 +223,7 @@ fn binding_claims_must_match_their_bindings_and_one_operation() -> TestResult {
 }
 
 /// In-memory repository of classified reservations. It stores the bytes it was given and keeps
-/// one intent per asset, like the PostgreSQL adapter.
+/// one intent per asset, like the SQLite adapter.
 #[derive(Default)]
 struct FakeRepository {
     claims: Mutex<HashMap<Uuid, IntentReservation>>,

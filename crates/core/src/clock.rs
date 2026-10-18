@@ -1,7 +1,7 @@
 //! Clock port and `java.time.Instant` wire formatting.
 //!
 //! Instants are UTC and carry microsecond
-//! precision (PostgreSQL `timestamptz` precision).
+//! precision (the precision of the stored instants).
 //!
 //! `parse_instant` accepts ASCII digits only, not other Unicode decimal digits.
 

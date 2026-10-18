@@ -11,7 +11,7 @@ use super::model::ProfileGraph;
 
 /// Builds every posting of the aggregate, in collection order.
 ///
-/// PostgreSQL writers replace the profile's stored postings inside the same transaction as the
+/// The profile writers replace the profile's stored postings inside the same transaction as the
 /// graph write, and the list uses this function for the exact keys and weights.
 pub fn profile_search_terms(graph: &ProfileGraph) -> Vec<SearchTerm> {
     let profile = &graph.profile;

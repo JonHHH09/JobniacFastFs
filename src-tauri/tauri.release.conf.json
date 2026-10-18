@@ -1,8 +1,20 @@
 {
   "bundle": {
+    "createUpdaterArtifacts": true,
     "externalBin": ["binaries/jobniac-cli"],
     "resources": {
       "resources/THIRD-PARTY-NOTICES.txt": "THIRD-PARTY-NOTICES.txt"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDE0MzM4M0JFN0QxNjlDMjAKUldRZ25CWjl2b016RkpUbkhiTEJQRDZScERIMko4WWlmZnFvanBsZytTNFEvZXlFR3lBUnpoU1cK",
+      "endpoints": [
+        "https://github.com/JonHHH09/JobniacFastFs/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
     }
   }
 }

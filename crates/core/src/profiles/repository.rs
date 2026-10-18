@@ -2,10 +2,10 @@
 //!
 //! The use cases never see a connection. Each use case runs its repository calls inside
 //! [`UnitOfWork::transaction`], which hands the adapter's transaction handle (`Tx`) to the body and
-//! commits or rolls back the scope. The PostgreSQL adapter implements [`UnitOfWork`] over
-//! `jobniac_infra::postgres::unit_of_work::PgUnitOfWork::transaction`, with `Tx = PgTransaction`.
-//! The transaction bodies are async closures (`AsyncFnOnce`), which the PostgreSQL adapter runs
-//! through `PgUnitOfWork::transaction`. The repository ports use `async_trait` so that they stay
+//! commits or rolls back the scope. The SQLite adapter implements [`UnitOfWork`] over
+//! `jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork::transaction`, with `Tx = SqliteTransaction`.
+//! The transaction bodies are async closures (`AsyncFnOnce`), which the SQLite adapter runs
+//! through `SqliteUnitOfWork::transaction`. The repository ports use `async_trait` so that they stay
 //! object-safe.
 
 use std::future::Future;
@@ -26,8 +26,8 @@ use super::search::ProfileSearchCandidate;
 ///
 /// The body is an async closure that receives the transaction handle. The scope commits when the
 /// body returns `Ok` and rolls back when it returns `Err`, and the error reaches the caller
-/// unchanged. The PostgreSQL adapter implements this over `PgUnitOfWork::transaction`, which takes
-/// the same kind of closure, with `Tx = PgTransaction`.
+/// unchanged. The SQLite adapter implements this over `SqliteUnitOfWork::transaction`, which takes
+/// the same kind of closure, with `Tx = SqliteTransaction`.
 pub trait UnitOfWork: Send + Sync {
     /// The open transaction handle that repository calls take.
     type Tx: Send;

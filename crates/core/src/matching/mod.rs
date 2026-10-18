@@ -2,7 +2,7 @@
 //!
 //! The scorer is a pure function of two
 //! graphs and a timestamp ([`scorer::score_match`]). Persistence is behind the port of
-//! [`repository::MatchingRepository`]; the PostgreSQL adapter (verbatim SQL, the snapshot retry of
+//! [`repository::MatchingRepository`]; the SQLite adapter (SQL, the snapshot retry of
 //! [`repository::retries_serialization_failure`]) lives in `jobniac-infra`. The use cases in
 //! [`service::MatchAnalysisService`] take the raw request object, so validation runs in a fixed
 //! order.

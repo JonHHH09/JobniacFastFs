@@ -23,27 +23,26 @@ is expected to be `%LOCALAPPDATA%\JobniacFast` (confirm with the step in
 
 Expected: one absolute path ending in `jobniac-cli.exe`. Use that path as `command`.
 
-## 1. Database settings
+## 1. Database location
 
 The CLI reads its configuration from the environment only: no `.env` file, no secrets in arguments.
 The MCP client passes the `env` block to the process.
 
+The data is one SQLite file. Nothing needs to be installed or set up, and no secret is involved: the
+CLI creates the file and brings its schema up to date when it starts.
+
 | Variable | Required | Value |
 |---|---|---|
-| `JOBNIAC_DB_HOST` | yes | `127.0.0.1` or `::1` only |
-| `JOBNIAC_DB_PORT` | yes | your PostgreSQL 18 port, digits only |
-| `JOBNIAC_DB_NAME` | yes | database name, `^[A-Za-z_][A-Za-z0-9_]{0,62}$` |
-| `JOBNIAC_DB_USER` | yes | role name, same rule as the name |
-| `JOBNIAC_DB_PASSWORD` | yes | the role's password (secret) |
+| `JOBNIAC_DB_PATH` | no | absolute path of the database file; without it the per-user default is used |
 
-Without the database variables the server still starts, but every database call fails and `health`
-reports `DOWN`. Partial variables are treated as no configuration.
+The default is `%LOCALAPPDATA%\Jobniac\data\jobniac.sqlite3` on Windows and
+`$XDG_DATA_HOME/jobniac/data/jobniac.sqlite3` (or `~/.local/share/jobniac/data/jobniac.sqlite3`) on
+Linux. The desktop app uses the same default, so it and the MCP server share one file; set the same
+`JOBNIAC_DB_PATH` for both to share another file.
 
-**Where the password lives.** The simple form puts `JOBNIAC_DB_PASSWORD` in the client's JSON file, in
-plain text. The alternative is a Windows user environment variable with the same name, set with
-`[Environment]::SetEnvironmentVariable` once, and left out of the client file. The client must be
-restarted after the variable is set, because it passes its environment on to the process it starts.
-Choose one; this is an owner decision.
+If the file cannot be opened (for example `JOBNIAC_DB_PATH` is not an absolute path, or the file was
+written by a newer version), the server still starts, but every database call fails and `health`
+reports `DOWN`.
 
 ## 2. Optional opt-in flags
 
@@ -76,13 +75,7 @@ File: `%APPDATA%\Claude\claude_desktop_config.json`. Add the `jobniac` entry und
     "jobniac": {
       "command": "C:\\Users\\<you>\\AppData\\Local\\JobniacFast\\jobniac-cli.exe",
       "args": ["mcp"],
-      "env": {
-        "JOBNIAC_DB_HOST": "127.0.0.1",
-        "JOBNIAC_DB_PORT": "<port>",
-        "JOBNIAC_DB_NAME": "<database>",
-        "JOBNIAC_DB_USER": "<role>",
-        "JOBNIAC_DB_PASSWORD": "<password, or remove this line and use the user environment variable>"
-      }
+      "env": {}
     }
   }
 }
@@ -99,19 +92,14 @@ version uses). The shape is the same; the server name is `jobniac`.
     "jobniac": {
       "command": "C:\\Users\\<you>\\AppData\\Local\\JobniacFast\\jobniac-cli.exe",
       "args": ["mcp"],
-      "env": {
-        "JOBNIAC_DB_HOST": "127.0.0.1",
-        "JOBNIAC_DB_PORT": "<port>",
-        "JOBNIAC_DB_NAME": "<database>",
-        "JOBNIAC_DB_USER": "<role>"
-      }
+      "env": {}
     }
   }
 }
 ```
 
-Then check with `claude mcp list`; `jobniac` should show as connected. (Whether `JOBNIAC_DB_PASSWORD` is
-passed through `env` or the user environment is the owner's choice from section 1.)
+Then check with `claude mcp list`; `jobniac` should show as connected. (Add `"JOBNIAC_DB_PATH": "<absolute
+path>"` to `env` only to use a database file other than the default.)
 
 Other clients: use the same `command`, `args` and `env`. A client that asks for a `cwd` may use the
 install folder; the CLI does not need one.
@@ -136,8 +124,8 @@ with exactly these four lines, using Write or an editor:
 {"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"health","arguments":{}}}
 ```
 
-Set the database variables in the same PowerShell session (`$env:JOBNIAC_DB_HOST = '127.0.0.1'`, and so on),
-then run:
+To use a database file other than the default, set `$env:JOBNIAC_DB_PATH` to its absolute path in the same
+PowerShell session. Then run:
 
 ```powershell
 Get-Content .\mcp-check.jsonl | & "C:\Users\<you>\AppData\Local\JobniacFast\jobniac-cli.exe" mcp | Out-File -FilePath .\mcp-out.jsonl -Encoding utf8
@@ -151,13 +139,13 @@ Expected:
   line of stdout is JSON.
 - The last command prints `34` with no opt-in flags set.
 - The id 3 response has no `error` and its `result.isError` is not `true`. Its content reports `status`
-  `UP` when the database is configured.
+  `UP` when the database file opens.
 
 Failures:
 
 - A non-JSON line, or any text on stdout: a defect (stdout must carry JSON-RPC only). Record the line.
 - No output and an error on stderr: the process did not start; check `--version` first.
-- `status` `DOWN`: check section 1 values and the database.
+- `status` `DOWN`: check the section 1 location (`JOBNIAC_DB_PATH`) and that the file can be created.
 - A count other than `34`: an opt-in flag is set in your session, or the build is different.
 
 Protocol version: the server negotiates up to `2025-11-25`, so `2025-06-18` is supported. Which version the snapshot pins is an open owner question

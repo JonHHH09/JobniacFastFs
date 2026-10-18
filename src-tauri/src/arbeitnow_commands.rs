@@ -880,16 +880,14 @@ mod tests {
         ))?;
         assert!(!capabilities(&AppState::new(Ok(plain))).arbeitnow);
 
-        // Composed: the flag is exactly 1, the keys are valid and the database settings load.
+        // Composed: the flag is exactly 1, the keys are valid and the database opens.
+        let directory = tempfile::tempdir().map_err(|_| StartupError)?;
+        let file = directory.path().join("jobniac.sqlite3");
         let pairs = [
             ("JOBNIAC_ARBEITNOW_ENABLED", "1"),
             ("JOBNIAC_ARBEITNOW_CANDIDATE_KEY", SYNTHETIC_CANDIDATE_KEY),
             ("JOBNIAC_CURSOR_HMAC_SECRET", SYNTHETIC_CURSOR_SECRET),
-            ("JOBNIAC_DB_HOST", "127.0.0.1"),
-            ("JOBNIAC_DB_PORT", "5432"),
-            ("JOBNIAC_DB_NAME", "jobniac"),
-            ("JOBNIAC_DB_USER", "jobniac"),
-            ("JOBNIAC_DB_PASSWORD", "synthetic-password"),
+            ("JOBNIAC_DB_PATH", file.to_str().ok_or(StartupError)?),
         ];
         let environment = Environment::from_pairs(pairs);
         let services = jobniac_runtime::services::compose(&environment)?;

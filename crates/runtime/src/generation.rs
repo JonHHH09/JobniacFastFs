@@ -33,19 +33,20 @@ use jobniac_core::health::CleanupHealthPort;
 use jobniac_infra::generated::asset_files::OwnedAssetFiles;
 use jobniac_infra::generated::root::ensure_private_directory;
 use jobniac_infra::generated::setup::RootSetupFiles;
-use jobniac_infra::postgres::cleanup::{OwnedFileAdapter, PgCleanupRepository, PgSetupRegistry};
-use jobniac_infra::postgres::config::DatabaseConfig;
-use jobniac_infra::postgres::documents::PgDocumentRepository;
-use jobniac_infra::postgres::generated::ports::PgProfileGraphs;
-use jobniac_infra::postgres::generated::profile_links::PgProfileResumeLinks;
-use jobniac_infra::postgres::generated::repository::PgGeneratedAssetRepository;
-use jobniac_infra::postgres::generated::writer::OwnedFileWriter;
-use jobniac_infra::postgres::german::cover_letter::PgGermanCoverLetterRepository;
-use jobniac_infra::postgres::german::resume::PgGermanResumeRepository;
-use jobniac_infra::postgres::german::sources::PgGermanSources;
-use jobniac_infra::postgres::german::{COVER_LETTER_APPLICATION_NAME, RESUME_APPLICATION_NAME};
-use jobniac_infra::postgres::pool::PgPool;
-use jobniac_infra::postgres::unit_of_work::PgUnitOfWork;
+use jobniac_infra::sqlite::cleanup::{
+    OwnedFileAdapter, SqliteCleanupRepository, SqliteSetupRegistry,
+};
+use jobniac_infra::sqlite::documents::SqliteDocumentRepository;
+use jobniac_infra::sqlite::generated::ports::SqliteProfileGraphs;
+use jobniac_infra::sqlite::generated::profile_links::SqliteProfileResumeLinks;
+use jobniac_infra::sqlite::generated::repository::SqliteGeneratedAssetRepository;
+use jobniac_infra::sqlite::generated::writer::OwnedFileWriter;
+use jobniac_infra::sqlite::german::cover_letter::SqliteGermanCoverLetterRepository;
+use jobniac_infra::sqlite::german::resume::SqliteGermanResumeRepository;
+use jobniac_infra::sqlite::german::sources::SqliteGermanSources;
+use jobniac_infra::sqlite::pool::SqlitePool;
+use jobniac_infra::sqlite::profiles::SqliteProfileRepository;
+use jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork;
 use uuid::Uuid;
 
 use crate::blocking::BlockingGermanRenderer;
@@ -168,7 +169,9 @@ pub fn load_generated_root_config(
 }
 
 /// Adapts the document use cases to the metadata port of the generation facade.
-pub struct DocumentMetadataAdapter(pub Arc<DocumentService<PgUnitOfWork, PgDocumentRepository>>);
+pub struct DocumentMetadataAdapter(
+    pub Arc<DocumentService<SqliteUnitOfWork, SqliteDocumentRepository>>,
+);
 
 impl std::fmt::Debug for DocumentMetadataAdapter {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -235,7 +238,7 @@ impl GenerationCore {
     #[must_use]
     pub fn with_documents(
         self,
-        documents: Arc<DocumentService<PgUnitOfWork, PgDocumentRepository>>,
+        documents: Arc<DocumentService<SqliteUnitOfWork, SqliteDocumentRepository>>,
     ) -> GenerationServices {
         let facade = GenerationService::new(
             self.standalone,
@@ -256,15 +259,10 @@ impl GenerationCore {
 
 /// Composes the generation use cases, without the document port, over `uow`.
 ///
-/// `database` is the configuration of the pools of the German stores (each has its own
-/// `application_name`). Generation runs only when the root configuration is
-/// admitted; otherwise every service is built disabled over the placeholder root, and refuses
-/// before any root or database IO.
-pub fn compose_core(
-    env: &Environment,
-    uow: &PgUnitOfWork,
-    database: Option<DatabaseConfig>,
-) -> GenerationCore {
+/// Generation runs only when the root configuration is admitted and `uow` has a database;
+/// otherwise every service is built disabled over the placeholder root, and refuses before any root
+/// or database IO.
+pub fn compose_core(env: &Environment, uow: &SqliteUnitOfWork) -> GenerationCore {
     let clock: Arc<dyn Clock> = Arc::new(SystemClock);
     let config = load_generated_root_config(
         env,
@@ -273,8 +271,8 @@ pub fn compose_core(
     )
     // Only the enabled lifecycle creates the per-user default directory, privately.
     .filter(|config| !config.is_default || ensure_private_directory(&config.root));
-    // Generation needs both an admitted root and a database configuration.
-    let enabled = config.is_some() && database.is_some();
+    // Generation needs both an admitted root and a database.
+    let enabled = config.is_some() && uow.pool().configured();
     let (files, root_id) = match config {
         Some(config) => (
             OwnedAssetFiles::new(Some(config.root), Some(config.root_id)),
@@ -282,7 +280,7 @@ pub fn compose_core(
         ),
         None => (OwnedAssetFiles::new(None, None), Uuid::nil()),
     };
-    let repository = Arc::new(PgGeneratedAssetRepository::new(
+    let repository = Arc::new(SqliteGeneratedAssetRepository::new(
         uow.clone(),
         Arc::clone(&clock),
     ));
@@ -297,8 +295,14 @@ pub fn compose_core(
     let standalone =
         StandaloneGenerationService::new(Arc::clone(&assets), root_id, Arc::clone(&clock), enabled);
     let generic = GenericGenerationService::new(
-        Arc::new(PgProfileGraphs::new(uow.clone())),
-        Arc::new(PgProfileResumeLinks::new(uow.clone(), Arc::clone(&clock))),
+        Arc::new(SqliteProfileGraphs::new(
+            uow.clone(),
+            SqliteProfileRepository,
+        )),
+        Arc::new(SqliteProfileResumeLinks::new(
+            uow.clone(),
+            Arc::clone(&clock),
+        )),
         Arc::clone(&assets),
         Arc::new(FrenchTranslator::builtin()),
         root_id,
@@ -307,21 +311,18 @@ pub fn compose_core(
     );
     let german = GermanGenerationService::new(
         GermanGenerationPorts {
-            profiles: Arc::new(PgProfileGraphs::new(uow.clone())),
-            jobs: Arc::new(PgGermanSources::new(uow.clone())),
-            personal_details: Arc::new(PgGermanSources::new(uow.clone())),
-            resumes: Arc::new(PgGermanResumeRepository::new(
-                PgUnitOfWork::new(PgPool::with_application_name(
-                    database.clone(),
-                    RESUME_APPLICATION_NAME,
-                )),
+            profiles: Arc::new(SqliteProfileGraphs::new(
+                uow.clone(),
+                SqliteProfileRepository,
+            )),
+            jobs: Arc::new(SqliteGermanSources::new(uow.clone())),
+            personal_details: Arc::new(SqliteGermanSources::new(uow.clone())),
+            resumes: Arc::new(SqliteGermanResumeRepository::new(
+                uow.clone(),
                 Arc::clone(&clock),
             )),
-            cover_letters: Arc::new(PgGermanCoverLetterRepository::new(
-                PgUnitOfWork::new(PgPool::with_application_name(
-                    database,
-                    COVER_LETTER_APPLICATION_NAME,
-                )),
+            cover_letters: Arc::new(SqliteGermanCoverLetterRepository::new(
+                uow.clone(),
                 Arc::clone(&clock),
             )),
             assets: Arc::clone(&assets),
@@ -332,7 +333,10 @@ pub fn compose_core(
         Arc::clone(&clock),
         enabled,
     );
-    let cleanup_repository = Arc::new(PgCleanupRepository::new(uow.clone(), Arc::clone(&clock)));
+    let cleanup_repository = Arc::new(SqliteCleanupRepository::new(
+        uow.clone(),
+        Arc::clone(&clock),
+    ));
     let remover: Arc<dyn OwnedAssetRemover> = Arc::new(OwnedFileAdapter::new(files.clone()));
     let qualification = Arc::new(GenerationRootQualification::new(
         Some(Arc::clone(&cleanup_repository)
@@ -378,32 +382,29 @@ pub fn compose_core(
 /// Composes the generation services over `uow` and the document use cases.
 pub fn compose_generation(
     env: &Environment,
-    uow: &PgUnitOfWork,
-    database: Option<DatabaseConfig>,
-    documents: Arc<DocumentService<PgUnitOfWork, PgDocumentRepository>>,
+    uow: &SqliteUnitOfWork,
+    documents: Arc<DocumentService<SqliteUnitOfWork, SqliteDocumentRepository>>,
 ) -> GenerationServices {
-    compose_core(env, uow, database).with_documents(documents)
+    compose_core(env, uow).with_documents(documents)
 }
 
 /// Composes the explicit root setup over `database` for the admitted `location`. Construction
 /// performs no IO.
 #[must_use]
 pub fn compose_root_setup(
-    database: &DatabaseConfig,
+    database: &SqlitePool,
     location: &GeneratedRootLocation,
     configured_id: Option<Uuid>,
 ) -> GeneratedRootSetup {
     let clock: Arc<dyn Clock> = Arc::new(SystemClock);
-    let repository = PgCleanupRepository::new(
-        PgUnitOfWork::new(PgPool::new(Some(database.clone()))),
-        Arc::clone(&clock),
-    );
+    let repository =
+        SqliteCleanupRepository::new(SqliteUnitOfWork::new(database.clone()), Arc::clone(&clock));
     GeneratedRootSetup::new(
         Arc::new(RootSetupFiles::new(
             location.root.clone(),
             location.is_default,
         )),
-        Arc::new(PgSetupRegistry::new(repository, clock)),
+        Arc::new(SqliteSetupRegistry::new(repository, clock)),
         configured_id,
     )
 }

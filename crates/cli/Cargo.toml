@@ -12,10 +12,6 @@ publish.workspace = true
 name = "jobniac-cli"
 path = "src/main.rs"
 
-[features]
-# Gates the PostgreSQL test files that fail closed on CI without a server (see jobniac-infra).
-postgres-tests = []
-
 [dependencies]
 async-trait.workspace = true
 clap.workspace = true
@@ -38,14 +34,6 @@ jobniac-testkit.workspace = true
 tempfile.workspace = true
 # The sandbox operation of the probe worker kind exists only when asked for; the tests ask.
 jobniac-infra = { workspace = true, features = ["worker-probe"] }
-
-[[test]]
-name = "generation_cli_success"
-required-features = ["postgres-tests"]
-
-[[test]]
-name = "generated_root_setup_pg"
-required-features = ["postgres-tests"]
 
 [lints]
 workspace = true

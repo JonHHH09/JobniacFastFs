@@ -4,7 +4,7 @@
 //! document and the immutable identity. The service proves a reservation by re-reading the same
 //! durable identity, publishes only the reserved bytes through a checked writer, and asks the
 //! repository for bounded recovery of stale reservations. Persistence sits behind
-//! [`StandaloneAssetRepository`]; the PostgreSQL adapter lives in `jobniac_infra::postgres::generated`.
+//! [`StandaloneAssetRepository`]; the SQLite adapter lives in `jobniac_infra::sqlite::generated`.
 
 use std::sync::Arc;
 
@@ -36,7 +36,7 @@ const RECOVERY_UNAVAILABLE: &str = "Generated recovery state is unavailable";
 const RECOVERY_INVALID: &str = "Generated recovery result is invalid";
 
 /// Persistence port of standalone generated PDFs. Each method is one repository operation; the
-/// PostgreSQL adapter holds the locks, the transactions and the clock instant.
+/// SQLite adapter holds the transactions and the clock instant.
 #[async_trait]
 pub trait StandaloneAssetRepository: Send + Sync {
     /// Commits the verified blob, the owned document and the reserved asset in one transaction,
