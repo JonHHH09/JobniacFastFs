@@ -124,3 +124,38 @@ async fn projects_that_differ_only_by_non_ascii_case_are_a_duplicate() -> TestRe
     assert_eq!(key, "\u{f6}ko-rechner");
     Ok(())
 }
+
+#[tokio::test]
+async fn an_insert_that_skips_or_mis_cases_a_key_is_refused() -> TestResult {
+    let fixture = start();
+    let created = details(&fixture.uow).create_profile(&base()).await?;
+    let connection = fixture.connection();
+    let profile = created.profile.id.to_string();
+    let at = "2020-01-01T00:00:00.000000Z";
+    let insert = |sql: &str, id: &str| connection.execute(sql, rusqlite::params![id, profile, at]);
+    for (id, sql) in [
+        (
+            "00000000-0000-0000-0000-0000000000a1",
+            "INSERT INTO profile_experiences (id, profile_id, company, created_at) VALUES (?1, ?2, 'Acme', ?3)",
+        ),
+        (
+            "00000000-0000-0000-0000-0000000000a2",
+            "INSERT INTO profile_education (id, profile_id, institution, created_at) VALUES (?1, ?2, 'Yale', ?3)",
+        ),
+        (
+            "00000000-0000-0000-0000-0000000000a3",
+            "INSERT INTO profile_projects (id, profile_id, name, created_at) VALUES (?1, ?2, 'Tool', ?3)",
+        ),
+        (
+            "00000000-0000-0000-0000-0000000000a4",
+            "INSERT INTO profile_projects (id, profile_id, name, created_at, name_key) VALUES (?1, ?2, NULL, ?3, 'x')",
+        ),
+        (
+            "00000000-0000-0000-0000-0000000000a5",
+            "INSERT INTO profile_projects (id, profile_id, name, created_at, name_key) VALUES (?1, ?2, 'Tool', ?3, 'TOOL')",
+        ),
+    ] {
+        assert!(insert(sql, id).is_err(), "{sql} must be refused");
+    }
+    Ok(())
+}

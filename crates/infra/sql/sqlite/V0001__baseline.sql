@@ -231,7 +231,13 @@ CREATE TABLE profile_education (
     CONSTRAINT education_field_canonical CHECK (field IS NULL OR (field = trim(field) AND field <> '')),
     CONSTRAINT education_institution_canonical CHECK (institution IS NULL OR (institution = trim(institution) AND institution <> '')),
     CONSTRAINT education_location_canonical CHECK (location IS NULL OR (location = trim(location) AND location <> '')),
-    CONSTRAINT education_relevant_focus_canonical CHECK (relevant_focus IS NULL OR (relevant_focus = trim(relevant_focus) AND relevant_focus <> ''))
+    CONSTRAINT education_relevant_focus_canonical CHECK (relevant_focus IS NULL OR (relevant_focus = trim(relevant_focus) AND relevant_focus <> '')),
+    CONSTRAINT education_institution_key_present CHECK ((institution IS NULL) = (institution_key IS NULL)),
+    CONSTRAINT education_institution_key_lowercase CHECK (institution_key = lower(institution_key)),
+    CONSTRAINT education_degree_key_present CHECK ((degree IS NULL) = (degree_key IS NULL)),
+    CONSTRAINT education_degree_key_lowercase CHECK (degree_key = lower(degree_key)),
+    CONSTRAINT education_field_key_present CHECK ((field IS NULL) = (field_key IS NULL)),
+    CONSTRAINT education_field_key_lowercase CHECK (field_key = lower(field_key))
 ) STRICT;
 
 CREATE TABLE profile_experiences (
@@ -257,7 +263,11 @@ CREATE TABLE profile_experiences (
     CONSTRAINT experiences_company_canonical CHECK (company IS NULL OR (company = trim(company) AND company <> '')),
     CONSTRAINT experiences_description_canonical CHECK (description IS NULL OR (description = trim(description) AND description <> '')),
     CONSTRAINT experiences_location_canonical CHECK (location IS NULL OR (location = trim(location) AND location <> '')),
-    CONSTRAINT experiences_title_canonical CHECK (title IS NULL OR (title = trim(title) AND title <> ''))
+    CONSTRAINT experiences_title_canonical CHECK (title IS NULL OR (title = trim(title) AND title <> '')),
+    CONSTRAINT experiences_company_key_present CHECK ((company IS NULL) = (company_key IS NULL)),
+    CONSTRAINT experiences_company_key_lowercase CHECK (company_key = lower(company_key)),
+    CONSTRAINT experiences_title_key_present CHECK ((title IS NULL) = (title_key IS NULL)),
+    CONSTRAINT experiences_title_key_lowercase CHECK (title_key = lower(title_key))
 ) STRICT;
 
 CREATE TABLE profile_profile_contacts (
@@ -405,7 +415,9 @@ CREATE TABLE profile_projects (
     CONSTRAINT projects_display_order_non_negative CHECK (display_order >= 0),
     CONSTRAINT projects_description_canonical CHECK (description IS NULL OR (description = trim(description) AND description <> '')),
     CONSTRAINT projects_name_canonical CHECK (name IS NULL OR (name = trim(name) AND name <> '')),
-    CONSTRAINT projects_url_canonical CHECK (url IS NULL OR (url = trim(url) AND url <> ''))
+    CONSTRAINT projects_url_canonical CHECK (url IS NULL OR (url = trim(url) AND url <> '')),
+    CONSTRAINT projects_name_key_present CHECK ((name IS NULL) = (name_key IS NULL)),
+    CONSTRAINT projects_name_key_lowercase CHECK (name_key = lower(name_key))
 ) STRICT;
 
 CREATE TABLE profile_project_technologies (
