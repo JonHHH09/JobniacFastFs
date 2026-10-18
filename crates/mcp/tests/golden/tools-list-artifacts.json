@@ -1804,7 +1804,7 @@
   },
   {
     "name": "store_document_file",
-    "description": "Store an allowed local PDF in PostgreSQL and return metadata only.",
+    "description": "Store an allowed local PDF in the local database and return metadata only.",
     "inputSchema": {
       "properties": {
         "request": {
