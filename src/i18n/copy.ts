@@ -129,4 +129,29 @@ export const copy = {
     loadFailed: "Unable to load settings. Please try again.",
     retry: "Try again",
   },
+  updates: {
+    title: "Updates",
+    intro:
+      "JobniacFast checks GitHub for a newer signed release only when you ask, or after startup if you turn that on below. Your data stays where it is.",
+    checkButton: "Check for updates",
+    checking: "Checking…",
+    autoCheckLabel: "Check for updates after startup",
+    autoCheckHint: "Off by default. When on, the app asks GitHub once each time it starts.",
+    unsupported: "Updates are unavailable in this build.",
+    upToDate: "You have the latest version.",
+    available: (version: string) => `Version ${version} is available.`,
+    bannerTitle: (version: string) => `Update available: v${version}`,
+    notesLabel: "What changed",
+    installButton: "Install and restart",
+    installing: "Installing…",
+    dialogTitle: (version: string) => `Install v${version} and restart?`,
+    dialogBody:
+      "The update is downloaded, checked against the publisher's signature, installed, and the app restarts. Unsaved drafts are lost, so save your work first.",
+    dialogCancel: "Cancel",
+    dialogConfirm: "Install and restart",
+    debHint:
+      "This copy was installed from a .deb package, so it cannot update itself. Download the new package from the releases page and install it:",
+    releasesLink: "Open the releases page",
+    dismiss: "Dismiss update notice",
+  },
 } as const;

@@ -27,6 +27,17 @@ drafts take the body of their version section from this file.
 
 ### Added
 
+- In-app updates: Settings has an Updates card ("Check for updates", and a switch to check once after
+  startup, off by default and remembered across restarts) and an "Update available" banner with
+  "Install and restart" behind a confirmation. Updates come from the signed GitHub releases and are
+  verified against the app's public key before they install. A copy installed from a `.deb` links to the
+  releases page instead, and a development build reports updates as unavailable. New desktop commands
+  `check_for_update`, `install_update`, `update_settings_get` and `update_set_auto_check`; no MCP change.
+- Release workflow: versions are set with `release.py bump X.Y.Z` (new `check-versions` check in CI), the
+  release job now builds signed updater artifacts (`latest.json` and `.sig` files, needs the repository
+  secrets `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`), and the workflow tags
+  the merge commit and publishes the release itself after every gate passes (`-dev.N` versions as
+  prereleases, never the latest).
 - Desktop diagnostics on stderr, a startup refusal message box (Windows) and the opt-in log file
   `JOBNIAC_LOG_FILE=1`.
 - `postgres-tests` Cargo feature that selects the PostgreSQL test files.
