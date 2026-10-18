@@ -1,7 +1,7 @@
 name: Rust checks
 description: >-
   Builds the UI, fetches PDFium and runs format, clippy and the tests of the Rust workspace. Shared by
-  the `Rust (ubuntu-22.04)` and `Rust (windows-latest)` jobs of ci.yml. The caller checks out first.
+  the `Rust (ubuntu-26.04)` and `Rust (windows-latest)` jobs of ci.yml. The caller checks out first.
 
 runs:
   using: composite
@@ -27,6 +27,9 @@ runs:
         toolchain: stable
         components: rustfmt, clippy
     - uses: swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+      with:
+        # Pull request caches are unreadable by other pull requests and fill the quota.
+        save-if: ${{ github.event_name != 'pull_request' }}
     - name: Fetch the pinned PDFium library (Linux)
       if: runner.os == 'Linux'
       shell: bash
@@ -59,9 +62,14 @@ runs:
       # Cargo skips targets whose required-features are off, so lint them explicitly.
       shell: bash
       run: cargo clippy --workspace --all-targets --locked --features jobniac-infra/postgres-tests,jobniac-cli/postgres-tests -- -D warnings
+    - name: Install cargo-nextest (prebuilt, checksum-verified)
+      uses: taiki-e/install-action@83ac0ad63c0167e6f06796fab0fce28db1bf3db0 # v2.87.22
+      with:
+        tool: cargo-nextest
     - name: Test
+      # nextest runs the test binaries in parallel. It skips doctests; the workspace has none.
       shell: bash
-      run: cargo test --workspace --locked
+      run: cargo nextest run --workspace --locked
     - name: Generated TypeScript bindings are up to date
       if: runner.os == 'Linux'
       shell: bash

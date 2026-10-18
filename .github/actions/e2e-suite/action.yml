@@ -1,7 +1,7 @@
 name: End-to-end suite
 description: >-
   Builds the debug desktop application and runs the WebDriver suite (e2e/README.md) over a disposable
-  PostgreSQL 18 cluster. Shared by the `E2E (ubuntu-24.04)` and `E2E (windows-latest)` jobs of e2e.yml.
+  PostgreSQL 18 cluster. Shared by the `E2E (ubuntu-26.04)` and `E2E (windows-latest)` jobs of e2e.yml.
   The caller checks out first.
 
 inputs:
@@ -17,7 +17,7 @@ runs:
       shell: bash
       run: |
         sudo apt-get update
-        sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf webkit2gtk-driver xvfb
+        sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf webkitgtk-webdriver xvfb
 
     - name: Install PostgreSQL 18 (Linux, signing key fingerprint pinned)
       if: runner.os == 'Linux'
@@ -50,6 +50,9 @@ runs:
       with:
         toolchain: stable
     - uses: swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+      with:
+        # Pull request caches are unreadable by other pull requests and fill the quota.
+        save-if: ${{ github.event_name != 'pull_request' }}
 
     - name: Fetch the pinned PDFium library (Linux)
       if: runner.os == 'Linux'
@@ -63,7 +66,7 @@ runs:
 
     - name: Build the debug desktop application (no bundle)
       shell: bash
-      run: pnpm tauri build --debug --no-bundle
+      run: pnpm tauri build --debug --no-bundle --config src-tauri/tauri.e2e.conf.json
 
     - name: Build the console binary and pg-run
       shell: bash

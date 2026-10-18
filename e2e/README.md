@@ -20,11 +20,12 @@ Step 5 (import a PDF through the Documents screen) is `it.skip`: see Deviations.
 
 Prerequisites: Node 24, pnpm 12.10.1, Rust (stable), PostgreSQL 18 binaries, `tauri-driver`
 (`cargo install tauri-driver --locked`), and a WebDriver for the platform: `msedgedriver` matching the
-installed WebView2 runtime on Windows, `WebKitWebDriver` (package `webkit2gtk-driver`) and `xvfb` on Linux.
+installed WebView2 runtime on Windows, `WebKitWebDriver` (package `webkitgtk-webdriver` on Ubuntu 26.04, `webkit2gtk-driver` on older
+releases) and `xvfb` on Linux.
 
 ```text
 pnpm install --frozen-lockfile
-pnpm tauri build --debug --no-bundle
+pnpm tauri build --debug --no-bundle --config src-tauri/tauri.e2e.conf.json
 cargo build --locked -p jobniac-cli -p jobniac-testkit --bins
 JOBNIAC_POSTGRES_BIN=<PostgreSQL 18 bin directory> target/debug/pg-run node e2e/run.mjs
 ```
@@ -68,6 +69,14 @@ test is printed to the console. The run root (`target/e2e-*`) is removed at the 
   notices resource are added only by `src-tauri/tauri.release.conf.json`, which the release build
   passes with `--config`; the debug build does not use it. The suite runs the console binary from
   `target/debug` and PDFium from `vendor/pdfium` (`JOBNIAC_PDFIUM_DIR`).
+- **The E2E build opens a WebView2 debugging port.** msedgedriver attaches to the application
+  through the `DevToolsActivePort` file, which WebView2 writes only when it runs with
+  `--remote-debugging-port`. Without it the session fails with "session not created:
+  DevToolsActivePort file doesn't exist". `src-tauri/tauri.e2e.conf.json` adds
+  `--remote-debugging-port=0` to the main window's `additionalBrowserArgs` (keeping Tauri's default
+  `--disable-features` list, which the setting replaces), and only the E2E build passes it with
+  `--config`; release builds never open the port. `--config` replaces the `windows` array as a whole,
+  so that file repeats the main window entry of `tauri.conf.json` and must follow its changes.
 - **The busy-state check uses a database lock.** A held ACCESS EXCLUSIVE lock on `profile.profiles`
   keeps the search waiting in the database; the control must be disabled meanwhile. The lock holder
   is terminated at the end of the check.
@@ -81,9 +90,7 @@ reads the page text and every attribute value. The suite refuses any database ho
 
 ## CI
 
-`.github/workflows/e2e.yml` runs the same steps on `windows-latest` and `ubuntu-24.04`. The Windows job
+`.github/workflows/e2e.yml` runs the same steps on `windows-latest` and `ubuntu-26.04`. The Windows job
 installs `msedgedriver` from the Microsoft endpoint for the runner's WebView2 version and checks its
-Authenticode signature. The Linux job installs `webkit2gtk-driver` and `xvfb`, and PostgreSQL 18 through
-`scripts/ci/install-postgresql-18.sh`. Neither job has been run: the GitHub Actions runners are not
-available for this account, so the workflow is validated with actionlint only. The Windows PostgreSQL
-install through Chocolatey (`postgresql18`) is unverified.
+Authenticode signature. The Linux job installs `webkitgtk-webdriver` and `xvfb`, and PostgreSQL 18
+through `scripts/ci/install-postgresql-18.sh`.

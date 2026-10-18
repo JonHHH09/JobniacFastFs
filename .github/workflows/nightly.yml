@@ -1,0 +1,33 @@
+name: Nightly
+
+# Starts the CI and End-to-end workflows on the tip of development once a day. GITHUB_TOKEN may start
+# workflow_dispatch runs (it cannot start runs from other events), and the merges into development are
+# done with that token, so no push run ever fires there. A dispatched run has the ref
+# refs/heads/development, which gives three things:
+#   - its Rust caches are scoped to development, so every pull request into development can restore
+#     them (pull request caches are only readable by the pull request itself);
+#   - its passed marker is trusted by scripts/ci/gate.sh, so the promotion pull request skips the
+#     work that already passed on the same tree;
+#   - the full set runs on a schedule: Windows, PostgreSQL 18 and the end-to-end suite.
+
+on:
+  schedule:
+    - cron: "30 2 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  dispatch:
+    name: Dispatch CI and E2E on development
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Start ci.yml and e2e.yml
+        run: |
+          gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref development
+          gh workflow run e2e.yml --repo "$GITHUB_REPOSITORY" --ref development

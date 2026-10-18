@@ -4,44 +4,73 @@
 #
 # Inputs (environment):
 #   EVENT_NAME         github.event_name (the caller's event for a workflow_call)
-#   POSTGRES_REQUIRED  "true" for the release call of ci.yml: a full run, no path filtering
+#   BASE_REF           github.base_ref (the target branch of a pull request, empty otherwise)
+#   POSTGRES_REQUIRED  "true" for the release call of ci.yml and e2e.yml: a full run, no path filtering
 #   GH_TOKEN           token with `actions: read`, used to look the passed marker up
 #   GITHUB_REPOSITORY, GITHUB_OUTPUT  set by the runner
 #
 # Outputs:
 #   tree            git tree SHA of the checked-out commit (the identity of the tested content)
-#   already-passed  true when a trusted push already passed this workflow on this exact tree
+#   already-passed  true when a trusted run already passed this workflow on this exact tree
 #   rust, ui, app   true when the Rust, UI or desktop-app jobs have to run (already-passed folded in)
 #   windows         true when the Windows jobs have to run (never on a plain pull request)
 #
 # A marker is the Actions cache entry `<workflow>-passed-<tree>` that the `mark-passed` job saves at
-# the end of a fully green push run. It is trusted only when it was saved by a push to development or
-# main: caches written by pull requests (forks included) are scoped to the pull request ref and ignored.
+# the end of a fully green run on development or main (a push or the nightly dispatch) or on a
+# promotion pull request (development into main). It is trusted when its cache ref is
+# refs/heads/development or refs/heads/main, or refs/pull/<n>/merge of a pull request that the API
+# shows to be a promotion pull request of this repository. Caches written by any other pull request
+# (forks included) are scoped to their own ref and ignored. Required checks are strict (the branch
+# must be up to date), so the merge commit tree of a promotion pull request equals the tree that
+# lands on main.
 set -euo pipefail
 
 workflow="${1:?usage: gate.sh <ci|e2e>}"
 event="${EVENT_NAME:?}"
 required="${POSTGRES_REQUIRED:-false}"
+base_ref="${BASE_REF:-}"
 
 tree="$(git rev-parse 'HEAD^{tree}')"
 echo "tree=$tree" >> "$GITHUB_OUTPUT"
 
-# A plain pull request is path-filtered and skips Windows. Pushes, manual runs and the release call
-# (a pull_request event with postgres-required) run the full set.
+# A plain pull request is path-filtered and skips Windows. Pushes, manual runs, promotion pull
+# requests (base main) and the release call (a pull_request event with the required flag) run the
+# full set.
 plain_pr=false
-if [ "$event" = "pull_request" ] && [ "$required" != "true" ]; then
+if [ "$event" = "pull_request" ] && [ "$required" != "true" ] && [ "$base_ref" != "main" ]; then
   plain_pr=true
 fi
 
-# 1. Has this exact tree already passed on a trusted push? A manual run always runs everything.
+# 1. Has this exact tree already passed on a trusted run? A manual run always runs everything.
+#    Any API failure is a miss: nothing is trusted that could not be verified.
+promotion_pr() { # promotion_pr <number>: a development -> main pull request of this repository?
+  local info
+  info="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/$1" \
+    --jq '[.head.ref, .base.ref, .head.repo.full_name] | join(" ")' 2> /dev/null)" || return 1
+  [ "$info" = "development main ${GITHUB_REPOSITORY}" ]
+}
+
 already=false
 if [ "$event" != "workflow_dispatch" ]; then
   key="${workflow}-passed-${tree}"
-  hits="$(gh api "repos/${GITHUB_REPOSITORY}/actions/caches?key=${key}&per_page=100" \
-    --jq "[.actions_caches[] | select(.key == \"${key}\" and (.ref == \"refs/heads/development\" or .ref == \"refs/heads/main\"))] | length" \
-    || { echo "::warning::passed-marker lookup failed; running all checks" >&2; echo 0; })"
-  if [ "${hits:-0}" -gt 0 ]; then
-    already=true
+  if refs="$(gh api "repos/${GITHUB_REPOSITORY}/actions/caches?key=${key}&per_page=100" \
+    --jq ".actions_caches[] | select(.key == \"${key}\") | .ref")"; then
+    while IFS= read -r ref; do
+      case "$ref" in
+        refs/heads/development | refs/heads/main)
+          already=true
+          ;;
+        refs/pull/*/merge)
+          number="${ref#refs/pull/}"
+          number="${number%/merge}"
+          if [[ "$number" =~ ^[0-9]+$ ]] && promotion_pr "$number"; then
+            already=true
+          fi
+          ;;
+      esac
+    done <<< "$refs"
+  else
+    echo "::warning::passed-marker lookup failed; running all checks" >&2
   fi
 fi
 echo "already-passed=$already" >> "$GITHUB_OUTPUT"
