@@ -1,13 +1,13 @@
 //! The Arbeitnow tools are composed only when `JOBNIAC_ARBEITNOW_ENABLED` is exactly `1`, both keys
 //! are valid and a database is configured. The tests drive the built `jobniac-cli` binary over STDIO
-//! with a cleared environment. A forged candidate token is refused by the signature check before the
-//! repository is reached, so no database connection is made and no test server is needed. The keys
-//! are synthetic constants.
+//! with a cleared environment and a temporary database file. A forged candidate token is refused by
+//! the signature check before the repository is reached. The keys are synthetic constants.
 
 use std::error::Error;
 use std::io::Write;
 use std::process::{Command, Output, Stdio};
 
+use jobniac_testkit::sqlite::TempDatabase;
 use serde_json::Value;
 
 type TestResult = Result<(), Box<dyn Error>>;
@@ -21,13 +21,6 @@ const KEY_VALUE: &str = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8";
 const SECRET_VALUE: &str = "synthetic-cursor-secret-0123456789abcdef";
 /// A token that was never signed by any key.
 const FORGED_TOKEN: &str = "Zm9yZ2VkLXN5bnRoZXRpYy1wYXlsb2Fk.c3ludGhldGljLXNpZ25hdHVyZQ";
-const DATABASE: [(&str, &str); 5] = [
-    ("JOBNIAC_DB_HOST", "127.0.0.1"),
-    ("JOBNIAC_DB_PORT", "5432"),
-    ("JOBNIAC_DB_NAME", "jobniac_test"),
-    ("JOBNIAC_DB_USER", "app_user"),
-    ("JOBNIAC_DB_PASSWORD", "synthetic-password"),
-];
 
 const SUPPORTED: bool = cfg!(any(target_os = "linux", target_os = "windows"));
 
@@ -85,8 +78,8 @@ fn listed(pairs: &[(&str, &str)]) -> Result<Vec<String>, Box<dyn Error>> {
         .collect())
 }
 
-fn enabled(flag: &'static str) -> Vec<(&'static str, &'static str)> {
-    let mut pairs = DATABASE.to_vec();
+fn enabled<'a>(database: &'a TempDatabase, flag: &'a str) -> Vec<(&'a str, &'a str)> {
+    let mut pairs = vec![database.environment_pair()];
     pairs.push((FLAG, flag));
     pairs.push((CANDIDATE_KEY, KEY_VALUE));
     pairs.push((CURSOR_SECRET, SECRET_VALUE));
@@ -102,16 +95,21 @@ fn has_arbeitnow(names: &[String]) -> (bool, bool) {
 
 #[test]
 fn the_exact_flag_lists_both_tools_and_the_default_lists_neither() -> TestResult {
-    let names = listed(&enabled("1"))?;
+    let database = TempDatabase::new()?;
+    let names = listed(&enabled(&database, "1"))?;
     assert_eq!(has_arbeitnow(&names), (SUPPORTED, SUPPORTED));
-    assert_eq!(has_arbeitnow(&listed(&DATABASE)?), (false, false));
+    assert_eq!(
+        has_arbeitnow(&listed(&[database.environment_pair()])?),
+        (false, false)
+    );
     Ok(())
 }
 
 #[test]
 fn any_other_flag_value_lists_neither_tool() -> TestResult {
+    let database = TempDatabase::new()?;
     for flag in ["0", "true", "01", "", " 1", "yes"] {
-        let names = listed(&enabled(flag))?;
+        let names = listed(&enabled(&database, flag))?;
         assert_eq!(has_arbeitnow(&names), (false, false), "flag {flag:?}");
     }
     Ok(())
@@ -132,7 +130,8 @@ fn the_flag_without_a_database_lists_neither_tool() -> TestResult {
 
 #[test]
 fn an_enabled_flag_with_a_missing_key_stops_startup_without_echoing_settings() -> TestResult {
-    let mut pairs = DATABASE.to_vec();
+    let database = TempDatabase::new()?;
+    let mut pairs = vec![database.environment_pair()];
     pairs.push((FLAG, "1"));
     pairs.push((CURSOR_SECRET, SECRET_VALUE));
     let output = run_mcp(&pairs, &[])?;
@@ -155,7 +154,8 @@ fn a_forged_candidate_import_is_refused_without_leaking_keys_or_the_token() -> T
     let call = format!(
         r#"{{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{{"name":"import_arbeitnow_job","arguments":{{"request":{{"candidateToken":"{FORGED_TOKEN}"}}}}}}}}"#
     );
-    let output = run_mcp(&enabled("1"), &[call])?;
+    let database = TempDatabase::new()?;
+    let output = run_mcp(&enabled(&database, "1"), &[call])?;
     assert_eq!(output.status.code(), Some(0));
     let stdout = String::from_utf8(output.stdout.clone())?;
     let stderr = String::from_utf8(output.stderr.clone())?;

@@ -1,6 +1,6 @@
 //! The link tool is composed only when `JOBNIAC_LINK_FETCH_ENABLED` is exactly `1`, a database is
-//! configured and the platform is supported. Composition makes no connection, spawns nothing and fetches
-//! nothing. All data is synthetic.
+//! configured and the platform is supported. Composition spawns nothing and fetches nothing. The
+//! database is a temporary file. All data is synthetic.
 
 use std::error::Error;
 use std::sync::Arc;
@@ -12,18 +12,12 @@ use jobniac_mcp::catalog::Catalog;
 use jobniac_mcp::registry::ToolRegistry;
 use jobniac_mcp::tools::job_links::{self, JobLinkPort};
 use jobniac_runtime::job_links::compose_job_links;
+use jobniac_testkit::sqlite::TempDatabase;
 use serde_json::Value;
 
 type TestResult = Result<(), Box<dyn Error>>;
 
 const FLAG: &str = "JOBNIAC_LINK_FETCH_ENABLED";
-const DATABASE: [(&str, &str); 5] = [
-    ("JOBNIAC_DB_HOST", "127.0.0.1"),
-    ("JOBNIAC_DB_PORT", "5432"),
-    ("JOBNIAC_DB_NAME", "jobniac_test"),
-    ("JOBNIAC_DB_USER", "app_user"),
-    ("JOBNIAC_DB_PASSWORD", "synthetic-password"),
-];
 
 /// A port that is only needed to register the tool; it is never called here.
 #[derive(Debug)]
@@ -38,14 +32,14 @@ impl JobLinkPort for Unused {
 
 /// The composed use case for the given settings, with or without the database.
 fn composed(extra: &[(&str, &str)], with_database: bool) -> Result<bool, Box<dyn Error>> {
-    let mut pairs: Vec<(&str, &str)> = if with_database {
-        DATABASE.to_vec()
-    } else {
-        Vec::new()
-    };
+    let temporary = TempDatabase::new()?;
+    let mut pairs: Vec<(&str, &str)> = Vec::new();
+    if with_database {
+        pairs.push(temporary.environment_pair());
+    }
     pairs.extend_from_slice(extra);
     let env = Environment::from_pairs(pairs);
-    let database = jobniac_infra::postgres::config::load_database_config(&env);
+    let database = jobniac_runtime::database::open_database(&env);
     let service = compose_job_links(&env, database.as_ref()).map_err(|_| "startup was refused")?;
     Ok(service.is_some())
 }

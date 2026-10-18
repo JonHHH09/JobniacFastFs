@@ -4,7 +4,7 @@
 //! Each tool decodes its arguments in the shape of its signature (see [`decode`]) and then
 //! calls one port. A port answers with the service result, as a JSON value,
 //! or with an [`AppError`]. The ports are supplied by the composition root (the CLI), so this crate
-//! does not depend on the PostgreSQL adapter; an absent port means absent tools. Every job tool
+//! does not depend on the SQLite adapter; an absent port means absent tools. Every job tool
 //! reports its errors with the compact envelope, and validation of the request
 //! happens in the service, so a rejected value is never echoed.
 

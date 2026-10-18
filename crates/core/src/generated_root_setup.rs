@@ -4,7 +4,7 @@
 //! database. It never repairs, adopts, overwrites or deletes: a state it cannot prove is refused
 //! with a fixed reason, and no path, identity or source text is ever part of a refusal. The file
 //! and registry operations sit behind ports; the composition root supplies the filesystem and
-//! PostgreSQL adapters.
+//! SQLite adapters.
 
 use std::sync::Arc;
 

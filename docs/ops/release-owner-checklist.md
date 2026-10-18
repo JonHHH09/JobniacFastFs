@@ -25,10 +25,9 @@ hosted runner yet.
   2. **Branch protection on `development` and `main`:** configured as recorded in
      [branch-protection.md](branch-protection.md) (rulesets, required checks, merge methods). The older
      notes below predate it. Required checks named as the CI jobs are named
-     in `ci.yml`: `rust` (both systems), `supply-chain`, `ui`, `bindings` and
-     `postgres-18`. The names in `ci.yml` today are `ui`, `rust`, `supply-chain` and `postgres`; the
-     `bindings` check is a step of `rust`, and the `postgres-18` job is required on the promotion
-     pull request. Confirm the names in the GitHub picker before you save.
+     in `ci.yml`: `rust` (both systems), `supply-chain`, `ui` and `bindings`. The names in `ci.yml`
+     today are `ui`, `rust` and `supply-chain`; the `bindings` check is a step of `rust`. Confirm the
+     names in the GitHub picker before you save.
   3. **Pull request rules:** pull requests into `development` and `main`, one approval if you
      want one (single maintainer; owner choice).
   4. **Tag protection:** tags `v*` restricted to the owner, because the release tag must point at the
@@ -153,8 +152,9 @@ These are not facts in the repository. Each needs an answer from you before the 
 
 1. Which MCP protocol version does the release snapshot pin: `2025-06-18` or another
    value? The server negotiates up to `2025-11-25`. ([clean-machine smoke, step 22](clean-machine-smoke-checklist.md#11-mcp-exercise).)
-2. Whether `JOBNIAC_DB_PASSWORD` goes into each client's JSON file or into a user environment variable
-   ([MCP client registration, section 1](mcp-client-registration.md#1-database-settings)).
+2. Whether the default database file (`%LOCALAPPDATA%\Jobniac\data\jobniac.sqlite3`) is an allowed
+   residue of the manual smoke, or is removed by hand
+   ([clean-machine smoke, step 26](clean-machine-smoke-checklist.md#13-uninstall-and-residue)).
 3. Whether `%LOCALAPPDATA%\Jobniac\generated` is an allowed residue of the manual smoke, or is removed by hand
    ([clean-machine smoke, step 26](clean-machine-smoke-checklist.md#13-uninstall-and-residue)).
 4. Which signing route (G3) and who applies for it.
@@ -166,9 +166,8 @@ These are not facts in the repository. Each needs an answer from you before the 
 
 Each one is decided in writing before the gate it belongs to.
 
-- **G10 PostgreSQL on pull requests.** Decide whether the `postgres` job runs on every pull request or stays on pushes and the release. Today it does not run on pull requests.
 - **G11 Privacy history.** Decide between a history rewrite and acceptance before G7 step 3. Until then the `privacy-scan` job of `ci.yml` fails on pushes and pull requests. A rewrite changes every commit id, so every open branch and pull request must be redone.
 - **G12 Installed-application checks before G5.** On an installed desktop build, exercise what the hosted smoke cannot: the 60-second timeout and the refusal paths of the smoke hook, a PDF extraction from the installed application, and an NSIS install with the silent switch confirmed on the built installer. Record each result outside the repository.
-- **G13 Linux results.** Read the logs of the first `ci.yml` run (the `Rust (ubuntu-26.04)` job and the `postgres` job), the Linux leg of `e2e.yml` and the Linux leg of `release.yml`. The Linux-only code is verified by CI only.
+- **G13 Linux results.** Read the logs of the first `ci.yml` run (the `Rust (ubuntu-26.04)` job), the Linux leg of `e2e.yml` and the Linux leg of `release.yml`. The Linux-only code is verified by CI only.
 - **G14 Notice items.** Decide whether the PDFBox Apache-2.0 notice, the HTML4 NOTICE and the W3C entity-set licence (G6, point 3) are needed in `THIRD-PARTY-NOTICES.txt`, and record the decision with G6.
 - **G15 Two behaviour choices.** Decide the smoke outcome for a DOWN health report (exit 0 now) and the artifact and generation controls when their services are absent (not rendered now).

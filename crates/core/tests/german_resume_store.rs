@@ -425,7 +425,7 @@ fn paired_and_scalar_unicode_keep_utf16_totals() {
 }
 
 #[test]
-fn postgres_unsupported_text_has_fixed_error() {
+fn unsupported_text_has_fixed_error() {
     let refused = ResumeEntry::new(entry_fields(7, 6, Some("\0"), 0));
     assert_invalid(refused);
     assert_invalid(ResumeEntryBullet::new(BulletFields {
@@ -456,7 +456,7 @@ fn aware_instants_are_normalized_to_utc() {
 }
 
 #[test]
-fn positions_are_exact_postgres_nonnegative_integers() {
+fn positions_are_exact_nonnegative_integers() {
     for value in [-1, 2_147_483_648, i64::MIN, i64::MAX] {
         assert!(DisplayOrder::new(value).is_none(), "{value}");
     }

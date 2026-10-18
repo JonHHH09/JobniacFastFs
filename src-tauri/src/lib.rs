@@ -354,10 +354,19 @@ pub fn run() {
         .unwrap_or_default();
     // The sidecar `jobniac-cli` sits next to this executable; the child gets a filtered copy of the
     // app's environment (see `jobniac_runtime::mcp_server::child_environment`).
-    let mcp = Arc::new(McpSupervisor::new(
-        Arc::new(ProcessSpawner::beside_current_exe()),
-        std::env::vars_os().collect(),
-    ));
+    let mcp = Arc::new(
+        McpSupervisor::new(
+            Arc::new(ProcessSpawner::beside_current_exe()),
+            std::env::vars_os().collect(),
+        )
+        // The child does not inherit HOME or the data directory, so it gets the file this app opened.
+        .with_database_path(
+            services
+                .database
+                .as_ref()
+                .and_then(|pool| pool.path().map(std::path::Path::to_path_buf)),
+        ),
+    );
     app.manage(update_commands::UpdateNotice::default());
     app.manage(
         AppState::new(Ok(services))

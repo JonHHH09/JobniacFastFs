@@ -55,7 +55,7 @@ pub struct ClassifiedAssetResult {
 }
 
 /// Persistence port of classified generation. Each method is one repository transaction; the
-/// PostgreSQL adapter lives in `jobniac_infra::postgres::generated`.
+/// SQLite adapter lives in `jobniac_infra::sqlite::generated`.
 #[async_trait]
 pub trait GeneratedAssetRepository: Send + Sync {
     /// Commits the verified blob, the owned document, the reserved asset and its birth intent in

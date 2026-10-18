@@ -1,7 +1,7 @@
 //! Composition of the opt-in document artifacts: the artifact service and the document exporter.
 //!
 //! The service is composed only when `JOBNIAC_DOCUMENT_ARTIFACTS_ENABLED` is exactly `1` and the
-//! database settings are complete. Otherwise nothing is built and the MCP tool stays absent. The
+//! database is open. Otherwise nothing is built and the MCP tool stays absent. The
 //! exporter protects the import root and the generated root (the configured value, and the
 //! per-user default when it is in use), so an export never lands inside either of them. Composition
 //! performs no IO.
@@ -12,9 +12,9 @@ use jobniac_core::artifacts::ArtifactService;
 use jobniac_core::env::Environment;
 use jobniac_core::generated_root::RootPlatform;
 use jobniac_infra::files::export::AtomicExporter;
-use jobniac_infra::postgres::artifacts::PgArtifactRepository;
-use jobniac_infra::postgres::config::DatabaseConfig;
-use jobniac_infra::postgres::unit_of_work::PgUnitOfWork;
+use jobniac_infra::sqlite::artifacts::SqliteArtifactRepository;
+use jobniac_infra::sqlite::pool::SqlitePool;
+use jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork;
 
 use crate::generation::{load_generated_root_location, platform_name};
 use crate::services::DOCUMENT_IMPORT_ROOT_VARIABLE;
@@ -22,8 +22,8 @@ use crate::services::DOCUMENT_IMPORT_ROOT_VARIABLE;
 /// The feature flag of document artifacts and native export (exact value `1`).
 pub const DOCUMENT_ARTIFACTS_VARIABLE: &str = "JOBNIAC_DOCUMENT_ARTIFACTS_ENABLED";
 
-/// The artifact use case over PostgreSQL.
-pub type ArtifactUseCase = ArtifactService<PgUnitOfWork, PgArtifactRepository>;
+/// The artifact use case over SQLite.
+pub type ArtifactUseCase = ArtifactService<SqliteUnitOfWork, SqliteArtifactRepository>;
 
 /// The composed artifact services: the read use case and the native exporter.
 #[derive(Debug, Clone)]
@@ -39,8 +39,8 @@ pub struct ArtifactServices {
 #[must_use]
 pub fn compose_artifacts(
     env: &Environment,
-    uow: &PgUnitOfWork,
-    database: Option<&DatabaseConfig>,
+    uow: &SqliteUnitOfWork,
+    database: Option<&SqlitePool>,
 ) -> Option<ArtifactServices> {
     if env.get(DOCUMENT_ARTIFACTS_VARIABLE) != Some("1") || database.is_none() {
         return None;
@@ -48,7 +48,7 @@ pub fn compose_artifacts(
     Some(ArtifactServices {
         service: Arc::new(ArtifactService::new(
             uow.clone(),
-            PgArtifactRepository,
+            SqliteArtifactRepository,
             true,
         )),
         exporter: Arc::new(AtomicExporter::new(protected_roots(env))),

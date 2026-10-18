@@ -4,7 +4,7 @@
 //!
 //! The use cases are framework-free. The file reader, the PDF extractor and the repository are
 //! ports: `jobniac_infra` provides the import-root reader, the PDF worker client and the
-//! PostgreSQL repository, and `jobniac_runtime` wires them. Bytes leave the database only inside
+//! SQLite repository, and `jobniac_runtime` wires them. Bytes leave the database only inside
 //! Rust; the wire forms are built by the adapters.
 
 pub mod list;

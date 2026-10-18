@@ -1,7 +1,7 @@
 //! Owned-asset cleanup: the durable queue contracts, the bounded executor and the observed backlog
 //! health.
 //!
-//! The executor and the health probe depend only on ports. The PostgreSQL ledger and the owned
+//! The executor and the health probe depend only on ports. The SQLite ledger and the owned
 //! file namespace implement them in `jobniac_infra`. Entity-deletion cleanup is not here.
 
 pub mod executor;

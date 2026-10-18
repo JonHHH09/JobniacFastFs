@@ -11,13 +11,14 @@ use std::sync::Arc;
 use jobniac_core::cleanup::GenerationLifecycleSummary;
 use jobniac_core::generated_root::RootPlatform;
 use jobniac_core::generated_root_setup::SetupResult;
-use jobniac_infra::postgres::config::{DatabaseConfig, load_database_config};
-use jobniac_infra::postgres::migrations::{
+use jobniac_infra::sqlite::location::create_database_directory;
+use jobniac_infra::sqlite::migrations::{
     SchemaState, inspect_schema, migrate, packaged_migrations,
 };
-use jobniac_infra::postgres::pool::PgPool;
-use jobniac_infra::postgres::unit_of_work::PgUnitOfWork;
+use jobniac_infra::sqlite::pool::SqlitePool;
+use jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork;
 use jobniac_mcp::{McpServices, serve_stdio};
+use jobniac_runtime::database::database_path;
 use jobniac_runtime::generation::{
     GeneratedRootLocation, compose_core, compose_root_setup, configured_root_identity,
     load_generated_root_location, platform_name,
@@ -44,13 +45,15 @@ use crate::profile_ports;
 
 /// The sanitized failure for any unexpected error. It never names the setting or the cause.
 const STARTUP_FAILURE: &str = "Jobniac could not start. Check local configuration.";
-/// Message for `migrate` when no complete database configuration is present.
+/// Message for `migrate` when no database location can be resolved.
 const MIGRATE_NOT_CONFIGURED: &str =
-    "Jobniac migrate: database is not configured; set the JOBNIAC_DB_* variables.";
+    "Jobniac migrate: database location is not available; check JOBNIAC_DB_PATH.";
+/// Message for `migrate` when the database directory cannot be created.
+const MIGRATE_DIRECTORY_FAILED: &str = "Jobniac migrate: database directory could not be created.";
 /// Prefix of every `setup-generated-root` refusal.
 const SETUP_PREFIX: &str = "Jobniac setup-generated-root: ";
-/// Setup refusal without a complete database configuration.
-const SETUP_NOT_CONFIGURED: &str = "database is not configured; set the JOBNIAC_DB_* variables.";
+/// Setup refusal without a usable database.
+const SETUP_NOT_CONFIGURED: &str = "database is not available; check JOBNIAC_DB_PATH.";
 /// Setup refusal without an admitted generated root.
 const SETUP_ROOT_INVALID: &str = "the generated root path is not configured or invalid.";
 /// Setup refusal of a malformed `JOBNIAC_GENERATED_ROOT_ID`.
@@ -65,20 +68,22 @@ const CLEANUP_UNAVAILABLE: &str =
 /// prints nothing in any mode.
 const INTERRUPTED: u8 = 130;
 
-/// Apply pending schema migrations: the only command that writes the schema.
+/// Apply pending schema migrations on demand. Every start of the app, the CLI modes that open the
+/// database and the MCP server migrates too, so this command is for running the step on its own
+/// (and for the explicit report of what was applied).
 pub fn run_migrate() -> ExitCode {
     let env = jobniac_runtime::process_environment();
-    let Some(config) = load_database_config(&env) else {
+    let Some(path) = database_path(&env) else {
         stderr_line(MIGRATE_NOT_CONFIGURED);
         return ExitCode::FAILURE;
     };
-    let Some(runtime) = build_runtime() else {
-        return unexpected_failure();
-    };
-    // An interrupted migration drops its connection, which rolls back the uncommitted work.
-    let Some(result) = run_until_interrupt(runtime, migrate(&config), interrupt()) else {
-        return ExitCode::from(INTERRUPTED);
-    };
+    if create_database_directory(&path).is_err() {
+        stderr_line(MIGRATE_DIRECTORY_FAILED);
+        return ExitCode::FAILURE;
+    }
+    // The migration is one blocking SQLite transaction per version: an interruption rolls back the
+    // uncommitted work, so no interrupt handling is needed here.
+    let result = migrate(&path);
     match result {
         Ok(applied) if applied.is_empty() => match packaged_migrations() {
             Ok(migrations) => {
@@ -175,9 +180,12 @@ pub fn run_mcp() -> ExitCode {
 /// The counts are printed even when the pass reports failures, which exit 1.
 pub fn run_cleanup() -> ExitCode {
     let env = jobniac_runtime::process_environment();
-    let database = load_database_config(&env);
-    let uow = PgUnitOfWork::new(PgPool::new(database.clone()));
-    let lifecycle = Arc::clone(&compose_core(&env, &uow, database).lifecycle);
+    // Cleanup never creates or migrates the database: a missing file is the unavailable case.
+    let pool = database_path(&env)
+        .filter(|path| path.is_file())
+        .and_then(|path| SqlitePool::open(path).ok());
+    let uow = SqliteUnitOfWork::new(pool.unwrap_or_else(SqlitePool::unconfigured));
+    let lifecycle = Arc::clone(&compose_core(&env, &uow).lifecycle);
     let Some(runtime) = build_runtime() else {
         return unexpected_failure();
     };
@@ -218,7 +226,7 @@ fn metadata_json(summary: &GenerationLifecycleSummary) -> String {
 /// repaired, and no path is ever printed.
 pub fn run_setup_generated_root() -> ExitCode {
     let env = jobniac_runtime::process_environment();
-    let Some(database) = load_database_config(&env) else {
+    let Some(database) = database_path(&env) else {
         return setup_refused(SETUP_NOT_CONFIGURED);
     };
     let platform = RootPlatform::from_platform_name(platform_name());
@@ -252,16 +260,17 @@ pub fn run_setup_generated_root() -> ExitCode {
 
 /// The schema check and the setup of one root. The error is the text after the prefix.
 async fn setup_once(
-    database: DatabaseConfig,
+    database: std::path::PathBuf,
     location: GeneratedRootLocation,
     configured: Option<Uuid>,
 ) -> Result<SetupResult, String> {
-    match inspect_schema(Some(&database)).await {
+    match inspect_schema(Some(&database)) {
         Ok(status) if status.state == SchemaState::Current => {}
         Ok(_) => return Err(SETUP_SCHEMA_NOT_CURRENT.to_owned()),
         Err(error) => return Err(error.to_string()),
     }
-    let setup = compose_root_setup(&database, &location, configured);
+    let pool = SqlitePool::open(&database).map_err(|_| SETUP_NOT_CONFIGURED.to_owned())?;
+    let setup = compose_root_setup(&pool, &location, configured);
     setup
         .run()
         .await

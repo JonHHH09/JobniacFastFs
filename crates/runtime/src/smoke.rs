@@ -5,8 +5,7 @@
 //! page load finished and the health use case returned a report. The process then exits with
 //! status 0. Two outcomes exit with status 1 and a fixed message: the page did not finish loading
 //! within [`SMOKE_TIMEOUT`], or the health use case was not available. A DOWN report still counts as
-//! an answer, because a clean machine has no PostgreSQL and the smoke checks the UI, not the
-//! database.
+//! an answer, because the smoke checks the UI, not the database.
 //!
 //! The decision is one-shot: [`SmokeHook::decide`] yields the exit status for the first outcome only,
 //! so a late timer cannot override a clean exit.

@@ -1,11 +1,14 @@
 //! Black-box tests of the `jobniac-cli` binary.
 //!
 //! Every process starts with a cleared environment, so no database setting or feature flag can
-//! leak in from the machine running the tests. No test connects to a database.
+//! leak in from the machine running the tests. The tests that need a database point
+//! `JOBNIAC_DB_PATH` at a temporary file.
 
 use std::error::Error;
 use std::io::Write;
 use std::process::{Command, Output, Stdio};
+
+use jobniac_testkit::sqlite::TempDatabase;
 
 type TestResult = Result<(), Box<dyn Error>>;
 
@@ -71,14 +74,49 @@ fn desktop_is_not_a_mode_of_the_console_binary() -> TestResult {
 }
 
 #[test]
-fn migrate_without_database_configuration_reports_the_setting_names() -> TestResult {
+fn migrate_without_a_database_location_reports_the_setting_name() -> TestResult {
     let output = run(&["migrate"])?;
     assert_eq!(output.status.code(), Some(1));
     assert!(output.stdout.is_empty());
     assert_eq!(
         String::from_utf8(output.stderr)?.trim_end(),
-        "Jobniac migrate: database is not configured; set the JOBNIAC_DB_* variables."
+        "Jobniac migrate: database location is not available; check JOBNIAC_DB_PATH."
     );
+    Ok(())
+}
+
+#[test]
+fn migrate_creates_the_database_file_and_a_second_run_finds_it_current() -> TestResult {
+    let database = TempDatabase::new()?;
+    let migrate = || -> std::io::Result<Output> {
+        cli()
+            .arg("migrate")
+            .env("JOBNIAC_DB_PATH", database.as_str())
+            .output()
+    };
+    let first = migrate()?;
+    assert_eq!(first.status.code(), Some(0), "{first:?}");
+    assert!(String::from_utf8(first.stdout)?.starts_with("Applied migrations: V0001"));
+    assert!(database.path().is_file());
+    let second = migrate()?;
+    assert_eq!(second.status.code(), Some(0), "{second:?}");
+    assert_eq!(
+        String::from_utf8(second.stdout)?.trim_end(),
+        "Schema is current (V0001); nothing to apply."
+    );
+    assert!(second.stderr.is_empty());
+    Ok(())
+}
+
+#[test]
+fn migrate_refuses_a_relative_database_path_without_naming_it() -> TestResult {
+    let output = cli()
+        .arg("migrate")
+        .env("JOBNIAC_DB_PATH", "relative/jobniac.sqlite3")
+        .output()?;
+    assert_eq!(output.status.code(), Some(1));
+    let stderr = String::from_utf8(output.stderr)?;
+    assert!(!stderr.contains("relative"), "{stderr}");
     Ok(())
 }
 
@@ -205,16 +243,10 @@ fn mcp_with_stdin_closed_before_initialize_exits_zero_silently() -> TestResult {
 
 // The catalog per configuration, through the real binary: `tools/list` of `jobniac-cli mcp` must
 // list the tool names of each opt-in configuration, in their catalog order, and a flag value
-// other than the exact `1` must compose nothing. The composition needs the database settings and
-// the Arbeitnow keys (synthetic values below); no test connects to a database.
+// other than the exact `1` must compose nothing. The composition needs a database file (a
+// temporary one, created and migrated by the binary) and the Arbeitnow keys (synthetic values
+// below).
 
-const DATABASE_PAIRS: [(&str, &str); 5] = [
-    ("JOBNIAC_DB_HOST", "127.0.0.1"),
-    ("JOBNIAC_DB_PORT", "5432"),
-    ("JOBNIAC_DB_NAME", "jobniac_test"),
-    ("JOBNIAC_DB_USER", "app_user"),
-    ("JOBNIAC_DB_PASSWORD", "synthetic-password"),
-];
 const CANDIDATE_KEY_PAIR: (&str, &str) = (
     "JOBNIAC_ARBEITNOW_CANDIDATE_KEY",
     "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8",
@@ -246,8 +278,11 @@ const GROUP_FLAGS: [(&str, &str, &[&str]); 4] = [
 const LINK_SUPPORTED: bool = cfg!(any(target_os = "linux", target_os = "windows"));
 
 /// The environment of the database and key settings, plus the given flag value pairs.
-fn environment_with(flags: &[(&'static str, &'static str)]) -> Vec<(&'static str, &'static str)> {
-    let mut pairs: Vec<(&'static str, &'static str)> = DATABASE_PAIRS.to_vec();
+fn environment_with<'a>(
+    database: &'a TempDatabase,
+    flags: &[(&'a str, &'a str)],
+) -> Vec<(&'a str, &'a str)> {
+    let mut pairs: Vec<(&'a str, &'a str)> = vec![database.environment_pair()];
     pairs.push(CANDIDATE_KEY_PAIR);
     pairs.push(CURSOR_SECRET_PAIR);
     pairs.extend_from_slice(flags);
@@ -324,6 +359,7 @@ fn each_configuration_lists_the_tool_names_in_order() -> TestResult {
     if !LINK_SUPPORTED {
         return Ok(());
     }
+    let database = TempDatabase::new()?;
     let configurations: [(&str, &[&str], &str); 6] = [
         (
             "deletion",
@@ -357,12 +393,12 @@ fn each_configuration_lists_the_tool_names_in_order() -> TestResult {
         ),
     ];
     for (name, groups, golden) in configurations {
-        let flags: Vec<(&'static str, &'static str)> = GROUP_FLAGS
+        let flags: Vec<(&str, &str)> = GROUP_FLAGS
             .iter()
             .filter(|(group, _, _)| groups.contains(group))
             .map(|(_, flag, _)| (*flag, "1"))
             .collect();
-        let names = listed_by_binary(&environment_with(&flags))?;
+        let names = listed_by_binary(&environment_with(&database, &flags))?;
         assert_eq!(names, golden_names(golden)?, "configuration {name}");
     }
     Ok(())
@@ -373,16 +409,17 @@ fn only_the_exact_flag_value_composes_each_group() -> TestResult {
     if !LINK_SUPPORTED {
         return Ok(());
     }
+    let database = TempDatabase::new()?;
     let default = listed_by_binary(&[])?;
     for (group, flag, tools) in GROUP_FLAGS {
         for value in ["0", "true", "01", " 1", "yes", "1 ", ""] {
-            let names = listed_by_binary(&environment_with(&[(flag, value)]))?;
+            let names = listed_by_binary(&environment_with(&database, &[(flag, value)]))?;
             assert_eq!(
                 names, default,
                 "{group}: flag {value:?} must compose nothing"
             );
         }
-        let names = listed_by_binary(&environment_with(&[(flag, "1")]))?;
+        let names = listed_by_binary(&environment_with(&database, &[(flag, "1")]))?;
         for tool in tools {
             assert!(
                 names.iter().any(|name| name == tool),

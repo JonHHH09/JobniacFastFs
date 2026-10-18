@@ -25,9 +25,9 @@ pub(crate) type Object = Map<String, Value>;
 pub(crate) const WRITE_MESSAGE: &str = "Invalid profile write request";
 /// Message of identifier, revision and project-patch errors (`Invalid profile request`).
 pub(crate) const REQUEST_MESSAGE: &str = "Invalid profile request";
-/// Largest revision the aggregate accepts (PostgreSQL `bigint` maximum).
+/// Largest revision the aggregate accepts (`i64::MAX`).
 pub const MAX_REVISION: i64 = i64::MAX;
-/// Largest `displayOrder` accepted (PostgreSQL `integer` maximum).
+/// Largest `displayOrder` accepted (`i32::MAX`).
 pub const MAX_DISPLAY_ORDER: i64 = 2_147_483_647;
 
 /// A validation error with the given message, field and reason.
@@ -305,7 +305,7 @@ mod tests {
     }
 
     #[test]
-    fn display_order_refuses_values_above_the_postgresql_integer_maximum() {
+    fn display_order_refuses_values_above_the_i32_maximum() {
         assert_eq!(
             reason_of(non_negative_order(&parsed("2147483648"), "displayOrder")),
             "must be less than or equal to 2147483647"

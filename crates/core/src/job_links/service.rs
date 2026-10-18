@@ -311,7 +311,7 @@ fn validate_content(
 }
 
 /// The provenance columns that the link row keeps in `fields` under their wire keys (the same
-/// layout the PostgreSQL adapter reads back).
+/// layout the SQLite adapter reads back).
 fn link_fields(
     display_url: &str,
     now: time::OffsetDateTime,

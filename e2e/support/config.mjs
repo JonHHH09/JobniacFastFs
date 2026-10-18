@@ -1,7 +1,7 @@
 // Paths, environment and temporary directories shared by the runner and the specs.
 import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -19,19 +19,19 @@ export const cliBinary =
 /** Ignored by git (see e2e/.gitignore): failure screenshots go here. */
 export const artifactsDir = join(repoRoot, "e2e", ".artifacts");
 
-/** Environment variables of the application that the suite controls. Everything else named JOBNIAC_* is dropped. */
-const DATABASE_KEYS = [
-  "JOBNIAC_DB_HOST",
-  "JOBNIAC_DB_PORT",
-  "JOBNIAC_DB_NAME",
-  "JOBNIAC_DB_USER",
-  "JOBNIAC_DB_PASSWORD",
-];
+/**
+ * Environment variables of the application that the suite controls. Everything else named JOBNIAC_*
+ * is dropped, `JOBNIAC_DB_PATH` of the caller included: the database of a run is always the
+ * temporary file that `createRunRoot` names, passed explicitly by the runner.
+ */
 const SUITE_KEYS = [
   "JOBNIAC_DOCUMENT_IMPORT_ROOT",
   "JOBNIAC_E2E_ROOT",
   "JOBNIAC_E2E_GENERATED_ROOT",
 ];
+
+/** The folder that holds every run root; the suite touches no database outside it. */
+const runArea = join(repoRoot, "target");
 
 /**
  * The environment of one application session. No opt-in flag is set unless the session asks for it:
@@ -40,29 +40,32 @@ const SUITE_KEYS = [
 export function sessionEnvironment(base, extra = {}) {
   const env = {};
   for (const [key, value] of Object.entries(base)) {
-    if (!key.startsWith("JOBNIAC_") || DATABASE_KEYS.includes(key) || SUITE_KEYS.includes(key)) {
+    if (!key.startsWith("JOBNIAC_") || SUITE_KEYS.includes(key)) {
       env[key] = value;
     }
   }
   return { ...env, ...extra };
 }
 
-/** Reads the disposable-database variables; the runner refuses to start without them. */
-export function databaseEnvironment(base) {
-  return Object.fromEntries(DATABASE_KEYS.map((key) => [key, base[key] ?? ""]));
+/** Whether `path` is inside the run area (`target/` of the repository), by lexical resolution. */
+export function isInsideRunArea(path) {
+  const relation = relative(runArea, resolve(path));
+  return relation !== "" && !relation.startsWith("..") && !isAbsolute(relation);
 }
 
 /**
- * Creates the directories of one run: the import root and the generated root. They live under the
- * ignored `target/` folder of the repository and are removed by the runner when it ends. The
- * generated root is not placed in the user temporary folder: setup-generated-root refuses that
- * location on Windows (see e2e/README.md).
+ * Creates the directories of one run: the import root and the generated root, and names the
+ * database file (created by `jobniac-cli migrate`). They live under the ignored `target/` folder of
+ * the repository and are removed by the runner when it ends. The generated root is not placed in
+ * the user temporary folder: setup-generated-root refuses that location on Windows (see
+ * e2e/README.md).
  */
 export function createRunRoot() {
-  mkdirSync(join(repoRoot, "target"), { recursive: true });
-  const root = mkdtempSync(join(repoRoot, "target", "e2e-"));
+  mkdirSync(runArea, { recursive: true });
+  const root = mkdtempSync(join(runArea, "e2e-"));
   const importRoot = join(root, "imports");
   const generatedRoot = join(root, "generated");
+  const databaseFile = join(root, "jobniac.sqlite3");
   mkdirSync(importRoot);
   // The generated root must be private, or setup-generated-root refuses it. Linux: owner-only mode
   // bits. Windows ignores the mode, so the folder gets a protected DACL instead.
@@ -70,7 +73,7 @@ export function createRunRoot() {
   if (process.platform === "win32") {
     protectWindowsDirectory(generatedRoot);
   }
-  return { root, importRoot, generatedRoot };
+  return { root, importRoot, generatedRoot, databaseFile };
 }
 
 /**

@@ -5,7 +5,7 @@
 # Inputs (environment):
 #   EVENT_NAME         github.event_name (the caller's event for a workflow_call)
 #   BASE_REF           github.base_ref (the target branch of a pull request, empty otherwise)
-#   POSTGRES_REQUIRED  "true" for the release call of ci.yml and e2e.yml: a full run, no path filtering
+#   RELEASE_CALL       "true" for the release call of ci.yml and e2e.yml: a full run, no path filtering
 #   GH_TOKEN           token with `actions: read`, used to look the passed marker up
 #   GITHUB_REPOSITORY, GITHUB_OUTPUT  set by the runner
 #
@@ -27,7 +27,7 @@ set -euo pipefail
 
 workflow="${1:?usage: gate.sh <ci|e2e>}"
 event="${EVENT_NAME:?}"
-required="${POSTGRES_REQUIRED:-false}"
+required="${RELEASE_CALL:-false}"
 base_ref="${BASE_REF:-}"
 
 tree="$(git rev-parse 'HEAD^{tree}')"
@@ -89,7 +89,7 @@ if [ "$plain_pr" = true ]; then
 
   # The UI dist is embedded by tauri::generate_context!, so UI sources count for the Rust jobs.
   ui_paths='^(src/|e2e/|tools/|public/|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|index\.html$|vite\.config\.ts$|tsconfig[^/]*\.json$|biome\.json$|components\.json$|\.env\.mock$)'
-  rust_paths='^(crates/|src-tauri/|Cargo\.(toml|lock)$|rust-toolchain|clippy\.toml$|deny\.toml$|about\.toml$|\.cargo/|\.gitattributes$|\.github/actions/|scripts/fetch-pdfium|scripts/ci/install-postgresql-18\.sh$)'
+  rust_paths='^(crates/|src-tauri/|Cargo\.(toml|lock)$|rust-toolchain|clippy\.toml$|deny\.toml$|about\.toml$|\.cargo/|\.gitattributes$|\.github/actions/|scripts/fetch-pdfium)'
 
   rust=false ui=false app=false
   # The workflow file, its composite actions and this script affect every job of the workflow.

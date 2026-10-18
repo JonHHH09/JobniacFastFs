@@ -8,6 +8,7 @@ pub mod arbeitnow;
 pub mod artifacts;
 pub mod cleanup;
 pub mod clock;
+pub mod database_location;
 pub mod deletion;
 pub mod documents;
 pub mod env;

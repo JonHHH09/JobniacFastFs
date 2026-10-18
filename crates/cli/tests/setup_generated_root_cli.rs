@@ -1,7 +1,7 @@
 //! Black-box tests of `setup-generated-root` that stop before any database or filesystem work: the
 //! preconditions, their fixed texts and the exit status. Every process starts with a cleared
-//! environment. The synthetic database settings point at a loopback address that is never
-//! contacted, because each refusal below comes before the schema check.
+//! environment. The synthetic database path names a file that is never opened, because each refusal
+//! below comes before the schema check.
 
 use std::error::Error;
 use std::process::{Command, Output};
@@ -13,13 +13,11 @@ const PREFIX: &str = "Jobniac setup-generated-root: ";
 const ROOT: &str = "C:\\synthetic\\generated-root-marker";
 #[cfg(not(windows))]
 const ROOT: &str = "/synthetic/generated-root-marker";
-const DATABASE: &[(&str, &str)] = &[
-    ("JOBNIAC_DB_HOST", "127.0.0.1"),
-    ("JOBNIAC_DB_PORT", "1"),
-    ("JOBNIAC_DB_NAME", "jobniac_synthetic"),
-    ("JOBNIAC_DB_USER", "synthetic_user"),
-    ("JOBNIAC_DB_PASSWORD", "synthetic_password"),
-];
+#[cfg(windows)]
+const DATABASE_FILE: &str = "C:\\synthetic\\jobniac.sqlite3";
+#[cfg(not(windows))]
+const DATABASE_FILE: &str = "/synthetic/jobniac.sqlite3";
+const DATABASE: &[(&str, &str)] = &[("JOBNIAC_DB_PATH", DATABASE_FILE)];
 
 /// A command for the built binary with an empty environment.
 fn cli() -> Command {
@@ -58,10 +56,7 @@ fn assert_refusal(output: &Output, text: &str) -> TestResult {
 #[test]
 fn a_missing_database_is_refused_first() -> TestResult {
     let output = setup(&[("JOBNIAC_GENERATED_ROOT", ROOT)])?;
-    assert_refusal(
-        &output,
-        "database is not configured; set the JOBNIAC_DB_* variables.",
-    )
+    assert_refusal(&output, "database is not available; check JOBNIAC_DB_PATH.")
 }
 
 #[test]

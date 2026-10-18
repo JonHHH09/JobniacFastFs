@@ -2,7 +2,7 @@
 //!
 //! As in [`crate::profiles::repository`], the use cases never see a connection: each repository call
 //! receives the transaction handle of a [`UnitOfWork`] scope, and the port uses `async_trait` so that
-//! it stays object-safe. The PostgreSQL adapter implements the ports over its own transaction type.
+//! it stays object-safe. The SQLite adapter implements the ports over its own transaction type.
 //! The unit of work and the read-only and read-write options are shared with the profile aggregate.
 
 use async_trait::async_trait;

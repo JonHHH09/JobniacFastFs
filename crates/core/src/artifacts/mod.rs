@@ -5,8 +5,8 @@
 //! against the stored size and SHA-256, and the `%PDF-` magic is re-verified on every read.
 //!
 //! * [`model`]: the bounds, the fixed messages and [`model::validate_artifact`].
-//! * [`repository`]: the persistence port (the PostgreSQL adapter lives in
-//!   `jobniac_infra::postgres::artifacts`).
+//! * [`repository`]: the persistence port (the SQLite adapter lives in
+//!   `jobniac_infra::sqlite::artifacts`).
 //! * [`service`]: the [`service::ArtifactService`] use case and the export use case over the
 //!   [`service::ArtifactExporter`] port (the atomic exporter lives in `jobniac_infra::files::export`).
 

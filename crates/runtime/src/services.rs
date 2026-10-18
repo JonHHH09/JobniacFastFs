@@ -9,7 +9,7 @@
 
 use std::sync::Arc;
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use jobniac_core::clock::{Clock, SystemClock};
 use jobniac_core::documents::{DocumentListService, DocumentService};
@@ -23,21 +23,20 @@ use jobniac_core::profiles::{
     PersonalDetailsService, ProfileListService, ProfileSearchService, ProfileService,
 };
 use jobniac_core::reviews::MatchReviewService;
-use jobniac_infra::postgres::config::{DatabaseConfig, load_database_config};
-use jobniac_infra::postgres::documents::PgDocumentRepository;
-use jobniac_infra::postgres::health::PostgresHealthProbe;
-use jobniac_infra::postgres::jobs::PgJobRepository;
-use jobniac_infra::postgres::match_reviews::PgMatchReviewRepository;
-use jobniac_infra::postgres::matching::{MATCHING_APPLICATION_NAME, PgMatchingRepository};
-use jobniac_infra::postgres::pool::PgPool;
-use jobniac_infra::postgres::profiles::PgProfileRepository;
-use jobniac_infra::postgres::profiles::pdf::PgProfilePdfRepository;
-use jobniac_infra::postgres::session::JOB_SEARCH_APPLICATION_NAME;
-use jobniac_infra::postgres::unit_of_work::PgUnitOfWork;
+use jobniac_infra::sqlite::documents::SqliteDocumentRepository;
+use jobniac_infra::sqlite::health::SqliteHealthProbe;
+use jobniac_infra::sqlite::jobs::SqliteJobRepository;
+use jobniac_infra::sqlite::match_reviews::SqliteMatchReviewRepository;
+use jobniac_infra::sqlite::matching::SqliteMatchingRepository;
+use jobniac_infra::sqlite::pool::SqlitePool;
+use jobniac_infra::sqlite::profiles::SqliteProfileRepository;
+use jobniac_infra::sqlite::profiles::pdf::SqliteProfilePdfRepository;
+use jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork;
 
 use crate::arbeitnow::load_arbeitnow_config;
 use crate::artifacts::{ArtifactServices, compose_artifacts};
 use crate::blocking::BlockingHasher;
+use crate::database::{database_path, prepare};
 use crate::deletion::{DeletionServices, compose_deletion};
 use crate::document_ports::{
     ImportRootReader, WorkerCancellation, WorkerPdfExtractor, WorkerPdfRenderer,
@@ -54,13 +53,14 @@ pub const PDFIUM_DIR_VARIABLE: &str = "JOBNIAC_PDFIUM_DIR";
 pub struct Services {
     /// The readiness use case shared by every inbound adapter.
     pub health: Arc<HealthService>,
-    /// The validated local database settings; `None` leaves health reporting DOWN.
-    pub database: Option<DatabaseConfig>,
-    /// The profile use cases, all over one PostgreSQL unit of work.
+    /// The open local database; `None` leaves health reporting DOWN. The services share its
+    /// connection pool (one writer, WAL readers).
+    pub database: Option<SqlitePool>,
+    /// The profile use cases, all over one SQLite unit of work.
     pub profiles: ProfileServices,
     /// The job use cases, over the same unit of work as the profile use cases.
     pub jobs: JobServices,
-    /// The matching and advisory review use cases, over one pool named `jobniac-matching`.
+    /// The matching and advisory review use cases.
     pub matching: MatchingServices,
     /// The document use cases: import, metadata and the extraction cache.
     pub documents: DocumentServices,
@@ -81,10 +81,10 @@ pub struct Services {
 /// The stored-PDF profile ingestion over the profile unit of work, the profile repository, the
 /// PDF repository and the document use cases.
 pub type ProfilePdfServiceType = ProfilePdfService<
-    PgUnitOfWork,
-    PgProfileRepository,
-    PgProfilePdfRepository,
-    Arc<DocumentService<PgUnitOfWork, PgDocumentRepository>>,
+    SqliteUnitOfWork,
+    SqliteProfileRepository,
+    SqliteProfilePdfRepository,
+    Arc<DocumentService<SqliteUnitOfWork, SqliteDocumentRepository>>,
 >;
 
 /// The document use cases, over the profile unit of work.
@@ -92,7 +92,7 @@ pub type ProfilePdfServiceType = ProfilePdfService<
 pub struct DocumentServices {
     /// Store from the import root, metadata reads, stored or import-root text extraction, and the
     /// stored page render (`render_stored_page`).
-    pub service: Arc<DocumentService<PgUnitOfWork, PgDocumentRepository>>,
+    pub service: Arc<DocumentService<SqliteUnitOfWork, SqliteDocumentRepository>>,
     /// The cancellation of the PDF worker calls made by `service`. Reset and shutdown cancel every
     /// call in flight through it.
     pub cancellation: WorkerCancellation,
@@ -101,60 +101,57 @@ pub struct DocumentServices {
     pub renderer: Arc<dyn jobniac_core::documents::repository::PdfRenderer>,
     /// Desktop-only keyset listing of stored documents, signed with the cursor key of
     /// `JOBNIAC_CURSOR_HMAC_SECRET`, validated at startup like the other listings.
-    pub list: Arc<DocumentListService<PgUnitOfWork, PgDocumentRepository>>,
+    pub list: Arc<DocumentListService<SqliteUnitOfWork, SqliteDocumentRepository>>,
 }
 
 /// The matching and review use cases.
 ///
-/// Both share one session pool named `jobniac-matching`. Without a
-/// database configuration every call fails with `Local database is not configured` before any
-/// connection is attempted.
+/// Both share the connection pool of the other use cases. Without a database every call fails with
+/// `Local database is not configured`.
 #[derive(Debug, Clone)]
 pub struct MatchingServices {
     /// Deterministic pair analysis, the bounded batch over candidate jobs, the report read and the
     /// keyset report history. The history is signed with the cursor key of
     /// `JOBNIAC_CURSOR_HMAC_SECRET`, validated at startup like the other listings.
-    pub analysis: Arc<MatchAnalysisService<PgMatchingRepository>>,
+    pub analysis: Arc<MatchAnalysisService<SqliteMatchingRepository>>,
     /// Advisory review submission, the review and disagreement histories, and the status changes of
     /// disagreements. Cursors are signed with the same key.
-    pub reviews: Arc<MatchReviewService<PgMatchReviewRepository>>,
+    pub reviews: Arc<MatchReviewService<SqliteMatchReviewRepository>>,
 }
 
 /// The job use cases.
 ///
-/// The capture, read and update use case shares the session pool of [`ProfileServices`]. The
-/// search use case has a pool of its own. Without a database configuration
-/// every call fails with `Local database is not configured` before any connection is attempted.
+/// The capture, read, update and search use cases share the connection pool of
+/// [`ProfileServices`]. Without a database every call fails with `Local database is not
+/// configured`.
 #[derive(Debug, Clone)]
 pub struct JobServices {
     /// Paste-first capture, get, keyset list and the revision-checked update. The list is signed
     /// with the cursor key of `JOBNIAC_CURSOR_HMAC_SECRET`, validated at startup like the profile
     /// listing.
-    pub service: Arc<JobService<PgUnitOfWork, PgJobRepository>>,
-    /// Bounded job search over the job posting index. It runs over its own pool, whose sessions are
-    /// named `jobniac-job-search`, so they stand apart from the
-    /// other job and profile sessions in `pg_stat_activity`.
-    pub search: Arc<JobSearchService<PgUnitOfWork, PgJobRepository>>,
+    pub service: Arc<JobService<SqliteUnitOfWork, SqliteJobRepository>>,
+    /// Bounded job search over the job posting index.
+    pub search: Arc<JobSearchService<SqliteUnitOfWork, SqliteJobRepository>>,
 }
 
 /// The profile use cases.
 ///
-/// All of them share one session pool, which the job use cases use too. Without a database
-/// configuration every call fails with the `Local database is not configured` error before
-/// any connection is attempted.
+/// All of them share one connection pool, which the job use cases use too. Without a database
+/// every call fails with the `Local database is not configured` error.
 #[derive(Debug, Clone)]
 pub struct ProfileServices {
     /// Profile graph reads and writes: get, create, replace and project patch.
-    pub details: Arc<ProfileService<PgUnitOfWork, PgProfileRepository>>,
+    pub details: Arc<ProfileService<SqliteUnitOfWork, SqliteProfileRepository>>,
     /// Personal details: the optional date of birth and nationality under the revision check.
-    pub personal_details: Arc<PersonalDetailsService<PgUnitOfWork, PgProfileRepository>>,
+    pub personal_details: Arc<PersonalDetailsService<SqliteUnitOfWork, SqliteProfileRepository>>,
     /// Bounded search over the profile posting index.
-    pub search: Arc<ProfileSearchService<PgUnitOfWork, PgProfileRepository>>,
+    pub search: Arc<ProfileSearchService<SqliteUnitOfWork, SqliteProfileRepository>>,
     /// Keyset listing of identities, signed with the cursor key of `JOBNIAC_CURSOR_HMAC_SECRET`.
     /// [`compose`] never returns the `Err` variant: a too-short secret stops startup instead, so a
     /// composed value is always `Ok`. The `Result` is kept so the consumers in other crates do not
     /// change.
-    pub list: Result<Arc<ProfileListService<PgUnitOfWork, PgProfileRepository>>, CursorKeyError>,
+    pub list:
+        Result<Arc<ProfileListService<SqliteUnitOfWork, SqliteProfileRepository>>, CursorKeyError>,
 }
 
 /// The sanitized startup failure. It never says which setting is wrong.
@@ -165,8 +162,9 @@ pub struct StartupError;
 /// Compose the services from one environment snapshot.
 ///
 /// The opt-in Arbeitnow keys are validated first, before anything is built. An enabled feature
-/// with bad keys stops startup. Incomplete database settings are not an error: they produce a
-/// service whose health check reports DOWN without connecting.
+/// with bad keys stops startup. A database that cannot be located, created, migrated or opened is
+/// not an error: it produces services whose health check reports DOWN and whose use cases refuse
+/// with `Local database is not configured`.
 pub fn compose(env: &Environment) -> Result<Services, StartupError> {
     let pdfium_dir = env.get(PDFIUM_DIR_VARIABLE).map(PathBuf::from);
     compose_with_pdfium(env, pdfium_dir)
@@ -183,26 +181,23 @@ pub fn compose_with_pdfium(
     pdfium_dir: Option<PathBuf>,
 ) -> Result<Services, StartupError> {
     load_arbeitnow_config(env).map_err(|_| StartupError)?;
-    let database = load_database_config(env);
-    let probe = Arc::new(PostgresHealthProbe::new(database.clone()));
-    let uow = PgUnitOfWork::new(PgPool::new(database.clone()));
-    let search_uow = PgUnitOfWork::new(PgPool::with_application_name(
-        database.clone(),
-        JOB_SEARCH_APPLICATION_NAME,
+    let path = database_path(env);
+    let database = path.as_deref().and_then(prepare);
+    let probe = Arc::new(SqliteHealthProbe::new(
+        database
+            .as_ref()
+            .and_then(|pool| pool.path())
+            .map(Path::to_path_buf),
     ));
-    let matching_uow = PgUnitOfWork::new(PgPool::with_application_name(
-        database.clone(),
-        MATCHING_APPLICATION_NAME,
-    ));
+    let uow = SqliteUnitOfWork::new(database.clone().unwrap_or_else(SqlitePool::unconfigured));
     let profiles = compose_profiles(env, &uow)?;
-    let jobs = compose_jobs(env, &uow, &search_uow)?;
-    let matching = compose_matching(env, &matching_uow)?;
+    let jobs = compose_jobs(env, &uow)?;
+    let matching = compose_matching(env, &uow)?;
     let documents = compose_documents(env, &uow, pdfium_dir)?;
     let profile_pdf = compose_profile_pdf(&uow, &documents);
     let generation = Arc::new(compose_generation(
         env,
         &uow,
-        database.clone(),
         Arc::clone(&documents.service),
     ));
     let deletion = compose_deletion(env, database.as_ref());
@@ -229,14 +224,14 @@ pub fn compose_with_pdfium(
 /// Builds the stored-PDF profile ingestion over the profile unit of work, the document use cases
 /// and the process clock. It shares the connection pool of the profile use cases.
 fn compose_profile_pdf(
-    uow: &PgUnitOfWork,
+    uow: &SqliteUnitOfWork,
     documents: &DocumentServices,
 ) -> Arc<ProfilePdfServiceType> {
     let clock: Arc<dyn Clock> = Arc::new(SystemClock);
     Arc::new(ProfilePdfService::new(
         uow.clone(),
-        PgProfileRepository,
-        PgProfilePdfRepository,
+        SqliteProfileRepository,
+        SqliteProfilePdfRepository,
         Arc::clone(&documents.service),
         clock,
     ))
@@ -248,7 +243,7 @@ fn compose_profile_pdf(
 /// operation fail when it runs.
 fn compose_documents(
     env: &Environment,
-    uow: &PgUnitOfWork,
+    uow: &SqliteUnitOfWork,
     pdfium_dir: Option<PathBuf>,
 ) -> Result<DocumentServices, StartupError> {
     let list_key = CursorKey::from_environment(env).map_err(|_| StartupError)?;
@@ -266,7 +261,7 @@ fn compose_documents(
         service: Arc::new(
             DocumentService::new(
                 uow.clone(),
-                PgDocumentRepository,
+                SqliteDocumentRepository,
                 Arc::new(reader),
                 Arc::new(extractor),
                 Arc::new(SystemClock),
@@ -278,7 +273,7 @@ fn compose_documents(
         renderer,
         list: Arc::new(DocumentListService::new(
             uow.clone(),
-            PgDocumentRepository,
+            SqliteDocumentRepository,
             CursorCodec::new(list_key),
         )),
     })
@@ -290,19 +285,19 @@ fn compose_documents(
 /// secret stops startup, as for the profile and job listings.
 fn compose_matching(
     env: &Environment,
-    uow: &PgUnitOfWork,
+    uow: &SqliteUnitOfWork,
 ) -> Result<MatchingServices, StartupError> {
     let clock: Arc<dyn Clock> = Arc::new(SystemClock);
     let analysis_key = CursorKey::from_environment(env).map_err(|_| StartupError)?;
     let review_key = CursorKey::from_environment(env).map_err(|_| StartupError)?;
     Ok(MatchingServices {
         analysis: Arc::new(MatchAnalysisService::new(
-            PgMatchingRepository::new(uow.clone()),
+            SqliteMatchingRepository::new(uow.clone()),
             CursorCodec::new(analysis_key),
             Arc::clone(&clock),
         )),
         reviews: Arc::new(MatchReviewService::new(
-            PgMatchReviewRepository::new(uow.clone()),
+            SqliteMatchReviewRepository::new(uow.clone()),
             CursorCodec::new(review_key),
             clock,
         )),
@@ -314,50 +309,49 @@ fn compose_matching(
 /// A too-short `JOBNIAC_CURSOR_HMAC_SECRET` stops startup.
 fn compose_profiles(
     env: &Environment,
-    uow: &PgUnitOfWork,
+    uow: &SqliteUnitOfWork,
 ) -> Result<ProfileServices, StartupError> {
     let clock: Arc<dyn Clock> = Arc::new(SystemClock);
     let key = CursorKey::from_environment(env).map_err(|_| StartupError)?;
     let list = Arc::new(ProfileListService::new(
         uow.clone(),
-        PgProfileRepository,
+        SqliteProfileRepository,
         CursorCodec::new(key),
     ));
     Ok(ProfileServices {
         details: Arc::new(ProfileService::new(
             uow.clone(),
-            PgProfileRepository,
+            SqliteProfileRepository,
             Arc::clone(&clock),
         )),
         personal_details: Arc::new(PersonalDetailsService::new(
             uow.clone(),
-            PgProfileRepository,
+            SqliteProfileRepository,
             clock,
         )),
-        search: Arc::new(ProfileSearchService::new(uow.clone(), PgProfileRepository)),
+        search: Arc::new(ProfileSearchService::new(
+            uow.clone(),
+            SqliteProfileRepository,
+        )),
         list: Ok(list),
     })
 }
 
-/// Builds the job use cases: capture, read and update over `uow`, and search over `search_uow`,
-/// with the process clock and the cursor key.
+/// Builds the job use cases: capture, read, update and search over `uow`, with the process clock
+/// and the cursor key.
 ///
 /// The job listing is signed with the same key as the profile listing, so the same startup rule
 /// applies: a too-short secret stops startup.
-fn compose_jobs(
-    env: &Environment,
-    uow: &PgUnitOfWork,
-    search_uow: &PgUnitOfWork,
-) -> Result<JobServices, StartupError> {
+fn compose_jobs(env: &Environment, uow: &SqliteUnitOfWork) -> Result<JobServices, StartupError> {
     let key = CursorKey::from_environment(env).map_err(|_| StartupError)?;
     Ok(JobServices {
         service: Arc::new(JobService::new(
             uow.clone(),
-            PgJobRepository,
+            SqliteJobRepository,
             Arc::new(SystemClock),
             CursorCodec::new(key),
         )),
-        search: Arc::new(JobSearchService::new(search_uow.clone(), PgJobRepository)),
+        search: Arc::new(JobSearchService::new(uow.clone(), SqliteJobRepository)),
     })
 }
 
@@ -368,13 +362,6 @@ mod tests {
 
     type TestResult = Result<(), Box<dyn std::error::Error>>;
 
-    const DATABASE_PAIRS: [(&str, &str); 5] = [
-        ("JOBNIAC_DB_HOST", "127.0.0.1"),
-        ("JOBNIAC_DB_PORT", "5432"),
-        ("JOBNIAC_DB_NAME", "jobniac_test"),
-        ("JOBNIAC_DB_USER", "app_user"),
-        ("JOBNIAC_DB_PASSWORD", "synthetic-password"),
-    ];
     const CANDIDATE_KEY: &str = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8";
     const CURSOR_SECRET: &str = "cursor-secret-0123456789abcdefghijklmnop";
 
@@ -391,15 +378,33 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn complete_database_settings_are_kept_without_connecting() -> TestResult {
-        let services = compose(&Environment::from_pairs(DATABASE_PAIRS))?;
-        let database = services
-            .database
-            .as_ref()
-            .ok_or("database config missing")?;
-        assert_eq!(database.host(), "127.0.0.1");
-        assert_eq!(database.port(), 5432);
+    #[tokio::test]
+    async fn a_database_override_is_created_migrated_and_reports_up() -> TestResult {
+        let root = tempfile::tempdir()?;
+        let file = root.path().join("data").join("jobniac.sqlite3");
+        let text = file.to_str().ok_or("temporary path is not Unicode")?;
+        let services = compose(&Environment::from_pairs([("JOBNIAC_DB_PATH", text)]))?;
+        let database = services.database.as_ref().ok_or("database missing")?;
+        assert_eq!(database.path(), Some(file.as_path()));
+        assert!(file.exists());
+        let report = services.health.check().await;
+        assert_eq!(report.status, HealthStatus::Up);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn an_unopenable_database_reports_down_with_the_fixed_category() -> TestResult {
+        let root = tempfile::tempdir()?;
+        // The database path is a directory, so the file cannot be opened.
+        let text = root
+            .path()
+            .to_str()
+            .ok_or("temporary path is not Unicode")?;
+        let services = compose(&Environment::from_pairs([("JOBNIAC_DB_PATH", text)]))?;
+        assert!(services.database.is_none());
+        let report = services.health.check().await;
+        assert_eq!(report.status, HealthStatus::Down);
+        assert_eq!(report.error_category, ErrorCategory::ConnectionUnavailable);
         Ok(())
     }
 
@@ -414,15 +419,23 @@ mod tests {
     }
 
     #[test]
-    fn invalid_arbeitnow_settings_stop_startup_even_with_a_database() {
-        let mut pairs = DATABASE_PAIRS.to_vec();
-        pairs.push(("JOBNIAC_ARBEITNOW_ENABLED", "1"));
-        pairs.push(("JOBNIAC_ARBEITNOW_CANDIDATE_KEY", "AAAA"));
-        pairs.push(("JOBNIAC_CURSOR_HMAC_SECRET", CURSOR_SECRET));
+    fn invalid_arbeitnow_settings_stop_startup_even_with_a_database() -> TestResult {
+        let root = tempfile::tempdir()?;
+        let file = root.path().join("jobniac.sqlite3");
+        let text = file.to_str().ok_or("temporary path is not Unicode")?;
+        let pairs = [
+            ("JOBNIAC_DB_PATH", text),
+            ("JOBNIAC_ARBEITNOW_ENABLED", "1"),
+            ("JOBNIAC_ARBEITNOW_CANDIDATE_KEY", "AAAA"),
+            ("JOBNIAC_CURSOR_HMAC_SECRET", CURSOR_SECRET),
+        ];
         assert!(matches!(
             compose(&Environment::from_pairs(pairs)),
             Err(StartupError)
         ));
+        // The keys are validated before the database is touched.
+        assert!(!file.exists());
+        Ok(())
     }
 
     #[test]
@@ -577,8 +590,16 @@ mod tests {
     fn a_short_cursor_secret_stops_startup_in_every_agent_mode() {
         let env = Environment::from_pairs([("JOBNIAC_CURSOR_HMAC_SECRET", "short")]);
         assert!(matches!(compose(&env), Err(StartupError)));
-        let mut pairs = DATABASE_PAIRS.to_vec();
-        pairs.push(("JOBNIAC_CURSOR_HMAC_SECRET", "short"));
+        let root = tempfile::tempdir().map_err(|_| ()).ok();
+        let file = root.as_ref().map(|dir| dir.path().join("jobniac.sqlite3"));
+        let text = file
+            .as_deref()
+            .and_then(std::path::Path::to_str)
+            .unwrap_or("");
+        let pairs = [
+            ("JOBNIAC_DB_PATH", text),
+            ("JOBNIAC_CURSOR_HMAC_SECRET", "short"),
+        ];
         assert!(matches!(
             compose(&Environment::from_pairs(pairs)),
             Err(StartupError)

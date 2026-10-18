@@ -3,7 +3,7 @@
 //!
 //! The doubles record every call, so a refused name must show one metadata read, no extraction and
 //! no persistence call. A valid name must reach the extraction after the metadata read. The
-//! PostgreSQL tests in `jobniac-infra` prove the same against real rows.
+//! SQLite tests in `jobniac-infra` prove the same against real rows.
 
 mod profile_support;
 

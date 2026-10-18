@@ -1,0 +1,22 @@
+[
+ {"name": "SQLITE_CONSTRAINT", "code": 19, "outcome": "constraint", "sqlstate": "23000"},
+ {"name": "SQLITE_CONSTRAINT_CHECK", "code": 275, "outcome": "constraint", "sqlstate": "23514"},
+ {"name": "SQLITE_CONSTRAINT_FOREIGNKEY", "code": 787, "outcome": "constraint", "sqlstate": "23503"},
+ {"name": "SQLITE_CONSTRAINT_NOTNULL", "code": 1299, "outcome": "constraint", "sqlstate": "23502"},
+ {"name": "SQLITE_CONSTRAINT_PRIMARYKEY", "code": 1555, "outcome": "constraint", "sqlstate": "23505"},
+ {"name": "SQLITE_CONSTRAINT_TRIGGER", "code": 1811, "outcome": "constraint", "sqlstate": "23514"},
+ {"name": "SQLITE_CONSTRAINT_UNIQUE", "code": 2067, "outcome": "constraint", "sqlstate": "23505"},
+ {"name": "SQLITE_BUSY", "code": 5, "outcome": "busy", "sqlstate": null},
+ {"name": "SQLITE_BUSY_SNAPSHOT", "code": 517, "outcome": "busy", "sqlstate": null},
+ {"name": "SQLITE_LOCKED", "code": 6, "outcome": "busy", "sqlstate": null},
+ {"name": "SQLITE_CANTOPEN", "code": 14, "outcome": "unavailable", "sqlstate": null},
+ {"name": "SQLITE_CORRUPT", "code": 11, "outcome": "unavailable", "sqlstate": null},
+ {"name": "SQLITE_FULL", "code": 13, "outcome": "unavailable", "sqlstate": null},
+ {"name": "SQLITE_IOERR_READ", "code": 266, "outcome": "unavailable", "sqlstate": null},
+ {"name": "SQLITE_NOTADB", "code": 26, "outcome": "unavailable", "sqlstate": null},
+ {"name": "SQLITE_PERM", "code": 3, "outcome": "unavailable", "sqlstate": null},
+ {"name": "SQLITE_ERROR", "code": 1, "outcome": "internal", "sqlstate": null},
+ {"name": "SQLITE_READONLY", "code": 8, "outcome": "internal", "sqlstate": null},
+ {"name": "SQLITE_SCHEMA", "code": 17, "outcome": "internal", "sqlstate": null},
+ {"name": "SQLITE_MISMATCH", "code": 20, "outcome": "internal", "sqlstate": null}
+]

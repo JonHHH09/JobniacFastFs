@@ -12,10 +12,9 @@ use jobniac_core::deletion::{
     JobDeletionRepository, JobDeletionService, ProfileDeletionRepository, ProfileDeletionService,
 };
 use jobniac_core::env::Environment;
-use jobniac_infra::postgres::config::DatabaseConfig;
-use jobniac_infra::postgres::deletion::{APPLICATION_NAME, PostgresEntityDeletionRepository};
-use jobniac_infra::postgres::pool::PgPool;
-use jobniac_infra::postgres::unit_of_work::PgUnitOfWork;
+use jobniac_infra::sqlite::deletion::SqliteEntityDeletionRepository;
+use jobniac_infra::sqlite::pool::SqlitePool;
+use jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork;
 
 /// Opt-in flag of the profile and job deletion tools: admitted only as exactly `1`.
 pub const DELETION_ENABLED_VARIABLE: &str = "JOBNIAC_DELETION_ENABLED";
@@ -29,20 +28,17 @@ pub struct DeletionServices {
     pub job: Option<Arc<JobDeletionService>>,
 }
 
-/// Composes the deletion use cases from the snapshot `env` and the database configuration.
+/// Composes the deletion use cases from the snapshot `env` and the open database.
 #[must_use]
-pub fn compose_deletion(env: &Environment, database: Option<&DatabaseConfig>) -> DeletionServices {
+pub fn compose_deletion(env: &Environment, database: Option<&SqlitePool>) -> DeletionServices {
     let Some(database) = database else {
         return DeletionServices::default();
     };
     if !env.flag_enabled(DELETION_ENABLED_VARIABLE) {
         return DeletionServices::default();
     }
-    let uow = PgUnitOfWork::new(PgPool::with_application_name(
-        Some(database.clone()),
-        APPLICATION_NAME,
-    ));
-    let repository = Arc::new(PostgresEntityDeletionRepository::new(
+    let uow = SqliteUnitOfWork::new(database.clone());
+    let repository = Arc::new(SqliteEntityDeletionRepository::new(
         uow,
         Arc::new(SystemClock),
     ));
@@ -58,21 +54,16 @@ pub fn compose_deletion(env: &Environment, database: Option<&DatabaseConfig>) ->
 mod tests {
     use super::*;
 
-    fn database() -> DatabaseConfig {
-        let environment = Environment::from_pairs([
-            ("JOBNIAC_DB_HOST", "127.0.0.1"),
-            ("JOBNIAC_DB_PORT", "5432"),
-            ("JOBNIAC_DB_NAME", "jobniac_test"),
-            ("JOBNIAC_DB_USER", "app_user"),
-            ("JOBNIAC_DB_PASSWORD", "synthetic-password"),
-        ]);
-        jobniac_infra::postgres::config::load_database_config(&environment)
-            .unwrap_or_else(|| panic!("the synthetic database settings must be valid"))
+    fn database() -> (tempfile::TempDir, SqlitePool) {
+        let root = tempfile::tempdir().unwrap_or_else(|_| panic!("a temporary directory"));
+        let pool = SqlitePool::open(root.path().join("jobniac.sqlite3"))
+            .unwrap_or_else(|_| panic!("the temporary database must open"));
+        (root, pool)
     }
 
     #[test]
     fn only_the_exact_flag_with_a_database_composes_both_services() {
-        let config = database();
+        let (_root, config) = database();
         let on = Environment::from_pairs([(DELETION_ENABLED_VARIABLE, "1")]);
         let composed = compose_deletion(&on, Some(&config));
         assert!(composed.profile.is_some() && composed.job.is_some());

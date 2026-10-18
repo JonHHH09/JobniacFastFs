@@ -1,6 +1,6 @@
 //! Graph inputs of the scorer (flat structs).
 //!
-//! The repository builds these from PostgreSQL rows. Identifiers and revisions stay as text, so the
+//! The repository builds these from database rows. Identifiers and revisions stay as text, so the
 //! scorer applies one fixed parsing and error order.
 
 use uuid::Uuid;

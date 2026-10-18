@@ -1,4 +1,4 @@
-//! The MCP matching and review ports over the PostgreSQL-backed use cases.
+//! The MCP matching and review ports over the SQLite-backed use cases.
 //!
 //! Like [`crate::job_ports`], the composition root is the only place that knows both the MCP ports
 //! (`jobniac-mcp`) and the concrete use cases (`jobniac-core` over `jobniac-infra`). Each adapter
@@ -11,8 +11,8 @@ use async_trait::async_trait;
 use jobniac_core::errors::AppError;
 use jobniac_core::matching::MatchAnalysisService;
 use jobniac_core::reviews::MatchReviewService;
-use jobniac_infra::postgres::match_reviews::PgMatchReviewRepository;
-use jobniac_infra::postgres::matching::PgMatchingRepository;
+use jobniac_infra::sqlite::match_reviews::SqliteMatchReviewRepository;
+use jobniac_infra::sqlite::matching::SqliteMatchingRepository;
 use jobniac_mcp::tools::matching::MatchingPort;
 use jobniac_mcp::tools::reviews::MatchReviewPort;
 use jobniac_runtime::services::MatchingServices;
@@ -20,10 +20,10 @@ use serde_json::Value;
 
 use crate::profile_ports::to_dictionary;
 
-/// The deterministic matching use cases over PostgreSQL.
-pub type MatchingUseCase = MatchAnalysisService<PgMatchingRepository>;
-/// The advisory review and disagreement use cases over PostgreSQL.
-pub type MatchReviewUseCase = MatchReviewService<PgMatchReviewRepository>;
+/// The deterministic matching use cases over SQLite.
+pub type MatchingUseCase = MatchAnalysisService<SqliteMatchingRepository>;
+/// The advisory review and disagreement use cases over SQLite.
+pub type MatchReviewUseCase = MatchReviewService<SqliteMatchReviewRepository>;
 
 /// The MCP ports of the matching and review tools. An absent port leaves its tools unregistered.
 #[derive(Debug, Clone, Default)]
@@ -115,19 +115,18 @@ mod tests {
     use jobniac_core::pagination::{CursorCodec, CursorKey};
     use jobniac_core::profiles::ProfileService;
     use jobniac_core::reviews::MatchReviewService;
-    use jobniac_infra::postgres::config::load_database_config;
-    use jobniac_infra::postgres::jobs::PgJobRepository;
-    use jobniac_infra::postgres::match_reviews::PgMatchReviewRepository;
-    use jobniac_infra::postgres::matching::PgMatchingRepository;
-    use jobniac_infra::postgres::migrations::migrate;
-    use jobniac_infra::postgres::pool::PgPool;
-    use jobniac_infra::postgres::profiles::PgProfileRepository;
-    use jobniac_infra::postgres::unit_of_work::PgUnitOfWork;
+    use jobniac_infra::sqlite::jobs::SqliteJobRepository;
+    use jobniac_infra::sqlite::match_reviews::SqliteMatchReviewRepository;
+    use jobniac_infra::sqlite::matching::SqliteMatchingRepository;
+    use jobniac_infra::sqlite::migrations::migrate;
+    use jobniac_infra::sqlite::pool::SqlitePool;
+    use jobniac_infra::sqlite::profiles::SqliteProfileRepository;
+    use jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork;
     use jobniac_mcp::catalog::Catalog;
     use jobniac_mcp::registry::{Arguments, ToolRegistry};
     use jobniac_mcp::result::ToolResult;
     use jobniac_mcp::tools::{matching, reviews};
-    use jobniac_testkit::pg::TestServer;
+    use jobniac_testkit::sqlite::TempDatabase;
     use serde_json::{Value, json};
 
     use super::{MatchPorts, build};
@@ -225,19 +224,19 @@ mod tests {
     /// A synthetic job capture whose skills overlap the profile.
     fn job_request() -> Value {
         json!({
-            "text": "Synthetic posting text: Rust and PostgreSQL in a small team",
+            "text": "Synthetic posting text: Rust and SQLite in a small team",
             "sourceLabel": "synthetic-board",
             "title": "Backend engineer",
             "company": "Example Corp",
             "location": null,
-            "skills": ["Rust", "PostgreSQL"],
+            "skills": ["Rust", "SQLite"],
         })
     }
 
     /// A second synthetic job, so that a batch needs more than one page.
     fn second_job_request() -> Value {
         json!({
-            "text": "Synthetic posting text: Go and PostgreSQL for a platform team",
+            "text": "Synthetic posting text: Go and SQLite for a platform team",
             "sourceLabel": "synthetic-board",
             "title": "Platform engineer",
             "company": "Example Corp",
@@ -266,35 +265,29 @@ mod tests {
     /// database. The walk covers analysis and reuse, a job update that makes a report stale, batch
     /// and history cursors, a review that diverges from its report (with an identical resubmission
     /// and a second model that reuses its disagreement), the issue reference, and the rejections
-    /// that never reach the service. Skips with a notice when no PostgreSQL server is configured for
-    /// the tests.
+    /// that never reach the service.
     #[tokio::test]
     async fn matching_and_review_tools_run_through_the_mcp_handlers() -> TestResult {
-        let Some(server) = TestServer::from_env() else {
-            eprintln!("skipped: JOBNIAC_TEST_PG_PORT is not set");
-            return Ok(());
-        };
-        let database = server.fresh_database().await;
-        let config = load_database_config(&database.environment())
-            .ok_or("the disposable database configuration is invalid")?;
-        migrate(&config).await.map_err(|error| error.0)?;
+        let database = TempDatabase::new()?;
+        migrate(database.path()).map_err(|error| error.0)?;
 
-        let uow = PgUnitOfWork::new(PgPool::new(Some(config)));
+        let uow = SqliteUnitOfWork::new(SqlitePool::open(database.path())?);
         let clock: Arc<dyn Clock> = Arc::new(SystemClock);
-        let profiles = ProfileService::new(uow.clone(), PgProfileRepository, Arc::clone(&clock));
+        let profiles =
+            ProfileService::new(uow.clone(), SqliteProfileRepository, Arc::clone(&clock));
         let jobs = JobService::new(
             uow.clone(),
-            PgJobRepository,
+            SqliteJobRepository,
             Arc::clone(&clock),
             CursorCodec::new(CursorKey::from_secret(CURSOR_SECRET)?),
         );
         let analysis = Arc::new(MatchAnalysisService::new(
-            PgMatchingRepository::new(uow.clone()),
+            SqliteMatchingRepository::new(uow.clone()),
             CursorCodec::new(CursorKey::from_secret(CURSOR_SECRET)?),
             Arc::clone(&clock),
         ));
         let review_service = Arc::new(MatchReviewService::new(
-            PgMatchReviewRepository::new(uow.clone()),
+            SqliteMatchReviewRepository::new(uow.clone()),
             CursorCodec::new(CursorKey::from_secret(CURSOR_SECRET)?),
             clock,
         ));

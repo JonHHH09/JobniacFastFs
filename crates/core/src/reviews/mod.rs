@@ -6,7 +6,7 @@
 //!
 //! The identifiers are content addresses (see [`review_fingerprint`] and [`disagreement_fingerprint`]),
 //! so the same content always has the same identifier. The persistence is behind
-//! [`MatchReviewRepository`]; the PostgreSQL adapter lives in `jobniac-infra`.
+//! [`MatchReviewRepository`]; the SQLite adapter lives in `jobniac-infra`.
 
 pub mod divergence;
 pub mod fingerprint;

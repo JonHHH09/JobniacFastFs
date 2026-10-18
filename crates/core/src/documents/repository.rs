@@ -2,7 +2,7 @@
 //!
 //! * [`DocumentRepository`]: the stored bytes and metadata, and the canonical extraction records.
 //!   Every call takes the transaction handle that the service opens with the unit of work, so no
-//!   connection is ambient. The PostgreSQL adapter lives in `jobniac_infra::postgres::documents`.
+//!   connection is ambient. The SQLite adapter lives in `jobniac_infra::sqlite::documents`.
 //! * [`DocumentFileReader`]: reads one file from the configured import root. Refusals come back as
 //!   validation errors whose `reason` detail is the caller-visible text.
 //! * [`PdfExtractor`]: the canonical extraction of PDF bytes. The PDF worker client implements it.

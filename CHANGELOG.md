@@ -8,6 +8,12 @@ drafts take the body of their version section from this file.
 
 ### Changed
 
+- Storage: the data now lives in an embedded SQLite file instead of a PostgreSQL 18 server. The
+  desktop app, the MCP server and `jobniac-cli` open the same file (WAL mode, busy timeout), and
+  `jobniac-cli migrate` acts on that file. Tool results, error messages and the health check keep
+  their wording. No data is migrated from an existing PostgreSQL database. The refusal texts of
+  `jobniac-cli migrate` and `setup-generated-root` without a usable database now name
+  `JOBNIAC_DB_PATH` instead of `JOBNIAC_DB_*`.
 - User interface: a left navigation sidebar with one section at a time replaces the single long page.
   Sections keep their unsaved drafts when you switch, the active section is kept in the URL,
   and Ctrl or Cmd with 1 to 9 jumps to a section. New visual design with a System, Light and Dark
@@ -40,7 +46,14 @@ drafts take the body of their version section from this file.
   prereleases, never the latest).
 - Desktop diagnostics on stderr, a startup refusal message box (Windows) and the opt-in log file
   `JOBNIAC_LOG_FILE=1`.
-- `postgres-tests` Cargo feature that selects the PostgreSQL test files.
+- `JOBNIAC_DB_PATH`: absolute path of the SQLite database file. Without it the file is
+  `%LOCALAPPDATA%\Jobniac\data\jobniac.sqlite3` on Windows and
+  `$XDG_DATA_HOME/jobniac/data/jobniac.sqlite3` (or `~/.local/share/jobniac/data/jobniac.sqlite3`) on
+  Linux. The app and `jobniac-cli` create the folder owner-only (on Unix the database file is `0600`
+  too) and bring the schema up to date when they start. The MCP server that the app starts receives the
+  database file the app opened as `JOBNIAC_DB_PATH`, so it finds the default location too.
+- MCP: the `store_document_file` tool description now says the PDF is stored "in the local database".
+  Tool names, arguments and results are unchanged.
 - Linux worker children (PDF extraction and rendering, link and Arbeitnow fetches) now confine themselves
   with Landlock and seccomp: no file system access (render may read the system fonts), no sockets for PDF
   workers, no program execution, signals only to themselves. Kernels without Landlock run with seccomp only
@@ -51,6 +64,13 @@ drafts take the body of their version section from this file.
 - Settings section with an MCP server switch (off by default, remembered across restarts): the desktop app
   starts and stops the loopback HTTP MCP server (`jobniac-cli http`) as a child process, with a fresh bearer
   token per start that is copied to the clipboard from Rust and never reaches the webview; the child also exits when the app dies for any reason, including a hard kill.
+
+### Removed
+
+- The PostgreSQL requirement: no server, role or database has to be set up, and the PostgreSQL
+  adapter, its migrations and its integration tests are gone.
+- `JOBNIAC_DB_HOST`, `JOBNIAC_DB_PORT`, `JOBNIAC_DB_NAME`, `JOBNIAC_DB_USER` and
+  `JOBNIAC_DB_PASSWORD`. They are ignored; use `JOBNIAC_DB_PATH` to choose another file.
 
 ### Fixed
 

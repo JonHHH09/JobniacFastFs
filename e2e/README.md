@@ -7,18 +7,18 @@ application needs no test plugin.
 
 ## What it covers
 
-Two application sessions run in order on one disposable database.
+Two application sessions run in order on one temporary SQLite database file.
 
 | Session | Spec | Steps |
 |---|---|---|
-| default (every opt-in flag unset) | `specs/app.spec.mjs` | 1 health UP; 2 create a profile with personal details and one experience, search it, edit and save (`Profile saved.`), unsaved-edit discard prompt; 3 paste a job posting and see it in the list; 4 analyze the pair and open the match report; 7 opt-in controls absent or disabled; 8 a busy search control stays disabled while the database lock holds, no file path or token in the page |
+| default (every opt-in flag unset) | `specs/app.spec.mjs` | 1 health UP; 2 create a profile with personal details and one experience, search it, edit and save (`Profile saved.`), unsaved-edit discard prompt; 3 paste a job posting and see it in the list; 4 analyze the pair and open the match report; 7 opt-in controls absent or disabled; 8 a busy save control stays disabled while the database write lock is held, no file path or token in the page |
 | generation (`JOBNIAC_GENERATED_ENABLED=1`, generated root in the run folder) | `specs/generation.spec.mjs` | 6 generate a standalone PDF and see the output rows |
 
 Step 5 (import a PDF through the Documents screen) is `it.skip`: see Deviations.
 
 ## Running it
 
-Prerequisites: Node 24, pnpm 12.10.1, Rust (stable), PostgreSQL 18 binaries, `tauri-driver`
+Prerequisites: Node 24, pnpm 12.10.1, Rust (stable), `tauri-driver`
 (`cargo install tauri-driver --locked`), and a WebDriver for the platform: `msedgedriver` matching the
 installed WebView2 runtime on Windows, `WebKitWebDriver` (package `webkitgtk-webdriver` on Ubuntu 26.04, `webkit2gtk-driver` on older
 releases) and `xvfb` on Linux.
@@ -26,18 +26,19 @@ releases) and `xvfb` on Linux.
 ```text
 pnpm install --frozen-lockfile
 pnpm tauri build --debug --no-bundle --config src-tauri/tauri.e2e.conf.json
-cargo build --locked -p jobniac-cli -p jobniac-testkit --bins
-JOBNIAC_POSTGRES_BIN=<PostgreSQL 18 bin directory> target/debug/pg-run node e2e/run.mjs
+cargo build --locked -p jobniac-cli
+node e2e/run.mjs
 ```
 
-`pnpm e2e` is the same runner (`node e2e/run.mjs`) and needs the disposable database environment that
-`pg-run` provides. `pg-run` (crates/testkit, see its README) starts a fresh PostgreSQL 18 cluster on a
-free loopback port, runs the command with `JOBNIAC_DB_*` and `PG*` pointing only at that cluster,
-prints the host, port and user (never the password), and stops and removes the cluster afterwards.
+`pnpm e2e` is the same runner (`node e2e/run.mjs`). It needs no database server: `run.mjs` names a
+fresh SQLite file in its run folder (`target/e2e-*/jobniac.sqlite3`) and passes it to the console
+binary and to the application as `JOBNIAC_DB_PATH`. A `JOBNIAC_DB_PATH` of the caller is ignored. The
+lookups of the specs (the identifiers of the profile and the job) and the lock of the busy-state
+check use `node:sqlite` (built into Node 24), so no `sqlite3` program is needed.
 Run it on Linux under `xvfb-run` when there is no display. On Windows put the msedgedriver folder on
 `PATH` first.
 
-`run.mjs` migrates the database, registers the generated root with `jobniac-cli setup-generated-root`,
+`run.mjs` migrates the database file, registers the generated root with `jobniac-cli setup-generated-root`,
 then runs each session. The application binary is `target/debug/jobniac(.exe)` unless
 `JOBNIAC_E2E_APP` is set; the console binary is `target/debug/jobniac-cli(.exe)` or `JOBNIAC_E2E_CLI`.
 
@@ -77,20 +78,21 @@ test is printed to the console. The run root (`target/e2e-*`) is removed at the 
   `--disable-features` list, which the setting replaces), and only the E2E build passes it with
   `--config`; release builds never open the port. `--config` replaces the `windows` array as a whole,
   so that file repeats the main window entry of `tauri.conf.json` and must follow its changes.
-- **The busy-state check uses a database lock.** A held ACCESS EXCLUSIVE lock on `profile.profiles`
-  keeps the search waiting in the database; the control must be disabled meanwhile. The lock holder
-  is terminated at the end of the check.
+- **The busy-state check uses the database write lock.** The spec holds `BEGIN IMMEDIATE` on the
+  run's database file (from the test process) and saves a job posting; the write waits for the lock,
+  so the save control must be disabled meanwhile. The lock is released (rolled back) after that.
+  Reads are not blocked in WAL mode, so a search cannot be used for this check as it could with a
+  table lock.
 
 ## Environment and privacy
 
 Every name and address in the suite is synthetic. The canaries that must never reach the page are the
-run's import and generated roots (both slash forms) and the disposable database password; the check
-reads the page text and every attribute value. The suite refuses any database host other than
-`127.0.0.1` and any run that is not started through `pg-run`.
+run's import and generated roots and its database file (all in both slash forms); the check reads the
+page text and every attribute value. The suite refuses any database file outside the run folder
+under `target/`.
 
 ## CI
 
 `.github/workflows/e2e.yml` runs the same steps on `windows-latest` and `ubuntu-26.04`. The Windows job
 installs `msedgedriver` from the Microsoft endpoint for the runner's WebView2 version and checks its
-Authenticode signature. The Linux job installs `webkitgtk-webdriver` and `xvfb`, and PostgreSQL 18
-through `scripts/ci/install-postgresql-18.sh`.
+Authenticode signature. The Linux job installs `webkitgtk-webdriver` and `xvfb`.

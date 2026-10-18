@@ -27,10 +27,9 @@ env:
   RELEASE_OUT: release-out
 
 jobs:
-  # 1. Every CI and E2E gate on the merge commit, including the PostgreSQL 18 job, which is required
-  #    here. ci.yml declares `workflow_call` with the input `postgres-required`, which makes that job
-  #    required; e2e.yml declares `workflow_call` with the input `release-call`. Both skip the work
-  #    when the promotion pull request already passed them on this exact tree.
+  # 1. Every CI and E2E gate on the merge commit. ci.yml and e2e.yml declare `workflow_call` with the
+  #    input `release-call`, which runs the full set there. Both skip the work when the promotion pull
+  #    request already passed them on this exact tree.
   checks:
     if: >-
       github.event.pull_request.merged == true
@@ -45,7 +44,7 @@ jobs:
       actions: read
       pull-requests: read
     with:
-      postgres-required: true
+      release-call: true
 
   # The end-to-end suite on the merge commit, on Linux and Windows, called like `checks`.
   e2e:
