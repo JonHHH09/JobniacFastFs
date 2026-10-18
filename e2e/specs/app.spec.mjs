@@ -139,7 +139,9 @@ describe("JobniacFast desktop workflows (default session)", function () {
       process.env,
     );
     const jobId = queryScalar(
-      "select id from job_schema.jobs where title = 'Senior Rust Engineer'",
+      // A prefix match: a WebDriver that types the newlines as nothing turns the whole posting
+      // into the first line, which becomes the title.
+      "select id from job_schema.jobs where title like 'Senior Rust Engineer%'",
       process.env,
     );
     await openSection(browser, "matching");
