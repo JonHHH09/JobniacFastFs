@@ -1,8 +1,10 @@
 name: Release
 
 # Draft-first release. Runs once a promotion pull request from development into main is
-# merged in this repository. It creates a draft and never publishes: publication is a manual step
-# after the owner has checked the artifacts, the notices and the draft body.
+# merged in this repository. It creates a draft, builds and verifies it, and only the last job
+# (`publish`) tags the merge commit and publishes the draft, after every other job has passed.
+# A stable version becomes the latest release (the one the in-app updater reads); a -dev.N
+# version is published as a prerelease and never as the latest.
 
 on:
   pull_request:
@@ -86,6 +88,8 @@ jobs:
       - name: Resolve the version intent (three fields must agree)
         id: resolve
         run: python -I scripts/release/release.py resolve-version
+      - name: Refuse the updater public key placeholder
+        run: python -I scripts/release/release.py check-updater-config
 
   # 3. The only write step that creates the draft. The build legs attach to it by ID.
   draft:
@@ -114,7 +118,9 @@ jobs:
           --repo "$GITHUB_REPOSITORY" --merge-sha "$MERGE_SHA"
 
   # 4. Builds, one leg per platform. tauri-action attaches to the draft; the token is passed to that
-  #    step only. The unsigned NSIS installer (Windows) and AppImage and deb (Linux, x86-64) are built.
+  #    step only, next to the updater signing key. The NSIS installer (Windows, not code-signed) and the
+  #    AppImage and deb (Linux, x86-64) are built; the NSIS installer and the AppImage also get an updater
+  #    signature, and tauri-action writes latest.json to the draft.
   build:
     needs: [prepare, draft]
     strategy:
@@ -207,12 +213,16 @@ jobs:
           # Makes the desktop binary auditable: cargo-auditable is the workspace rustc wrapper for this build.
           RUSTC_WORKSPACE_WRAPPER: ${{ env.JOBNIAC_AUDITABLE_WRAPPER }}
           CARGO_AUDITABLE_ORIG_ARGS: '{"config":[],"offline":false,"locked":true,"frozen":false}'
+          # The updater signing key (tauri signer generate). Only this step can read it.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           projectPath: .
           tagName: ${{ env.TAG }}
           releaseId: ${{ needs.draft.outputs.release_id }}
           releaseDraft: true
           prerelease: ${{ env.PRERELEASE == 'true' }}
+          includeUpdaterJson: true
           args: --bundles ${{ matrix.bundles }} --config src-tauri/tauri.release.conf.json
       - name: Audit the built binaries (embedded cargo-auditable data is required)
         run: |
@@ -273,8 +283,10 @@ jobs:
           mkdir -p "$RELEASE_OUT"
           if [ "$RUNNER_OS" = "Windows" ]; then
             cp "target/release/bundle/nsis/JobniacFast_${VERSION}_x64-setup.exe" "$RELEASE_OUT/"
+            cp "target/release/bundle/nsis/JobniacFast_${VERSION}_x64-setup.exe.sig" "$RELEASE_OUT/"
           else
             cp "target/release/bundle/appimage/JobniacFast_${VERSION}_amd64.AppImage" "$RELEASE_OUT/"
+            cp "target/release/bundle/appimage/JobniacFast_${VERSION}_amd64.AppImage.sig" "$RELEASE_OUT/"
             cp "target/release/bundle/deb/JobniacFast_${VERSION}_amd64.deb" "$RELEASE_OUT/"
           fi
           cp src-tauri/resources/THIRD-PARTY-NOTICES.txt "$RELEASE_OUT/"
@@ -376,9 +388,11 @@ jobs:
         with:
           subject-path: release-assets/*
 
-  # 8. Final API check of the draft: tag peel, flags, target commit, exact asset set and digests.
+  # 8. Final API check of the draft: tag peel, flags, target commit, exact asset set and digests, and
+  #    the updater manifest (latest.json) that tauri-action wrote: this version, and per platform this
+  #    release's installer and its signature.
   verify-draft:
-    needs: [prepare, attach]
+    needs: [prepare, draft, attach]
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:
@@ -396,9 +410,58 @@ jobs:
         with:
           name: release-assets
           path: release-assets
+      - name: Download latest.json from the draft (a draft has no public download URL)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_ID: ${{ needs.draft.outputs.release_id }}
+        run: |
+          set -euo pipefail
+          ASSET_ID="$(gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" --jq '[.assets[] | select(.name == "latest.json") | .id] | first')"
+          if [ -z "$ASSET_ID" ] || [ "$ASSET_ID" = "null" ]; then
+            echo "::error::the draft has no latest.json" >&2
+            exit 1
+          fi
+          mkdir -p updater-manifest
+          gh api -H "Accept: application/octet-stream" "repos/$GITHUB_REPOSITORY/releases/assets/$ASSET_ID" > updater-manifest/latest.json
       - name: Verify the draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >-
           python -I scripts/release/release.py verify-draft
           --repo "$GITHUB_REPOSITORY" --merge-sha "$MERGE_SHA" --dir release-assets
+          --latest-json updater-manifest/latest.json
+
+  # 9. The only job that publishes. It runs after every other job has passed (the provenance job only
+  #    when it runs at all, in a public repository). It tags the merge commit (a tag that already exists
+  #    must be on that exact commit) and publishes the verified draft: the latest release for a stable
+  #    version, a prerelease for -dev.N. The permission sits on this job only.
+  publish:
+    needs: [prepare, draft, build, clean-machine, attach, attest, verify-draft]
+    if: >-
+      ${{ !cancelled()
+      && needs.prepare.result == 'success'
+      && needs.draft.result == 'success'
+      && needs.build.result == 'success'
+      && needs.clean-machine.result == 'success'
+      && needs.attach.result == 'success'
+      && needs.verify-draft.result == 'success'
+      && (needs.attest.result == 'success' || needs.attest.result == 'skipped') }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ env.MERGE_SHA }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+      - name: Tag the merge commit and publish the draft
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >-
+          python -I scripts/release/release.py publish
+          --repo "$GITHUB_REPOSITORY" --merge-sha "$MERGE_SHA"

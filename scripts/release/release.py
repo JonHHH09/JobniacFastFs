@@ -11,6 +11,7 @@ calls never print response bodies or tokens.
 from __future__ import annotations
 
 import argparse
+import datetime
 import hashlib
 import json
 import os
@@ -40,9 +41,13 @@ PLATFORMS = ("windows-x64", "linux-x64")
 PRODUCT = "JobniacFast"
 LEG_DIGESTS = "leg-digests.txt"
 SHA256SUMS = "SHA256SUMS"
-# The updater stays off: these names would mean that it was turned on.
-FORBIDDEN_UPDATER_NAMES = ("latest.json",)
-FORBIDDEN_UPDATER_SUFFIXES = (".sig",)
+# The updater manifest that tauri-action writes to the draft (it is not part of the local asset set),
+# and the public key placeholder that must be replaced before a release (src-tauri/tauri.release.conf.json).
+UPDATER_MANIFEST = "latest.json"
+UPDATER_PUBKEY_PLACEHOLDER = "REPLACE_WITH_UPDATER_PUBLIC_KEY"
+UPDATER_ENDPOINT = "https://github.com/JonHHH09/JobniacFastFs/releases/latest/download/latest.json"
+# The `platforms` keys of latest.json that the installed copies read (Windows NSIS, Linux AppImage).
+UPDATER_PLATFORMS = ("windows-x86_64", "linux-x86_64")
 # Only the installed tree may hold these names beyond the staged payload.
 INSTALLED_ONLY_ALLOWLIST = ("uninstall.exe",)
 PRUNE_PAGE_SIZE = 20
@@ -69,7 +74,7 @@ class ReleaseIntent:
 
 def tag_for_version(version: str) -> ReleaseIntent:
     if not VERSION_RE.fullmatch(version):
-        raise ReleaseError("version rejected: only X.Y.Z and X.Y.Z-dev.N are drafted; publication stays manual")
+        raise ReleaseError("version rejected: only X.Y.Z and X.Y.Z-dev.N are released")
     return ReleaseIntent(version=version, tag=f"v{version}", prerelease="-dev." in version)
 
 
@@ -90,6 +95,111 @@ def resolve_version(repo_root: Path) -> ReleaseIntent:
         detail = ", ".join(f"{name}={value}" for name, value in versions.items())
         raise ReleaseError(f"version fields differ: {detail}")
     return tag_for_version(next(iter(versions.values())))
+
+
+def check_updater_config(repo_root: Path) -> None:
+    """The release config must build signed updater artifacts with a real public key."""
+    config = json.loads((repo_root / "src-tauri" / "tauri.release.conf.json").read_text(encoding="utf-8"))
+    if config.get("bundle", {}).get("createUpdaterArtifacts") is not True:
+        raise ReleaseError("tauri.release.conf.json must set bundle.createUpdaterArtifacts to true")
+    updater = config.get("plugins", {}).get("updater", {})
+    pubkey = str(updater.get("pubkey", "")).strip()
+    if not pubkey or pubkey == UPDATER_PUBKEY_PLACEHOLDER:
+        raise ReleaseError(
+            "the updater public key is still the placeholder: set plugins.updater.pubkey in "
+            "src-tauri/tauri.release.conf.json (see docs/ops/release-owner-checklist.md, G3)"
+        )
+    if updater.get("endpoints") != [UPDATER_ENDPOINT]:
+        raise ReleaseError("plugins.updater.endpoints must be the latest.json of the GitHub releases")
+
+
+# ---------------------------------------------------------------------------
+# Version bump and consistency check
+# ---------------------------------------------------------------------------
+
+UNRELEASED_HEADING = "## [Unreleased]"
+
+
+def _section_body(text: str, heading_re: str) -> str | None:
+    """The text under a `## [..]` heading up to the next one, or None when the heading is missing."""
+    match = re.search(heading_re, text, re.MULTILINE)
+    if not match:
+        return None
+    following = re.search(r"^## \[", text[match.end():], re.MULTILINE)
+    end = match.end() + following.start() if following else len(text)
+    return text[match.end():end]
+
+
+def check_versions(repo_root: Path, changelog: Path | None = None) -> str:
+    """The three version fields agree, are releasable, and CHANGELOG.md has notes for them."""
+    version = resolve_version(repo_root).version
+    text = (changelog or repo_root / "CHANGELOG.md").read_text(encoding="utf-8")
+    body = _section_body(text, rf"^## \[{re.escape(version)}\][^\n]*$")
+    if body is not None:
+        if not body.strip():
+            raise ReleaseError(f"CHANGELOG.md section for {version} is empty")
+        return version
+    unreleased = _section_body(text, rf"^{re.escape(UNRELEASED_HEADING)}[^\n]*$")
+    if unreleased is None or not re.sub(r"(?m)^\[[^\]\n]+\]:.*$", "", unreleased).strip():
+        raise ReleaseError(f"CHANGELOG.md has no section for {version} and no notes under Unreleased")
+    return version
+
+
+def _replace_once(path: Path, pattern: str, replacement: str) -> None:
+    text = path.read_text(encoding="utf-8")
+    updated, count = re.subn(pattern, replacement, text, count=1, flags=re.MULTILINE)
+    if count != 1:
+        raise ReleaseError(f"no version field found in {path.name}")
+    path.write_bytes(updated.encode("utf-8"))
+
+
+def _changelog_for_release(text: str, version: str, today: str) -> str:
+    if re.search(rf"^## \[{re.escape(version)}\]", text, re.MULTILINE):
+        raise ReleaseError(f"CHANGELOG.md already has a section for {version}")
+    unreleased = _section_body(text, rf"^{re.escape(UNRELEASED_HEADING)}[^\n]*$")
+    if unreleased is None:
+        raise ReleaseError("CHANGELOG.md has no Unreleased section")
+    if not re.sub(r"(?m)^\[[^\]\n]+\]:.*$", "", unreleased).strip():
+        raise ReleaseError("CHANGELOG.md has nothing under Unreleased to release")
+    text = text.replace(UNRELEASED_HEADING, f"{UNRELEASED_HEADING}\n\n## [{version}] - {today}", 1)
+    # Link references (when the file has them): Unreleased compares from the new tag, and the new
+    # version compares from the tag the Unreleased link started at.
+    link = re.search(r"^\[Unreleased\]: (?P<base>\S+)/compare/(?P<from>\S+?)\.\.\.(?P<to>\S+)$", text, re.MULTILINE)
+    if link:
+        base, previous = link.group("base"), link.group("from")
+        replacement = (
+            f"[Unreleased]: {base}/compare/v{version}...{link.group('to')}\n"
+            f"[{version}]: {base}/compare/{previous}...v{version}"
+        )
+        text = text[:link.start()] + replacement + text[link.end():]
+    return text
+
+
+def refresh_lockfile(repo_root: Path, run: Callable[..., "subprocess.CompletedProcess[str]"] = subprocess.run) -> bool:
+    """Runs `cargo update --workspace` when cargo exists. Returns whether it ran."""
+    if shutil.which("cargo") is None:
+        return False
+    completed = run(["cargo", "update", "--workspace"], cwd=repo_root, capture_output=True, encoding="utf-8",
+                    errors="replace", check=False)
+    if completed.returncode != 0:
+        raise ReleaseError("cargo update --workspace failed")
+    return True
+
+
+def bump_version(repo_root: Path, version: str, today: str) -> None:
+    """Sets the version in the three files and turns the Unreleased notes into the version section."""
+    tag_for_version(version)
+    if version in set(read_versions(repo_root).values()):
+        raise ReleaseError(f"the version is already {version}")
+    changelog = repo_root / "CHANGELOG.md"
+    # The changelog is checked and rewritten first in memory, so a refusal leaves every file as it was.
+    new_changelog = _changelog_for_release(changelog.read_text(encoding="utf-8"), version, today)
+    _replace_once(repo_root / "Cargo.toml", r'(\[workspace\.package\]\n(?:(?!\[)[^\n]*\n)*?version = ")[^"]*(")',
+                  rf"\g<1>{version}\g<2>")
+    _replace_once(repo_root / "src-tauri" / "tauri.conf.json", r'^(  "version": ")[^"]*(")', rf"\g<1>{version}\g<2>")
+    _replace_once(repo_root / "package.json", r'^(  "version": ")[^"]*(")', rf"\g<1>{version}\g<2>")
+    changelog.write_bytes(new_changelog.encode("utf-8"))
+    resolve_version(repo_root)
 
 
 def check_merge_sha(value: str) -> str:
@@ -166,10 +276,15 @@ def verify_sha256sums(directory: Path) -> int:
 
 
 def expected_asset_names(version: str) -> list[str]:
-    """The release asset set with the Tauri bundle names."""
+    """The local release asset set with the Tauri bundle names, including the updater signatures.
+
+    `latest.json` is not in it: tauri-action writes it to the draft (see `check_updater_manifest`).
+    """
     names = [
         f"{PRODUCT}_{version}_x64-setup.exe",
+        f"{PRODUCT}_{version}_x64-setup.exe.sig",
         f"{PRODUCT}_{version}_amd64.AppImage",
+        f"{PRODUCT}_{version}_amd64.AppImage.sig",
         f"{PRODUCT}_{version}_amd64.deb",
         f"{PRODUCT}-{version}-desktop.cargo.cdx.json",
         f"{PRODUCT}-{version}-cli.cargo.cdx.json",
@@ -184,10 +299,8 @@ def expected_asset_names(version: str) -> list[str]:
 
 def check_exact_asset_set(directory: Path, version: str) -> list[str]:
     present = sorted(entry.name for entry in directory.iterdir())
-    for name in present:
-        lowered = name.lower()
-        if lowered in FORBIDDEN_UPDATER_NAMES or lowered.endswith(FORBIDDEN_UPDATER_SUFFIXES):
-            raise ReleaseError("updater artifact present: the updater stays off")
+    if UPDATER_MANIFEST in present:
+        raise ReleaseError("latest.json is written to the draft by tauri-action, not assembled locally")
     expected = expected_asset_names(version)
     missing = sorted(set(expected) - set(present))
     extra = sorted(set(present) - set(expected))
@@ -594,8 +707,11 @@ def prepare_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, body: s
         if release.get("prerelease") != intent.prerelease:
             raise ReleaseError("the draft prerelease flag does not match the tag form")
         release_id = int(release["id"])  # type: ignore[arg-type]
+        # The Windows installer is not reproducible, and every signature and latest.json belong to one
+        # build (a signature carries a timestamp), so a rerun rebuilds and re-attaches them all.
         for asset in release.get("assets", []):  # type: ignore[union-attr]
-            if str(asset["name"]).endswith("-setup.exe"):
+            name = str(asset["name"])
+            if name.endswith(("-setup.exe", ".sig")) or name == UPDATER_MANIFEST:
                 api.call("DELETE", f"/releases/assets/{asset['id']}", ok=(204,))
         api.call("PATCH", f"/releases/{release_id}", {"body": body})
         return release_id
@@ -631,10 +747,46 @@ def attach_assets(api: GitHubApi, release_id: int, directory: Path) -> int:
     return uploaded
 
 
-def verify_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, assets_dir: Path) -> None:
-    """Checks the draft against the tag, the commit and the local asset set. Fails with a fixed message."""
+def check_updater_manifest(manifest: Path, version: str, assets_dir: Path) -> None:
+    """latest.json names this version and, per platform, this release's installer and its signature."""
+    fixed = "updater manifest verification failed"
+    try:
+        data = json.loads(manifest.read_text(encoding="utf-8"), object_pairs_hook=_reject_duplicate_keys)
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError, ReleaseError) as error:
+        raise ReleaseError(fixed) from error
+    if not isinstance(data, dict) or data.get("version") != version:
+        raise ReleaseError(fixed)
+    platforms = data.get("platforms")
+    if not isinstance(platforms, dict):
+        raise ReleaseError(fixed)
+    # Each platform: the installer that the installed copy downloads, with the signature it verifies.
+    installers = {
+        "windows-x86_64": f"{PRODUCT}_{version}_x64-setup.exe",
+        "linux-x86_64": f"{PRODUCT}_{version}_amd64.AppImage",
+    }
+    for key in UPDATER_PLATFORMS:
+        entry = platforms.get(key)
+        if not isinstance(entry, dict):
+            raise ReleaseError(fixed)
+        name = installers[key]
+        url = str(entry.get("url", ""))
+        if urllib.parse.unquote(urllib.parse.urlsplit(url).path).rsplit("/", 1)[-1] != name:
+            raise ReleaseError(fixed)
+        signature = (assets_dir / f"{name}.sig").read_text(encoding="utf-8").strip()
+        if not signature or str(entry.get("signature", "")).strip() != signature:
+            raise ReleaseError(fixed)
+
+
+def verify_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, assets_dir: Path, latest_json: Path) -> None:
+    """Checks the draft against the tag, the commit, the local asset set and the updater manifest.
+
+    `latest_json` is the draft's own latest.json, downloaded by the workflow. The draft must hold exactly
+    the local assets plus that file, and the file must be the one that the API digest describes.
+    Fails with a fixed message.
+    """
     fixed = "draft verification failed"
-    if api.tag_commit(intent.tag) != merge_sha:
+    # A draft has no tag yet (`publish` creates it); one that exists must already be on the merge commit.
+    if api.tag_commit(intent.tag) not in (None, merge_sha):
         raise ReleaseError(fixed)
     releases = api.releases_for_tag(intent.tag)
     if len(releases) != 1:
@@ -645,13 +797,55 @@ def verify_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, assets_d
     if release.get("target_commitish") != merge_sha:
         raise ReleaseError(fixed)
     local = {entry.name: entry for entry in assets_dir.iterdir() if entry.is_file()}
+    if UPDATER_MANIFEST in local or set(local) != set(expected_asset_names(intent.version)):
+        raise ReleaseError(fixed)
+    if not latest_json.is_file():
+        raise ReleaseError(fixed)
+    local[UPDATER_MANIFEST] = latest_json
     assets = {str(asset["name"]): asset for asset in release.get("assets", [])}  # type: ignore[union-attr]
-    if set(assets) != set(local) or set(local) != set(expected_asset_names(intent.version)):
+    if set(assets) != set(local):
         raise ReleaseError(fixed)
     for name, asset in assets.items():
         path = local[name]
         if str(asset.get("digest") or "") != f"sha256:{sha256_file(path)}" or asset.get("size") != path.stat().st_size:
             raise ReleaseError(fixed)
+    check_updater_manifest(latest_json, intent.version, assets_dir)
+
+
+def publish_release(api: GitHubApi, intent: ReleaseIntent, merge_sha: str) -> str:
+    """Creates the tag on the merge commit and publishes the verified draft. Returns a status line.
+
+    Fails closed: the tag may only be missing or already on the merge commit, and exactly one release
+    for it must exist. A stable version becomes the latest release (the one the updater endpoint serves);
+    a `-dev.N` version stays a prerelease and never becomes the latest. A rerun after a partial publish
+    finishes the job, and an already published release for this commit is a success.
+    """
+    tag_sha = api.tag_commit(intent.tag)
+    if tag_sha is not None and tag_sha != merge_sha:
+        raise ReleaseError("tag exists at another commit: failing closed")
+    releases = api.releases_for_tag(intent.tag)
+    if len(releases) != 1:
+        raise ReleaseError("publish refused: expected exactly one release for the tag")
+    release = releases[0]
+    if release.get("prerelease") != intent.prerelease or release.get("target_commitish") != merge_sha:
+        raise ReleaseError("publish refused: the release does not match the tag form or the commit")
+    if release.get("draft") is not True:
+        if tag_sha == merge_sha:
+            return f"{intent.tag} is already published"
+        raise ReleaseError("publish refused: the release is published but its tag is missing")
+    release_id = int(release["id"])  # type: ignore[arg-type]
+    if tag_sha is None:
+        api.call("POST", "/git/refs", {"ref": f"refs/tags/{intent.tag}", "sha": merge_sha}, ok=(201,))
+    api.call(
+        "PATCH",
+        f"/releases/{release_id}",
+        {"draft": False, "prerelease": intent.prerelease, "make_latest": "false" if intent.prerelease else "true"},
+    )
+    published = api.call("GET", f"/releases/{release_id}")
+    if not isinstance(published, dict) or published.get("draft") is not False or api.tag_commit(intent.tag) != merge_sha:
+        raise ReleaseError("publish could not be confirmed")
+    kind = "prerelease" if intent.prerelease else "latest release"
+    return f"published {intent.tag} as the {kind}"
 
 
 # ---------------------------------------------------------------------------
@@ -777,6 +971,25 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--repo-root", type=Path, default=REPO_ROOT)
     p.add_argument("--merge-sha", required=True)
     p.add_argument("--dir", type=Path, required=True)
+    p.add_argument("--latest-json", type=Path, required=True, help="the draft's latest.json, downloaded")
+
+    p = add("publish", "create the tag on the merge commit and publish the verified draft (write scope)")
+    p.add_argument("--repo", required=True)
+    p.add_argument("--repo-root", type=Path, default=REPO_ROOT)
+    p.add_argument("--merge-sha", required=True)
+
+    p = add("bump", "set the version in Cargo.toml, tauri.conf.json and package.json and date the changelog")
+    p.add_argument("version", help="X.Y.Z or X.Y.Z-dev.N")
+    p.add_argument("--repo-root", type=Path, default=REPO_ROOT)
+    p.add_argument("--date", help="release date, YYYY-MM-DD (default: today)")
+    p.add_argument("--no-cargo", action="store_true", help="do not run `cargo update --workspace`")
+
+    p = add("check-versions", "the three versions agree and CHANGELOG.md has notes for them")
+    p.add_argument("--repo-root", type=Path, default=REPO_ROOT)
+    p.add_argument("--changelog", type=Path)
+
+    p = add("check-updater-config", "the release config builds updater artifacts and has a real public key")
+    p.add_argument("--repo-root", type=Path, default=REPO_ROOT)
     return parser
 
 
@@ -835,12 +1048,14 @@ def run_command(args: argparse.Namespace) -> int:
         args.out.write_bytes(changelog_body(args.changelog, args.version).encode("utf-8"))
     elif command == "prepare":
         intent = resolve_version(args.repo_root)
+        check_updater_config(args.repo_root)
         check_checkout(args.repo_root, args.merge_sha)
         write_github_output({"version": intent.version, "tag": intent.tag, "prerelease": str(intent.prerelease).lower()})
     elif command == "draft":
         intent = resolve_version(args.repo_root)
+        check_updater_config(args.repo_root)
         check_checkout(args.repo_root, args.merge_sha)
-        body = changelog_body(args.changelog, intent.version)
+        body =changelog_body(args.changelog, intent.version)
         release_id = prepare_draft(GitHubApi(args.repo, token_from_env()), intent, args.merge_sha, body)
         write_github_output({"release_id": str(release_id)})
     elif command == "attach":
@@ -848,8 +1063,27 @@ def run_command(args: argparse.Namespace) -> int:
         sys.stdout.write(f"attached {uploaded} missing assets; existing assets match their digests\n")
     elif command == "verify-draft":
         intent = resolve_version(args.repo_root)
-        verify_draft(GitHubApi(args.repo, token_from_env()), intent, args.merge_sha, args.dir)
-        sys.stdout.write("PASS: draft matches the tag, the commit and the asset set\n")
+        verify_draft(GitHubApi(args.repo, token_from_env()), intent, args.merge_sha, args.dir, args.latest_json)
+        sys.stdout.write("PASS: draft matches the tag, the commit, the asset set and the updater manifest\n")
+    elif command == "publish":
+        intent = resolve_version(args.repo_root)
+        sys.stdout.write(publish_release(GitHubApi(args.repo, token_from_env()), intent, args.merge_sha) + "\n")
+    elif command == "bump":
+        today = args.date or datetime.date.today().isoformat()
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", today):
+            raise ReleaseError("--date must be YYYY-MM-DD")
+        bump_version(args.repo_root, args.version, today)
+        sys.stdout.write(f"version set to {args.version}; CHANGELOG.md dated {today}\n")
+        if args.no_cargo or not refresh_lockfile(args.repo_root):
+            sys.stdout.write("next: run `cargo update --workspace` (or `cargo update -w`) to refresh Cargo.lock\n")
+        else:
+            sys.stdout.write("Cargo.lock refreshed\n")
+    elif command == "check-versions":
+        version = check_versions(args.repo_root, args.changelog)
+        sys.stdout.write(f"PASS: versions agree on {version} and the changelog has its notes\n")
+    elif command == "check-updater-config":
+        check_updater_config(args.repo_root)
+        sys.stdout.write("PASS: the release config builds updater artifacts with a public key\n")
     else:
         raise ReleaseError("unknown command")
     return 0

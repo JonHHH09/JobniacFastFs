@@ -6,6 +6,8 @@ Run from the repository root: `py -I -m unittest discover -s scripts/release/tes
 
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import re
 import shutil
@@ -84,6 +86,204 @@ class ChangelogBody(unittest.TestCase):
         self.assertTrue(release.changelog_body(REPO_ROOT / "CHANGELOG.md", intent.version).strip())
 
 
+class FakeRepo:
+    """A throwaway tree with the three version files and a changelog."""
+
+    def __init__(self, version: str = "0.1.0", changelog: str | None = None) -> None:
+        self.root = Path(tempfile.mkdtemp())
+        (self.root / "src-tauri").mkdir()
+        (self.root / "Cargo.toml").write_text(
+            '[workspace]\nmembers = ["a"]\n\n[workspace.package]\n'
+            f'version = "{version}"\nedition = "2024"\n\n[workspace.dependencies]\nversion = "9.9.9"\n',
+            encoding="utf-8",
+        )
+        (self.root / "src-tauri" / "tauri.conf.json").write_text(
+            f'{{\n  "productName": "X",\n  "version": "{version}",\n  "identifier": "a.b"\n}}\n', encoding="utf-8"
+        )
+        (self.root / "package.json").write_text(
+            f'{{\n  "name": "x",\n  "version": "{version}",\n  "dependencies": {{"v": "1"}}\n}}\n', encoding="utf-8"
+        )
+        self.changelog = self.root / "CHANGELOG.md"
+        self.changelog.write_text(
+            changelog
+            if changelog is not None
+            else "# Changelog\n\n## [Unreleased]\n\n### Added\n\n- a thing\n\n## [0.1.0] - 2026-01-01\n\n- first\n",
+            encoding="utf-8",
+        )
+
+    def cleanup(self) -> None:
+        shutil.rmtree(self.root, ignore_errors=True)
+
+
+class VersionBump(unittest.TestCase):
+    def setUp(self) -> None:
+        self.repo = FakeRepo()
+        self.addCleanup(self.repo.cleanup)
+
+    def test_bump_updates_all_three_files_and_dates_the_changelog(self) -> None:
+        release.bump_version(self.repo.root, "0.2.0", "2026-02-03")
+        self.assertEqual(set(release.read_versions(self.repo.root).values()), {"0.2.0"})
+        text = self.repo.changelog.read_text(encoding="utf-8")
+        self.assertIn("## [Unreleased]\n\n## [0.2.0] - 2026-02-03\n\n### Added\n\n- a thing", text)
+        self.assertIn("## [0.1.0] - 2026-01-01", text)
+        self.assertEqual(release.changelog_body(self.repo.changelog, "0.2.0"), "### Added\n\n- a thing\n")
+
+    def test_bump_touches_only_the_package_version_lines(self) -> None:
+        release.bump_version(self.repo.root, "0.2.0", "2026-02-03")
+        cargo = (self.repo.root / "Cargo.toml").read_text(encoding="utf-8")
+        self.assertIn('[workspace.package]\nversion = "0.2.0"', cargo)
+        self.assertIn('[workspace.dependencies]\nversion = "9.9.9"', cargo)
+        package = (self.repo.root / "package.json").read_text(encoding="utf-8")
+        self.assertIn('"version": "0.2.0",\n  "dependencies"', package)
+
+    def test_bump_accepts_a_dev_version_and_rejects_other_forms(self) -> None:
+        release.bump_version(self.repo.root, "0.2.0-dev.1", "2026-02-03")
+        self.assertEqual(release.resolve_version(self.repo.root).tag, "v0.2.0-dev.1")
+        for version in ("1.0", "1.0.0-rc.1", "v1.0.0"):
+            with self.subTest(version=version), self.assertRaises(release.ReleaseError):
+                release.bump_version(self.repo.root, version, "2026-02-03")
+
+    def test_a_refused_bump_leaves_every_file_unchanged(self) -> None:
+        names = ["Cargo.toml", "src-tauri/tauri.conf.json", "package.json", "CHANGELOG.md"]
+        before = {name: (self.repo.root / name).read_bytes() for name in names}
+        for version in ("0.1.0", "0.1.0-dev.x"):
+            with self.subTest(version=version), self.assertRaises(release.ReleaseError):
+                release.bump_version(self.repo.root, version, "2026-02-03")
+        self.repo.changelog.write_text("# Changelog\n\n## [Unreleased]\n\n## [0.1.0] - 2026-01-01\n\n- first\n", encoding="utf-8")
+        before["CHANGELOG.md"] = self.repo.changelog.read_bytes()
+        with self.assertRaises(release.ReleaseError):
+            release.bump_version(self.repo.root, "0.2.0", "2026-02-03")
+        self.assertEqual(before, {name: (self.repo.root / name).read_bytes() for name in names})
+
+    def test_an_existing_version_section_refuses(self) -> None:
+        self.repo.changelog.write_text("## [Unreleased]\n\n- x\n\n## [0.2.0] - 2026-01-02\n\n- y\n", encoding="utf-8")
+        with self.assertRaises(release.ReleaseError):
+            release.bump_version(self.repo.root, "0.2.0", "2026-02-03")
+
+    def test_link_references_follow_the_new_version(self) -> None:
+        self.repo.changelog.write_text(
+            "## [Unreleased]\n\n- x\n\n## [0.1.0] - 2026-01-01\n\n- y\n\n"
+            "[Unreleased]: https://example.org/r/compare/v0.1.0...HEAD\n"
+            "[0.1.0]: https://example.org/r/releases/tag/v0.1.0\n",
+            encoding="utf-8",
+        )
+        release.bump_version(self.repo.root, "0.2.0", "2026-02-03")
+        text = self.repo.changelog.read_text(encoding="utf-8")
+        self.assertIn("[Unreleased]: https://example.org/r/compare/v0.2.0...HEAD\n", text)
+        self.assertIn("[0.2.0]: https://example.org/r/compare/v0.1.0...v0.2.0\n", text)
+        self.assertIn("[0.1.0]: https://example.org/r/releases/tag/v0.1.0", text)
+
+    def test_refresh_lockfile_runs_cargo_update_for_the_workspace(self) -> None:
+        seen: list[list[str]] = []
+
+        def fake_run(command: list[str], **_: object) -> object:
+            seen.append(command)
+            return type("Done", (), {"returncode": 0})()
+
+        if release.shutil.which("cargo") is None:
+            self.assertFalse(release.refresh_lockfile(self.repo.root, fake_run))
+        else:
+            self.assertTrue(release.refresh_lockfile(self.repo.root, fake_run))
+            self.assertEqual(seen, [["cargo", "update", "--workspace"]])
+
+    def test_the_command_line_bumps_and_names_the_cargo_step(self) -> None:
+        self.assertEqual(
+            release.main(["bump", "0.3.0", "--repo-root", str(self.repo.root), "--date", "2026-03-04", "--no-cargo"]), 0
+        )
+        self.assertEqual(release.resolve_version(self.repo.root).version, "0.3.0")
+
+
+class CheckVersions(unittest.TestCase):
+    def test_agreeing_versions_with_a_version_section_pass(self) -> None:
+        repo = FakeRepo(changelog="## [Unreleased]\n\n## [0.1.0] - 2026-01-01\n\n- first\n")
+        self.addCleanup(repo.cleanup)
+        self.assertEqual(release.check_versions(repo.root), "0.1.0")
+
+    def test_notes_under_unreleased_pass_without_a_version_section(self) -> None:
+        repo = FakeRepo(changelog="## [Unreleased]\n\n- pending\n")
+        self.addCleanup(repo.cleanup)
+        self.assertEqual(release.check_versions(repo.root), "0.1.0")
+
+    def test_no_notes_anywhere_fails(self) -> None:
+        for text in ("## [Unreleased]\n\n## [0.0.9] - 2026-01-01\n\n- old\n", "## [Unreleased]\n\n## [0.1.0] - 2026-01-01\n\n"):
+            repo = FakeRepo(changelog=text)
+            self.addCleanup(repo.cleanup)
+            with self.subTest(text=text), self.assertRaises(release.ReleaseError):
+                release.check_versions(repo.root)
+
+    def test_differing_versions_fail(self) -> None:
+        repo = FakeRepo()
+        self.addCleanup(repo.cleanup)
+        (repo.root / "package.json").write_text('{"version": "0.1.1"}', encoding="utf-8")
+        with self.assertRaises(release.ReleaseError):
+            release.check_versions(repo.root)
+
+    def test_the_repository_itself_passes(self) -> None:
+        release.check_versions(REPO_ROOT)
+
+    def test_the_command_line_reports_a_failure_with_status_one(self) -> None:
+        repo = FakeRepo(changelog="## [Unreleased]\n")
+        self.addCleanup(repo.cleanup)
+        self.assertEqual(release.main(["check-versions", "--repo-root", str(repo.root)]), 1)
+
+
+class UpdaterConfigGate(unittest.TestCase):
+    def config(self, pubkey: str, **overrides: object) -> Path:
+        root = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, root, True)
+        (root / "src-tauri").mkdir()
+        data: dict[str, object] = {
+            "bundle": {"createUpdaterArtifacts": True},
+            "plugins": {"updater": {"pubkey": pubkey, "endpoints": [release.UPDATER_ENDPOINT]}},
+        }
+        data.update(overrides)
+        (root / "src-tauri" / "tauri.release.conf.json").write_text(json.dumps(data), encoding="utf-8")
+        return root
+
+    def test_the_committed_release_config_has_a_real_key(self) -> None:
+        release.check_updater_config(REPO_ROOT)
+
+    def test_the_placeholder_message_names_the_key(self) -> None:
+        with self.assertRaises(release.ReleaseError) as context:
+            release.check_updater_config(self.config(release.UPDATER_PUBKEY_PLACEHOLDER))
+        self.assertIn("placeholder", str(context.exception))
+
+    def test_the_placeholder_or_an_empty_key_is_refused(self) -> None:
+        for pubkey in (release.UPDATER_PUBKEY_PLACEHOLDER, "", "  "):
+            with self.subTest(pubkey=pubkey), self.assertRaises(release.ReleaseError):
+                release.check_updater_config(self.config(pubkey))
+
+    def test_a_real_key_passes(self) -> None:
+        release.check_updater_config(self.config("dW50cnVzdGVkIGNvbW1lbnQ6IHRlc3Q="))
+
+    def test_updater_artifacts_must_be_on_and_the_endpoint_fixed(self) -> None:
+        with self.assertRaises(release.ReleaseError):
+            release.check_updater_config(self.config("k", bundle={"createUpdaterArtifacts": False}))
+        root = self.config("k", plugins={"updater": {"pubkey": "k", "endpoints": ["https://example.org/latest.json"]}})
+        with self.assertRaises(release.ReleaseError):
+            release.check_updater_config(root)
+
+    def test_prepare_and_draft_refuse_the_placeholder_before_anything_else(self) -> None:
+        repo = FakeRepo()
+        self.addCleanup(repo.cleanup)
+        (repo.root / "src-tauri" / "tauri.release.conf.json").write_text(
+            json.dumps({
+                "bundle": {"createUpdaterArtifacts": True},
+                "plugins": {"updater": {"pubkey": release.UPDATER_PUBKEY_PLACEHOLDER, "endpoints": [release.UPDATER_ENDPOINT]}},
+            }),
+            encoding="utf-8",
+        )
+        commands = (
+            ["check-updater-config"],
+            ["prepare", "--merge-sha", "a" * 40],
+            ["draft", "--repo", "o/r", "--merge-sha", "a" * 40],
+        )
+        for command in commands:
+            with self.subTest(command=command[0]), contextlib.redirect_stderr(io.StringIO()) as captured:
+                self.assertEqual(release.main([*command, "--repo-root", str(repo.root)]), 1)
+                self.assertIn("placeholder", captured.getvalue())
+
+
 class Sha256Sums(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp = Path(tempfile.mkdtemp())
@@ -140,15 +340,25 @@ class ExactAssetSet(unittest.TestCase):
             len(release.expected_asset_names(self.VERSION)),
         )
 
-    def test_updater_artifacts_are_named_and_refused(self) -> None:
-        for name in ("latest.json", "JobniacFast_0.1.0_x64-setup.exe.sig"):
+    def test_the_set_holds_the_signatures_of_the_installer_and_the_appimage(self) -> None:
+        names = release.expected_asset_names(self.VERSION)
+        self.assertIn("JobniacFast_0.1.0_x64-setup.exe.sig", names)
+        self.assertIn("JobniacFast_0.1.0_amd64.AppImage.sig", names)
+        self.assertNotIn("latest.json", names)
+
+    def test_a_missing_signature_fails(self) -> None:
+        for name in ("JobniacFast_0.1.0_x64-setup.exe.sig", "JobniacFast_0.1.0_amd64.AppImage.sig"):
             with self.subTest(name=name):
-                path = self.tmp / name
-                path.write_bytes(b"x")
-                with self.assertRaises(release.ReleaseError) as context:
+                (self.tmp / name).unlink()
+                with self.assertRaises(release.ReleaseError):
                     release.check_exact_asset_set(self.tmp, self.VERSION)
-                self.assertIn("updater", str(context.exception))
-                path.unlink()
+                (self.tmp / name).write_bytes(b"x")
+
+    def test_latest_json_is_not_part_of_the_local_set(self) -> None:
+        (self.tmp / "latest.json").write_bytes(b"{}")
+        with self.assertRaises(release.ReleaseError) as context:
+            release.check_exact_asset_set(self.tmp, self.VERSION)
+        self.assertIn("latest.json", str(context.exception))
 
     def test_missing_and_unexpected_files_fail(self) -> None:
         (self.tmp / "SHA256SUMS").unlink()
@@ -249,14 +459,44 @@ class DraftVerification(unittest.TestCase):
         self.assets.mkdir()
         for name in release.expected_asset_names(self.VERSION):
             (self.assets / name).write_bytes(name.encode("utf-8"))
+        self.latest = self.tmp / "latest.json"
+        self.write_latest()
 
     def tearDown(self) -> None:
         shutil.rmtree(self.tmp, ignore_errors=True)
 
+    def manifest(self, **overrides: object) -> dict[str, object]:
+        """The latest.json that tauri-action would write for this release's installers and signatures."""
+
+        def entry(name: str) -> dict[str, str]:
+            return {
+                "signature": (self.assets / f"{name}.sig").read_text(encoding="utf-8"),
+                "url": f"https://github.com/owner/repo/releases/download/v{self.VERSION}/{name}",
+            }
+
+        windows = entry(f"JobniacFast_{self.VERSION}_x64-setup.exe")
+        linux = entry(f"JobniacFast_{self.VERSION}_amd64.AppImage")
+        data: dict[str, object] = {
+            "version": self.VERSION,
+            "notes": "n",
+            "platforms": {
+                "windows-x86_64": windows,
+                "windows-x86_64-nsis": windows,
+                "linux-x86_64": linux,
+                "linux-x86_64-appimage": linux,
+            },
+        }
+        data.update(overrides)
+        return data
+
+    def write_latest(self, **overrides: object) -> None:
+        self.latest.write_text(json.dumps(self.manifest(**overrides)), encoding="utf-8")
+
     def release_payload(self, **overrides: object) -> dict[str, object]:
         assets = []
-        for index, name in enumerate(release.expected_asset_names(self.VERSION)):
-            path = self.assets / name
+        local = [(name, self.assets / name) for name in release.expected_asset_names(self.VERSION)]
+        local.append(("latest.json", self.latest))
+        for index, (name, path) in enumerate(local):
             assets.append({
                 "id": index,
                 "name": name,
@@ -285,28 +525,141 @@ class DraftVerification(unittest.TestCase):
     def intent(self) -> release.ReleaseIntent:
         return release.tag_for_version(self.VERSION)
 
+    def verify(self, payload: dict[str, object], tag_sha: str | None = None) -> None:
+        release.verify_draft(self.api(payload, tag_sha), self.intent(), self.SHA, self.assets, self.latest)
+
     def test_matching_draft_passes(self) -> None:
-        release.verify_draft(self.api(self.release_payload()), self.intent(), self.SHA, self.assets)
+        self.verify(self.release_payload())
 
     def test_wrong_commit_fails(self) -> None:
-        other = "b" * 40
         with self.assertRaises(release.ReleaseError):
-            release.verify_draft(self.api(self.release_payload(), tag_sha=other), self.intent(), self.SHA, self.assets)
+            self.verify(self.release_payload(), tag_sha="b" * 40)
 
     def test_published_or_wrong_flags_fail(self) -> None:
         for overrides in ({"draft": False}, {"prerelease": True}, {"target_commitish": "c" * 40}):
             with self.subTest(overrides=overrides), self.assertRaises(release.ReleaseError):
-                release.verify_draft(self.api(self.release_payload(**overrides)), self.intent(), self.SHA, self.assets)
+                self.verify(self.release_payload(**overrides))
 
     def test_asset_digest_or_set_mismatch_fails(self) -> None:
         payload = self.release_payload()
         payload["assets"][0]["digest"] = "sha256:" + "0" * 64  # type: ignore[index]
         with self.assertRaises(release.ReleaseError):
-            release.verify_draft(self.api(payload), self.intent(), self.SHA, self.assets)
+            self.verify(payload)
         payload = self.release_payload()
         payload["assets"].pop()  # type: ignore[attr-defined]
         with self.assertRaises(release.ReleaseError):
-            release.verify_draft(self.api(payload), self.intent(), self.SHA, self.assets)
+            self.verify(payload)
+
+    def test_a_draft_without_latest_json_or_a_signature_fails(self) -> None:
+        for dropped in ("latest.json", "JobniacFast_0.1.0_x64-setup.exe.sig", "JobniacFast_0.1.0_amd64.AppImage.sig"):
+            payload = self.release_payload()
+            payload["assets"] = [a for a in payload["assets"] if a["name"] != dropped]  # type: ignore[index,union-attr]
+            with self.subTest(dropped=dropped), self.assertRaises(release.ReleaseError):
+                self.verify(payload)
+
+    def test_a_latest_json_for_another_version_fails(self) -> None:
+        self.write_latest(version="0.0.9")
+        with self.assertRaises(release.ReleaseError):
+            self.verify(self.release_payload())
+
+    def test_a_latest_json_with_a_wrong_signature_url_or_platform_fails(self) -> None:
+        good = self.manifest()
+        platforms = good["platforms"]  # type: ignore[index]
+        variants = []
+        bad = json.loads(json.dumps(good))
+        bad["platforms"]["linux-x86_64"]["signature"] = "other"
+        variants.append(bad)
+        bad = json.loads(json.dumps(good))
+        bad["platforms"]["windows-x86_64"]["url"] = "https://example.org/Other_setup.exe"
+        variants.append(bad)
+        bad = json.loads(json.dumps(good))
+        del bad["platforms"]["linux-x86_64"]
+        variants.append(bad)
+        self.assertIn("windows-x86_64", platforms)
+        for variant in variants:
+            self.latest.write_text(json.dumps(variant), encoding="utf-8")
+            with self.assertRaises(release.ReleaseError):
+                self.verify(self.release_payload())
+
+    def test_a_missing_tag_is_fine_for_a_draft(self) -> None:
+        routes: dict[tuple[str, str], tuple[int, object]] = {
+            ("GET", "/git/ref/tags/"): (404, {}),
+            ("GET", "/releases?"): (200, [self.release_payload()]),
+        }
+        api = release.GitHubApi("owner/repo", "token", FakeTransport(routes))
+        release.verify_draft(api, self.intent(), self.SHA, self.assets, self.latest)
+
+    def publish_api(self, payload: dict[str, object], tag_sha: str | None) -> tuple[release.GitHubApi, FakeTransport]:
+        published = dict(payload, draft=False)
+        tag_route = (200, {"object": {"type": "commit", "sha": tag_sha}}) if tag_sha else (404, {})
+        transport = FakeTransport({
+            ("GET", "/git/ref/tags/"): tag_route,
+            ("GET", "/releases?"): (200, [payload]),
+            ("POST", "/git/refs"): (201, {}),
+            ("PATCH", "/releases/7"): (200, published),
+            ("GET", "/releases/7"): (200, published),
+        })
+        return release.GitHubApi("owner/repo", "token", transport), transport
+
+    def test_publish_tags_then_publishes_a_stable_release_as_latest(self) -> None:
+        api, transport = self.publish_api(self.release_payload(), None)
+        sent: list[bytes] = []
+        original = api.transport
+
+        def spy(method: str, url: str, token: str, body: bytes | None, content_type: str) -> tuple[int, bytes]:
+            if body is not None:
+                sent.append(body)
+            # After the tag is created the ref exists at the merge commit.
+            if method == "GET" and "/git/ref/tags/" in url and any(c[0] == "POST" for c in transport.calls):
+                return 200, json.dumps({"object": {"type": "commit", "sha": self.SHA}}).encode("utf-8")
+            return original(method, url, token, body, content_type)
+
+        api.transport = spy
+        message = release.publish_release(api, self.intent(), self.SHA)
+        self.assertIn("latest release", message)
+        self.assertEqual(
+            [call for call in transport.calls if call[0] in ("POST", "PATCH")],
+            [("POST", "/git/refs"), ("PATCH", "/releases/7")],
+        )
+        tag_body, patch_body = (json.loads(b) for b in sent)
+        self.assertEqual(tag_body, {"ref": "refs/tags/v0.1.0", "sha": self.SHA})
+        self.assertEqual(patch_body, {"draft": False, "prerelease": False, "make_latest": "true"})
+
+    def test_publish_of_a_dev_version_is_a_prerelease_and_never_latest(self) -> None:
+        intent = release.tag_for_version("0.1.0-dev.2")
+        payload = self.release_payload(prerelease=True, tag_name="v0.1.0-dev.2")
+        api, _ = self.publish_api(payload, self.SHA)
+        sent: list[bytes] = []
+        original = api.transport
+        api.transport = lambda m, u, t, b, c: (sent.append(b) if b else None, original(m, u, t, b, c))[1]
+        self.assertIn("prerelease", release.publish_release(api, intent, self.SHA))
+        self.assertEqual(json.loads(sent[-1]), {"draft": False, "prerelease": True, "make_latest": "false"})
+
+    def test_publish_fails_closed_when_the_tag_is_on_another_commit(self) -> None:
+        api, transport = self.publish_api(self.release_payload(), "b" * 40)
+        with self.assertRaises(release.ReleaseError):
+            release.publish_release(api, self.intent(), self.SHA)
+        self.assertFalse([c for c in transport.calls if c[0] in ("POST", "PATCH")])
+
+    def test_publish_reuses_a_tag_already_on_the_merge_commit(self) -> None:
+        api, transport = self.publish_api(self.release_payload(), self.SHA)
+        release.publish_release(api, self.intent(), self.SHA)
+        self.assertNotIn(("POST", "/git/refs"), transport.calls)
+        self.assertIn(("PATCH", "/releases/7"), transport.calls)
+
+    def test_publish_of_an_already_published_release_is_a_success_without_writes(self) -> None:
+        api, transport = self.publish_api(self.release_payload(draft=False), self.SHA)
+        self.assertIn("already published", release.publish_release(api, self.intent(), self.SHA))
+        self.assertFalse([c for c in transport.calls if c[0] in ("POST", "PATCH")])
+
+    def test_publish_refuses_a_missing_or_duplicate_release_or_a_wrong_target(self) -> None:
+        for payloads in ([], [self.release_payload(), self.release_payload()], [self.release_payload(target_commitish="c" * 40)]):
+            transport = FakeTransport({
+                ("GET", "/git/ref/tags/"): (404, {}),
+                ("GET", "/releases?"): (200, payloads),
+            })
+            with self.subTest(count=len(payloads)), self.assertRaises(release.ReleaseError):
+                release.publish_release(release.GitHubApi("o/r", "t", transport), self.intent(), self.SHA)
 
     def test_duplicate_json_keys_are_rejected(self) -> None:
         routes = {("GET", "/git/ref/tags/"): (200, b'{"object": {"type": "commit", "sha": "x"}, "object": {}}')}
@@ -329,6 +682,20 @@ class PrepareDraft(unittest.TestCase):
         api = release.GitHubApi("owner/repo", "token", FakeTransport(routes))
         with self.assertRaises(release.ReleaseError):
             release.prepare_draft(api, release.tag_for_version("0.1.0"), self.SHA, "body")
+
+    def test_a_rerun_prunes_installers_signatures_and_latest_json(self) -> None:
+        names = ["a-setup.exe", "a-setup.exe.sig", "a.AppImage.sig", "latest.json", "a.AppImage", "a.deb"]
+        draft = {"id": 5, "tag_name": "v0.1.0", "draft": True, "prerelease": False,
+                 "assets": [{"id": i, "name": n} for i, n in enumerate(names)]}
+        transport = FakeTransport({
+            ("GET", "/releases?"): (200, [draft]),
+            ("DELETE", "/releases/assets/"): (204, b""),
+            ("PATCH", "/releases/5"): (200, {}),
+        })
+        api = release.GitHubApi("owner/repo", "token", transport)
+        self.assertEqual(release.prepare_draft(api, release.tag_for_version("0.1.0"), self.SHA, "body"), 5)
+        deleted = sorted(path for method, path in transport.calls if method == "DELETE")
+        self.assertEqual(deleted, ["/releases/assets/0", "/releases/assets/1", "/releases/assets/2", "/releases/assets/3"])
 
     def test_new_draft_is_created_once(self) -> None:
         transport = FakeTransport({
@@ -476,6 +843,27 @@ class BundleConfig(unittest.TestCase):
         text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
         self.assertRegex(text, r"args: --bundles \$\{\{ matrix\.bundles \}\} --config src-tauri/tauri\.release\.conf\.json")
 
+    def test_default_config_has_no_updater_so_dev_builds_need_no_key(self) -> None:
+        default = self.load("tauri.conf.json")
+        self.assertNotIn("updater", default.get("plugins", {}))
+        self.assertIs(default["bundle"]["createUpdaterArtifacts"], False)
+
+    def test_release_config_builds_signed_updater_artifacts(self) -> None:
+        for platform_file in ("tauri.windows.conf.json", "tauri.linux.conf.json"):
+            with self.subTest(platform=platform_file):
+                effective = self.effective(platform_file)
+                self.assertIs(effective["bundle"]["createUpdaterArtifacts"], True)
+                updater = effective["plugins"]["updater"]
+                self.assertEqual(updater["endpoints"], [release.UPDATER_ENDPOINT])
+                self.assertEqual(updater["windows"]["installMode"], "passive")
+                self.assertTrue(updater["pubkey"])
+
+    def test_release_workflow_signs_and_writes_the_updater_manifest(self) -> None:
+        text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        self.assertIn("includeUpdaterJson: true", text)
+        for name in ("TAURI_SIGNING_PRIVATE_KEY", "TAURI_SIGNING_PRIVATE_KEY_PASSWORD"):
+            self.assertIn(f"{name}: ${{{{ secrets.{name} }}}}", text)
+
     def test_no_workflow_or_script_uses_a_debug_only_config_override(self) -> None:
         for path in list(WORKFLOWS.glob("*.yml")) + [RELEASE_DIR / "release.py"]:
             with self.subTest(file=path.name):
@@ -524,6 +912,20 @@ class WorkflowRules(unittest.TestCase):
                 with self.subTest(file=path.name, line=number):
                     self.assertRegex(reference, r"@[0-9a-f]{40}$")
                     self.assertRegex(line, r"#\s*v?\d", "the pinned version must be in a comment")
+
+    def test_publish_is_the_last_job_with_its_own_write_permission(self) -> None:
+        text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        jobs = re.split(r"(?m)^  (?=[a-z][a-z-]*:\n)", text.split("\njobs:\n", 1)[1])
+        names = [job.split(":", 1)[0] for job in jobs if job.strip()]
+        self.assertEqual(names[-1], "publish")
+        publish = next(job for job in jobs if job.startswith("publish:"))
+        for gate in ("prepare", "draft", "build", "clean-machine", "attach", "attest", "verify-draft"):
+            self.assertRegex(publish, rf"needs: \[[^\]]*\b{gate}\b")
+        self.assertRegex(publish, r"permissions:\n\s+contents: write")
+        self.assertIn("release.py publish", publish)
+        self.assertEqual(text.count("release.py publish"), 1)
+        self.assertRegex(publish, r"needs\.verify-draft\.result == 'success'")
+        self.assertRegex(publish, r"needs\.attest\.result == 'skipped'")
 
     def test_checkouts_do_not_persist_credentials(self) -> None:
         for path in self.workflow_files():

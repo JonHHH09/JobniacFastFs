@@ -51,6 +51,16 @@ hosted runner yet.
   step, never in pull-request workflows. `release.yml` has NO signing step yet, so no secret name exists:
   adding the chosen route (its own pull request) defines the names. Do not create secrets from this
   checklist.
+- **Updater signing key (separate from the Windows code-signing route above).** The in-app updater
+  refuses any update that is not signed with this key, and the release stops until it is in place.
+  One-time steps, by the owner:
+  1. `pnpm tauri signer generate -w <path outside the repository>` (set a password).
+  2. Commit the public key (the base64 content of the `.pub` file) as `plugins.updater.pubkey` in
+     `src-tauri/tauri.release.conf.json`. `release.py` refuses the placeholder
+     `REPLACE_WITH_UPDATER_PUBLIC_KEY`, which stays useful for forks.
+  3. Add the repository secrets `TAURI_SIGNING_PRIVATE_KEY` (the private key content) and
+     `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Only the tauri-action step of the build reads them.
+  4. Keep an offline backup of the private key. Losing it means installed copies can never update again.
 - **Each route is its own pull request with its own gate.** The route is not chosen by this checklist.
 - **Failure:** no route decided. Keep the release unsigned and say so in the release notes.
 
@@ -123,15 +133,21 @@ hosted runner yet.
 - **Expected:** the repository is public and the first Scorecard and CodeQL runs complete (check the logs).
 - **Failure:** a run fails on visibility. Read the log before you treat it as a regression.
 
-## G9 Publish the draft and announce
+## G9 CI publishes after the gates, then announce
 
-- **Who:** owner. **Where:** GitHub Releases.
-- **What:** read the draft body (from `CHANGELOG.md`), check the assets and the `SHA256SUMS`, and publish
-  the release manually. No workflow publishes it.
-  Then announce where you choose. The announcement text is yours.
+- **Who:** `release.yml` publishes; the owner announces. **Where:** GitHub Releases.
+- **What:** the last job (`publish`) runs only when every other job has passed, including the draft
+  verification (exact asset set, digests, `latest.json` and the update signatures). It creates the tag
+  `vX.Y.Z` on the merge commit (it fails if the tag exists on another commit) and publishes the draft:
+  the latest release for `X.Y.Z`, a prerelease for `X.Y.Z-dev.N` (never the latest, so the updater
+  ignores it). To stop a release, do not merge the promotion pull request; a failed job leaves the draft
+  unpublished. To cut a release, bump on `development` first with
+  `py -I scripts/release/release.py bump X.Y.Z` (then `cargo update -w` if it was not run) and open the
+  `chore: release X.Y.Z` pull request. Then announce where you choose. The announcement text is yours.
 - **Expected:** the release is public, the installer digest matches `SHA256SUMS`, and the release notes
   include the SmartScreen guidance from the [README](../../README.md#install).
-- **Failure:** a digest mismatch. Do not publish; start again from G4.
+- **Failure:** a job fails, so nothing is published. Read the log, fix, and re-run; a rerun reuses the
+  draft. A digest mismatch: start again from G4.
 
 ## Open questions for the owner
 
