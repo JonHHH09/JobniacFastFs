@@ -24,9 +24,8 @@ use uuid::Uuid;
 
 use crate::blocking::run_blocking as run_file_phase;
 use crate::sqlite::codec::{Id, Instant};
-use crate::sqlite::profiles::{
-    assert_generated_document_attachable, execute, query_rows, unavailable, with_connection,
-};
+use crate::sqlite::generated::guards::guard_document_reference;
+use crate::sqlite::profiles::{execute, query_rows, unavailable, with_connection};
 use crate::sqlite::unit_of_work::SqliteTransaction;
 
 use rows::{
@@ -314,13 +313,9 @@ pub fn save_extraction_in_transaction(
     let page_count = i64::from(record.page_count);
     let created = instant_for_write(&record.created_at)?;
     let projections = pages_to_json(&record.pages).to_string();
-    // The PostgreSQL guard trigger on the extraction's file: an owned generated document is
-    // attachable only while its asset is ACTIVE (rule 14 of `RULES_TO_PORT.md`).
-    assert_generated_document_attachable(
-        conn,
-        record.file_id,
-        "owned_pdf_extraction_reference_guard",
-    )?;
+    // The PostgreSQL guard trigger on the extraction's file (rule 14): an owned generated
+    // document is attachable only while its asset is ACTIVE.
+    guard_document_reference(conn, Some(record.file_id))?;
     let mut saved = query_rows(
         conn,
         SAVE_EXTRACTION_SQL,

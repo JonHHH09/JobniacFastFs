@@ -15,8 +15,9 @@ use jobniac_core::profiles::pdf_ingest::{
 use rusqlite::Row;
 use uuid::Uuid;
 
-use super::{assert_generated_document_attachable, col, db, execute, query_rows, with_connection};
+use super::{col, db, execute, query_rows, with_connection};
 use crate::sqlite::codec::{Id, Instant};
+use crate::sqlite::generated::guards::guard_pdf_source;
 use crate::sqlite::unit_of_work::SqliteTransaction;
 
 /// The transaction-scoped savepoint of a PDF ingestion write.
@@ -226,21 +227,9 @@ impl ProfilePdfRepository for SqliteProfilePdfRepository {
         link: &NewSourceLink,
     ) -> Result<bool, AppError> {
         with_connection(tx, |conn| {
-            // The PostgreSQL guard trigger of the source table: the extraction's document must
-            // be attachable. It runs before the conflict check.
-            let documents = query_rows(
-                conn,
-                "SELECT file_id FROM document_pdf_extractions WHERE id = ?1",
-                &[&Id(link.extraction_id)],
-                |row| Ok(col::<Id>(row, "file_id")?.0),
-            )?;
-            if let Some(document_id) = documents.first() {
-                assert_generated_document_attachable(
-                    conn,
-                    *document_id,
-                    "owned_pdf_source_reference_guard",
-                )?;
-            }
+            // The PostgreSQL guard trigger of the source table (rule 15): the extraction's
+            // document must be attachable. It runs before the conflict check.
+            guard_pdf_source(conn, link.extraction_id)?;
             let inserted = execute(
                 conn,
                 "INSERT INTO profile_profile_pdf_sources \

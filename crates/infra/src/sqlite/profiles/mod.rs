@@ -199,23 +199,3 @@ pub(crate) fn order_value(value: i64) -> Result<i32, AppError> {
 pub(crate) fn weight_value(value: i64) -> Result<i16, AppError> {
     i16::try_from(value).map_err(|_| AppError::Internal)
 }
-
-/// Rule 13 of `RULES_TO_PORT.md` (`assert_generated_document_attachable`): a document that maps to
-/// an owned generated asset can be attached only while that asset is `ACTIVE`. The PostgreSQL
-/// guard raised a check violation; `constraint` names the trigger it replaces.
-pub(crate) fn assert_generated_document_attachable(
-    conn: &Connection,
-    document_id: Uuid,
-    constraint: &str,
-) -> Result<(), AppError> {
-    let lifecycles = query_rows(
-        conn,
-        "SELECT lifecycle FROM jobniac_generated_assets WHERE document_id = ?1",
-        &[&crate::sqlite::codec::Id(document_id)],
-        |row| col::<String>(row, "lifecycle"),
-    )?;
-    match lifecycles.first().map(String::as_str) {
-        None | Some("ACTIVE") => Ok(()),
-        Some(_) => Err(AppError::from(SqliteError::constraint(constraint))),
-    }
-}
