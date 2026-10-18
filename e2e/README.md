@@ -1,7 +1,7 @@
 # End-to-end suite
 
 WebDriver tests of the desktop workflows against the real debug build of `jobniac`, through
-`tauri-driver` (see the Tauri WebDriver guide in `.claude/skills/tauri-dev/skills/tauri-testing`).
+`tauri-driver` (see the [Tauri WebDriver guide](https://v2.tauri.app/develop/tests/webdriver/)).
 The suite uses plain WebdriverIO and mocha; the `@wdio/tauri-service` is not used, so the
 application needs no test plugin.
 

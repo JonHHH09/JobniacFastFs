@@ -144,7 +144,8 @@ These are not facts in the repository. Each needs an answer from you before the 
 3. Whether `%LOCALAPPDATA%\Jobniac\generated` is an allowed residue of the manual smoke, or is removed by hand
    ([clean-machine smoke, step 26](clean-machine-smoke-checklist.md#13-uninstall-and-residue)).
 4. Which signing route (G3) and who applies for it.
-5. Whether the repository keeps the `CLAUDE.md` and `.claude/skills/` tree published or drops them.
+5. ~~Whether the repository keeps the `CLAUDE.md` and `.claude/skills/` tree published or drops them.~~
+   Decided: dropped. Both are untracked and listed in `.gitignore`; older commits still contain them.
 6. Whether the `CODEOWNERS` file is needed, and with which handle.
 
 ## Further gates
