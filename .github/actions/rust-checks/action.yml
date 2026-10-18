@@ -58,10 +58,6 @@ runs:
     - name: Clippy
       shell: bash
       run: cargo clippy --workspace --all-targets --locked -- -D warnings
-    - name: Clippy (PostgreSQL test files behind the postgres-tests features)
-      # Cargo skips targets whose required-features are off, so lint them explicitly.
-      shell: bash
-      run: cargo clippy --workspace --all-targets --locked --features jobniac-infra/postgres-tests,jobniac-cli/postgres-tests -- -D warnings
     - name: Install cargo-nextest (prebuilt, checksum-verified)
       uses: taiki-e/install-action@83ac0ad63c0167e6f06796fab0fce28db1bf3db0 # v2.87.22
       with:

@@ -1,5 +1,5 @@
 // The generation session: generation is enabled with an owned generated root in a temporary
-// directory. It runs after the default session, on the same disposable database.
+// directory. It runs after the default session, on the same temporary database file.
 import { captureFailure, closeSession, openSession } from "../support/session.mjs";
 import {
   assertNoCanary,
@@ -24,7 +24,7 @@ describe("JobniacFast standalone generation (generation session)", function () {
     const secrets = [
       process.env.JOBNIAC_DOCUMENT_IMPORT_ROOT,
       process.env.JOBNIAC_E2E_GENERATED_ROOT,
-      process.env.JOBNIAC_DB_PASSWORD,
+      process.env.JOBNIAC_DB_PATH,
     ];
     for (const root of secrets) {
       if (root) {

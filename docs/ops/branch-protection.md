@@ -46,7 +46,7 @@ A required check whose job is skipped counts as passed, so `ci.yml` and `e2e.yml
 
 - The `Changes` job (`scripts/ci/gate.sh`) path-filters pull requests into `development`: a
   docs-only change skips `UI`, `Rust (...)` and `E2E (...)`; Rust-only changes skip `UI`.
-- `Rust (windows-latest)`, `E2E (windows-latest)` and `PostgreSQL 18 integration` do not run on pull
+- `Rust (windows-latest)` and `E2E (windows-latest)` do not run on pull
   requests into `development`. They run on the promotion pull request (`development` to `main`), on
   the nightly run, on manual runs (`workflow_dispatch`) and in the release call.
 - Every job that is a required check must keep a literal `name:`. Do not turn the Rust or E2E jobs
@@ -54,8 +54,7 @@ A required check whose job is skipped counts as passed, so `ci.yml` and `e2e.yml
   stay pending forever.
 - The gate fails open: every heavy job runs when the `Changes` job did not succeed
   (`needs.changes.result != 'success'`), because a job skipped behind a failed gate would otherwise
-  count as passed. `PostgreSQL 18 integration` keeps its event restriction in that case, so it stays
-  opt-in on pull requests into `development`.
+  count as passed.
 - `.github/workflows/nightly.yml` runs daily at 02:30 UTC and on demand, and dispatches `ci.yml` and
   `e2e.yml` on `development` with `workflow_dispatch`. Merges into `development` are made by
   auto-merge with the workflow token, and GitHub starts no workflow for those, so `development` has
@@ -79,17 +78,13 @@ A required check whose job is skipped counts as passed, so `ci.yml` and `e2e.yml
   dispatch.
 - Entries expire after 7 days without use; a rerun is then full, which is safe.
 
-`release.yml` calls both `ci.yml` (`checks`, with PostgreSQL required) and `e2e.yml` (`e2e`) on the
+`release.yml` calls both `ci.yml` (`checks`, with `release-call: true`) and `e2e.yml` (`e2e`) on the
 promotion merge commit. Both skip the heavy jobs when the promotion pull request or the nightly run
 already passed that tree, so the build starts about a minute after the merge. A red end-to-end suite
 blocks the release.
 
 `ci.yml` and `e2e.yml` no longer run on pushes to `main`: `main` only receives the promotion merge,
 which the release call checks. CodeQL and Scorecard still run on `main`.
-
-`PostgreSQL 18 integration` is not a required check because it does not run on pull requests into
-`development`. It runs on the promotion pull request and the nightly run, and `release.yml` requires
-it on the promotion merge commit.
 
 `Branch policy` (`.github/workflows/branch-policy.yml`) is what restricts the source branch: into
 `main` only from `development`, into `development` only from a branch of this repository. A GitHub

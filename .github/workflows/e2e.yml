@@ -2,7 +2,7 @@ name: End-to-end
 
 # WebDriver suite of the desktop workflows (e2e/README.md). It runs the debug desktop build through
 # tauri-driver on Windows (msedgedriver matching the WebView2 runtime) and Linux (WebKitWebDriver
-# under xvfb), over a disposable PostgreSQL 18 cluster started by pg-run.
+# under xvfb), over a temporary SQLite database file.
 #
 # Reusable: release.yml calls this workflow (job `e2e`) on the merge commit of a promotion pull
 # request with `release-call: true`, which runs the full set, Windows included.
@@ -73,7 +73,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           BASE_REF: ${{ github.base_ref }}
           # The gate's name for the release call: a full run, no path filtering.
-          POSTGRES_REQUIRED: ${{ inputs.release-call }}
+          RELEASE_CALL: ${{ inputs.release-call }}
         run: bash scripts/ci/gate.sh e2e
 
   e2e-linux:

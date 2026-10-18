@@ -1,9 +1,10 @@
-// End-to-end runner: migrates the disposable database, registers a temporary generated root and
-// runs the two application sessions in order. Start it through pg-run, which owns the cluster:
+// End-to-end runner: migrates a temporary SQLite database file, registers a temporary generated
+// root and runs the two application sessions in order:
 //
-//   target/debug/pg-run node e2e/run.mjs   (pg-run: cargo build -p jobniac-testkit --bins)
+//   node e2e/run.mjs
 //
-// See e2e/README.md for the build steps and the environment.
+// The database file lives in the run folder under target/ and is removed with it. See
+// e2e/README.md for the build steps and the environment.
 import { spawnSync } from "node:child_process";
 import { existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
@@ -11,11 +12,10 @@ import {
   appBinary,
   cliBinary,
   createRunRoot,
-  databaseEnvironment,
   repoRoot,
   sessionEnvironment,
 } from "./support/config.mjs";
-import { assertDisposableDatabase, runCli } from "./support/database.mjs";
+import { runCli } from "./support/database.mjs";
 
 const SESSIONS = [
   { name: "default", spec: "e2e/specs/app.spec.mjs" },
@@ -43,10 +43,9 @@ function main() {
   if (!existsSync(cliBinary)) {
     fail(`the console binary is missing at ${cliBinary}; run cargo build -p jobniac-cli first`);
   }
-  assertDisposableDatabase(process.env);
 
-  const database = databaseEnvironment(process.env);
   const run = createRunRoot();
+  const database = { JOBNIAC_DB_PATH: run.databaseFile };
   const pdfiumDirectory = join(
     repoRoot,
     "vendor",

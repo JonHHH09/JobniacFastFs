@@ -1,8 +1,8 @@
-// The default application session: every opt-in flag is unset, the database is the disposable cluster.
+// The default application session: every opt-in flag is unset, the database is the temporary SQLite file of the run.
 // The steps share one session and run in order; each step depends on the rows the previous ones saved.
 
 import assert from "node:assert/strict";
-import { holdTableLock, isLockHeld, queryScalar, releaseTableLock } from "../support/database.mjs";
+import { holdWriteLock, queryScalar } from "../support/database.mjs";
 import { captureFailure, closeSession, openSession } from "../support/session.mjs";
 import {
   absent,
@@ -24,8 +24,13 @@ const RENAMED_PROFILE = "Ada Example-Lovelace";
 const JOB_POSTING = [
   "Senior Rust Engineer",
   "Example Works GmbH",
-  "Build local-first desktop tools in Rust with PostgreSQL and Tauri.",
-  "Required skills: Rust, PostgreSQL, Tauri, SQL.",
+  "Build local-first desktop tools in Rust with SQLite and Tauri.",
+  "Required skills: Rust, SQLite, Tauri, SQL.",
+].join("\n");
+const BUSY_POSTING = [
+  "Busy Check Engineer",
+  "Example Works GmbH",
+  "Hold the database write lock while a posting is saved.",
 ].join("\n");
 
 describe("JobniacFast desktop workflows (default session)", function () {
@@ -42,7 +47,7 @@ describe("JobniacFast desktop workflows (default session)", function () {
     const secrets = [
       process.env.JOBNIAC_DOCUMENT_IMPORT_ROOT,
       process.env.JOBNIAC_E2E_GENERATED_ROOT,
-      process.env.JOBNIAC_DB_PASSWORD,
+      process.env.JOBNIAC_DB_PATH,
     ];
     for (const root of secrets) {
       if (root) {
@@ -135,13 +140,14 @@ describe("JobniacFast desktop workflows (default session)", function () {
 
   it("4 analyzes the profile and job pair and opens the match report", async () => {
     const profileId = queryScalar(
-      `select id from profile.profiles where email = '${PROFILE_EMAIL}'`,
+      "select id from profile_profiles where email = ?",
       process.env,
+      PROFILE_EMAIL,
     );
     const jobId = queryScalar(
       // A prefix match: a WebDriver that types the newlines as nothing turns the whole posting
       // into the first line, which becomes the title.
-      "select id from job_schema.jobs where title like 'Senior Rust Engineer%'",
+      "select id from job_jobs where title like 'Senior Rust Engineer%'",
       process.env,
     );
     await openSection(browser, "matching");
@@ -194,46 +200,35 @@ describe("JobniacFast desktop workflows (default session)", function () {
     }
   });
 
-  it("8 a busy search disables its control until the database releases the lock", async () => {
-    // A held ACCESS EXCLUSIVE lock on the profile table makes the search wait in the database. The
-    // lock is released by ending the holder, so the busy window is deterministic.
-    await openSection(browser, "profiles");
-    const holder = holdTableLock("profile.profiles", process.env);
+  it("8 a busy save disables its control until the database releases the write lock", async () => {
+    // A held write lock makes the save of a posting wait in the database (the busy timeout is ten
+    // seconds, longer than this check). The lock is released by ending the holder, so the busy
+    // window is deterministic.
+    await openSection(browser, "jobs");
+    if (!(await byTestId(browser, "jobTextInput").isDisplayed())) {
+      await click(browser, "addPostingToggleButton");
+    }
+    await fill(browser, "jobTextInput", BUSY_POSTING);
+    const add = await shown(browser, "addJobButton");
+    const release = holdWriteLock(process.env);
     try {
-      await browser.waitUntil(() => isLockHeld("profiles", process.env), {
-        timeout: 20_000,
-        timeoutMsg: "the table lock was not taken",
-      });
-      await fill(browser, "profileSearchInput", "Example");
-      const search = await shown(browser, "searchProfilesButton");
-      await search.click();
-      await browser.waitUntil(async () => !(await search.isEnabled()), {
+      await add.click();
+      await browser.waitUntil(async () => !(await add.isEnabled()), {
         timeout: 10_000,
-        timeoutMsg: "the search control stayed enabled while the search ran",
+        timeoutMsg: "the save control stayed enabled while the save ran",
       });
     } finally {
-      holder.kill();
+      release();
     }
-    // The holder's backend can outlive its client, so the lock is released by ending that backend.
-    releaseTableLock("profiles", process.env);
-    await browser.waitUntil(() => !isLockHeld("profiles", process.env), {
-      timeout: 20_000,
-      timeoutMsg: "the table lock was not released",
-    });
-    await shown(browser, "openSearchResultButton", 60_000);
-    await browser.waitUntil(
-      async () => (await byTestId(browser, "searchProfilesButton").isEnabled()) === true,
-      {
-        timeout: 20_000,
-        timeoutMsg: "the search control did not recover",
-      },
-    );
+    await click(browser, "refreshJobsButton");
+    // The save finished once the lock was gone: the posting is in the list.
+    await waitForText(browser, "jobListPanel", "Busy Check Engineer");
   });
 
   it("8 no file path or token appears in the page", async () => {
     await assertNoCanary(browser, canaries);
     const text = await pageText(browser);
-    assert.equal(text.includes("jobniac_test_admin"), false);
+    assert.equal(text.includes("jobniac.sqlite3"), false);
   });
 
   it.skip("8 a window close with unsaved edits is refused until the discard is confirmed", async () => {
