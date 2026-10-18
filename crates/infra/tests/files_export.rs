@@ -35,9 +35,22 @@ fn artifact_of(size: usize) -> DocumentArtifact {
     }
 }
 
+/// The system temporary folder. On Windows it is returned in its final-path form: the export
+/// refuses a parent whose text differs from its final path, and `%TEMP%` can be an 8.3 alias
+/// (`RUNNER~1`) that the final path expands.
+fn temp_base() -> Result<PathBuf, Box<dyn Error>> {
+    let base = std::env::temp_dir();
+    if cfg!(windows) {
+        let canonical = std::fs::canonicalize(base)?.to_string_lossy().into_owned();
+        let plain = canonical.strip_prefix(r"\\?\").unwrap_or(&canonical);
+        return Ok(PathBuf::from(plain));
+    }
+    Ok(base)
+}
+
 /// A fresh, empty, private working directory under the system temporary folder.
 fn fresh_dir(label: &str) -> Result<PathBuf, Box<dyn Error>> {
-    let path = std::env::temp_dir().join(format!(
+    let path = temp_base()?.join(format!(
         "jobniac-export-{label}-{}",
         Uuid::new_v4().simple()
     ));
