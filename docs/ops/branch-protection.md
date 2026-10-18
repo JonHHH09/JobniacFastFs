@@ -15,7 +15,9 @@ issue branch ──PR (squash, auto-merge)──▶ development ──PR (merge 
   issue branch after the merge.
 - `development` is promoted to `main` by a pull request that uses a merge commit, so the two
   branches never diverge. Auto-merge is not enabled on it: merging into `main` starts
-  `release.yml`, so the owner merges it deliberately.
+  `release.yml`, so the owner merges it deliberately. When every gate passes, its last job tags the
+  merge commit and publishes the release (the latest release for a stable version); a failed gate
+  leaves the draft unpublished.
 
 ## Rulesets
 

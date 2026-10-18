@@ -12,6 +12,7 @@ import { Label } from "../../ui/label";
 import { Spinner } from "../../ui/spinner";
 import { StatusMessage } from "../../ui/status-message";
 import { Switch } from "../../ui/switch";
+import { UpdatesCard } from "../updates/UpdatesCard";
 import { useMcpServer } from "./useMcpServer";
 
 // The ranges are a convenience for the form only: Rust validates the port and its answer is final.
@@ -60,8 +61,18 @@ function statusHint(status: McpServerStatusDto): string | null {
   }
 }
 
-/** The settings screen: one card for the MCP server. It renders what Rust reports and sends input back. */
+/** The settings screen: a card for the MCP server and one for updates. */
 export function SettingsPage() {
+  return (
+    <div className="grid gap-[18px]">
+      <McpServerCard />
+      <UpdatesCard />
+    </div>
+  );
+}
+
+/** The MCP server card. It renders what Rust reports and sends input back. */
+function McpServerCard() {
   const { query, setEnabled, setPort, copyConnection } = useMcpServer();
   const [portDraft, setPortDraft] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);

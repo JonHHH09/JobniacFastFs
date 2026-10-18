@@ -166,6 +166,8 @@ jobs:
           python-version: "3.14"
       - name: Unit tests of scripts/release
         run: python -I -m unittest discover -s scripts/release/tests -p "test_*.py"
+      - name: Versions and changelog agree
+        run: python -I scripts/release/release.py check-versions
 
   privacy-scan:
     name: Privacy scan (working tree and history, generic classes)

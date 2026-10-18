@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 import settingsSource from "../../src-tauri/src/settings_commands.rs?raw";
 import stateSource from "../../src-tauri/src/state.rs?raw";
+import updateSource from "../../src-tauri/src/update_commands.rs?raw";
 import { formatMessage, isMessageId } from "./messages";
 
 /**
  * Message ids the Rust core emits as `pub const NAME: &str = "id"` in `src-tauri/src/state.rs` and
- * `src-tauri/src/settings_commands.rs`.
+ * `src-tauri/src/settings_commands.rs` and `src-tauri/src/update_commands.rs`.
  * Every one must have catalogue copy, except the refusals below that carry no copy on purpose
  *: each screen either filters by `isMessageId` or shows its
  * own operation text, and the close gate only shows ids that are in the catalogue.
@@ -23,7 +24,9 @@ const NO_COPY_ON_PURPOSE = new Set([
 
 function rustMessageIds(): string[] {
   const ids = [
-    ...(stateSource + settingsSource).matchAll(/pub const [A-Z0-9_]+: &str = "([a-zA-Z0-9.]+)";/g),
+    ...(stateSource + settingsSource + updateSource).matchAll(
+      /pub const [A-Z0-9_]+: &str = "([a-zA-Z0-9.]+)";/g,
+    ),
   ].map((match) => match[1] as string);
   return [...new Set(ids)];
 }

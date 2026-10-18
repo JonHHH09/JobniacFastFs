@@ -33,6 +33,8 @@ mod settings_dto;
 mod shell_close_commands;
 mod shell_close_dto;
 mod state;
+mod update_commands;
+mod update_dto;
 
 pub use dto::{
     CleanupReportDto, CleanupStatusDto, ErrorCategoryDto, HealthReportDto, HealthStatusDto,
@@ -121,6 +123,10 @@ pub fn ipc_builder() -> Builder<tauri::Wry> {
         settings_commands::mcp_server_set_enabled,
         settings_commands::mcp_server_set_port,
         settings_commands::mcp_server_copy_connection,
+        update_commands::check_for_update,
+        update_commands::install_update,
+        update_commands::update_settings_get,
+        update_commands::update_set_auto_check,
     ])
 }
 
@@ -233,7 +239,17 @@ pub fn run() {
     // The packaging smoke quit hook: on only for the exact value `1`.
     let smoke = smoke::enabled(&environment).then(|| Arc::new(SmokeHook::new()));
     let builder = ipc_builder();
-    let app = tauri::Builder::default()
+    let context = tauri::generate_context!();
+    // The updater plugin needs its endpoint and public key, which only the release configuration
+    // carries. A build without them (`pnpm tauri dev`) skips the plugin and reports updates as
+    // unavailable instead of failing to start.
+    let updater_configured = update_commands::updater_configured(&context.config().plugins);
+    let mut builder_app = tauri::Builder::default();
+    if updater_configured {
+        // Called from Rust only (update_commands); no capability grants it to the webview.
+        builder_app = builder_app.plugin(tauri_plugin_updater::Builder::new().build());
+    }
+    let app = builder_app
         // The dialog is used from Rust only (the picker seam); no capability grants it to the webview.
         .plugin(tauri_plugin_dialog::init())
         // The clipboard is written from Rust only (the MCP connection copy); no capability grants it
@@ -284,7 +300,7 @@ pub fn run() {
                 });
             }
         })
-        .build(tauri::generate_context!())
+        .build(context)
         .expect("error while building tauri application");
 
     // Diagnostics first, so the startup warnings below are not dropped: stderr, plus the per-user log
@@ -342,6 +358,7 @@ pub fn run() {
         Arc::new(ProcessSpawner::beside_current_exe()),
         std::env::vars_os().collect(),
     ));
+    app.manage(update_commands::UpdateNotice::default());
     app.manage(
         AppState::new(Ok(services))
             .with_job_links(job_links)
@@ -357,6 +374,8 @@ pub fn run() {
             mcp.start(port);
         });
     }
+    // The opt-in startup update check (off unless the user turned it on in Settings).
+    update_commands::spawn_startup_check(app.handle());
     if let Some(hook) = &smoke {
         arm_smoke_timeout(app.handle().clone(), Arc::clone(hook));
     }

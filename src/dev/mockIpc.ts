@@ -12,6 +12,7 @@ import { profileHandlers } from "./mocks/profiles";
 import { reviewHandlers } from "./mocks/reviews";
 import { settingsHandlers } from "./mocks/settings";
 import { shellHandlers } from "./mocks/shell";
+import { updateHandlers } from "./mocks/updates";
 import { type Args, type HandlerMap, injectedFailure, mockParams } from "./mocks/util";
 
 // Development-only. Imported from src/main.tsx behind `import.meta.env.DEV`, so a production build
@@ -32,6 +33,7 @@ export const handlers: HandlerMap = {
   ...deletionHandlers,
   ...shellHandlers,
   ...settingsHandlers,
+  ...updateHandlers,
 };
 
 const DEFAULT_LATENCY_MS = 150;
