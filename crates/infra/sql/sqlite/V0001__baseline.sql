@@ -13,13 +13,19 @@
 --   parent). timestamptz is TEXT, fixed-width RFC 3339 UTC written by Rust (string order is time
 --   order only while the width is fixed). date is TEXT `YYYY-MM-DD`. boolean is INTEGER 0 or 1.
 --   jsonb is TEXT with json_valid. bytea is BLOB. bigint and smallint are INTEGER.
--- * `lower()` is ASCII-only in SQLite, so the canonical-form CHECKs and the canonical unique
---   indexes only cover ASCII. Rust normalizes with full Unicode lowercase before every write.
+-- * `lower()` is ASCII-only in SQLite, so the canonical-form CHECKs only cover ASCII. Rust
+--   normalizes with full Unicode lowercase before every write. The case-insensitive unique indexes
+--   over free text (education, experiences, projects) sit on `*_key` columns that Rust fills with
+--   the Unicode-lowercased, trimmed value; the other `lower()` unique indexes are over columns
+--   that Rust already stores lowercase.
 -- * Rules that need a sub-query, a regular expression or serialization are not in this file.
 --   They are listed in the module documentation of the Rust adapter (`crates/infra/src/sqlite/mod.rs`)
 --   and are enforced there. Pure row-local immutability rules are triggers that RAISE(ABORT, ...).
--- * `row_version` of jobniac_generated_assets lets a transaction tell whether an asset row was
---   created in the same transaction (the "created in this transaction" admission checks).
+-- * `jobniac_generation_births` lists the classified assets that have no generation intent yet.
+--   A trigger fills it for every classified insert and another empties it with the intent insert,
+--   so the "created in this transaction" admission checks need no per-writer bookkeeping: an
+--   entry outlives its transaction only if the pre-commit birth check was skipped, and that check
+--   is registered by the reservation itself.
 
 CREATE TABLE document_blobs (
     id TEXT NOT NULL,
@@ -212,6 +218,9 @@ CREATE TABLE profile_education (
     description TEXT,
     relevant_focus TEXT,
     created_at TEXT NOT NULL,
+    institution_key TEXT,
+    degree_key TEXT,
+    field_key TEXT,
     CONSTRAINT education_pkey PRIMARY KEY (id),
     CONSTRAINT education_id_shape CHECK (length(id) = 36 AND id NOT GLOB '*[^0-9a-f-]*'),
     CONSTRAINT education_profile_id_fk FOREIGN KEY (profile_id) REFERENCES profile_profiles(id) ON DELETE CASCADE,
@@ -236,6 +245,8 @@ CREATE TABLE profile_experiences (
     description TEXT,
     display_order INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,
+    company_key TEXT,
+    title_key TEXT,
     CONSTRAINT experiences_pkey PRIMARY KEY (id),
     CONSTRAINT experiences_id_shape CHECK (length(id) = 36 AND id NOT GLOB '*[^0-9a-f-]*'),
     CONSTRAINT experiences_profile_id_fk FOREIGN KEY (profile_id) REFERENCES profile_profiles(id) ON DELETE CASCADE,
@@ -385,6 +396,7 @@ CREATE TABLE profile_projects (
     description TEXT,
     display_order INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,
+    name_key TEXT,
     CONSTRAINT projects_pkey PRIMARY KEY (id),
     CONSTRAINT projects_id_shape CHECK (length(id) = 36 AND id NOT GLOB '*[^0-9a-f-]*'),
     CONSTRAINT projects_profile_id_fk FOREIGN KEY (profile_id) REFERENCES profile_profiles(id) ON DELETE CASCADE,
@@ -817,9 +829,9 @@ CREATE INDEX reports_profile_job_created_id_idx ON match_reports (profile_id, jo
 CREATE INDEX reviews_list_created_id_idx ON match_reviews (created_at DESC, id DESC);
 CREATE INDEX reviews_report_created_id_idx ON match_reviews (report_id, created_at DESC, id DESC);
 
-CREATE UNIQUE INDEX idx_education_canonical_unique ON profile_education (profile_id, COALESCE(lower(trim(institution)), ''), COALESCE(lower(trim(degree)), ''), COALESCE(lower(trim(field)), ''), COALESCE(start_date, '0001-01-01'), COALESCE(end_date, '9999-12-31'));
+CREATE UNIQUE INDEX idx_education_canonical_unique ON profile_education (profile_id, COALESCE(institution_key, ''), COALESCE(degree_key, ''), COALESCE(field_key, ''), COALESCE(start_date, '0001-01-01'), COALESCE(end_date, '9999-12-31'));
 CREATE INDEX idx_education_profile_id ON profile_education (profile_id);
-CREATE UNIQUE INDEX idx_experiences_canonical_unique ON profile_experiences (profile_id, COALESCE(lower(trim(company)), ''), COALESCE(lower(trim(title)), ''), COALESCE(start_date, '0001-01-01'), COALESCE(end_date, '9999-12-31'));
+CREATE UNIQUE INDEX idx_experiences_canonical_unique ON profile_experiences (profile_id, COALESCE(company_key, ''), COALESCE(title_key, ''), COALESCE(start_date, '0001-01-01'), COALESCE(end_date, '9999-12-31'));
 CREATE INDEX idx_experiences_company ON profile_experiences (company);
 CREATE INDEX idx_experiences_profile_order ON profile_experiences (profile_id, display_order);
 CREATE INDEX idx_profile_contacts_profile_id ON profile_profile_contacts (profile_id);
@@ -847,7 +859,7 @@ CREATE INDEX idx_profiles_full_name ON profile_profiles (full_name);
 CREATE INDEX idx_project_technologies_normalized ON profile_project_technologies (normalized_technology);
 CREATE UNIQUE INDEX idx_project_technologies_normalized_canonical_unique ON profile_project_technologies (project_id, lower(trim(normalized_technology)));
 CREATE INDEX idx_project_technologies_project_order ON profile_project_technologies (project_id, display_order);
-CREATE UNIQUE INDEX idx_projects_canonical_unique ON profile_projects (profile_id, COALESCE(lower(trim(name)), ''), COALESCE(trim(url), ''));
+CREATE UNIQUE INDEX idx_projects_canonical_unique ON profile_projects (profile_id, COALESCE(name_key, ''), COALESCE(trim(url), ''));
 CREATE INDEX idx_projects_profile_order ON profile_projects (profile_id, display_order);
 CREATE INDEX profile_search_terms_term_prefix_idx ON profile_search_terms (term, profile_id, field_key, weight);
 CREATE INDEX profiles_list_created_id_idx ON profile_profiles (created_at DESC, id);
@@ -922,6 +934,22 @@ FOR EACH ROW WHEN NEW.generation_intent_required IS NOT OLD.generation_intent_re
     SELECT RAISE(ABORT, 'Generation birth classification is immutable');
 END;
 
+CREATE TABLE jobniac_generation_births (
+    asset_id TEXT NOT NULL,
+    CONSTRAINT generation_births_pkey PRIMARY KEY (asset_id),
+    CONSTRAINT generation_births_asset_fk FOREIGN KEY (asset_id) REFERENCES jobniac_generated_assets(asset_id) ON DELETE RESTRICT
+) STRICT;
+
+CREATE TRIGGER generation_birth_open AFTER INSERT ON jobniac_generated_assets
+FOR EACH ROW WHEN NEW.generation_intent_required = 1 BEGIN
+    INSERT INTO jobniac_generation_births (asset_id) VALUES (NEW.asset_id);
+END;
+
+CREATE TRIGGER generation_birth_close AFTER INSERT ON jobniac_generation_intents
+FOR EACH ROW BEGIN
+    DELETE FROM jobniac_generation_births WHERE asset_id = NEW.asset_id;
+END;
+
 -- The WHEN guard stops the bump from re-entering itself.
 CREATE TRIGGER generated_asset_row_version AFTER UPDATE ON jobniac_generated_assets
 FOR EACH ROW WHEN NEW.row_version = OLD.row_version BEGIN
@@ -966,4 +994,16 @@ FOR EACH ROW WHEN OLD.state <> 'PENDING' AND (
     OR NEW.lease_expires_at IS NOT OLD.lease_expires_at OR NEW.finished_at IS NOT OLD.finished_at
 ) BEGIN
     SELECT RAISE(ABORT, 'Terminal generation intent is immutable');
+END;
+
+-- Document content is permanent: a document never moves to another blob, and a blob's digest,
+-- size and bytes never change (no code path updates these columns, and a refused UPDATE leaves the row as it was).
+CREATE TRIGGER document_blob_id_immutable BEFORE UPDATE OF blob_id ON document_documents
+FOR EACH ROW BEGIN
+    SELECT RAISE(ABORT, 'Document content is immutable');
+END;
+
+CREATE TRIGGER blob_content_immutable BEFORE UPDATE OF sha256, byte_size, content ON document_blobs
+FOR EACH ROW BEGIN
+    SELECT RAISE(ABORT, 'Document content is immutable');
 END;

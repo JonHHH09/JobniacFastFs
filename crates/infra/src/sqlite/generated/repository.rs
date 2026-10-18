@@ -25,7 +25,9 @@ use uuid::Uuid;
 use super::IntentError;
 use super::assets::retire_asset;
 use super::bindings::{ASSET_COLUMNS, AssetRow};
-use super::guards::{NewAsset, generated_asset_referenced, guard_asset_insert};
+use super::guards::{
+    NewAsset, check_birth_intents, generated_asset_referenced, guard_asset_insert,
+};
 use super::intents::find_generation_intent;
 use super::run_with;
 use super::writer::run_file_phase;
@@ -136,7 +138,38 @@ pub(super) async fn reservation_content(
 
 /// Stores the document of a reservation and inserts its reserved asset, guarded against adopting
 /// existing references.
+///
+/// A classified reservation also registers [`check_birth_intents`], so the birth check cannot be
+/// forgotten by a caller.
 pub(super) fn reserve_rows(
+    tx: &mut SqliteTransaction,
+    identity: &AssetIdentity,
+    document_id: Uuid,
+    original_file_name: &str,
+    content: &[u8],
+    now: OffsetDateTime,
+    generation_intent_required: bool,
+) -> Result<(), AppError> {
+    run_with(tx, |conn| {
+        insert_reserved_rows(
+            conn,
+            identity,
+            document_id,
+            original_file_name,
+            content,
+            now,
+            generation_intent_required,
+        )
+    })?;
+    if generation_intent_required {
+        let asset_id = identity.asset_id();
+        tx.before_commit(Box::new(move |conn| check_birth_intents(conn, &[asset_id])));
+    }
+    Ok(())
+}
+
+/// The statements of [`reserve_rows`].
+fn insert_reserved_rows(
     conn: &Connection,
     identity: &AssetIdentity,
     document_id: Uuid,
@@ -295,17 +328,15 @@ impl StandaloneAssetRepository for SqliteGeneratedAssetRepository {
             .transaction::<GeneratedReservation, AppError>(
                 TransactionOptions::default(),
                 async |tx| {
-                    run_with(tx, |conn| {
-                        reserve_rows(
-                            conn,
-                            identity,
-                            document_id,
-                            original_file_name,
-                            content,
-                            now,
-                            false,
-                        )
-                    })?;
+                    reserve_rows(
+                        tx,
+                        identity,
+                        document_id,
+                        original_file_name,
+                        content,
+                        now,
+                        false,
+                    )?;
                     Ok(GeneratedReservation {
                         asset: identity.clone(),
                         document_id,

@@ -22,9 +22,11 @@
 //! | Canonical Unicode lowercase of emails, types, skills, languages, technologies | core normalization before every write; SQL checks and indexes only cover ASCII |
 //! | Five-minute pending lease | [`generated::guards::guard_intent_insert`], [`generated::guards::guard_intent_update`] |
 //! | Asset adoption, document identity, retirement, deletion, cleanup identity and retention | [`generated::guards`] (`guard_asset_insert`, `guard_retirement`, `guard_deletion`, `guard_cleanup_write`, `guard_cleanup_delete`), called by `generated` and `cleanup` |
-//! | Owned documents attach only while `ACTIVE`, keep their path and content | `guard_document_reference`, `guard_document_path_reference`, `guard_pdf_source`, `guard_document_content`, `guard_blob_content`, called by `documents`, `profiles`, `generated::profile_links` and `german` |
+//! | Owned documents attach only while `ACTIVE` and keep their path | `guard_document_reference` (PDF extraction saves in `documents`; the personal-details photo has no writer yet), `guard_document_path_reference` (`generated::profile_links`, `german`), `guard_pdf_source` (`profiles`) |
+//! | A document keeps its blob, a blob keeps its digest, size and bytes | triggers `document_blob_id_immutable`, `blob_content_immutable` (no code path updates them) |
+//! | Case-insensitive uniqueness of education, experiences and projects | `*_key` columns filled by `profiles::graph` with the Unicode-lowercased, trimmed value; the unique indexes sit on them |
 //! | Intent birth, document, lease renewal, finish window, completion proof, pending retirement | [`generated::guards::guard_intent_insert`], [`generated::guards::guard_intent_update`], [`generated::guards::guard_retirement`] |
-//! | Birth intent and abandonment retirement at commit | [`generated::guards::check_birth_intents`], [`generated::guards::check_abandoned_retirement`], pre-commit |
+//! | Birth intent and abandonment retirement at commit | `jobniac_generation_births` marker (trigger-filled, closed by the intent insert) for "born in this transaction"; [`generated::guards::check_birth_intents`], [`generated::guards::check_abandoned_retirement`], pre-commit |
 //! | Completed stand-alone outputs count as references | [`generated::guards::generated_document_referenced`] |
 //!
 //! Conventions for the writers: every instant is the fixed-width form of [`codec::instant_text`],

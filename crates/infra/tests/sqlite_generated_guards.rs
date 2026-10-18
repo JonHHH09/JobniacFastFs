@@ -11,9 +11,9 @@ use jobniac_core::generated_assets::standalone::StandaloneAssetRepository;
 use jobniac_core::generated_assets::{GenerationIntent, GenerationState};
 use jobniac_infra::sqlite::error::SqliteError;
 use jobniac_infra::sqlite::generated::guards::{
-    NewAsset, assert_generated_document_attachable, guard_asset_insert, guard_blob_content,
-    guard_cleanup_delete, guard_cleanup_write, guard_deletion, guard_document_content,
-    guard_document_path_reference, guard_intent_update, guard_pdf_source, guard_retirement,
+    NewAsset, assert_generated_document_attachable, guard_asset_insert, guard_cleanup_delete,
+    guard_cleanup_write, guard_deletion, guard_document_path_reference, guard_intent_update,
+    guard_pdf_source, guard_retirement,
 };
 use rusqlite::params;
 use sqlite_generated_support::{
@@ -216,17 +216,17 @@ async fn owned_documents_attach_only_while_active_and_keep_their_path_and_conten
         [document.to_string()],
         |row| row.get(0),
     )?;
-    assert!(is_violation(guard_document_content(
-        &conn,
-        document,
-        Uuid::parse_str(&other_blob)?
-    )));
-    assert!(guard_document_content(&conn, document, Uuid::parse_str(&own_blob)?).is_ok());
-    assert!(is_violation(guard_blob_content(
-        &conn,
-        Uuid::parse_str(&own_blob)?
-    )));
-    assert!(guard_blob_content(&conn, Uuid::parse_str(&other_blob)?).is_ok());
+    // Owned content is permanent: the baseline triggers refuse any rebinding or rewrite.
+    let rebind = conn.execute(
+        "UPDATE document_documents SET blob_id = ?2 WHERE id = ?1",
+        params![document.to_string(), other_blob],
+    );
+    assert!(rebind.is_err());
+    let rewrite = conn.execute(
+        "UPDATE document_blobs SET byte_size = byte_size WHERE id = ?1",
+        params![own_blob],
+    );
+    assert!(rewrite.is_err());
 
     // A PDF source over an extraction of the owned document needs the asset ACTIVE.
     let extraction = Uuid::new_v4();

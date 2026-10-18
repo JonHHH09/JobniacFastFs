@@ -269,18 +269,18 @@ struct IntentAsset {
     born_here: bool,
 }
 
-/// Reads the asset of an intent. `born_here` is true for a classified asset that has no intent yet
-/// and was never updated: the replacement of the `xmin = current transaction` read. Every writer
-/// registers [`check_birth_intents`], so a classified asset without an intent cannot be committed,
-/// and a committed one always has its intent. The only classified asset without an intent is
-/// therefore one inserted by the open transaction.
+/// Reads the asset of an intent. `born_here` is true for a classified asset that still has its
+/// `jobniac_generation_births` marker (a trigger adds it with the asset and drops it with the
+/// intent): the replacement of the `xmin = current transaction` read. The reservation registers
+/// [`check_birth_intents`], so a classified asset without an intent cannot be committed, and a
+/// committed one always has its intent. The only classified asset without an intent is therefore
+/// one inserted by the open transaction, whatever else the transaction did to its row.
 fn intent_asset(conn: &Connection, asset_id: Uuid) -> Result<Option<IntentAsset>, SqliteError> {
     let row = conn
         .query_row(
             "SELECT document_id, lifecycle, created_at, relative_path,
-                    generation_intent_required = 1 AND row_version = 0 AND NOT EXISTS (
-                        SELECT 1 FROM jobniac_generation_intents intent
-                        WHERE intent.asset_id = jobniac_generated_assets.asset_id) AS born_here
+                    EXISTS (SELECT 1 FROM jobniac_generation_births birth
+                            WHERE birth.asset_id = jobniac_generated_assets.asset_id) AS born_here
              FROM jobniac_generated_assets WHERE asset_id = ?1",
             params![uuid_text(asset_id)],
             |row| {
@@ -570,41 +570,4 @@ pub fn guard_pdf_source(conn: &Connection, extraction_id: Uuid) -> Result<(), Sq
         .optional()?;
     let document = document.map(|text| parse_id(&text)).transpose()?;
     assert_generated_document_attachable(conn, document)
-}
-
-/// Guard for an update of `document_documents.blob_id`: a document with an owned asset cannot be
-/// rebound to another blob.
-///
-/// # Errors
-///
-/// Fails with a check violation for an owned document whose blob would change.
-pub fn guard_document_content(
-    conn: &Connection,
-    document_id: Uuid,
-    new_blob_id: Uuid,
-) -> Result<(), SqliteError> {
-    refuse_if(exists(
-        conn,
-        "SELECT EXISTS (SELECT 1 FROM document_documents file
-                        WHERE file.id = ?1 AND file.blob_id <> ?2
-                          AND EXISTS (SELECT 1 FROM jobniac_generated_assets
-                                      WHERE document_id = file.id))",
-        params![uuid_text(document_id), uuid_text(new_blob_id)],
-    )?)
-}
-
-/// Guard for an update of the digest, size or bytes of `document_blobs`: the blob of an owned
-/// document is immutable.
-///
-/// # Errors
-///
-/// Fails with a check violation when an owned document uses the blob.
-pub fn guard_blob_content(conn: &Connection, blob_id: Uuid) -> Result<(), SqliteError> {
-    refuse_if(exists(
-        conn,
-        "SELECT EXISTS (SELECT 1 FROM jobniac_generated_assets asset
-                        JOIN document_documents file ON file.id = asset.document_id
-                        WHERE file.blob_id = ?1)",
-        params![uuid_text(blob_id)],
-    )?)
 }
