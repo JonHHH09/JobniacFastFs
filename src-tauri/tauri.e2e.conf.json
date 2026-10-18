@@ -1,0 +1,15 @@
+{
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "JobniacFast",
+        "width": 960,
+        "height": 680,
+        "minWidth": 360,
+        "minHeight": 480,
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --remote-debugging-port=0"
+      }
+    ]
+  }
+}
