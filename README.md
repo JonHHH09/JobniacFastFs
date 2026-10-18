@@ -133,14 +133,20 @@ The default tool list has 34 tools; the opt-in flags add tools (see that guide).
 Requirements: Rust (stable, or the version in `rust-toolchain.toml`), Node.js 22.12 or later, pnpm, and
 the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) for your platform.
 
+The PDFium library is not committed. Fetch the pinned, checksum-verified build into `vendor/pdfium/`
+once before the first build (`scripts/fetch-pdfium.ps1 -Platform windows-x64` on Windows); without it
+the desktop build fails with ``resource path `../vendor/pdfium/...` doesn't exist``.
+
 ```text
-pnpm install --frozen-lockfile   # install the locked UI dependencies
-pnpm tauri dev                   # run the desktop app
-pnpm build                       # type-check and build the UI
-pnpm tauri build                 # build a release bundle
+scripts/fetch-pdfium.sh linux-x64   # fetch the pinned PDFium library (Linux)
+pnpm install --frozen-lockfile      # install the locked UI dependencies
+pnpm tauri dev                      # run the desktop app
+pnpm build                          # type-check and build the UI
+pnpm tauri build                    # build a release bundle
 ```
 
-Rust checks, from the repository root (the Cargo workspace is at the root):
+Rust checks, from the repository root (the Cargo workspace is at the root). The PDF tests load PDFium
+from `JOBNIAC_PDFIUM_DIR`, so set it to the absolute path of `vendor/pdfium/<platform>` first:
 
 ```text
 cargo fmt --all --check
