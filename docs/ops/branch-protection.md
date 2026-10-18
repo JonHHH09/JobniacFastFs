@@ -27,8 +27,13 @@ issue branch ──PR (squash, auto-merge)──▶ development ──PR (merge 
 There is no bypass actor: direct pushes are blocked for everyone, including the owner.
 
 Required status checks (named as the jobs are named in the workflows): `Branch policy`, `UI`,
-`Rust (ubuntu-22.04)`, `Supply chain (cargo-deny)`, `Release tool unit tests` and
+`Rust (ubuntu-26.04)`, `Supply chain (cargo-deny)`, `Release tool unit tests` and
 `Privacy scan (working tree and history, generic classes)`.
+
+Linux jobs run on the latest Ubuntu LTS runner (`ubuntu-26.04`). The one exception is the Linux leg
+of the release build in `release.yml`, which stays on `ubuntu-24.04` because the build host sets the
+glibc floor of the AppImage and deb. When the runner moves to a new LTS, the `Rust (ubuntu-...)`
+check is renamed, so update the required check in both rulesets in the same change.
 
 `Rust (windows-latest)` and `E2E (...)` are not required checks: they do not run on pull requests
 into `development`. `E2E (windows-latest)` still fails on `main`. The end-to-end suite is a release

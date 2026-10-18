@@ -81,7 +81,7 @@ reads the page text and every attribute value. The suite refuses any database ho
 
 ## CI
 
-`.github/workflows/e2e.yml` runs the same steps on `windows-latest` and `ubuntu-24.04`. The Windows job
+`.github/workflows/e2e.yml` runs the same steps on `windows-latest` and `ubuntu-26.04`. The Windows job
 installs `msedgedriver` from the Microsoft endpoint for the runner's WebView2 version and checks its
 Authenticode signature. The Linux job installs `webkit2gtk-driver` and `xvfb`, and PostgreSQL 18 through
 `scripts/ci/install-postgresql-18.sh`. Neither job has been run: the GitHub Actions runners are not

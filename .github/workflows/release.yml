@@ -64,7 +64,7 @@ jobs:
   # 2. Read-only: checks out MERGE_SHA, asserts HEAD and resolves the version intent.
   prepare:
     needs: [checks, e2e]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     permissions:
       contents: read
@@ -90,7 +90,7 @@ jobs:
   # 3. The only write step that creates the draft. The build legs attach to it by ID.
   draft:
     needs: prepare
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     permissions:
       contents: write
@@ -125,6 +125,8 @@ jobs:
             platform: windows-x64
             bundles: nsis
             library: pdfium.dll
+          # Not the latest LTS like the other jobs: the build host sets the glibc floor of the
+          # AppImage and deb, so 24.04 keeps them running on Ubuntu 24.04 and newer.
           - os: ubuntu-24.04
             platform: linux-x64
             bundles: appimage,deb
@@ -319,7 +321,7 @@ jobs:
   # 6. Verifies the legs, assembles the exact asset set, writes SHA256SUMS and attaches what the draft lacks.
   attach:
     needs: [prepare, draft, build, clean-machine]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     permissions:
       contents: write
@@ -359,7 +361,7 @@ jobs:
   attest:
     needs: [attach]
     if: github.event.repository.visibility == 'public'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     permissions:
       contents: read
@@ -377,7 +379,7 @@ jobs:
   # 8. Final API check of the draft: tag peel, flags, target commit, exact asset set and digests.
   verify-draft:
     needs: [prepare, attach]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:
       contents: write

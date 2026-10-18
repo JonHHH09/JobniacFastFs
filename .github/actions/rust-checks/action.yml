@@ -1,7 +1,7 @@
 name: Rust checks
 description: >-
   Builds the UI, fetches PDFium and runs format, clippy and the tests of the Rust workspace. Shared by
-  the `Rust (ubuntu-22.04)` and `Rust (windows-latest)` jobs of ci.yml. The caller checks out first.
+  the `Rust (ubuntu-26.04)` and `Rust (windows-latest)` jobs of ci.yml. The caller checks out first.
 
 runs:
   using: composite

@@ -45,7 +45,7 @@ env:
 jobs:
   changes:
     name: Changes
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     permissions:
       contents: read
@@ -77,11 +77,11 @@ jobs:
         run: bash scripts/ci/gate.sh e2e
 
   e2e-linux:
-    name: E2E (ubuntu-24.04)
+    name: E2E (ubuntu-26.04)
     needs: changes
     # Fail open: when the gate itself did not succeed, run (a skipped required check counts as passed).
     if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.app == 'true') }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -91,7 +91,7 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/e2e-suite
         with:
-          platform: ubuntu-24.04
+          platform: ubuntu-26.04
 
   e2e-windows:
     name: E2E (windows-latest)
@@ -128,7 +128,7 @@ jobs:
       && needs.changes.outputs.already-passed != 'true'
       && needs.e2e-linux.result == 'success'
       && needs.e2e-windows.result == 'success' }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     steps:
       - name: Write the marker file

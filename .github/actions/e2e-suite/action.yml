@@ -1,7 +1,7 @@
 name: End-to-end suite
 description: >-
   Builds the debug desktop application and runs the WebDriver suite (e2e/README.md) over a disposable
-  PostgreSQL 18 cluster. Shared by the `E2E (ubuntu-24.04)` and `E2E (windows-latest)` jobs of e2e.yml.
+  PostgreSQL 18 cluster. Shared by the `E2E (ubuntu-26.04)` and `E2E (windows-latest)` jobs of e2e.yml.
   The caller checks out first.
 
 inputs:
