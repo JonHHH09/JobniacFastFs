@@ -30,7 +30,7 @@
 //!   `Ok`, inside the current transaction.
 //! * [`SqliteTransaction::before_commit`] registers a check that runs on the transaction's
 //!   connection just before `COMMIT`, in registration order. It replaces the deferred PostgreSQL
-//!   constraint triggers (see `RULES_TO_PORT.md`). A failing check rolls the scope back.
+//!   constraint triggers (see the rules list in the [`crate::sqlite`] docs). A failing check rolls the scope back.
 //!
 //! # Repository pattern
 //!
