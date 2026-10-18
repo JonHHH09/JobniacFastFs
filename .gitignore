@@ -33,9 +33,13 @@ coverage
 *.key
 *.pfx
 *.p12
-.claude/settings.local.json
-.claude/worktrees/
 .remember/
+
+# Claude Code project configuration, instructions and local skills (kept per machine, never committed)
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+.mcp.json
 
 # Editor directories and files
 .vscode/*
