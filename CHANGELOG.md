@@ -49,9 +49,10 @@ drafts take the body of their version section from this file.
 - `JOBNIAC_DB_PATH`: absolute path of the SQLite database file. Without it the file is
   `%LOCALAPPDATA%\Jobniac\data\jobniac.sqlite3` on Windows and
   `$XDG_DATA_HOME/jobniac/data/jobniac.sqlite3` (or `~/.local/share/jobniac/data/jobniac.sqlite3`) on
-  Linux. The app and `jobniac-cli` create the folder owner-only and bring the schema up to date when
-  they start.
-- MCP: the `store_profile_pdf` tool description now says the PDF is stored "in the local database".
+  Linux. The app and `jobniac-cli` create the folder owner-only (on Unix the database file is `0600`
+  too) and bring the schema up to date when they start. The MCP server that the app starts receives the
+  database file the app opened as `JOBNIAC_DB_PATH`, so it finds the default location too.
+- MCP: the `store_document_file` tool description now says the PDF is stored "in the local database".
   Tool names, arguments and results are unchanged.
 - Linux worker children (PDF extraction and rendering, link and Arbeitnow fetches) now confine themselves
   with Landlock and seccomp: no file system access (render may read the system fonts), no sockets for PDF
