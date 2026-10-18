@@ -3,10 +3,15 @@ name: End-to-end
 # WebDriver suite of the desktop workflows (e2e/README.md). It runs the debug desktop build through
 # tauri-driver on Windows (msedgedriver matching the WebView2 runtime) and Linux (WebKitWebDriver
 # under xvfb), over a disposable PostgreSQL 18 cluster started by pg-run.
+#
+# Cost control, as in ci.yml: the `changes` job path-filters pull requests and skips everything for a
+# tree that already passed on a push to development or main; the Windows job runs on pushes and manual
+# runs, not on pull requests; `mark-passed` records a fully green push run. The two platform jobs are
+# plain jobs with literal names (a skipped matrix job would report an unexpanded name).
 
 on:
   push:
-    branches: [main]
+    branches: [main, development]
   pull_request:
   workflow_dispatch:
 
@@ -19,114 +24,87 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
+  # Faster compile and link; backtraces keep function names, only line numbers are dropped.
+  CARGO_INCREMENTAL: 0
+  CARGO_PROFILE_DEV_DEBUG: 0
+  CARGO_PROFILE_TEST_DEBUG: 0
 
 jobs:
-  e2e:
-    name: E2E (${{ matrix.platform }})
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [windows-latest, ubuntu-24.04]
-    runs-on: ${{ matrix.platform }}
+  changes:
+    name: Changes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      # Reads the Actions cache list for the passed marker (scripts/ci/gate.sh).
+      actions: read
+    outputs:
+      tree: ${{ steps.gate.outputs.tree }}
+      already-passed: ${{ steps.gate.outputs.already-passed }}
+      app: ${{ steps.gate.outputs.app }}
+      windows: ${{ steps.gate.outputs.windows }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # A pull request checks out the merge commit; depth 2 reaches its first parent (the base).
+          fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 1 }}
+          persist-credentials: false
+      - name: Decide which jobs run
+        id: gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: bash scripts/ci/gate.sh e2e
+
+  e2e-linux:
+    name: E2E (ubuntu-24.04)
+    needs: changes
+    # Fail open: when the gate itself did not succeed, run (a skipped required check counts as passed).
+    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.app == 'true') }}
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-
-      - name: Install Linux system dependencies (Tauri, WebKitWebDriver, xvfb)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf webkit2gtk-driver xvfb
-
-      - name: Install PostgreSQL 18 (Linux, signing key fingerprint pinned)
-        if: runner.os == 'Linux'
-        run: bash scripts/ci/install-postgresql-18.sh
-
-      - name: Install PostgreSQL 18 (Windows, only when the runner image lacks it)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          if (-not (Test-Path -LiteralPath 'C:\Program Files\PostgreSQL\18\bin\pg_ctl.exe' -PathType Leaf)) {
-            choco install postgresql18 --yes --no-progress
-          }
-          $service = Get-Service -Name 'postgresql-x64-18' -ErrorAction SilentlyContinue
-          if ($service) { Stop-Service -Name 'postgresql-x64-18' -Force }
-          if (-not (Test-Path -LiteralPath 'C:\Program Files\PostgreSQL\18\bin\postgres.exe' -PathType Leaf)) { throw 'PostgreSQL 18 binaries were not found' }
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+      - uses: ./.github/actions/e2e-suite
         with:
-          node-version: 24
+          platform: ubuntu-24.04
 
-      - name: Install pnpm (version from package.json packageManager)
-        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249 # stable branch at the pinned commit
+  e2e-windows:
+    name: E2E (windows-latest)
+    needs: changes
+    # Not on pull requests: the gate turns `windows` off for them (a failed gate runs it anyway).
+    if: ${{ !cancelled() && (needs.changes.result != 'success' || (needs.changes.outputs.windows == 'true' && needs.changes.outputs.app == 'true')) }}
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          toolchain: stable
-      - uses: swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+          persist-credentials: false
+      - uses: ./.github/actions/e2e-suite
+        with:
+          platform: windows-latest
 
-      - name: Fetch the pinned PDFium library (Linux)
-        if: runner.os == 'Linux'
-        run: bash scripts/fetch-pdfium.sh linux-x64
-
-      - name: Fetch the pinned PDFium library (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: ./scripts/fetch-pdfium.ps1 -Platform windows-x64
-
-      - name: Build the debug desktop application (no bundle)
-        run: pnpm tauri build --debug --no-bundle
-
-      - name: Build the console binary and pg-run
-        run: cargo build --locked -p jobniac-cli -p jobniac-testkit --bins
-
-      - name: Install tauri-driver
-        run: cargo install tauri-driver --locked
-
-      - name: Fetch the Microsoft Edge WebDriver matching the WebView2 runtime (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          $key = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}'
-          $version = (Get-ItemProperty -Path $key -Name pv -ErrorAction Stop).pv
-          if (-not ($version -match '^\d+(\.\d+){3}$')) { throw 'the WebView2 runtime version is not readable' }
-          $dir = Join-Path $env:RUNNER_TEMP 'msedgedriver'
-          New-Item -ItemType Directory -Force -Path $dir | Out-Null
-          $zip = Join-Path $dir 'edgedriver_win64.zip'
-          Invoke-WebRequest -Uri "https://msedgedriver.microsoft.com/$version/edgedriver_win64.zip" -OutFile $zip -UseBasicParsing
-          Expand-Archive -LiteralPath $zip -DestinationPath $dir -Force
-          $driver = Join-Path $dir 'msedgedriver.exe'
-          $signature = Get-AuthenticodeSignature -FilePath $driver
-          if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch 'Microsoft Corporation') {
-            throw 'msedgedriver.exe is not validly signed by Microsoft'
-          }
-          $installed = (& $driver --version) -replace '^.*?(\d+(\.\d+){3}).*$', '$1'
-          if ($installed -ne $version) { throw "msedgedriver $installed does not match the WebView2 runtime $version" }
-          $dir | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
-
-      - name: Run the end-to-end suite (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
+  # Records that this tree passed both platforms. Saved on pushes only, so the cache is scoped to
+  # development or main, which is what the gate trusts. `success()` is false when a needed job was
+  # skipped, so a marker always means that both jobs ran and passed.
+  mark-passed:
+    name: Mark tree as passed
+    needs: [changes, e2e-linux, e2e-windows]
+    if: >-
+      ${{ success() && github.event_name == 'push'
+      && needs.changes.outputs.already-passed != 'true'
+      && needs.e2e-linux.result == 'success'
+      && needs.e2e-windows.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Write the marker file
         env:
-          JOBNIAC_POSTGRES_BIN: C:\Program Files\PostgreSQL\18\bin
-        run: ./target/debug/pg-run.exe node e2e/run.mjs
-
-      - name: Run the end-to-end suite (Linux, under xvfb)
-        if: runner.os == 'Linux'
-        env:
-          JOBNIAC_POSTGRES_BIN: /usr/lib/postgresql/18/bin
-        run: xvfb-run --auto-servernum ./target/debug/pg-run node e2e/run.mjs
-
-      - name: Upload failure screenshots
-        if: failure()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+          TREE: ${{ needs.changes.outputs.tree }}
+        run: echo "$TREE" > passed-marker
+      - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
-          name: e2e-screenshots-${{ matrix.platform }}
-          path: e2e/.artifacts/
-          if-no-files-found: ignore
-          retention-days: 7
+          path: passed-marker
+          key: e2e-passed-${{ needs.changes.outputs.tree }}
