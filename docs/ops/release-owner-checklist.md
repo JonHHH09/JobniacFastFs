@@ -53,14 +53,12 @@ hosted runner yet.
   checklist.
 - **Updater signing key (separate from the Windows code-signing route above).** The in-app updater
   refuses any update that is not signed with this key, and the release stops until it is in place.
-  One-time steps, by the owner:
-  1. `pnpm tauri signer generate -w <path outside the repository>` (set a password).
-  2. Commit the public key (the base64 content of the `.pub` file) as `plugins.updater.pubkey` in
-     `src-tauri/tauri.release.conf.json`. `release.py` refuses the placeholder
-     `REPLACE_WITH_UPDATER_PUBLIC_KEY`, which stays useful for forks.
-  3. Add the repository secrets `TAURI_SIGNING_PRIVATE_KEY` (the private key content) and
-     `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Only the tauri-action step of the build reads them.
-  4. Keep an offline backup of the private key. Losing it means installed copies can never update again.
+  **Done:** the public key is committed as `plugins.updater.pubkey` in
+  `src-tauri/tauri.release.conf.json`, and the repository secrets `TAURI_SIGNING_PRIVATE_KEY` and
+  `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` are set; only the tauri-action step of the build reads them.
+  `release.py` still refuses the placeholder `REPLACE_WITH_UPDATER_PUBLIC_KEY`, which matters for forks
+  (they generate their own key with `pnpm tauri signer generate -w <path outside the repository>`).
+  Keep an offline backup of the private key: losing it means installed copies can never update again.
 - **Each route is its own pull request with its own gate.** The route is not chosen by this checklist.
 - **Failure:** no route decided. Keep the release unsigned and say so in the release notes.
 

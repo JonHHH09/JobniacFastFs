@@ -187,9 +187,12 @@ class VersionBump(unittest.TestCase):
             self.assertEqual(seen, [["cargo", "update", "--workspace"]])
 
     def test_the_command_line_bumps_and_names_the_cargo_step(self) -> None:
-        self.assertEqual(
-            release.main(["bump", "0.3.0", "--repo-root", str(self.repo.root), "--date", "2026-03-04", "--no-cargo"]), 0
-        )
+        with contextlib.redirect_stdout(io.StringIO()) as captured:
+            status = release.main(
+                ["bump", "0.3.0", "--repo-root", str(self.repo.root), "--date", "2026-03-04", "--no-cargo"]
+            )
+        self.assertEqual(status, 0)
+        self.assertIn("cargo update", captured.getvalue())
         self.assertEqual(release.resolve_version(self.repo.root).version, "0.3.0")
 
 
@@ -224,7 +227,9 @@ class CheckVersions(unittest.TestCase):
     def test_the_command_line_reports_a_failure_with_status_one(self) -> None:
         repo = FakeRepo(changelog="## [Unreleased]\n")
         self.addCleanup(repo.cleanup)
-        self.assertEqual(release.main(["check-versions", "--repo-root", str(repo.root)]), 1)
+        with contextlib.redirect_stderr(io.StringIO()) as captured:
+            self.assertEqual(release.main(["check-versions", "--repo-root", str(repo.root)]), 1)
+        self.assertIn("FAIL:", captured.getvalue())
 
 
 class UpdaterConfigGate(unittest.TestCase):
@@ -471,7 +476,7 @@ class DraftVerification(unittest.TestCase):
         def entry(name: str) -> dict[str, str]:
             return {
                 "signature": (self.assets / f"{name}.sig").read_text(encoding="utf-8"),
-                "url": f"https://github.com/owner/repo/releases/download/v{self.VERSION}/{name}",
+                "url": f"{release.RELEASE_DOWNLOAD_BASE}/v{self.VERSION}/{name}",
             }
 
         windows = entry(f"JobniacFast_{self.VERSION}_x64-setup.exe")
@@ -580,6 +585,47 @@ class DraftVerification(unittest.TestCase):
             self.latest.write_text(json.dumps(variant), encoding="utf-8")
             with self.assertRaises(release.ReleaseError):
                 self.verify(self.release_payload())
+
+    def test_a_latest_json_url_outside_this_repos_release_prefix_fails(self) -> None:
+        bad = self.manifest()
+        name = f"JobniacFast_{self.VERSION}_x64-setup.exe"
+        bad["platforms"]["windows-x86_64"]["url"] = (  # type: ignore[index]
+            f"https://github.com/other/repo/releases/download/v{self.VERSION}/{name}"
+        )
+        self.latest.write_text(json.dumps(bad), encoding="utf-8")
+        with self.assertRaises(release.ReleaseError):
+            self.verify(self.release_payload())
+
+    def test_the_generated_manifest_passes_verification_and_has_the_static_format(self) -> None:
+        for name in release.updater_installers(self.VERSION).values():
+            (self.assets / name).write_bytes(b"x")
+        built = release.build_updater_manifest(self.assets, self.VERSION, "notes", "2026-01-02T03:04:05Z")
+        self.assertEqual(set(built), {"version", "notes", "pub_date", "platforms"})
+        self.assertEqual(set(built["platforms"]), set(release.UPDATER_PLATFORMS))  # type: ignore[arg-type]
+        self.latest.write_text(json.dumps(built), encoding="utf-8")
+        self.verify(self.release_payload())
+
+    def test_the_manifest_needs_the_installers_and_signatures(self) -> None:
+        with self.assertRaises(release.ReleaseError):
+            release.build_updater_manifest(self.tmp, self.VERSION, "n", "2026-01-02T03:04:05Z")
+
+    def test_the_updater_manifest_command_writes_latest_json(self) -> None:
+        repo_version = release.resolve_version(REPO_ROOT).version
+        assets = self.tmp / "repo-version-assets"
+        assets.mkdir()
+        for name in release.updater_installers(repo_version).values():
+            (assets / name).write_bytes(b"x")
+            (assets / f"{name}.sig").write_text("sig", encoding="utf-8")
+        out = self.tmp / "out" / "latest.json"
+        with contextlib.redirect_stdout(io.StringIO()):
+            status = release.main([
+                "updater-manifest", "--dir", str(assets), "--out", str(out),
+                "--pub-date", "2026-01-02T03:04:05Z",
+            ])
+        self.assertEqual(status, 0)
+        data = json.loads(out.read_text(encoding="utf-8"))
+        self.assertEqual(data["version"], repo_version)
+        self.assertTrue(data["notes"])
 
     def test_a_missing_tag_is_fine_for_a_draft(self) -> None:
         routes: dict[tuple[str, str], tuple[int, object]] = {
@@ -860,7 +906,9 @@ class BundleConfig(unittest.TestCase):
 
     def test_release_workflow_signs_and_writes_the_updater_manifest(self) -> None:
         text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
-        self.assertIn("includeUpdaterJson: true", text)
+        # latest.json comes from the `attach` job; two build legs would race to merge it.
+        self.assertIn("includeUpdaterJson: false", text)
+        self.assertIn("release.py updater-manifest", text)
         for name in ("TAURI_SIGNING_PRIVATE_KEY", "TAURI_SIGNING_PRIVATE_KEY_PASSWORD"):
             self.assertIn(f"{name}: ${{{{ secrets.{name} }}}}", text)
 

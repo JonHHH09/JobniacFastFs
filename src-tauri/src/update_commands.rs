@@ -40,6 +40,14 @@ pub const UPDATE_INSTALL_FAILED: &str = "update.installFailed";
 /// Message id of an install request on a copy that a package manager owns (`.deb`).
 pub const UPDATE_MANAGED_BY_PACKAGE: &str = "update.managedByPackage";
 
+/// Message id of an install whose confirmed version is no longer the one announced.
+pub const UPDATE_VERSION_CHANGED: &str = "update.versionChanged";
+
+/// Whether the version the user confirmed is the one the endpoint announces now.
+fn is_confirmed_version(confirmed: &str, announced: &str) -> bool {
+    !confirmed.is_empty() && confirmed == announced
+}
+
 /// The key of the updater section in `plugins` of the Tauri configuration.
 const UPDATER_PLUGIN_KEY: &str = "updater";
 
@@ -124,14 +132,16 @@ pub async fn check_for_update(app: AppHandle) -> Result<UpdateCheckDto, CommandE
 }
 
 /// Downloads the newer version, verifies its signature against the public key of the build,
-/// installs it and restarts the app. A copy installed from a `.deb` is refused. On success the
-/// process restarts, so the call does not return; any failure leaves the installed version as it
-/// was.
+/// installs it and restarts the app. `version` is the version the user confirmed: when the endpoint
+/// now announces another one, nothing is installed and the answer is `update.versionChanged` (the
+/// screen checks again). A copy installed from a `.deb` is refused. On success the process restarts,
+/// so the call does not return; any failure leaves the installed version as it was.
 #[tauri::command]
 #[specta::specta]
 pub async fn install_update(
     app: AppHandle,
     state: State<'_, AppState>,
+    version: String,
 ) -> Result<(), CommandError> {
     if !updater_configured(&app.config().plugins) {
         return Err(unavailable());
@@ -153,6 +163,9 @@ pub async fn install_update(
         .await
         .map_err(|_| check_failed())?
         .ok_or_else(install_failed)?;
+    if !is_confirmed_version(&version, &update.version) {
+        return Err(CommandError::new("conflict", UPDATE_VERSION_CHANGED));
+    }
     update
         .download_and_install(|_, _| {}, || {})
         .await
@@ -272,6 +285,13 @@ mod tests {
             InstallKindDto::Installer
         );
         assert_eq!(install_kind(false, None), InstallKindDto::Installer);
+    }
+
+    #[test]
+    fn only_the_confirmed_version_may_be_installed() {
+        assert!(is_confirmed_version("1.2.3", "1.2.3"));
+        assert!(!is_confirmed_version("1.2.3", "1.2.4"));
+        assert!(!is_confirmed_version("", ""));
     }
 
     #[test]

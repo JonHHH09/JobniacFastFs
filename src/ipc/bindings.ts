@@ -255,11 +255,12 @@ export const commands = {
 	checkForUpdate: () => typedError<UpdateCheckDto, CommandError>(__TAURI_INVOKE("check_for_update")),
 	/**
 	 *  Downloads the newer version, verifies its signature against the public key of the build,
-	 *  installs it and restarts the app. A copy installed from a `.deb` is refused. On success the
-	 *  process restarts, so the call does not return; any failure leaves the installed version as it
-	 *  was.
+	 *  installs it and restarts the app. `version` is the version the user confirmed: when the endpoint
+	 *  now announces another one, nothing is installed and the answer is `update.versionChanged` (the
+	 *  screen checks again). A copy installed from a `.deb` is refused. On success the process restarts,
+	 *  so the call does not return; any failure leaves the installed version as it was.
 	 */
-	installUpdate: () => typedError<null, CommandError>(__TAURI_INVOKE("install_update")),
+	installUpdate: (version: string) => typedError<null, CommandError>(__TAURI_INVOKE("install_update", { version })),
 	/**  Reads the auto-check switch, whether this build can update, and the startup check result. */
 	updateSettingsGet: () => typedError<UpdateSettingsDto, CommandError>(__TAURI_INVOKE("update_settings_get")),
 	/**  Turns the startup check on or off and saves the switch. It makes no request itself. */

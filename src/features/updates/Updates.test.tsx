@@ -7,8 +7,13 @@ import type { InstallKindDto, UpdateCheckDto, UpdateSettingsDto } from "../../ip
 import { UpdateBanner } from "./UpdateBanner";
 import { UpdatesCard } from "./UpdatesCard";
 
+const bridge = vi.hoisted(() => ({ listening: false }));
+
 vi.mock("@tauri-apps/api/event", () => ({
-  listen: () => Promise.resolve(() => undefined),
+  listen: () => {
+    bridge.listening = true;
+    return Promise.resolve(() => undefined);
+  },
 }));
 
 function settings(over: Partial<UpdateSettingsDto> = {}): UpdateSettingsDto {
@@ -100,6 +105,52 @@ describe("updates", () => {
     expect(calls(invoke, "install_update")).toHaveLength(0);
     await userEvent.click(await screen.findByTestId("updateInstallConfirm"));
     await waitFor(() => expect(calls(invoke, "install_update")).toHaveLength(1));
+  });
+
+  it("sends the confirmed version and locks both install buttons while it runs", async () => {
+    let finish: (value: unknown) => void = () => undefined;
+    const invoke = mockUpdates(settings({ pending: found() }), {
+      install_update: () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    });
+    renderUi();
+    await screen.findByTestId("updateBanner");
+    await userEvent.click(screen.getAllByTestId("updateInstallButton")[0] as HTMLElement);
+    await userEvent.click(await screen.findByTestId("updateInstallConfirm"));
+    await waitFor(() => expect(calls(invoke, "install_update")).toHaveLength(1));
+    expect(calls(invoke, "install_update")[0]?.[1]).toEqual({ version: "9.9.9" });
+    for (const button of screen.getAllByTestId("updateInstallButton")) {
+      expect(button).toBeDisabled();
+    }
+    finish(null);
+  });
+
+  it("checks again when another version was published meanwhile", async () => {
+    const invoke = mockUpdates(settings({ pending: found() }), {
+      install_update: () => {
+        throw { code: "conflict", messageId: "update.versionChanged" };
+      },
+      check_for_update: () => ({ ...found(), version: "9.9.10" }),
+    });
+    renderUi();
+    await screen.findByTestId("updateBanner");
+    await userEvent.click(screen.getAllByTestId("updateInstallButton")[0] as HTMLElement);
+    await userEvent.click(await screen.findByTestId("updateInstallConfirm"));
+    await waitFor(() => expect(calls(invoke, "check_for_update")).toHaveLength(1));
+    expect(await screen.findByTestId("updateBanner")).toHaveTextContent("v9.9.10");
+  });
+
+  it("reads the update state again once the event listener is in place", async () => {
+    // The startup check finishes just as the listener is registered: a read made before the listener
+    // exists misses it, a read made after it has the result.
+    bridge.listening = false;
+    mockUpdates(settings(), {
+      update_settings_get: () => (bridge.listening ? settings({ pending: found() }) : settings()),
+    });
+    renderUi();
+    expect(await screen.findByTestId("updateBanner")).toHaveTextContent("v9.9.9");
   });
 
   it("cancelling the confirmation installs nothing", async () => {

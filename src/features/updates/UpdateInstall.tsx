@@ -21,7 +21,7 @@ import { RELEASES_URL, useUpdates } from "./useUpdates";
  * the install for a package copy as well; the UI only hides the button.
  */
 export function UpdateInstall({ update }: { update: UpdateCheckDto }) {
-  const { install } = useUpdates();
+  const { install, installing, installError } = useUpdates();
   const [confirming, setConfirming] = useState(false);
   const cancelRef = useRef<HTMLButtonElement>(null);
 
@@ -44,10 +44,11 @@ export function UpdateInstall({ update }: { update: UpdateCheckDto }) {
     );
   }
 
+  // A busy refusal carries no copy (the buttons are locked meanwhile), like the Settings card.
   const failure =
-    install.error && !install.isPending
+    installError && installError.code !== "busy"
       ? formatMessage(
-          isMessageId(install.error.messageId) ? install.error.messageId : "update.installFailed",
+          isMessageId(installError.messageId) ? installError.messageId : "update.installFailed",
         )
       : null;
 
@@ -56,11 +57,11 @@ export function UpdateInstall({ update }: { update: UpdateCheckDto }) {
       <Button
         type="button"
         data-testid="updateInstallButton"
-        disabled={install.isPending}
+        disabled={installing}
         onClick={() => setConfirming(true)}
       >
-        {install.isPending ? <Spinner className="size-3 border-[1.5px]" /> : null}
-        {install.isPending ? copy.updates.installing : copy.updates.installButton}
+        {installing ? <Spinner className="size-3 border-[1.5px]" /> : null}
+        {installing ? copy.updates.installing : copy.updates.installButton}
       </Button>
       {failure ? <StatusMessage tone="error">{failure}</StatusMessage> : null}
       <AlertDialog open={confirming} onOpenChange={setConfirming}>
@@ -89,7 +90,9 @@ export function UpdateInstall({ update }: { update: UpdateCheckDto }) {
               data-testid="updateInstallConfirm"
               onClick={() => {
                 setConfirming(false);
-                install.mutate();
+                if (update.version) {
+                  install.mutate(update.version);
+                }
               }}
             >
               {copy.updates.dialogConfirm}

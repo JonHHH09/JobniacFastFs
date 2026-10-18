@@ -781,6 +781,8 @@ export const messages = {
   "update.unavailable": "Updates are unavailable in this build.",
   "update.checkFailed": "Unable to check for updates. Check your connection and try again.",
   "update.installFailed": "The update could not be installed. The installed version is unchanged.",
+  "update.versionChanged":
+    "A different version was published meanwhile. The update information was refreshed; review it and try again.",
   "update.managedByPackage":
     "This copy was installed from a package and cannot update itself. Use the releases page.",
 } as const;
