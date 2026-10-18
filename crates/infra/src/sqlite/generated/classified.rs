@@ -31,7 +31,6 @@ use uuid::Uuid;
 use super::IntentError;
 use super::assets::retire_asset;
 use super::bindings::AssetRow;
-use super::guards::check_birth_intents;
 use super::intents::{
     abandon_generation_intent, admit_generation_claim, complete_generation_intent,
     find_generation_intent, insert_generation_intent, renew_generation_intent,
@@ -86,20 +85,16 @@ impl GeneratedAssetRepository for SqliteGeneratedAssetRepository {
         };
         self.uow
             .transaction::<IntentReservation, AppError>(TransactionOptions::default(), async |tx| {
-                run_with(tx, |conn| {
-                    reserve_rows(
-                        conn,
-                        identity,
-                        document_id,
-                        original_file_name,
-                        content,
-                        now,
-                        true,
-                    )
-                })?;
-                // A classified birth must carry its intent when the transaction commits.
-                let asset_id = identity.asset_id();
-                tx.before_commit(Box::new(move |conn| check_birth_intents(conn, &[asset_id])));
+                // The reservation registers the pre-commit birth check of a classified asset.
+                reserve_rows(
+                    tx,
+                    identity,
+                    document_id,
+                    original_file_name,
+                    content,
+                    now,
+                    true,
+                )?;
                 insert_generation_intent(tx, &reservation, descriptor, lease_token, now)
                     .await
                     .map_err(app)

@@ -112,10 +112,18 @@ fn count(fixture: &Fixture, table: &str) -> Result<i64, Box<dyn std::error::Erro
 /// Replaces the bytes of every stored blob without changing its size, so the digest no longer
 /// matches while every table constraint still holds.
 fn corrupt_blob_bytes(fixture: &Fixture) -> TestResult {
-    fixture.database.connection().execute(
+    let connection = fixture.database.connection();
+    allow_blob_rewrite(&connection)?;
+    connection.execute(
         "UPDATE document_blobs SET content = zeroblob(byte_size)",
         [],
     )?;
+    Ok(())
+}
+
+/// Drops the immutability trigger so a test can simulate corruption outside the application.
+fn allow_blob_rewrite(connection: &rusqlite::Connection) -> TestResult {
+    connection.execute("DROP TRIGGER blob_content_immutable", [])?;
     Ok(())
 }
 
@@ -156,7 +164,9 @@ async fn a_blob_with_extra_bytes_reads_as_unavailable() -> TestResult {
         .await?;
     // The blob's own CHECK keeps byte_size equal to length(content), so both change together
     // and the digest recorded at import no longer matches the bytes.
-    fixture.database.connection().execute(
+    let connection = fixture.database.connection();
+    allow_blob_rewrite(&connection)?;
+    connection.execute(
         "UPDATE document_blobs SET content = CAST(content || 'A' AS BLOB), \
          byte_size = byte_size + 1",
         [],

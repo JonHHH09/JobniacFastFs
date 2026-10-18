@@ -17,15 +17,14 @@ use crate::sqlite::unit_of_work::SqliteTransaction;
 
 /// Columns of a generated asset row read for admission.
 ///
-/// `current_transaction` is true for a classified asset that has no intent yet and was never
-/// updated, which only the transaction that inserted it can observe (see
-/// [`super::guards`]); `row_version` carries it.
+/// `current_transaction` is true for a classified asset that has no intent yet, which only the
+/// transaction that inserted it can observe (see [`super::guards`]); the
+/// `jobniac_generation_births` marker carries it.
 pub const ASSET_COLUMNS: &str = "asset_id, root_id, relative_path, sha256, size_bytes, \
     document_id, lifecycle, created_at, materialized_at IS NOT NULL AS materialized, \
     generation_intent_required, \
-    (generation_intent_required = 1 AND row_version = 0 AND NOT EXISTS ( \
-        SELECT 1 FROM jobniac_generation_intents intent \
-        WHERE intent.asset_id = jobniac_generated_assets.asset_id)) AS current_transaction";
+    EXISTS (SELECT 1 FROM jobniac_generation_births birth \
+        WHERE birth.asset_id = jobniac_generated_assets.asset_id) AS current_transaction";
 
 /// A generated asset row as admission reads it.
 #[derive(Debug, Clone, PartialEq, Eq)]

@@ -103,8 +103,8 @@ fn the_baseline_loads_every_table_as_strict() -> TestResult {
             Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?))
         })?
         .collect::<Result<Vec<_>, _>>()?;
-    // 37 baseline tables plus the migration history.
-    assert_eq!(tables.len(), 38, "{tables:?}");
+    // 38 baseline tables plus the migration history.
+    assert_eq!(tables.len(), 39, "{tables:?}");
     for (name, strict) in &tables {
         assert_eq!(*strict, 1, "{name} is STRICT");
     }
@@ -305,11 +305,12 @@ fn check_constraints_reject_malformed_values() -> TestResult {
 fn canonical_unique_indexes_cover_nulls_and_case() -> TestResult {
     let (_directory, _path, connection) = migrated()?;
     insert_profile(&connection, PROFILE, "a@example.test")?;
+    // Rust fills the Unicode key; the index covers the key, not `lower()`.
     let add_experience = |id: &str, company: Option<&str>| {
         connection.execute(
-            "INSERT INTO profile_experiences (id, profile_id, company, title, created_at) \
-             VALUES (?1, ?2, ?3, 'Dev', ?4)",
-            rusqlite::params![id, PROFILE, company, TS],
+            "INSERT INTO profile_experiences (id, profile_id, company, title, created_at, \
+             company_key, title_key) VALUES (?1, ?2, ?3, 'Dev', ?4, ?5, 'dev')",
+            rusqlite::params![id, PROFILE, company, TS, company.map(str::to_lowercase)],
         )
     };
     add_experience("00000000-0000-0000-0000-000000000011", None)?;

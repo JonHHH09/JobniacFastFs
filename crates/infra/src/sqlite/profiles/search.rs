@@ -6,8 +6,9 @@
 //! the core turns into a null total.
 //!
 //! Query shape: the query tokens and prefixes arrive as JSON arrays read
-//! with `json_each`; the per-token `LATERAL` samples are one `row_number()` window per token over
-//! the same `(term, profile_id, field_key)` order; `array_agg(.. ORDER BY ..)` is
+//! with `json_each`; each token reads its postings with one `LIMIT`-bounded range scan in
+//! `(term, profile_id, field_key)` order, as a correlated sub-query that returns a JSON array (its
+//! position is the posting ordinal, as in the job search); `array_agg(.. ORDER BY ..)` is
 //! `json_group_array(.. ORDER BY ..)`; and every nullable ascending sort key says `NULLS LAST`,
 //! because SQLite sorts NULL first on `ASC`.
 
@@ -43,36 +44,41 @@ WITH query_tokens AS (
     FROM json_each(?2) AS prefix
     JOIN json_each(?3) AS owner ON owner.key = prefix.key
 ), query_prefix_sets AS (
-    SELECT DISTINCT query_token FROM query_prefixes
-), token_postings AS (
-    SELECT query.token AS query_token, posting.profile_id, posting.field_key, posting.weight,
-           row_number() OVER (
-               PARTITION BY query.position
-               ORDER BY posting.term, posting.profile_id, posting.field_key
-           ) AS ordinal
+    SELECT query_token, json_group_array(prefix) AS prefixes
+    FROM query_prefixes GROUP BY query_token
+), token_samples AS (
+    SELECT query.token AS query_token,
+           (SELECT json_group_array(json_array(sample.profile_id, sample.field_key, sample.weight))
+            FROM (
+                SELECT posting.profile_id, posting.field_key, posting.weight
+                FROM profile_search_terms AS posting
+                WHERE posting.term >= query.token
+                  AND posting.term < query.token || '~'
+                ORDER BY posting.term, posting.profile_id, posting.field_key
+                LIMIT ?5
+            ) AS sample) AS postings
     FROM query_tokens AS query
-    JOIN profile_search_terms AS posting
-      ON posting.term >= query.token
-     AND posting.term < query.token || '~'
-), prefix_postings AS (
-    SELECT prefix_set.query_token, posting.profile_id, posting.field_key, posting.weight,
-           row_number() OVER (
-               PARTITION BY prefix_set.query_token
-               ORDER BY posting.term, posting.profile_id, posting.field_key
-           ) AS ordinal
+), prefix_samples AS (
+    SELECT prefix_set.query_token AS query_token,
+           (SELECT json_group_array(json_array(sample.profile_id, sample.field_key, sample.weight))
+            FROM (
+                SELECT posting.profile_id, posting.field_key, posting.weight
+                FROM profile_search_terms AS posting
+                WHERE posting.term IN (SELECT value FROM json_each(prefix_set.prefixes))
+                ORDER BY posting.term, posting.profile_id, posting.field_key
+                LIMIT ?7
+            ) AS sample) AS postings
     FROM query_prefix_sets AS prefix_set
-    JOIN profile_search_terms AS posting
-      ON posting.term IN (
-          SELECT prefix FROM query_prefixes WHERE query_token = prefix_set.query_token
-      )
 ), raw_hits AS (
-    SELECT profile_id, field_key, query_token, weight, ordinal > ?4 AS truncated
-    FROM token_postings
-    WHERE ordinal <= ?5
+    SELECT json_extract(hit.value, '$[0]') AS profile_id, json_extract(hit.value, '$[1]') AS field_key,
+           sample.query_token AS query_token, json_extract(hit.value, '$[2]') AS weight,
+           hit.key + 1 > ?4 AS truncated
+    FROM token_samples AS sample, json_each(sample.postings) AS hit
     UNION ALL
-    SELECT profile_id, field_key, query_token, weight, ordinal > ?6 AS truncated
-    FROM prefix_postings
-    WHERE ordinal <= ?7
+    SELECT json_extract(hit.value, '$[0]'), json_extract(hit.value, '$[1]'),
+           sample.query_token, json_extract(hit.value, '$[2]'),
+           hit.key + 1 > ?6
+    FROM prefix_samples AS sample, json_each(sample.postings) AS hit
 ), posting_bounds AS (
     SELECT COALESCE(max(truncated), 0) AS posting_truncated FROM raw_hits
 ), posting_hits AS (

@@ -93,8 +93,9 @@ pub fn seed_profile(connection: &Connection, email: &str) -> Result<Uuid, Box<dy
         rusqlite::params![uuid_text(Uuid::new_v4()), uuid_text(id), at],
     )?;
     connection.execute(
-        "INSERT INTO profile_experiences (id, profile_id, company, title, created_at) \
-         VALUES (?1, ?2, 'Example Corp', 'Engineer', ?3)",
+        "INSERT INTO profile_experiences (id, profile_id, company, title, created_at, \
+         company_key, title_key) \
+         VALUES (?1, ?2, 'Example Corp', 'Engineer', ?3, 'example corp', 'engineer')",
         rusqlite::params![uuid_text(Uuid::new_v4()), uuid_text(id), at],
     )?;
     Ok(id)

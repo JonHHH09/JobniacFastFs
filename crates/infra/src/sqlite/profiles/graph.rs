@@ -180,24 +180,24 @@ const INSERT_LANGUAGE_SQL: &str = r#"
 const INSERT_EDUCATION_SQL: &str = r#"
             INSERT INTO profile_education
                 (id, profile_id, institution, degree, field, location, start_date, end_date,
-                 description, relevant_focus, created_at)
-            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, NULL, ?9, ?10)
+                 description, relevant_focus, created_at, institution_key, degree_key, field_key)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, NULL, ?9, ?10, ?11, ?12, ?13)
             "#;
 
 /// The experience insert.
 const INSERT_EXPERIENCE_SQL: &str = r#"
             INSERT INTO profile_experiences
                 (id, profile_id, company, title, location, start_date, end_date, description,
-                 display_order, created_at)
-            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)
+                 display_order, created_at, company_key, title_key)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)
             "#;
 
 /// The project insert.
 const INSERT_PROJECT_SQL: &str = r#"
             INSERT INTO profile_projects
                 (id, profile_id, name, start_date, end_date, url, description, display_order,
-                 created_at)
-            VALUES (?1, ?2, ?3, NULL, NULL, ?4, ?5, ?6, ?7)
+                 created_at, name_key)
+            VALUES (?1, ?2, ?3, NULL, NULL, ?4, ?5, ?6, ?7, ?8)
             "#;
 
 /// The project technology insert.
@@ -228,8 +228,8 @@ const LOCK_PROJECT_SQL: &str = r#"
 /// The project update of a project patch.
 const UPDATE_PROJECT_SQL: &str = r#"
                 UPDATE profile_projects
-                SET name = ?1, url = ?2, description = ?3, display_order = ?4
-                WHERE id = ?5 AND profile_id = ?6
+                SET name = ?1, url = ?2, description = ?3, display_order = ?4, name_key = ?5
+                WHERE id = ?6 AND profile_id = ?7
                 "#;
 
 /// The technology replacement delete of a project patch.
@@ -238,6 +238,14 @@ const DELETE_PROJECT_TECHNOLOGIES_SQL: &str =
 
 /// Savepoint name of the project patch.
 const PROJECT_SAVEPOINT: &str = "profile_project_update";
+
+/// The canonical key of a free-text column: trimmed and lower-cased with full Unicode rules.
+///
+/// SQLite `lower()` folds ASCII only, so the case-insensitive unique indexes of education,
+/// experiences and projects sit on keys computed here (the PostgreSQL schema lower-cased in UTF-8).
+fn canonical_key(text: Option<&str>) -> Option<String> {
+    text.map(|value| value.trim().to_lowercase())
+}
 
 /// Loads the complete graph of a profile in a read-only scope.
 ///
@@ -467,6 +475,7 @@ pub(crate) fn update_project(
             &project.url,
             &project.description,
             &order_value(project.display_order)?,
+            &canonical_key(project.name.as_deref()),
             &Id(project_id),
             &Id(profile_id),
         ],
@@ -605,6 +614,9 @@ fn insert_children(
                 &value.end_date.map(Day),
                 &value.relevant_focus,
                 &Instant(value.created_at),
+                &canonical_key(value.institution.as_deref()),
+                &canonical_key(value.degree.as_deref()),
+                &canonical_key(value.field.as_deref()),
             ],
         )?;
     }
@@ -623,6 +635,8 @@ fn insert_children(
                 &value.description,
                 &order_value(value.display_order)?,
                 &Instant(value.created_at),
+                &canonical_key(value.company.as_deref()),
+                &canonical_key(value.title.as_deref()),
             ],
         )?;
     }
@@ -638,6 +652,7 @@ fn insert_children(
                 &value.description,
                 &order_value(value.display_order)?,
                 &Instant(value.created_at),
+                &canonical_key(value.name.as_deref()),
             ],
         )?;
     }
