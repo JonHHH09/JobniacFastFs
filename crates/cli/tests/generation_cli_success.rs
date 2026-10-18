@@ -22,6 +22,7 @@ use jobniac_infra::sqlite::codec::instant_text;
 use jobniac_infra::sqlite::migrations::migrate;
 use jobniac_infra::sqlite::pool::SqlitePool;
 use jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork;
+use jobniac_testkit::scratch::scratch_dir;
 use jobniac_testkit::sqlite::TempDatabase;
 use uuid::Uuid;
 
@@ -101,9 +102,9 @@ fn start(migrated: bool) -> Result<Scenario, Box<dyn Error>> {
     if migrated {
         migrate(database.path()).map_err(|error| error.0)?;
     }
-    let scratch = tempfile::Builder::new()
-        .prefix("jobniac-cli-success-")
-        .tempdir()?;
+    // Canonical form: the owned-asset checks refuse a root that differs from its final path, and
+    // `%TEMP%` can be an 8.3 alias on Windows.
+    let scratch = scratch_dir("jobniac-cli-success-")?;
     Ok(Scenario { database, scratch })
 }
 

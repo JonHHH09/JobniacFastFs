@@ -10,6 +10,7 @@ use jobniac_infra::generated::root::ensure_private_directory;
 use jobniac_infra::sqlite::migrations::migrate;
 use jobniac_infra::sqlite::pool::SqlitePool;
 use jobniac_runtime::generation::{GeneratedRootLocation, compose_root_setup};
+use jobniac_testkit::scratch::scratch_dir;
 use jobniac_testkit::sqlite::TempDatabase;
 use uuid::Uuid;
 
@@ -22,8 +23,14 @@ async fn setup_creates_then_confirms_the_root_and_refuses_a_foreign_identity() -
     let pool = SqlitePool::open(database.path())?;
 
     // The root must be private (owner-only permissions), as the default root is created.
-    let root = std::env::temp_dir().join(format!("jobniac-setup-{}", Uuid::new_v4()));
-    let root_text = root.to_string_lossy().into_owned();
+    // The scratch folder is in canonical form (the owned-root checks refuse a root that differs from
+    // its final path, and `%TEMP%` can be an 8.3 alias on Windows) and is removed when it drops.
+    let scratch = scratch_dir("jobniac-setup-")?;
+    let root_text = scratch
+        .path()
+        .join("generated")
+        .to_string_lossy()
+        .into_owned();
     if !ensure_private_directory(&root_text) {
         return Err("the private test root could not be created".into());
     }
@@ -31,9 +38,7 @@ async fn setup_creates_then_confirms_the_root_and_refuses_a_foreign_identity() -
         root: root_text,
         is_default: false,
     };
-    let outcome = check(&pool, &location).await;
-    let _ = std::fs::remove_dir_all(&root);
-    outcome
+    check(&pool, &location).await
 }
 
 async fn check(pool: &SqlitePool, location: &GeneratedRootLocation) -> TestResult {

@@ -34,6 +34,7 @@ use jobniac_mcp::registry::{Arguments, ToolRegistry};
 use jobniac_mcp::result::ToolResult;
 use jobniac_mcp::tools::{documents, profile_pdf};
 use jobniac_runtime::document_ports::{ImportRootReader, WorkerPdfExtractor};
+use jobniac_testkit::scratch::scratch_dir;
 use jobniac_testkit::sqlite::TempDatabase;
 use serde_json::{Value, json};
 
@@ -100,10 +101,10 @@ async fn the_six_tools_run_through_their_handlers() -> TestResult {
     migrate(database.path()).map_err(|error| error.0)?;
     let pool = SqlitePool::open(database.path())?;
 
-    // A fresh directory that the guard removes when the test returns, whatever the outcome.
-    let scratch = tempfile::Builder::new()
-        .prefix("jobniac-document-mcp-")
-        .tempdir()?;
+    // A fresh directory that the guard removes when the test returns, whatever the outcome. It is
+    // in canonical form: the import refuses a root that differs from its final path, and `%TEMP%`
+    // can be an 8.3 alias on Windows.
+    let scratch = scratch_dir("jobniac-document-mcp-")?;
     let root = scratch.path().to_path_buf();
     let fixture = fs::read(
         Path::new(env!("CARGO_MANIFEST_DIR"))
