@@ -6,7 +6,7 @@
 //! strict flags checked in place (see [`decode`]), and then calls one port with the decoded request
 //! object. A port answers with the service result, as a JSON value, or with
 //! an [`AppError`]. The port is supplied by the composition root (the CLI), so this crate does not
-//! depend on the PostgreSQL adapter; an absent port means absent tools. The review tools report
+//! depend on the SQLite adapter; an absent port means absent tools. The review tools report
 //! their errors with the default envelope text, as the matching tools do.
 
 mod decode;

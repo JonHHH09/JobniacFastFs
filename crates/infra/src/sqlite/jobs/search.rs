@@ -71,7 +71,7 @@ pub const POSTING_FETCH_LIMIT: usize = MAX_POSTINGS_PER_TOKEN + 1;
 /// Each token reads its postings with one bounded range scan of the prefix index, in index order,
 /// as a correlated sub-query that returns the postings as a JSON array (SQLite has no `LATERAL`).
 /// The array position is the posting's ordinal, so a posting past the bound is flagged `truncated`
-/// and left out of the hits, as in the PostgreSQL query.
+/// and left out of the hits.
 pub const SEARCH_CANDIDATES_SQL: &str = r#"
 WITH query_tokens AS (
     SELECT value AS token FROM json_each(?1)

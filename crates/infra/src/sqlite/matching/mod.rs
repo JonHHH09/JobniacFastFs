@@ -11,8 +11,8 @@
 //!
 //! * `analyze_pair` is one read-write scope. A write scope is `BEGIN IMMEDIATE` on the single
 //!   writer, so the profile, the job and the report insert are read and written from one state,
-//!   and there is no serialization failure to retry (the PostgreSQL adapter retried 40001 up to
-//!   [`jobniac_core::matching::SNAPSHOT_ATTEMPTS`] times). A busy lock is retried by the unit of work.
+//!   and there is no serialization failure to retry (the port allows up to
+//!   [`jobniac_core::matching::SNAPSHOT_ATTEMPTS`] attempts). A busy lock is retried by the unit of work.
 //! * `load_batch` and the reads run in a read-only scope, so their rows share one WAL snapshot.
 //! * `save_report` and the other writes run in a read-write scope.
 

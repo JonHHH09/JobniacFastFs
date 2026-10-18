@@ -1,9 +1,8 @@
 -- Jobniac SQLite baseline schema (V0001).
 --
--- Equivalent to the PostgreSQL migrations V0001 to V0006 (the Spring baseline, the resume section
--- order constraint and the owned generated-asset tables). No PostgreSQL history is replayed: the
--- V0002 import ledger and the V0004 search-posting rewrite do not exist here, because SQLite
--- starts empty.
+-- The whole schema of the application in one migration (profiles, jobs, matching, documents, the
+-- German resume and cover-letter stores and the owned generated-asset tables). SQLite starts empty,
+-- so there is no import ledger and no data rewrite here.
 --
 -- Conventions:
 -- * Schemas become table-name prefixes, always `<prefix>_<table>`: profile, job (job_schema),
@@ -16,10 +15,11 @@
 --   jsonb is TEXT with json_valid. bytea is BLOB. bigint and smallint are INTEGER.
 -- * `lower()` is ASCII-only in SQLite, so the canonical-form CHECKs and the canonical unique
 --   indexes only cover ASCII. Rust normalizes with full Unicode lowercase before every write.
--- * Rules that need a sub-query, a regular expression or advisory locks are not in this file.
---   They are listed in RULES_TO_PORT.md next to the Rust adapter and are enforced there. Pure
---   row-local immutability rules are triggers that RAISE(ABORT, ...).
--- * `row_version` of jobniac_generated_assets replaces the PostgreSQL `xmin` freshness read.
+-- * Rules that need a sub-query, a regular expression or serialization are not in this file.
+--   They are listed in the module documentation of the Rust adapter (`crates/infra/src/sqlite/mod.rs`)
+--   and are enforced there. Pure row-local immutability rules are triggers that RAISE(ABORT, ...).
+-- * `row_version` of jobniac_generated_assets lets a transaction tell whether an asset row was
+--   created in the same transaction (the "created in this transaction" admission checks).
 
 CREATE TABLE document_blobs (
     id TEXT NOT NULL,
@@ -132,7 +132,7 @@ CREATE TABLE job_job_link_ingestions (
     CONSTRAINT job_link_ingestions_normalized_url_unique UNIQUE (normalized_url),
     CONSTRAINT job_link_ingestions_job_id_fk FOREIGN KEY (job_id) REFERENCES job_jobs(id) ON DELETE CASCADE,
     CONSTRAINT job_link_ingestions_normalized_url_not_blank CHECK (trim(normalized_url) <> ''),
-    -- The userinfo half of the PostgreSQL check is a regular expression: see RULES_TO_PORT.md.
+    -- The userinfo check is a regular expression, which SQLite lacks: it runs in Rust (`jobs::graph`).
     CONSTRAINT job_link_ingestions_normalized_url_safe_identity CHECK (instr(normalized_url, '#') = 0),
     CONSTRAINT job_link_ingestions_status_valid CHECK (http_status IS NULL OR (http_status >= 100 AND http_status <= 599)),
     CONSTRAINT job_link_ingestions_url_not_blank CHECK (trim(url) <> ''),
@@ -652,7 +652,7 @@ CREATE TABLE match_disagreements (
     CONSTRAINT disagreements_report_id_fkey FOREIGN KEY (report_id) REFERENCES match_reports(id) ON DELETE CASCADE,
     CONSTRAINT disagreements_review_id_fkey FOREIGN KEY (review_id) REFERENCES match_reviews(id) ON DELETE CASCADE,
     CONSTRAINT disagreements_review_report_fk FOREIGN KEY (review_id, report_id) REFERENCES match_reviews(id, report_id) ON DELETE CASCADE,
-    -- The element-containment half of the PostgreSQL check needs a sub-query: see RULES_TO_PORT.md.
+    -- The element-containment check needs a sub-query: it runs in Rust (`match_reviews` store).
     CONSTRAINT disagreements_evidence_defect_codes_check CHECK (CASE WHEN json_valid(evidence_defect_codes) THEN json_type(evidence_defect_codes) = 'array' ELSE 0 END),
     CONSTRAINT disagreements_linear_issue_id_check CHECK (linear_issue_id IS NULL OR trim(linear_issue_id) <> ''),
     CONSTRAINT disagreements_policy_version_check CHECK (policy_version = 'divergence-v1'),
@@ -681,8 +681,8 @@ CREATE TABLE jobniac_generated_assets (
     deleted_at TEXT,
     retirement_id TEXT,
     generation_intent_required INTEGER NOT NULL DEFAULT 0,
-    -- Bumped by every UPDATE (trigger below). Replaces the PostgreSQL xmin read of the
-    -- "created in this transaction" admission checks.
+    -- Bumped by every UPDATE (trigger below). Tells the "created in this transaction" admission
+    -- checks whether the row was changed since it was inserted.
     row_version INTEGER NOT NULL DEFAULT 0,
     CONSTRAINT generated_assets_pkey PRIMARY KEY (asset_id),
     CONSTRAINT generated_assets_asset_id_shape CHECK (length(asset_id) = 36 AND asset_id NOT GLOB '*[^0-9a-f-]*'),
@@ -764,8 +764,7 @@ CREATE TABLE jobniac_generation_intents (
             AND profile_id IS NOT NULL AND job_id IS NOT NULL AND resume_id IS NOT NULL
             AND output_scope IS NOT NULL AND output_scope = 'de')
     ),
-    -- The PostgreSQL check also bounds the lease to five minutes (interval arithmetic): see
-    -- RULES_TO_PORT.md.
+    -- The five-minute bound of the lease (interval arithmetic) runs in Rust (`generated::guards`).
     CONSTRAINT generation_intents_state_shape CHECK (
         (state = 'PENDING' AND lease_token IS NOT NULL AND lease_started_at IS NOT NULL
             AND lease_expires_at IS NOT NULL AND finished_at IS NULL
@@ -804,7 +803,7 @@ CREATE INDEX idx_jobs_company ON job_jobs (company);
 CREATE INDEX idx_jobs_posted_at ON job_jobs (posted_at DESC);
 CREATE INDEX idx_jobs_source_method ON job_jobs (source_method);
 CREATE INDEX idx_jobs_title ON job_jobs (title);
--- `weight` is the trailing column where PostgreSQL used INCLUDE (weight).
+-- `weight` is the trailing column, so the index covers the weight reads.
 CREATE INDEX job_search_terms_term_prefix_idx ON job_search_terms (term, job_id, field_key, weight);
 CREATE INDEX jobs_list_created_id_idx ON job_jobs (created_at DESC, id);
 
@@ -813,7 +812,7 @@ CREATE INDEX disagreements_report_created_id_idx ON match_disagreements (report_
 CREATE INDEX reports_job_created_id_idx ON match_reports (job_id, created_at DESC, id DESC);
 CREATE INDEX reports_list_created_id_idx ON match_reports (created_at DESC, id DESC);
 CREATE INDEX reports_profile_created_id_idx ON match_reports (profile_id, created_at DESC, id DESC);
--- PostgreSQL indexed the array ARRAY[profile_id, job_id]; the row-value pair is the equivalent key.
+-- The key is the (profile_id, job_id) pair followed by the keyset columns.
 CREATE INDEX reports_profile_job_created_id_idx ON match_reports (profile_id, job_id, created_at DESC, id DESC);
 CREATE INDEX reviews_list_created_id_idx ON match_reviews (created_at DESC, id DESC);
 CREATE INDEX reviews_report_created_id_idx ON match_reviews (report_id, created_at DESC, id DESC);
@@ -863,15 +862,15 @@ CREATE INDEX idx_resumes_updated_at ON resume_resumes (updated_at DESC, id);
 
 CREATE INDEX generated_asset_cleanups_due_idx ON jobniac_generated_asset_cleanups (next_attempt_at, task_id) WHERE status IN ('PENDING', 'PROCESSING');
 CREATE INDEX generated_asset_cleanups_completed_idx ON jobniac_generated_asset_cleanups (completed_at, task_id) WHERE status = 'COMPLETED';
--- PostgreSQL NULLS NOT DISTINCT: a NULL output scope (stand-alone PDF) takes part in uniqueness.
+-- NULLs are treated as equal here: a NULL output scope (stand-alone PDF) takes part in uniqueness.
 -- The scope CHECK allows NULL only for STANDALONE_PDF, and never the empty string, so the
 -- COALESCE sentinel cannot collide with a real scope.
 CREATE UNIQUE INDEX generation_intents_operation_output_unique ON jobniac_generation_intents (operation_id, purpose, COALESCE(output_scope, ''));
 CREATE INDEX generation_intents_pending_expiry_idx ON jobniac_generation_intents (lease_expires_at, asset_id) WHERE state = 'PENDING';
 
 -- ---------------------------------------------------------------------------------------------
--- Row-local immutability triggers (no sub-query, no lock): PostgreSQL V0001, V0005 and V0006.
--- Everything else those PL/pgSQL guards did is in RULES_TO_PORT.md.
+-- Row-local immutability triggers (no sub-query, no lock). Every guard that reads other tables
+-- runs in Rust (`crates/infra/src/sqlite/generated/guards.rs` and the module documentation).
 -- ---------------------------------------------------------------------------------------------
 
 CREATE TRIGGER reports_immutable BEFORE UPDATE ON match_reports

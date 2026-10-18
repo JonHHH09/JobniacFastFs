@@ -28,7 +28,7 @@ fn allowlist_matches_case_insensitively() {
     assert!(is_allowed("path"));
     assert!(is_allowed("Temp"));
     assert!(is_allowed("lc_all"));
-    assert!(!is_allowed("JOBNIAC_DB_PASSWORD"));
+    assert!(!is_allowed("JOBNIAC_DB_PATH"));
     assert!(!is_allowed("PYTHONPATH"));
     assert!(!is_allowed("HTTPS_PROXY"));
     assert_eq!(ALLOWED_KEYS.len(), 9);
@@ -40,7 +40,7 @@ fn only_allowlisted_variables_cross_and_secrets_never_do() {
         ("path", "C:\\tools"),
         ("Temp", "C:\\temp"),
         ("SystemRoot", "C:\\Windows"),
-        ("JOBNIAC_DB_PASSWORD", "secret-value"),
+        ("JOBNIAC_DB_PATH", "secret-value"),
         ("PYTHONPATH", "C:\\evil"),
         ("HTTPS_PROXY", "http://proxy.invalid"),
         ("JOBNIAC_INTERNAL_WORKER", "forged"),

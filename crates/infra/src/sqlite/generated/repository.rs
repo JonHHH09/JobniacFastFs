@@ -1,8 +1,6 @@
 //! SQLite adapter of the standalone generated-PDF port: reserve, find, materialize and recover.
 //!
-//! PostgreSQL serialized the asset with a transaction-scoped advisory lock: blocking in
-//! materialization, a try-lock that skipped a busy asset in recovery. Here every write transaction
-//! is `BEGIN IMMEDIATE` on the single writer, so a transaction that holds the writer is the only one
+//! Every write transaction is `BEGIN IMMEDIATE` on the single writer, so a transaction that holds the writer is the only one
 //! that can touch the asset, and a recovery candidate is never "busy": it is either still eligible
 //! at the reread inside its own transaction, or it changed since the candidate scan and is skipped
 //! for that reason.
@@ -89,7 +87,7 @@ pub(crate) fn find_asset_in(
     .transpose()
 }
 
-/// Reads one asset row. `_for_update` is the PostgreSQL row lock, which the single writer makes
+/// Reads one asset row. `_for_update` would be a row lock, which the single writer makes
 /// unnecessary.
 pub(crate) async fn find_asset(
     tx: &mut SqliteTransaction,

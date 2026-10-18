@@ -1,10 +1,9 @@
 //! Classified intent transactions: insert, admission with leases and fencing, completion, renewal,
 //! abandonment and the bounded binding sets.
 //!
-//! PostgreSQL admission never waited: the document and asset advisory locks were try-locks, and a
-//! busy lock was [`IntentError::Unavailable`]. Here the single writer already excludes every
-//! concurrent claim, so there is nothing to try; the stale-claim refusals (a moved row, a rotated
-//! fence, an expired lease) are unchanged. The intent guards of the PostgreSQL trigger run in
+//! Admission never waits for a lock: the single writer already excludes every concurrent claim, so
+//! there is nothing to try; the stale-claim refusals (a moved row, a rotated
+//! fence, an expired lease) are unchanged. The intent guards run in
 //! [`super::guards`] before each write.
 
 use jobniac_core::errors::{AppError, ApplicationError};
@@ -91,7 +90,7 @@ fn find_asset_in(conn: &Connection, asset_id: Uuid) -> Result<Option<AssetRow>, 
     .transpose()
 }
 
-/// Reads the intent of one asset. With `for_update` (the PostgreSQL row and owner locks) an asset
+/// Reads the intent of one asset. With `for_update` (the owner read) an asset
 /// that is missing or has no document has no intent to claim, so the result is `None`.
 ///
 /// # Errors

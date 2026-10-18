@@ -1,7 +1,7 @@
 //! In-memory doubles of the job ports, shared by the job test binaries.
 //!
 //! Stored aggregates are copies, every repository call is logged in order (so a test can assert that
-//! validation ran before any repository access), and the compare-and-set rules match the PostgreSQL
+//! validation ran before any repository access), and the compare-and-set rules match the SQLite
 //! adapter's contract.
 #![allow(dead_code)]
 

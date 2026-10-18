@@ -1,4 +1,4 @@
-//! Rule 5 of the PostgreSQL port: the canonical lowercase forms (emails, link and contact types,
+//! Rule 5 of the rule list: the canonical lowercase forms (emails, link and contact types,
 //! normalized skills, languages and technologies) are Unicode-aware, while SQLite `lower()` only
 //! folds ASCII. The Rust writers normalize before every write, so what is stored is already the
 //! Unicode lowercase form, and a duplicate that differs only by non-ASCII case is refused by Rust

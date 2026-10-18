@@ -91,7 +91,6 @@ sha2 = "0.11"
 thiserror = "2"
 time = { version = "0.3", features = ["formatting", "macros", "parsing"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync", "time", "signal", "io-std", "io-util", "process"] }
-tokio-postgres = "0.7"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 unicode-general-category = "1.1.0"

@@ -4,7 +4,7 @@
 //! Each tool decodes its `request` in the shape of its `TypedDict` (see [`decode`]) and then
 //! calls one port with the decoded request object. A port answers with the service result, as
 //! a JSON value, or with an [`AppError`]. The port is supplied by the
-//! composition root (the CLI), so this crate does not depend on the PostgreSQL adapter; an absent
+//! composition root (the CLI), so this crate does not depend on the SQLite adapter; an absent
 //! port means absent tools. Every matching tool reports its errors with the default envelope text
 //! (the default separators), and the service validates the values.
 

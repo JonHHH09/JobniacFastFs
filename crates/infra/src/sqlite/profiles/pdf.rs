@@ -3,8 +3,8 @@
 //! The statements use `?n` binds. The adapter runs on the transaction handle that the core use
 //! case opens, so the identity reads, the profile graph write (through
 //! [`super::SqliteProfileRepository`] on the same connection) and the source link share one
-//! transaction. Every write transaction is `BEGIN IMMEDIATE`, so the advisory locks and the row
-//! lock of the PostgreSQL adapter have nothing left to do: [`ProfilePdfRepository::lock`] and
+//! transaction. Every write transaction is `BEGIN IMMEDIATE`, so no advisory lock or row
+//! lock is needed: [`ProfilePdfRepository::lock`] and
 //! [`ProfilePdfRepository::lock_profile_root`] only keep the call order of the port.
 
 use async_trait::async_trait;
@@ -227,7 +227,7 @@ impl ProfilePdfRepository for SqliteProfilePdfRepository {
         link: &NewSourceLink,
     ) -> Result<bool, AppError> {
         with_connection(tx, |conn| {
-            // The PostgreSQL guard trigger of the source table (rule 15): the extraction's
+            // The source guard: the extraction's
             // document must be attachable. It runs before the conflict check.
             guard_pdf_source(conn, link.extraction_id)?;
             let inserted = execute(

@@ -1,16 +1,14 @@
 //! SQLite adapters: the connection pool, the unit of work, error classification, the readiness
-//! probe, the migration runner, the shared column codecs and the repositories. This module replaces
-//! [`crate::postgres`].
-//!
+//! probe, the migration runner, the shared column codecs and the repositories. //!
 //! Table names carry the old schema as a prefix (`profile.profiles` is `profile_profiles`); see
 //! `sql/sqlite/V0001__baseline.sql`.
 //!
 //! # Rules enforced in Rust
 //!
 //! The baseline schema keeps every rule that SQLite can express row-locally (CHECK constraints and
-//! `RAISE(ABORT)` triggers). The PostgreSQL rules that read other tables, need the whole
+//! `RAISE(ABORT)` triggers). The rules that read other tables, need the whole
 //! transaction state or need Unicode case folding run in Rust. A guard refusal is
-//! `SqliteError::Constraint` with SQLSTATE 23514, the class of the PL/pgSQL trigger it replaces.
+//! `SqliteError::Constraint` with SQLSTATE 23514, the class of a check violation.
 //! Guards run right before the write they guard; the rules that were deferred constraint triggers
 //! are pre-commit checks registered with
 //! [`SqliteTransaction::before_commit`](unit_of_work::SqliteTransaction::before_commit). Advisory

@@ -1,5 +1,5 @@
 //! Source-shaped German cover-letter writes, bounded admission and the pure content mapping.
-//! It holds no SQL: the PostgreSQL
+//! It holds no SQL: the SQLite
 //! adapter implements [`GermanCoverLetterRepository`] in `jobniac_infra`.
 //!
 //! The aggregate references its resume by id and revision instant; the numeric owner revisions of
@@ -627,8 +627,8 @@ pub struct ReplaceResult {
 }
 
 /// Persistence port of the German cover letter. The
-/// PostgreSQL adapter is `jobniac_infra::postgres::german`; the replace transaction takes the pair
-/// advisory lock ([`PairKey::lock_name`]), then the rows in the fixed order.
+/// SQLite adapter is `jobniac_infra::sqlite::german`; the replace transaction runs on the single
+/// writer ([`PairKey::lock_name`] names the pair), then writes the rows in the fixed order.
 #[async_trait]
 pub trait GermanCoverLetterRepository: Send + Sync {
     /// Reads a cover letter by id.

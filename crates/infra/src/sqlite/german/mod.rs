@@ -7,7 +7,7 @@
 //! Each port method is one transaction of the unit of work: the write transactions are
 //! `BEGIN IMMEDIATE` on the single writer and the reads use the shared read-only scope.
 //!
-//! The pair advisory lock and the `FOR UPDATE` row locks of the PostgreSQL stores are not needed:
+//! No pair lock or row lock is needed:
 //! the writer is exclusive for the whole transaction, so the owner revisions that
 //! [`check_owners`] reads cannot change before the delete and insert. The writers verify the PDF
 //! bindings, delete and insert (calling the owned-document path guard before each variant

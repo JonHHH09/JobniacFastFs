@@ -1,7 +1,7 @@
 //! Paste-first job capture, revision-checked update, read and bounded job search.
 //!
-//! Persistence is behind the ports of [`repository`]; the PostgreSQL adapter (verbatim SQL, advisory
-//! locks, the 500-candidate sample and the recursive search CTE) lives in `jobniac-infra`. The
+//! Persistence is behind the ports of [`repository`]; the SQLite adapter (SQL, the
+//! 500-candidate sample and the recursive search CTE) lives in `jobniac-infra`. The
 //! link-create path (`add_job_from_link`) is not here: [`model::LinkIngestionRecord`] carries only
 //! the identity that the fingerprint rule needs.
 

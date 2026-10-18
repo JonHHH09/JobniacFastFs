@@ -5,11 +5,11 @@
 //! profile whose postings were cut off, or a candidate set above the bound, sets `has_more`, which
 //! the core turns into a null total.
 //!
-//! Differences from the PostgreSQL query: the query tokens and prefixes arrive as JSON arrays read
+//! Query shape: the query tokens and prefixes arrive as JSON arrays read
 //! with `json_each`; the per-token `LATERAL` samples are one `row_number()` window per token over
 //! the same `(term, profile_id, field_key)` order; `array_agg(.. ORDER BY ..)` is
 //! `json_group_array(.. ORDER BY ..)`; and every nullable ascending sort key says `NULLS LAST`,
-//! because PostgreSQL sorts NULL last on `ASC` and SQLite sorts it first.
+//! because SQLite sorts NULL first on `ASC`.
 
 use jobniac_core::errors::AppError;
 use jobniac_core::pagination::SearchCandidates;

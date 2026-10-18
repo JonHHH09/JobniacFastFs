@@ -1,6 +1,6 @@
 [package]
 name = "jobniac-infra"
-description = "PostgreSQL, filesystem, worker and network adapters for Jobniac"
+description = "SQLite, filesystem, worker and network adapters for Jobniac"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -20,17 +20,15 @@ hyper-util.workspace = true
 hickory-resolver.workspace = true
 jobniac-core.workspace = true
 jobniac-text.workspace = true
-# Embedded SQLite (bundled): the sqlite module replaces the postgres module.
+# Embedded SQLite (bundled): the local database.
 rusqlite.workspace = true
 rustls.workspace = true
 rustls-native-certs.workspace = true
-secrecy.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
 thiserror.workspace = true
 time.workspace = true
 tokio.workspace = true
-tokio-postgres = { workspace = true, features = ["with-serde_json-1", "with-time-0_3", "with-uuid-1"] }
 tokio-rustls.workspace = true
 tracing.workspace = true
 url.workspace = true
@@ -56,67 +54,11 @@ test-hooks = []
 # Compiles the sandbox operation of the probe worker kind (test-only: it opens, creates, connects and
 # executes on request). Release builds leave it off; the CLI tests turn it on.
 worker-probe = []
-# Gates the PostgreSQL test files that fail closed on CI without a server. The `rust` job leaves it
-# off; the `postgres` job turns it on through pg-test.
-postgres-tests = []
 
 [dev-dependencies]
-jobniac-testkit.workspace = true
 jobniac-infra = { path = ".", features = ["test-hooks"] }
 rcgen.workspace = true
 tempfile.workspace = true
-
-[[test]]
-name = "postgres_job_search"
-required-features = ["test-hooks"]
-
-[[test]]
-name = "postgres_arbeitnow"
-required-features = ["postgres-tests"]
-
-[[test]]
-name = "postgres_artifacts"
-required-features = ["postgres-tests"]
-
-[[test]]
-name = "postgres_cleanup"
-required-features = ["postgres-tests"]
-
-[[test]]
-name = "postgres_deletion"
-required-features = ["postgres-tests"]
-
-[[test]]
-name = "postgres_generated"
-required-features = ["postgres-tests"]
-
-[[test]]
-name = "postgres_generated_classified"
-required-features = ["postgres-tests"]
-
-[[test]]
-name = "postgres_generated_links"
-required-features = ["postgres-tests"]
-
-[[test]]
-name = "postgres_generated_repository"
-required-features = ["postgres-tests"]
-
-[[test]]
-name = "postgres_german_cover_letter"
-required-features = ["postgres-tests"]
-
-[[test]]
-name = "postgres_german_resume"
-required-features = ["postgres-tests"]
-
-[[test]]
-name = "postgres_job_links"
-required-features = ["postgres-tests"]
-
-[[test]]
-name = "postgres_documents_list"
-required-features = ["postgres-tests"]
 
 [lints]
 workspace = true

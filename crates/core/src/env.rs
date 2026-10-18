@@ -136,11 +136,11 @@ mod tests {
 
     #[test]
     fn debug_output_never_shows_names_or_values() {
-        let env = Environment::from_pairs([("JOBNIAC_DB_PASSWORD", "synthetic-secret-value")])
+        let env = Environment::from_pairs([("JOBNIAC_EXAMPLE_SECRET", "synthetic-secret-value")])
             .with_invalid("BAD_NAME");
         let text = format!("{env:?}");
         assert!(!text.contains("synthetic-secret-value"));
-        assert!(!text.contains("JOBNIAC_DB_PASSWORD"));
+        assert!(!text.contains("JOBNIAC_EXAMPLE_SECRET"));
         assert!(!text.contains("BAD_NAME"));
         assert!(text.contains("variables: 1"));
     }
@@ -167,9 +167,11 @@ mod tests {
 
     #[test]
     fn case_insensitive_snapshot_matches_any_case() {
-        let env =
-            Environment::from_os_pairs([("Jobniac_Db_Host".into(), "127.0.0.1".into())], true);
-        assert_eq!(env.get("JOBNIAC_DB_HOST"), Some("127.0.0.1"));
-        assert_eq!(env.get("jobniac_db_host"), Some("127.0.0.1"));
+        let env = Environment::from_os_pairs(
+            [("Jobniac_Example_Setting".into(), "127.0.0.1".into())],
+            true,
+        );
+        assert_eq!(env.get("JOBNIAC_EXAMPLE_SETTING"), Some("127.0.0.1"));
+        assert_eq!(env.get("jobniac_example_setting"), Some("127.0.0.1"));
     }
 }

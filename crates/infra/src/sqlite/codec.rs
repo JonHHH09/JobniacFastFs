@@ -2,8 +2,8 @@
 //!
 //! * A uuid is its lowercase hyphenated text.
 //! * An instant is fixed-width RFC 3339 UTC with six fraction digits
-//!   (`2026-09-29T10:00:00.000000Z`), truncated to microseconds, the precision of the PostgreSQL
-//!   column it replaces. Keyset queries, CHECK constraints and indexes compare instants as text,
+//!   (`2026-09-29T10:00:00.000000Z`), truncated to microseconds, the precision of the instants
+//!   the core compares. Keyset queries, CHECK constraints and indexes compare instants as text,
 //!   so string order must be time order.
 //! * A date is `YYYY-MM-DD`.
 //! * A JSON column is the compact text of a [`serde_json::Value`].

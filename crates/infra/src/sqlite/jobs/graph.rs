@@ -296,7 +296,7 @@ pub fn check_link_graph(graph: &JobAggregate) -> Result<(), AppError> {
 }
 
 /// Whether a URL starts with `http://` or `https://` (any case) followed by userinfo, the rule of
-/// the PostgreSQL pattern `^https?://[^/?#]*@`. SQLite has no regular expressions, so the two
+/// the pattern `^https?://[^/?#]*@`. SQLite has no regular expressions, so the two
 /// `safe_identity` and `safe_display` checks of the link table run here.
 fn has_userinfo(url: &str) -> bool {
     let lower = url.to_ascii_lowercase();

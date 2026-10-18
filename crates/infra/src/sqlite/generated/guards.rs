@@ -1,5 +1,4 @@
-//! The generated-asset guards that PostgreSQL enforced with PL/pgSQL triggers (migrations V0005
-//! and V0006) and that SQLite cannot express in SQL: the ones that read other tables.
+//! The generated-asset guards that SQLite cannot express in SQL: the ones that read other tables.
 //!
 //! A guard is a plain function over the transaction's connection. A repository calls it right
 //! before the write it guards, in the same transaction, so a refusal rolls the scope back like a
@@ -9,7 +8,7 @@
 //! [`check_birth_intents`] and [`check_abandoned_retirement`] are registered with
 //! [`SqliteTransaction::before_commit`](crate::sqlite::unit_of_work::SqliteTransaction::before_commit).
 //!
-//! The advisory locks of the PostgreSQL functions are not needed: the single writer serializes
+//! No advisory locks are needed: the single writer serializes
 //! every transaction that reaches these functions, and a statement of a write transaction always
 //! reads the latest committed state.
 //!

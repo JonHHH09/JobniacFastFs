@@ -1,20 +1,20 @@
 //! Classification of SQLite failures.
 //!
-//! [`SqliteError`] is the counterpart of `PgError`: the same caller-safe classes and the same fixed
-//! user-visible messages, with SQLite result codes in place of SQLSTATEs. Message text from the
+//! [`SqliteError`] holds the caller-safe classes and the fixed user-visible messages of a database
+//! failure, classified from SQLite result codes. Message text from the
 //! engine is never carried into an error, because it can contain row values. The only text kept is
 //! the name of a violated constraint (a schema identifier, never a value).
 //!
 //! Mapping:
 //! * `SQLITE_CONSTRAINT*` becomes [`SqliteError::Constraint`], with the SQLSTATE of the equivalent
-//!   PostgreSQL class 23 error (unique 23505, foreign key 23503, not null 23502, check and trigger
+//!   class 23 error (unique 23505, foreign key 23503, not null 23502, check and trigger
 //!   23514, anything else 23000), so `AppError::PersistenceConstraint` is unchanged.
 //! * `SQLITE_BUSY` and `SQLITE_LOCKED` become [`SqliteError::Busy`]. The unit of work retries them a
 //!   bounded number of times first; an exhausted retry is "Local database is unavailable".
 //! * I/O, corrupt, cannot-open, full-disk, not-a-database and permission failures become
 //!   [`SqliteError::Unavailable`].
 //! * Everything else is [`SqliteError::Internal`]: a type mismatch in a repository, and
-//!   `SQLITE_READONLY` (a write in a read-only scope, like PostgreSQL's 25006).
+//!   `SQLITE_READONLY` (a write in a read-only scope).
 
 use std::fmt;
 use std::os::raw::c_int;
@@ -22,7 +22,7 @@ use std::os::raw::c_int;
 use jobniac_core::errors::{AppError, ApplicationError, ErrorCode};
 use rusqlite::ffi;
 
-/// Message of [`SqliteError::NotConfigured`] (the same text as the PostgreSQL adapter).
+/// Message of [`SqliteError::NotConfigured`] (a fixed text, never an engine message).
 pub const NOT_CONFIGURED_MESSAGE: &str = "Local database is not configured";
 
 /// A classified database failure of the unit of work.
@@ -38,7 +38,7 @@ pub enum SqliteError {
     Busy,
     /// An integrity-constraint violation (including a trigger that aborts).
     Constraint {
-        /// The SQLSTATE of the equivalent PostgreSQL error.
+        /// The SQLSTATE of the equivalent class 23 error.
         sqlstate: String,
         /// Name of the violated constraint (or the failing column list), when the engine reports
         /// one.
@@ -54,8 +54,8 @@ pub enum SqliteError {
 }
 
 impl SqliteError {
-    /// A constraint violation raised by a pre-commit check (the replacement of a deferred
-    /// PostgreSQL constraint trigger). It maps like a check violation (23514).
+    /// A constraint violation raised by a pre-commit check (a deferred
+    /// constraint check). It maps like a check violation (23514).
     pub fn constraint(name: &str) -> Self {
         Self::Constraint {
             sqlstate: SQLSTATE_CHECK.to_owned(),
@@ -131,7 +131,7 @@ pub fn classify(extended_code: c_int, message: Option<&str>) -> SqliteError {
 /// trigger extended code, so the message is what identifies it.
 const FOREIGN_KEY_MESSAGE: &str = "FOREIGN KEY constraint failed";
 
-/// The SQLSTATE of the PostgreSQL error that the constraint violation corresponds to.
+/// The SQLSTATE of the class 23 error that the constraint violation corresponds to.
 fn constraint_sqlstate(extended_code: c_int, message: Option<&str>) -> &'static str {
     if message == Some(FOREIGN_KEY_MESSAGE) {
         return SQLSTATE_FOREIGN_KEY;
@@ -381,7 +381,7 @@ mod tests {
         }
     }
 
-    /// The pre-commit check error has the class of the PostgreSQL deferred trigger (23514).
+    /// The pre-commit check error has the class of a check violation (23514).
     #[test]
     fn pre_commit_check_errors_are_check_violations() {
         assert!(matches!(
@@ -415,6 +415,101 @@ mod tests {
             error_envelope(&details_app_error(SqliteError::NotConfigured)).message,
             NOT_CONFIGURED_MESSAGE
         );
+    }
+
+    /// The outcome name of a classified error, as the golden vectors spell it.
+    fn outcome_name(error: &SqliteError) -> &'static str {
+        match error {
+            SqliteError::Constraint { .. } => "constraint",
+            SqliteError::Busy => "busy",
+            SqliteError::Unavailable => "unavailable",
+            SqliteError::NotConfigured
+            | SqliteError::ReadOnlyJoin
+            | SqliteError::NestedWrite
+            | SqliteError::Internal => "internal",
+        }
+    }
+
+    /// The error-mapping contract: every vector of `tests/golden/sqlite_error_classes.json` (an
+    /// extended result code, its outcome and the SQLSTATE a constraint violation reports) must be
+    /// classified exactly as recorded. The names are checked against the bundled engine's
+    /// constants, so a renumbered code cannot hide behind a stale vector.
+    #[test]
+    fn result_code_outcomes_match_the_golden_vectors() -> Result<(), String> {
+        use serde_json::Value;
+
+        let named: [(&str, c_int); 20] = [
+            ("SQLITE_CONSTRAINT", ffi::SQLITE_CONSTRAINT),
+            ("SQLITE_CONSTRAINT_CHECK", ffi::SQLITE_CONSTRAINT_CHECK),
+            (
+                "SQLITE_CONSTRAINT_FOREIGNKEY",
+                ffi::SQLITE_CONSTRAINT_FOREIGNKEY,
+            ),
+            ("SQLITE_CONSTRAINT_NOTNULL", ffi::SQLITE_CONSTRAINT_NOTNULL),
+            (
+                "SQLITE_CONSTRAINT_PRIMARYKEY",
+                ffi::SQLITE_CONSTRAINT_PRIMARYKEY,
+            ),
+            ("SQLITE_CONSTRAINT_TRIGGER", ffi::SQLITE_CONSTRAINT_TRIGGER),
+            ("SQLITE_CONSTRAINT_UNIQUE", ffi::SQLITE_CONSTRAINT_UNIQUE),
+            ("SQLITE_BUSY", ffi::SQLITE_BUSY),
+            ("SQLITE_BUSY_SNAPSHOT", ffi::SQLITE_BUSY_SNAPSHOT),
+            ("SQLITE_LOCKED", ffi::SQLITE_LOCKED),
+            ("SQLITE_CANTOPEN", ffi::SQLITE_CANTOPEN),
+            ("SQLITE_CORRUPT", ffi::SQLITE_CORRUPT),
+            ("SQLITE_FULL", ffi::SQLITE_FULL),
+            ("SQLITE_IOERR_READ", ffi::SQLITE_IOERR_READ),
+            ("SQLITE_NOTADB", ffi::SQLITE_NOTADB),
+            ("SQLITE_PERM", ffi::SQLITE_PERM),
+            ("SQLITE_ERROR", ffi::SQLITE_ERROR),
+            ("SQLITE_READONLY", ffi::SQLITE_READONLY),
+            ("SQLITE_SCHEMA", ffi::SQLITE_SCHEMA),
+            ("SQLITE_MISMATCH", ffi::SQLITE_MISMATCH),
+        ];
+        let text = include_str!("../../tests/golden/sqlite_error_classes.json");
+        let vectors: Vec<Value> = serde_json::from_str(text).map_err(|error| error.to_string())?;
+        if vectors.len() != named.len() {
+            return Err(format!(
+                "{} golden vectors, {} named constants",
+                vectors.len(),
+                named.len()
+            ));
+        }
+        for vector in &vectors {
+            let name = vector["name"].as_str().ok_or("vector without a name")?;
+            let code = vector["code"]
+                .as_i64()
+                .and_then(|code| c_int::try_from(code).ok())
+                .ok_or("vector without a code")?;
+            let outcome = vector["outcome"]
+                .as_str()
+                .ok_or("vector without an outcome")?;
+            let constant = named
+                .iter()
+                .find(|(constant, _)| *constant == name)
+                .map(|(_, value)| *value)
+                .ok_or_else(|| format!("{name}: no constant"))?;
+            if constant != code {
+                return Err(format!("{name}: golden code {code}, engine {constant}"));
+            }
+            let classified = classify(code, None);
+            if outcome_name(&classified) != outcome {
+                return Err(format!(
+                    "{name}: classified as {classified:?}, golden {outcome}"
+                ));
+            }
+            let expected_state = vector["sqlstate"].as_str();
+            let actual_state = match &classified {
+                SqliteError::Constraint { sqlstate, .. } => Some(sqlstate.as_str()),
+                _ => None,
+            };
+            if actual_state != expected_state {
+                return Err(format!(
+                    "{name}: sqlstate {actual_state:?}, golden {expected_state:?}"
+                ));
+            }
+        }
+        Ok(())
     }
 
     #[test]

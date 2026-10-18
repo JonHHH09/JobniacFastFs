@@ -1,6 +1,6 @@
 //! Classified generation intents against a migrated SQLite file: birth insertion in the asset's own
 //! transaction, live admission, lease expiry, fencing of a stale token, renewal and abandonment with
-//! same-transaction retirement, and the intent guards that PostgreSQL enforced in a trigger. All
+//! same-transaction retirement, and the intent guards. All
 //! data is synthetic.
 
 mod sqlite_generated_support;

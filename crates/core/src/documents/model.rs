@@ -2,7 +2,7 @@
 //!
 //! Instants are kept as wire strings (`format_instant`), exactly as they
 //! pass between the service and the repository. Byte sizes and character counts are `i64`
-//! because they are PostgreSQL `bigint` and `integer` values; they cross IPC only as strings.
+//! because they are SQLite `INTEGER` values; they cross IPC only as strings.
 
 use uuid::Uuid;
 

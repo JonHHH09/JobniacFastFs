@@ -2,7 +2,7 @@
 //! check, the PDF bindings, the owner CAS, the link write, retirement of the replaced asset and the
 //! generation completion.
 //!
-//! PostgreSQL locked the profile row (`FOR UPDATE`) so that profile edits, deletion and sibling
+//! The profile row is read under the writer so that profile edits, deletion and sibling
 //! link writers waited, pinned `READ COMMITTED` and took the sorted binding locks. `BEGIN
 //! IMMEDIATE` gives the same exclusion: no other transaction writes between the owner read and the
 //! commit, and the owner row read here is the committed one.

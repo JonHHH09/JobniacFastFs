@@ -1,5 +1,5 @@
 //! Direct tests of the generation-intent and reference rules that the SQLite adapters enforce in
-//! Rust in place of the PostgreSQL triggers (rules 6, 19, 22 to 25 and 27 of the port list), on top
+//! Rust (rules 6, 19, 22 to 25 and 27 of the rule list), on top
 //! of the repository-level tests of the other rules. All data is synthetic.
 
 mod sqlite_german_support;

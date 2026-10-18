@@ -2,7 +2,7 @@
 //!
 //! One [`SqliteJobRepository`] implements [`JobRepository`], [`JobLinkRepository`] and
 //! [`JobSearchRepository`] over the explicit transaction handle of [`SqliteTransaction`], as the
-//! PostgreSQL adapter does. The use cases run their repository calls in the scopes of
+//! other adapters do. The use cases run their repository calls in the scopes of
 //! [`SqliteUnitOfWork`](crate::sqlite::unit_of_work::SqliteUnitOfWork), so this module never opens,
 //! begins or commits a transaction.
 //!
@@ -12,8 +12,8 @@
 //! * [`search`]: the bounded candidate sample and the batch hydration.
 //! * [`terms`]: the search postings of a job (field keys and weights of the search index).
 //!
-//! Every write scope is `BEGIN IMMEDIATE` on the single writer, so the advisory locks and the
-//! `FOR SHARE` reads of the PostgreSQL create paths are not needed: a create reads, then writes,
+//! Every write scope is `BEGIN IMMEDIATE` on the single writer, so no advisory locks or
+//! shared reads are needed in the create paths: a create reads, then writes,
 //! with no other writer in between. The job source provenance rule (exactly one provenance row of
 //! the job's source method) was a deferred constraint trigger; it is a pre-commit check here.
 //!

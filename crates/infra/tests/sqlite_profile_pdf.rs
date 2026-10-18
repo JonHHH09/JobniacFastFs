@@ -46,7 +46,7 @@ https://github.com/ada-example\n\
 Summary\n\
 Backend engineer writing synthetic tests.\n\
 Skills\n\
-Kotlin, PostgreSQL, Docker\n\
+Kotlin, SQLite, Docker\n\
 Experience\n\
 Senior Engineer | Example Corp | Berlin\n\
 Jan 2020 - Present\n\
@@ -225,7 +225,7 @@ async fn assert_postings_match(fixture: &Fixture, graph: &ProfileGraph) -> TestR
 /// must roll back. `Lose` makes a competing source for the same extraction appear just before the
 /// savepoint of the write (SQLite has one writer, so a competitor cannot commit on another
 /// connection meanwhile; a row from before the savepoint survives its rollback, as the committed
-/// winner of PostgreSQL did) and reports the lost `ON CONFLICT DO NOTHING` race as `false`.
+/// winner of a concurrent writer did) and reports the lost `ON CONFLICT DO NOTHING` race as `false`.
 struct LinkSeam {
     outcome: SeamOutcome,
 }

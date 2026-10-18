@@ -1,7 +1,7 @@
 //! SQLite unit of work: read-write and read-only scopes over [`SqlitePool`].
 //!
-//! The scope semantics are those of the core port (`jobniac_core::transactions`) and of the
-//! PostgreSQL adapter (`PgUnitOfWork`). As there, the current connection lives in an explicit
+//! The scope semantics are those of the core port (`jobniac_core::transactions`) and the
+//! current connection lives in an explicit
 //! [`SqliteTransaction`] value that each scope passes to its body, and repositories take it as an
 //! argument:
 //!
@@ -14,7 +14,7 @@
 //! }).await
 //! ```
 //!
-//! # Differences from PostgreSQL
+//! # Scope rules
 //!
 //! * A read-write scope runs `BEGIN IMMEDIATE` on the pool's single writer, so writers are
 //!   serialized and a write never fails late with a lock upgrade error. A read-only scope runs
@@ -29,8 +29,8 @@
 //! * [`SqliteTransaction::savepoint`] opens a savepoint that rolls back on `Err` and releases on
 //!   `Ok`, inside the current transaction.
 //! * [`SqliteTransaction::before_commit`] registers a check that runs on the transaction's
-//!   connection just before `COMMIT`, in registration order. It replaces the deferred PostgreSQL
-//!   constraint triggers (see the rules list in the [`crate::sqlite`] docs). A failing check rolls the scope back.
+//!   connection just before `COMMIT`, in registration order. It runs the checks that need the
+//!   whole transaction state (see the rules list in the [`crate::sqlite`] docs). A failing check rolls the scope back.
 //!
 //! # Repository pattern
 //!
@@ -45,7 +45,7 @@
 //!
 //! # Hooks
 //!
-//! As for PostgreSQL: hooks run after the connection is released, outside any transaction, in the
+//! Hooks run after the connection is released, outside any transaction, in the
 //! order of `jobniac_core::transactions`. A failing hook is logged by the core and never
 //! propagates. Hooks and checks registered on a joined body belong to the enclosing scope.
 //!

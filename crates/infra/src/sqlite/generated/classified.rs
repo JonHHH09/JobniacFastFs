@@ -1,11 +1,9 @@
 //! SQLite adapter of the classified generated-PDF port: reserve, find, materialize, renew, abandon
 //! and expired recovery.
 //!
-//! As in [`super::repository`], PostgreSQL took the document advisory lock and then the asset lock
-//! of a generation, blocking in materialization and abandonment and trying in renewal and recovery.
-//! Here the single writer replaces both forms: a renewal or recovery that PostgreSQL skipped
-//! because a lock was busy runs after the other writer committed and rereads its row, so it
-//! refuses by the same state checks (a rotated fence, a retired asset, a finished intent).
+//! As in [`super::repository`], the single writer serializes the transactions of a generation: a
+//! renewal or recovery that meets another writer runs after that writer committed and rereads its
+//! row, so it refuses by the same state checks (a rotated fence, a retired asset, a finished intent).
 //! Publication runs inside the materialization transaction, so the writer spans the file write and
 //! the finalization.
 

@@ -2,7 +2,7 @@
 //! after-completion hooks.
 //!
 //! The current transaction lives in an explicit [`TransactionContext`] that the use case owns and
-//! passes to repositories, so no ambient state exists. The PostgreSQL implementation stores its
+//! passes to repositories, so no ambient state exists. The SQLite implementation stores its
 //! connection next to each frame.
 //!
 //! Entry points are closure-scoped, so a frame is always popped on every return path of the body:
@@ -90,7 +90,7 @@ where
 /// Options for [`TransactionContext::transaction`].
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct TransactionOptions {
-    /// Advisory only for storage-free contexts; PostgreSQL uses it to set the transaction mode.
+    /// Advisory only for storage-free contexts; SQLite uses it to pick a reader or the writer.
     pub read_only: bool,
     /// Start a nested transaction even when one is active.
     pub requires_new: bool,

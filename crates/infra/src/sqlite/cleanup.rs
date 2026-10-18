@@ -5,12 +5,9 @@
 //! pruning, the read-only queue snapshot and the registry reads of the generated root. Every
 //! operation is one transaction of the unit of work.
 //!
-//! Serialization: PostgreSQL held the asset advisory lock in a single transaction, so the file
-//! callback ran inside that transaction, and a claim skipped an asset whose lock was busy. Here the
-//! transaction holds the single writer instead, so the file callback still runs inside the
+//! Serialization: the transaction holds the single writer, so the file callback runs inside the
 //! transaction and no other writer touches the asset meanwhile; a claim never finds a busy asset.
-//! The cleanup guards of the PostgreSQL trigger run in
-//! [`crate::sqlite::generated::guards`] before each write to the ledger.
+//! The cleanup guards run in [`crate::sqlite::generated::guards`] before each write to the ledger.
 
 mod remover;
 mod snapshot;

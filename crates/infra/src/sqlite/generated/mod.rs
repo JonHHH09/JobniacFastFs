@@ -3,7 +3,7 @@
 //! Every function takes the open transaction of a caller scope, so the caller owns the BEGIN and
 //! COMMIT and the clock instant. There are no advisory locks: every write scope is `BEGIN
 //! IMMEDIATE` on the single writer, so the lifecycle, the link writers and the cleanup exclude each
-//! other by construction. The PL/pgSQL guards of the PostgreSQL schema run in Rust, in
+//! other by construction. The guards that read other tables run in Rust, in
 //! [`guards`], right before the write they guard, or as a pre-commit check where the guard was a
 //! deferred constraint trigger.
 

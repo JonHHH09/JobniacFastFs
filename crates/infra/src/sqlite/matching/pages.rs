@@ -3,7 +3,7 @@
 //!
 //! The first page fixes a snapshot instant that later pages reuse. Each query binds the snapshot,
 //! the cursor's created-at and identifier, and the limit plus one, in that order. The row-value
-//! comparison `(created_at, id) < (?2, ?3)` is the keyset position, as in the PostgreSQL queries.
+//! comparison `(created_at, id) < (?2, ?3)` is the keyset position.
 
 use jobniac_core::matching::{JobGraph, MatchView, ProfileGraph};
 use jobniac_core::pagination::{Page, PageRequest};

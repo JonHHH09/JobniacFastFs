@@ -1,4 +1,4 @@
-//! Rules 13 to 15 of the PostgreSQL guard triggers, through the repositories that write the guarded
+//! The reference guards, through the repositories that write the guarded
 //! tables: an owned generated document is attached to a PDF extraction or a PDF source only while
 //! its asset is `ACTIVE`. The path rules of resume documents are covered by the profile link tests
 //! and the German tests. All data is synthetic.

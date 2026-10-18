@@ -1,4 +1,4 @@
-//! The generated-asset guards that replace the PostgreSQL PL/pgSQL triggers, applied directly on a
+//! The generated-asset guards, applied directly on a
 //! raw connection of a migrated SQLite file: adoption, document identity, retirement, deletion,
 //! cleanup retention, attachment of owned documents and the lease rules of an intent renewal. All
 //! data is synthetic.

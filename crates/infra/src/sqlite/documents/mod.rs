@@ -6,8 +6,8 @@
 //! names of the baseline schema.
 //!
 //! `save_file` inserts the blob (`ON CONFLICT (sha256) DO NOTHING`), then reads it back on a
-//! conflict, then inserts the document reference. The `FOR SHARE` read of the PostgreSQL adapter
-//! is not needed: every write transaction is `BEGIN IMMEDIATE`, so no other writer can change the
+//! conflict, then inserts the document reference. No shared read lock is needed:
+//! every write transaction is `BEGIN IMMEDIATE`, so no other writer can change the
 //! verified bytes. Every port method runs in the transaction the use case opened.
 
 mod list;
@@ -313,7 +313,7 @@ pub fn save_extraction_in_transaction(
     let page_count = i64::from(record.page_count);
     let created = instant_for_write(&record.created_at)?;
     let projections = pages_to_json(&record.pages).to_string();
-    // The PostgreSQL guard trigger on the extraction's file (rule 14): an owned generated
+    // The reference guard on the extraction's file: an owned generated
     // document is attachable only while its asset is ACTIVE.
     guard_document_reference(conn, Some(record.file_id))?;
     let mut saved = query_rows(

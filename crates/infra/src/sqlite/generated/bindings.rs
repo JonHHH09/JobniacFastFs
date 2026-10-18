@@ -1,6 +1,6 @@
 //! Shared PDF binding reads and integrity checks. The caller owns admission and the transaction.
 //!
-//! PostgreSQL took the sorted document and asset advisory locks here. SQLite has one writer, so
+//! The sorted document and asset locks are not needed: SQLite has one writer, so
 //! [`lock_pdf_bindings`] keeps its place in the call sequence but takes nothing.
 
 use jobniac_core::generated_assets::{AssetIdentity, GeneratedReservation, validate_generated_pdf};
@@ -19,7 +19,7 @@ use crate::sqlite::unit_of_work::SqliteTransaction;
 ///
 /// `current_transaction` is true for a classified asset that has no intent yet and was never
 /// updated, which only the transaction that inserted it can observe (see
-/// [`super::guards`]); the PostgreSQL adapter read `xmin` for this.
+/// [`super::guards`]); `row_version` carries it.
 pub const ASSET_COLUMNS: &str = "asset_id, root_id, relative_path, sha256, size_bytes, \
     document_id, lifecycle, created_at, materialized_at IS NOT NULL AS materialized, \
     generation_intent_required, \
@@ -118,7 +118,7 @@ pub async fn removed_assets(
 
 /// Takes the document and asset locks of one binding set. Nothing is locked: the writer of a write
 /// transaction is already exclusive, so this exists only to keep the call sequence of the
-/// PostgreSQL adapter.
+/// port.
 ///
 /// # Errors
 ///

@@ -26,7 +26,7 @@ use crate::sqlite::matching::value::{
 };
 use crate::sqlite::unit_of_work::SqliteTransaction;
 
-/// The evidence defect codes a stored disagreement may name (the PostgreSQL check
+/// The evidence defect codes a stored disagreement may name (the check
 /// `evidence_defect_codes <@ [...]`, which SQLite cannot express without a sub-query).
 const DEFECT_CODES: [&str; 4] = [
     "structured_evidence_missing",

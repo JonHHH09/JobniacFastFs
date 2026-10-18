@@ -188,13 +188,13 @@ pub(crate) fn unavailable() -> AppError {
     AppError::from(ApplicationError::database_unavailable())
 }
 
-/// Narrows a core display order (0 to `i32::MAX`) to the range of the PostgreSQL `integer` column
+/// Narrows a core display order (0 to `i32::MAX`) to the range of the `i32` display order
 /// that the profile contract keeps.
 pub(crate) fn order_value(value: i64) -> Result<i32, AppError> {
     i32::try_from(value).map_err(|_| AppError::Internal)
 }
 
-/// Narrows a core search weight to the range of the PostgreSQL `smallint` column that the profile
+/// Narrows a core search weight to the range of the `i16` weight that the profile
 /// contract keeps.
 pub(crate) fn weight_value(value: i64) -> Result<i16, AppError> {
     i16::try_from(value).map_err(|_| AppError::Internal)

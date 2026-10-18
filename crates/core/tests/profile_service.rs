@@ -564,7 +564,7 @@ async fn project_technology_display_order_overflow_is_validation_before_persiste
 }
 
 #[tokio::test]
-async fn display_order_accepts_postgresql_integer_boundaries() {
+async fn display_order_accepts_i32_boundaries() {
     for value in [0_u64, 2_147_483_647] {
         let repo = MemoryProfiles::new();
         let mut request = profile_request();

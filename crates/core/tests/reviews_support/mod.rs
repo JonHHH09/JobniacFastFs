@@ -2,7 +2,7 @@
 //! stepped clock and an in-memory repository that fakes the review port.
 //!
 //! The fake returns the stored row on a resubmission (the original review with its creation time, the
-//! stored disagreement with its status and linked issue), as the PostgreSQL adapter does. Every
+//! stored disagreement with its status and linked issue), as the SQLite adapter does. Every
 //! repository call is logged in the shape the golden vectors record, so the service steps can
 //! assert which calls a request reached.
 

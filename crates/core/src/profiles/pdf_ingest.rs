@@ -6,8 +6,8 @@
 //! locks and performs the canonical profile write and the one-to-one source link in one
 //! transaction, in a fixed lock order.
 //!
-//! The use case holds the orchestration and the decisions. The SQL and the advisory locks are in
-//! `jobniac_infra::postgres::profiles::pdf`, and the composition is in `jobniac_runtime`.
+//! The use case holds the orchestration and the decisions. The SQL is in
+//! `jobniac_infra::sqlite::profiles::pdf`, and the composition is in `jobniac_runtime`.
 
 use std::future::Future;
 use std::sync::Arc;
@@ -183,7 +183,7 @@ pub struct NewSourceLink {
 }
 
 /// Persistence port of the stored-PDF ingestion. Every call takes the transaction handle that the use
-/// case opens with the unit of work. The PostgreSQL adapter implements it over the same connection
+/// case opens with the unit of work. The SQLite adapter implements it over the same connection
 /// as the profile repository, so the graph write and the link are one transaction.
 #[async_trait]
 pub trait ProfilePdfRepository: Send + Sync {

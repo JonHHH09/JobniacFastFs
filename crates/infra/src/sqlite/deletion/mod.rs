@@ -7,7 +7,7 @@
 //! they are owned generated assets that become unreferenced. Documents, blobs, metadata and unowned
 //! or legacy paths are never touched.
 //!
-//! The row and advisory locks of the PostgreSQL adapter are not needed: the writer is exclusive for
+//! No row or advisory locks are needed: the writer is exclusive for
 //! the whole transaction. The asset retirement is `generated::assets::retire_asset`.
 //!
 //! Every database failure reaches the caller as a fixed envelope: an integrity

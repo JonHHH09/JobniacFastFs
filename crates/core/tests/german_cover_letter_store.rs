@@ -270,7 +270,7 @@ fn parent_chronology_is_source_constructor_invariant() {
 }
 
 #[test]
-fn positions_are_exact_postgres_nonnegative_integers() {
+fn positions_are_exact_nonnegative_integers() {
     for value in [-1, 2_147_483_648] {
         assert!(DisplayOrder::new(value).is_none(), "{value}");
     }
