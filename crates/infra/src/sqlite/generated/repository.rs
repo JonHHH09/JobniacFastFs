@@ -27,13 +27,13 @@ use uuid::Uuid;
 use super::IntentError;
 use super::assets::retire_asset;
 use super::bindings::{ASSET_COLUMNS, AssetRow};
-use super::documents::{find_content, save_file};
 use super::guards::{NewAsset, generated_asset_referenced, guard_asset_insert};
 use super::intents::find_generation_intent;
 use super::run_with;
 use super::writer::run_file_phase;
 use crate::generated::asset_files::RemovalFailureCategory;
 use crate::sqlite::codec::{get_id, instant_text, uuid_text};
+use crate::sqlite::documents::{find_content_in_transaction, save_file_in_transaction};
 use crate::sqlite::error::SqliteError;
 use crate::sqlite::unit_of_work::{SqliteTransaction, SqliteUnitOfWork};
 
@@ -117,8 +117,8 @@ pub(super) async fn reservation_content(
     asset: &AssetRow,
 ) -> Result<(GeneratedReservation, Vec<u8>), AppError> {
     let document_id = asset.document_id.ok_or_else(unavailable)?;
-    let (metadata, content) =
-        run_with(tx, |conn| find_content(conn, document_id))?.ok_or_else(unavailable)?;
+    let (metadata, content) = run_with(tx, |conn| find_content_in_transaction(conn, document_id))?
+        .ok_or_else(unavailable)?;
     if metadata.id != document_id
         || metadata.media_type != PDF_MEDIA_TYPE
         || metadata.sha256 != asset.identity.sha256()
@@ -157,7 +157,7 @@ pub(super) fn reserve_rows(
         created_at: format_instant(now),
         updated_at: format_instant(now),
     };
-    save_file(conn, &metadata, content)?;
+    save_file_in_transaction(conn, &metadata, content)?;
     let size = i64::try_from(identity.size_bytes()).map_err(|_| AppError::Internal)?;
     guard_asset_insert(
         conn,

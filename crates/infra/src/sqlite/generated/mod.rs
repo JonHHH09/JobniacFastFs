@@ -10,7 +10,6 @@
 pub mod assets;
 pub mod bindings;
 pub mod classified;
-pub mod documents;
 pub mod guards;
 pub mod intents;
 pub mod ports;

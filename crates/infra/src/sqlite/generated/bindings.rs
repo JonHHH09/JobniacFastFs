@@ -9,9 +9,9 @@ use time::OffsetDateTime;
 use uuid::Uuid;
 
 use super::IntentError;
-use super::documents::find_content;
 use super::run_with;
 use crate::sqlite::codec::{get_id, get_opt_id, get_ts, uuid_text};
+use crate::sqlite::documents::find_content_in_transaction;
 use crate::sqlite::error::SqliteError;
 use crate::sqlite::unit_of_work::SqliteTransaction;
 
@@ -165,7 +165,8 @@ pub async fn verify_pdf_binding(
         {
             return Err(IntentError::Binding);
         }
-        let found = find_content(conn, binding.document_id).map_err(IntentError::Database)?;
+        let found = find_content_in_transaction(conn, binding.document_id)
+            .map_err(IntentError::Database)?;
         let Some((metadata, content)) = found else {
             return Err(IntentError::Binding);
         };

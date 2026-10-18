@@ -153,27 +153,7 @@ impl DocumentRepository for SqliteDocumentRepository {
         tx: &mut SqliteTransaction,
         document_id: Uuid,
     ) -> Result<Option<(DocumentMetadata, Vec<u8>)>, AppError> {
-        with_connection(tx, |conn| {
-            let mut found = query_rows(
-                conn,
-                &format!(
-                    "SELECT {METADATA_COLUMNS}, {BOUNDED_CONTENT} FROM document_documents file \
-                     JOIN document_blobs blob ON blob.id = file.blob_id WHERE file.id = ?2"
-                ),
-                &[&MAX_DOCUMENT_BYTES, &Id(document_id)],
-                |row| {
-                    let metadata = metadata_from_row(row)?;
-                    let raw = column(row, "content")?;
-                    Ok((metadata, raw))
-                },
-            )?;
-            let Some((metadata, raw)) = found.pop() else {
-                return Ok(None);
-            };
-            let content =
-                run_file_phase(|| verified_content(raw, metadata.byte_size, &metadata.sha256))?;
-            Ok(Some((metadata, content)))
-        })
+        with_connection(tx, |conn| find_content_in_transaction(conn, document_id))
     }
 
     async fn find_extraction(
@@ -282,6 +262,31 @@ pub fn save_file_in_transaction(
         ],
     )?;
     find_metadata(conn, metadata.id)?.ok_or_else(unavailable)
+}
+
+/// Reads the metadata and the verified bytes of one document. The caller owns the transaction.
+pub fn find_content_in_transaction(
+    conn: &Connection,
+    document_id: Uuid,
+) -> Result<Option<(DocumentMetadata, Vec<u8>)>, AppError> {
+    let mut found = query_rows(
+        conn,
+        &format!(
+            "SELECT {METADATA_COLUMNS}, {BOUNDED_CONTENT} FROM document_documents file \
+             JOIN document_blobs blob ON blob.id = file.blob_id WHERE file.id = ?2"
+        ),
+        &[&MAX_DOCUMENT_BYTES, &Id(document_id)],
+        |row| {
+            let metadata = metadata_from_row(row)?;
+            let raw = column(row, "content")?;
+            Ok((metadata, raw))
+        },
+    )?;
+    let Some((metadata, raw)) = found.pop() else {
+        return Ok(None);
+    };
+    let content = run_file_phase(|| verified_content(raw, metadata.byte_size, &metadata.sha256))?;
+    Ok(Some((metadata, content)))
 }
 
 /// Reads the metadata of one document.
