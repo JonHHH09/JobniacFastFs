@@ -1,4 +1,5 @@
 // Paths, environment and temporary directories shared by the runner and the specs.
+import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -63,8 +64,29 @@ export function createRunRoot() {
   const importRoot = join(root, "imports");
   const generatedRoot = join(root, "generated");
   mkdirSync(importRoot);
-  // The Linux generated root must be owner-only (no group or other bits), or setup-generated-root
-  // refuses it. The mode is ignored on Windows.
+  // The generated root must be private, or setup-generated-root refuses it. Linux: owner-only mode
+  // bits. Windows ignores the mode, so the folder gets a protected DACL instead.
   mkdirSync(generatedRoot, { mode: 0o700 });
+  if (process.platform === "win32") {
+    protectWindowsDirectory(generatedRoot);
+  }
   return { root, importRoot, generatedRoot };
+}
+
+/**
+ * Replaces the inherited ACL of a Windows directory with a protected one for the current user,
+ * SYSTEM and Administrators, the principals the setup check trusts. Without this the folder
+ * inherits the ACL of its parent, which on the CI runner (workspace on D:) carries an
+ * Authenticated Users write grant that setup-generated-root rightly refuses as a shared directory.
+ */
+function protectWindowsDirectory(directory) {
+  const whoami = execFileSync("whoami", ["/user", "/fo", "csv", "/nh"], { encoding: "utf8" });
+  const sid = /"(S-1-[0-9-]+)"/.exec(whoami)?.[1];
+  if (!sid) {
+    throw new Error("the current user SID could not be read");
+  }
+  const grants = [sid, "S-1-5-18", "S-1-5-32-544"].map((principal) => `*${principal}:(OI)(CI)F`);
+  execFileSync("icacls", [directory, "/inheritance:r", "/grant:r", ...grants], {
+    stdio: ["ignore", "ignore", "inherit"],
+  });
 }

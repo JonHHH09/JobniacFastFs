@@ -60,7 +60,10 @@ test is printed to the console. The run root (`target/e2e-*`) is removed at the 
   `setup-generated-root` refused a root under `%TEMP%`, under `C:\` and under `%LOCALAPPDATA%` with
   "could not be initialized", and accepted the same empty directory under the repository's `target/`
   folder. The suite therefore uses `target/e2e-*`. The cause is not diagnosed; it is a finding for the
-  owner, because the default per-user generated root sits under `%LOCALAPPDATA%`.
+  owner, because the default per-user generated root sits under `%LOCALAPPDATA%`. On the CI runner
+  the workspace is on `D:\`, whose inherited ACL grants Authenticated Users write access, so the
+  runner gives the generated root a protected DACL (current user, SYSTEM, Administrators) with
+  `icacls` before setup (`e2e/support/config.mjs`).
 - **The debug build has no sidecar and no notices.** The sidecar (`binaries/jobniac-cli`) and the
   notices resource are added only by `src-tauri/tauri.release.conf.json`, which the release build
   passes with `--config`; the debug build does not use it. The suite runs the console binary from
