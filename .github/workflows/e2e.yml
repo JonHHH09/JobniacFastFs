@@ -4,23 +4,36 @@ name: End-to-end
 # tauri-driver on Windows (msedgedriver matching the WebView2 runtime) and Linux (WebKitWebDriver
 # under xvfb), over a disposable PostgreSQL 18 cluster started by pg-run.
 #
-# Cost control, as in ci.yml: the `changes` job path-filters pull requests and skips everything for a
-# tree that already passed on a push to development or main; the Windows job runs on pushes and manual
-# runs, not on pull requests; `mark-passed` records a fully green push run. The two platform jobs are
-# plain jobs with literal names (a skipped matrix job would report an unexpanded name).
+# Reusable: release.yml calls this workflow (job `e2e`) on the merge commit of a promotion pull
+# request with `release-call: true`, which runs the full set, Windows included.
+#
+# Cost control, as in ci.yml: the `changes` job path-filters pull requests into development and skips
+# everything for a tree that already passed on a trusted run (a push or the nightly dispatch on
+# development, or a promotion pull request); a promotion pull request and the release call run
+# everything, the Windows job does not run on other pull requests; `mark-passed` records a fully
+# green run of those kinds. There is no push run for main. Pull requests restore the Rust caches but
+# never save them (`save-if`). The two platform jobs are plain jobs with literal names (a skipped
+# matrix job would report an unexpanded name).
 
 on:
   push:
-    branches: [main, development]
+    branches: [development]
   pull_request:
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      release-call:
+        description: "Called by release.yml on the promotion merge commit: test that commit and run the full set."
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
+# Pull requests cancel superseded runs. Pushes and the release call (a merged pull request) never cancel.
 concurrency:
   group: e2e-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged != true }}
 
 env:
   CARGO_TERM_COLOR: always
@@ -38,6 +51,8 @@ jobs:
       contents: read
       # Reads the Actions cache list for the passed marker (scripts/ci/gate.sh).
       actions: read
+      # Reads a pull request to verify a promotion pull request marker (scripts/ci/gate.sh).
+      pull-requests: read
     outputs:
       tree: ${{ steps.gate.outputs.tree }}
       already-passed: ${{ steps.gate.outputs.already-passed }}
@@ -48,12 +63,17 @@ jobs:
         with:
           # A pull request checks out the merge commit; depth 2 reaches its first parent (the base).
           fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 1 }}
+          # The release call tests the merge commit that release.yml pins, not the default merge ref.
+          ref: ${{ inputs.release-call && github.event.pull_request.merge_commit_sha || '' }}
           persist-credentials: false
       - name: Decide which jobs run
         id: gate
         env:
           GH_TOKEN: ${{ github.token }}
           EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          # The gate's name for the release call: a full run, no path filtering.
+          POSTGRES_REQUIRED: ${{ inputs.release-call }}
         run: bash scripts/ci/gate.sh e2e
 
   e2e-linux:
@@ -66,6 +86,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          # The release call tests the merge commit that release.yml pins, not the default merge ref.
+          ref: ${{ inputs.release-call && github.event.pull_request.merge_commit_sha || '' }}
           persist-credentials: false
       - uses: ./.github/actions/e2e-suite
         with:
@@ -81,19 +103,28 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          # The release call tests the merge commit that release.yml pins, not the default merge ref.
+          ref: ${{ inputs.release-call && github.event.pull_request.merge_commit_sha || '' }}
           persist-credentials: false
       - uses: ./.github/actions/e2e-suite
         with:
           platform: windows-latest
 
-  # Records that this tree passed both platforms. Saved on pushes only, so the cache is scoped to
-  # development or main, which is what the gate trusts. `success()` is false when a needed job was
-  # skipped, so a marker always means that both jobs ran and passed.
+  # Records that this tree passed both platforms. Saved by pushes and dispatches on development or
+  # main (scoped to that branch) and by a promotion pull request (scoped to refs/pull/<n>/merge,
+  # which the gate verifies through the API); never by the release call. `success()` is false when
+  # a needed job was skipped, so a marker always means that both jobs ran and passed.
   mark-passed:
     name: Mark tree as passed
     needs: [changes, e2e-linux, e2e-windows]
     if: >-
-      ${{ success() && github.event_name == 'push'
+      ${{ success()
+      && (github.event_name == 'push'
+      || (github.event_name == 'workflow_dispatch'
+      && (github.ref == 'refs/heads/development' || github.ref == 'refs/heads/main'))
+      || (github.event_name == 'pull_request' && !inputs.release-call
+      && github.base_ref == 'main' && github.head_ref == 'development'
+      && github.event.pull_request.head.repo.full_name == github.repository))
       && needs.changes.outputs.already-passed != 'true'
       && needs.e2e-linux.result == 'success'
       && needs.e2e-windows.result == 'success' }}
