@@ -124,6 +124,8 @@ describe("JobniacFast desktop workflows (default session)", function () {
 
   it("3 pastes a job posting and sees it in the saved list", async () => {
     await openSection(browser, "jobs");
+    // The paste panel is hidden until "Add posting" is pressed.
+    await click(browser, "addPostingToggleButton");
     await fill(browser, "jobTextInput", JOB_POSTING);
     await click(browser, "addJobButton");
     await waitForText(browser, "jobSaveStatusLabel", "Job posting saved.");
