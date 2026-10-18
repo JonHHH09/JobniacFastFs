@@ -69,9 +69,9 @@ repository, and do not write machine names, user names or local paths into any t
 
 ## 5. First launch
 
-10. Start `jobniac.exe` from the Start menu. Expected: a window titled `JobniacFast` opens. With no
-    database configured, health reports `DOWN` with `CONNECTION_UNAVAILABLE`; that is correct for
-    this step.
+10. Start `jobniac.exe` from the Start menu. Expected: a window titled `JobniacFast` opens. The app creates
+    the database file on its first start, so health reports `UP`. (If the file cannot be opened,
+    health reports `DOWN` with `CONNECTION_UNAVAILABLE`.)
 11. Close the window. Expected: it closes without a dialog, because nothing is unsaved.
     The automated smoke (`scripts/release/clean_machine_smoke.py`, launch step) uses the hook
     `JOBNIAC_SMOKE_QUIT_AFTER_LOAD=1`, which is implemented (`crates/runtime/src/smoke.rs`, wired in
@@ -80,21 +80,22 @@ repository, and do not write machine names, user names or local paths into any t
 
 ## 6. Database and configuration
 
-12. Install PostgreSQL 18 in the VM from the PostgreSQL installer (your choice of installer;
-    the port must be on `127.0.0.1`). Note its `bin` folder.
-13. Create a role and a database for this run, with names you choose. Expected: `CREATE DATABASE`.
-    ```powershell
-    & "<postgresql-18-bin>\psql.exe" --host 127.0.0.1 --port <port> --username <admin-user> --dbname postgres -c "CREATE DATABASE <database>;"
-    ```
-14. Set the database variables for this run as described in
-    [MCP client registration, section 1](mcp-client-registration.md#1-database-settings), in a new
-    PowerShell window. Relaunch `jobniac.exe`.
-15. Migrate. Expected on an empty database: `Applied migrations: V0001, V0002, V0003, V0004, V0005, V0006`,
-    exit code 0. Run it again. Expected: `Schema is current (V0006); nothing to apply.`
+12. Note where the database file will be: `%LOCALAPPDATA%\Jobniac\data\jobniac.sqlite3`. It does not
+    exist yet. Nothing has to be installed for it. To use another location, set `JOBNIAC_DB_PATH` to an
+    absolute file path in a new PowerShell window (see
+    [MCP client registration, section 1](mcp-client-registration.md#1-database-location)).
+13. Relaunch `jobniac.exe` from that window. Expected: the window opens and creates the database file.
+14. Migrate. Expected on a file the app has already created: `Schema is current (V0001); nothing to apply.`
+    On a missing file (run this before step 13 to check): `Applied migrations: V0001`. Exit code 0 both
+    times.
     ```powershell
     & "$env:LOCALAPPDATA\JobniacFast\jobniac-cli.exe" migrate; $LASTEXITCODE
     ```
     Failure: any `Jobniac migrate:` line. Record the text.
+15. Check that the file exists. Expected: `True`.
+    ```powershell
+    Test-Path "$env:LOCALAPPDATA\Jobniac\data\jobniac.sqlite3"
+    ```
 
 ## 7. Health
 
@@ -110,7 +111,7 @@ repository, and do not write machine names, user names or local paths into any t
 
 18. Put a synthetic PDF (generated for the run or copied from the repository's test fixtures, never a
     real document) in a folder outside the repository, for example `C:\smoke\import`. Set
-    `JOBNIAC_DOCUMENT_IMPORT_ROOT` to that absolute folder in the same environment as step 14.
+    `JOBNIAC_DOCUMENT_IMPORT_ROOT` to that absolute folder in the same environment as step 13.
     Restart the app.
 19. Import the PDF from the document screen and open the preview. Expected: the import completes,
     and the preview shows the first page.

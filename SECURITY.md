@@ -28,18 +28,17 @@ In scope:
 - Outbound link fetching and the Arbeitnow scan (both opt-in).
 - The sandboxed PDF and fetch worker processes.
 - Generated-file and import-root handling.
-- Handling of database configuration (`JOBNIAC_DB_*`), secrets and error output.
+- Handling of the database location (`JOBNIAC_DB_PATH`), secrets and error output.
 
 Out of scope: vulnerabilities in third-party dependencies that are not exploitable through this
-project (report them upstream), issues that require an already compromised machine or account, and
-a PostgreSQL server you configured yourself.
+project (report them upstream) and issues that require an already compromised machine or account.
 
 ## Security model
 
 JobniacFast follows this security model:
 
-- Only explicit loopback PostgreSQL configuration is accepted; no credentials are embedded and no
-  `.env` file is loaded.
+- The database is a local SQLite file, created owner-only in the per-user data folder; a custom
+  `JOBNIAC_DB_PATH` must be a clean absolute path. No credentials exist and no `.env` file is loaded.
 - Errors are sanitized: raw errors, connection strings, secrets and local paths are not shown.
 - The database schema changes only through the explicit `migrate` command.
 - The STDIO MCP server writes only JSON-RPC to stdout.

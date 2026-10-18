@@ -27,8 +27,8 @@ cargo test --workspace --locked
 pnpm build
 ```
 
-- Tests use synthetic data only. Database tests run only against a disposable PostgreSQL cluster,
-  never a real or personal database.
+- Tests use synthetic data only. Database tests run in plain `cargo test` against a temporary SQLite
+  file, never a real or personal database.
 - CI runs on Windows and Linux; platform-specific code needs tests on both.
 
 ## Architecture rules

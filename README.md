@@ -3,7 +3,7 @@
 JobniacFast is a local-first desktop app and MCP server for managing candidate profiles and job
 postings, matching them deterministically, and generating tailored resume and cover-letter PDFs
 (generic, Canadian English and French, and German). It is built from a Rust core and a React and
-TypeScript user interface on Tauri 2, and stores its data in a PostgreSQL 18 database. Your data
+TypeScript user interface on Tauri 2, and stores its data in an embedded SQLite file. Your data
 stays on your machine.
 
 ## Status
@@ -14,8 +14,6 @@ on GitHub Releases that the owner publishes by hand.
 ## Requirements
 
 - Windows 11 (x64) or Linux (x64, AppImage or `.deb`).
-- PostgreSQL 18 on your machine, reachable on the loopback address (`127.0.0.1` or `::1`).
-  Server version 15 or later is needed for the schema; the health check reports `DOWN` for anything other than 18.
 - WebView2 on Windows. Windows 11 includes it; the installer installs it if it is missing.
 
 ## Install
@@ -43,27 +41,32 @@ expected for unsigned downloads.
 
 **Uninstall:** use Settings, Apps, JobniacFast, Uninstall, or the `uninstall.exe` in the install folder.
 
-## Set up the database
+## Data storage
 
-Create a database and a role in PostgreSQL 18, then set these environment variables for the user
-(or pass them to the process, see below):
+Your data is one SQLite file. The app and `jobniac-cli` create it, and bring it up to date, the
+first time they start; there is nothing to install or configure. The default location is per user
+and outside the install folder, so an update or a reinstall never touches it:
 
-| Variable | Meaning |
-|---|---|
-| `JOBNIAC_DB_HOST` | `127.0.0.1` or `::1`. No other host is accepted. |
-| `JOBNIAC_DB_PORT` | Port, digits only |
-| `JOBNIAC_DB_NAME` | Database name, letters, digits and underscores |
-| `JOBNIAC_DB_USER` | Role name, same rule |
-| `JOBNIAC_DB_PASSWORD` | Role password |
+- Windows: `%LOCALAPPDATA%\Jobniac\data\jobniac.sqlite3`
+- Linux: `$XDG_DATA_HOME/jobniac/data/jobniac.sqlite3`, or `~/.local/share/jobniac/data/jobniac.sqlite3`
+  when `XDG_DATA_HOME` is not set
 
-Then apply the schema once with the command-line tool:
+Set `JOBNIAC_DB_PATH` to an absolute file path to use another file. A value that is not a clean
+absolute path stops the database from opening; it is never replaced by the default.
+
+The desktop app and `jobniac-cli` can use the same file at the same time. To back up, close the app
+and any running `jobniac-cli`, then copy `jobniac.sqlite3` (and a `jobniac.sqlite3-wal` or
+`jobniac.sqlite3-shm` file next to it, if one is left). To restore, copy the file back while the app
+is closed.
+
+`jobniac-cli migrate` applies the schema to the file explicitly:
 
 ```powershell
 & "$env:LOCALAPPDATA\JobniacFast\jobniac-cli.exe" migrate
 ```
 
-The schema changes only through this command. A fresh database prints `Applied migrations: ...`;
-a database that is already current prints `Schema is current (...); nothing to apply.`
+A new file prints `Applied migrations: ...`; a file that is already current prints
+`Schema is current (...); nothing to apply.` A file written by a newer version of the app is refused.
 
 ## Configuration
 
@@ -73,7 +76,7 @@ read from command-line arguments. An option marked **exact `1`** is on only when
 
 | Variable | Default | Effect |
 |---|---|---|
-| `JOBNIAC_DB_*` | none | Database connection (see above). Without it, database features report `DOWN`. |
+| `JOBNIAC_DB_PATH` | per-user default (see Data storage) | Absolute path of the SQLite database file. If the file cannot be opened, database features report `DOWN`. |
 | `JOBNIAC_DOCUMENT_IMPORT_ROOT` | none | Absolute folder that PDFs can be imported from. |
 | `JOBNIAC_GENERATED_ROOT` | `%LOCALAPPDATA%\Jobniac\generated` | Folder for generated PDFs. Set it only to choose another folder. |
 | `JOBNIAC_GENERATED_ENABLED` | off (**exact `1`**) | Allows PDF generation and cleanup. Run `jobniac-cli setup-generated-root` once first. |
@@ -99,13 +102,7 @@ JobniacFast includes an MCP server. The stdio mode is started by the MCP client:
     "jobniac": {
       "command": "C:\\Users\\<you>\\AppData\\Local\\JobniacFast\\jobniac-cli.exe",
       "args": ["mcp"],
-      "env": {
-        "JOBNIAC_DB_HOST": "127.0.0.1",
-        "JOBNIAC_DB_PORT": "<port>",
-        "JOBNIAC_DB_NAME": "<database>",
-        "JOBNIAC_DB_USER": "<role>",
-        "JOBNIAC_DB_PASSWORD": "<password>"
-      }
+      "env": {}
     }
   }
 }
