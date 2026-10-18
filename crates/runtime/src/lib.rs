@@ -9,6 +9,7 @@ pub mod app_settings;
 pub mod arbeitnow;
 pub mod artifacts;
 pub mod blocking;
+pub mod database;
 pub mod deletion;
 pub mod diagnostics;
 pub mod document_ports;

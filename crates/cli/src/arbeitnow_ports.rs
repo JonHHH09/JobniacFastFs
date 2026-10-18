@@ -12,7 +12,7 @@ use jobniac_core::arbeitnow::import::{ImportOutcome, ImportRequest};
 use jobniac_core::arbeitnow::scan::{ScanRequest, ScanResult};
 use jobniac_core::env::Environment;
 use jobniac_core::errors::ApplicationError;
-use jobniac_infra::postgres::config::DatabaseConfig;
+use jobniac_infra::sqlite::pool::SqlitePool;
 use jobniac_mcp::tools::arbeitnow::{ArbeitnowImportPort, ArbeitnowPorts, ArbeitnowScanPort};
 use jobniac_runtime::arbeitnow::{ArbeitnowServices, compose_arbeitnow};
 use jobniac_runtime::services::StartupError;
@@ -59,7 +59,7 @@ pub fn from_services(services: Option<ArbeitnowServices>) -> ArbeitnowPorts {
 /// unusable.
 pub fn from_environment(
     env: &Environment,
-    database: Option<&DatabaseConfig>,
+    database: Option<&SqlitePool>,
 ) -> Result<ArbeitnowPorts, StartupError> {
     compose_arbeitnow(env, database)
         .map(from_services)

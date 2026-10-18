@@ -1,13 +1,10 @@
 //! The success paths of the generated-root commands through the real `jobniac-cli` binary, against a
-//! disposable PostgreSQL 18 server: `setup-generated-root` (first run, then the confirming second
+//! temporary SQLite database: `setup-generated-root` (first run, then the confirming second
 //! run), `cleanup` on an empty queue and with one queued asset, and the refusal of a schema that is
 //! not current. The stdout bytes and exit statuses are the ones the binary prints. Every
-//! process starts with a cleared environment that receives only the disposable database settings
-//! and, where the command needs them, the synthetic root values.
-//!
-//! The server-backed tests skip with a notice when `JOBNIAC_TEST_PG_PORT` is unset locally; on CI
-//! (`CI` set) a missing port fails the test. All data is synthetic, and each root is a temporary
-//! directory removed at the end.
+//! process starts with a cleared environment that receives only the temporary database path and,
+//! where the command needs them, the synthetic root values. All data is synthetic, and each root is
+//! a temporary directory removed at the end.
 
 use std::error::Error;
 use std::path::{Path, PathBuf};
@@ -20,12 +17,12 @@ use jobniac_core::errors::AppError;
 use jobniac_core::generated_assets::{AssetIdentity, PreparationOutcome, sha256_hex};
 use jobniac_core::transactions::TransactionOptions;
 use jobniac_infra::generated::root::ensure_private_directory;
-use jobniac_infra::postgres::cleanup::PgCleanupRepository;
-use jobniac_infra::postgres::config::load_database_config;
-use jobniac_infra::postgres::migrations::migrate;
-use jobniac_infra::postgres::pool::PgPool;
-use jobniac_infra::postgres::unit_of_work::PgUnitOfWork;
-use jobniac_testkit::pg::{TestDatabase, TestServer};
+use jobniac_infra::sqlite::cleanup::SqliteCleanupRepository;
+use jobniac_infra::sqlite::codec::instant_text;
+use jobniac_infra::sqlite::migrations::migrate;
+use jobniac_infra::sqlite::pool::SqlitePool;
+use jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork;
+use jobniac_testkit::sqlite::TempDatabase;
 use uuid::Uuid;
 
 type TestResult = Result<(), Box<dyn Error>>;
@@ -44,20 +41,12 @@ const ONE_TASK_METADATA: &str = concat!(
     r#"{"recoveredGenerations":0,"claimed":1,"completed":1,"retryScheduled":0,"#,
     r#""leaseLost":0,"blocked":0,"stateFailures":0,"prunedCompleted":0}"#,
 );
-/// The database keys the CLI reads (`JOBNIAC_DB_*`).
-const DATABASE_KEYS: [&str; 5] = [
-    "JOBNIAC_DB_HOST",
-    "JOBNIAC_DB_PORT",
-    "JOBNIAC_DB_NAME",
-    "JOBNIAC_DB_USER",
-    "JOBNIAC_DB_PASSWORD",
-];
 /// Synthetic PDF bytes for the queued asset.
 const PDF: &[u8] = b"%PDF-1.7\n% synthetic generation cli asset\n";
 
-/// A disposable database and a private temporary root, removed when the value is dropped.
+/// A temporary database and a private temporary root, removed when the value is dropped.
 struct Scenario {
-    database: TestDatabase,
+    database: TempDatabase,
     scratch: tempfile::TempDir,
 }
 
@@ -73,18 +62,14 @@ impl Scenario {
 
     /// Runs `jobniac-cli <mode>` with the database settings and the given extra variables.
     fn run(&self, mode: &str, extra: &[(&str, String)]) -> std::io::Result<Output> {
-        let environment = self.database.environment();
         let mut command = Command::new(env!("CARGO_BIN_EXE_jobniac-cli"));
         command.env_clear().arg(mode);
-        // Windows needs SYSTEMROOT for its socket layer; without it the child cannot connect.
+        // Windows needs SYSTEMROOT for its runtime; without it the child cannot start.
         if let Some(system_root) = std::env::var_os("SYSTEMROOT") {
             command.env("SYSTEMROOT", system_root);
         }
-        for key in DATABASE_KEYS {
-            if let Some(value) = environment.get(key) {
-                command.env(key, value);
-            }
-        }
+        let (key, value) = self.database.environment_pair();
+        command.env(key, value);
         for (key, value) in extra {
             command.env(key, value);
         }
@@ -110,31 +95,16 @@ fn cleanup_variables(root: &Path) -> Vec<(&'static str, String)> {
     variables
 }
 
-/// A scenario with a fresh database, or `None` when the server is not configured locally.
-///
-/// # Panics
-///
-/// Panics on CI when `JOBNIAC_TEST_PG_PORT` is missing, so the server-backed tests never pass
-/// without a database there.
-async fn start(migrated: bool) -> Result<Option<Scenario>, Box<dyn Error>> {
-    let Some(server) = TestServer::from_env() else {
-        assert!(
-            std::env::var_os("CI").is_none(),
-            "JOBNIAC_TEST_PG_PORT must be set in CI so that the PostgreSQL tests run"
-        );
-        eprintln!("skipped: JOBNIAC_TEST_PG_PORT is not set (run the test through pg-test)");
-        return Ok(None);
-    };
-    let database = server.fresh_database().await;
+/// A scenario with a fresh database file, migrated when `migrated` is set.
+fn start(migrated: bool) -> Result<Scenario, Box<dyn Error>> {
+    let database = TempDatabase::new()?;
     if migrated {
-        let config = load_database_config(&database.environment())
-            .ok_or("the disposable database configuration is invalid")?;
-        migrate(&config).await.map_err(|error| error.0)?;
+        migrate(database.path()).map_err(|error| error.0)?;
     }
     let scratch = tempfile::Builder::new()
         .prefix("jobniac-cli-success-")
         .tempdir()?;
-    Ok(Some(Scenario { database, scratch }))
+    Ok(Scenario { database, scratch })
 }
 
 /// The stdout of a successful command, as text. Any stderr is a failure of the scenario.
@@ -153,9 +123,7 @@ fn success_stdout(output: &Output) -> Result<String, Box<dyn Error>> {
 
 #[tokio::test]
 async fn setup_registers_the_root_once_and_then_confirms_it() -> TestResult {
-    let Some(scenario) = start(true).await? else {
-        return Ok(());
-    };
+    let scenario = start(true)?;
     let root = scenario.root()?;
     let variables = root_variables(&root);
 
@@ -175,9 +143,7 @@ async fn setup_registers_the_root_once_and_then_confirms_it() -> TestResult {
 
 #[tokio::test]
 async fn cleanup_on_an_empty_queue_prints_zero_metadata() -> TestResult {
-    let Some(scenario) = start(true).await? else {
-        return Ok(());
-    };
+    let scenario = start(true)?;
     let root = scenario.root()?;
     let setup = scenario.run("setup-generated-root", &root_variables(&root))?;
     success_stdout(&setup)?;
@@ -189,9 +155,7 @@ async fn cleanup_on_an_empty_queue_prints_zero_metadata() -> TestResult {
 
 #[tokio::test]
 async fn cleanup_removes_one_queued_asset_and_reports_it() -> TestResult {
-    let Some(scenario) = start(true).await? else {
-        return Ok(());
-    };
+    let scenario = start(true)?;
     let root = scenario.root()?;
     let setup = scenario.run("setup-generated-root", &root_variables(&root))?;
     success_stdout(&setup)?;
@@ -220,9 +184,7 @@ async fn cleanup_removes_one_queued_asset_and_reports_it() -> TestResult {
 
 #[tokio::test]
 async fn setup_refuses_a_schema_that_is_not_current_and_creates_nothing() -> TestResult {
-    let Some(scenario) = start(false).await? else {
-        return Ok(());
-    };
+    let scenario = start(false)?;
     let root = scenario.root()?;
 
     let output = scenario.run("setup-generated-root", &root_variables(&root))?;
@@ -239,41 +201,44 @@ async fn setup_refuses_a_schema_that_is_not_current_and_creates_nothing() -> Tes
 /// Registers the root row and seeds one RESERVED asset under it, then queues it for cleanup
 /// through the repository, as the application does. Returns the asset identity.
 async fn queue_one_asset(scenario: &Scenario, root: Uuid) -> Result<AssetIdentity, Box<dyn Error>> {
-    let config = load_database_config(&scenario.database.environment())
-        .ok_or("the disposable database configuration is invalid")?;
-    let uow = PgUnitOfWork::new(PgPool::new(Some(config)));
+    let uow = SqliteUnitOfWork::new(SqlitePool::open(scenario.database.path())?);
     let clock: Arc<dyn Clock> = Arc::new(SystemClock);
 
     let asset_id = Uuid::new_v4();
     let identity = AssetIdentity::new(asset_id, root, &sha256_hex(PDF), u64::try_from(PDF.len())?)?;
     let relative = identity.relative_path().to_owned();
     let digest = identity.sha256().to_owned();
-    let size = i64::try_from(PDF.len())?;
-    let now = clock.now();
+    let size = PDF.len();
+    let now = instant_text(clock.now());
     uow.transaction(TransactionOptions::default(), async |tx| {
-        tx.client()
-            .execute(
-                "INSERT INTO jobniac.generated_asset_roots (id, created_at) VALUES ($1, $2) \
+        tx.run(|connection| {
+            connection.execute(
+                "INSERT INTO jobniac_generated_asset_roots (id, created_at) VALUES (?1, ?2) \
                  ON CONFLICT (id) DO NOTHING",
-                &[&root, &now],
-            )
-            .await
-            .map_err(|_| AppError::Internal)?;
-        tx.client()
-            .execute(
-                "INSERT INTO jobniac.generated_assets (asset_id, root_id, relative_path, \
-                 sha256, size_bytes, document_id, lifecycle, created_at, \
-                 generation_intent_required) \
-                 VALUES ($1, $2, $3, $4, $5, NULL, 'RESERVED', $6, false)",
-                &[&asset_id, &root, &relative, &digest, &size, &now],
-            )
-            .await
-            .map_err(|_| AppError::Internal)?;
-        Ok::<(), AppError>(())
+                [root.to_string(), now.clone()],
+            )?;
+            connection.execute(
+                &format!(
+                    "INSERT INTO jobniac_generated_assets (asset_id, root_id, relative_path, \
+                     sha256, size_bytes, document_id, lifecycle, created_at, \
+                     generation_intent_required) \
+                     VALUES (?1, ?2, ?3, ?4, {size}, NULL, 'RESERVED', ?5, 0)"
+                ),
+                [
+                    asset_id.to_string(),
+                    root.to_string(),
+                    relative.clone(),
+                    digest.clone(),
+                    now.clone(),
+                ],
+            )?;
+            Ok(())
+        })
+        .map_err(|_| AppError::Internal)
     })
     .await?;
 
-    let repository = PgCleanupRepository::new(uow, clock);
+    let repository = SqliteCleanupRepository::new(uow, clock);
     if repository.prepare_cleanup(asset_id).await? != PreparationOutcome::Prepared {
         return Err("the seeded asset was not queued for cleanup".into());
     }

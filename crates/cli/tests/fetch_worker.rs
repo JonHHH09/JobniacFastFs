@@ -162,7 +162,7 @@ fn child_environment_of_fetch_kinds_is_the_allowlist_only() {
         ("SYSTEMROOT", "C:\\Windows"),
         ("HTTPS_PROXY", "http://proxy.example.invalid:3128"),
         ("SSL_CERT_FILE", "/etc/ssl/custom.pem"),
-        ("JOBNIAC_DATABASE_URL", "postgres://secret"),
+        ("JOBNIAC_DB_PATH", "/srv/jobniac-synthetic/jobniac.sqlite3"),
     ]
     .into_iter()
     .map(|(name, value)| (OsString::from(name), OsString::from(value)))

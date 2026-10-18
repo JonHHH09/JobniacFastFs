@@ -1,4 +1,4 @@
-//! The MCP job ports over the PostgreSQL-backed job use cases.
+//! The MCP job ports over the SQLite-backed job use cases.
 //!
 //! Like [`crate::profile_ports`], the composition root is the only place that knows both the MCP
 //! ports (`jobniac-mcp`) and the concrete use cases (`jobniac-core` over `jobniac-infra`). Each
@@ -10,18 +10,18 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use jobniac_core::errors::AppError;
 use jobniac_core::jobs::{JobSearchService, JobService};
-use jobniac_infra::postgres::jobs::PgJobRepository;
-use jobniac_infra::postgres::unit_of_work::PgUnitOfWork;
+use jobniac_infra::sqlite::jobs::SqliteJobRepository;
+use jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork;
 use jobniac_mcp::tools::jobs::{JobPort, JobSearchPort};
 use jobniac_runtime::services::JobServices;
 use serde_json::Value;
 
 use crate::profile_ports::to_dictionary;
 
-/// The job capture, get, keyset list and update use case over PostgreSQL.
-pub type JobUseCase = JobService<PgUnitOfWork, PgJobRepository>;
-/// The bounded job search use case over PostgreSQL.
-pub type JobSearchUseCase = JobSearchService<PgUnitOfWork, PgJobRepository>;
+/// The job capture, get, keyset list and update use case over SQLite.
+pub type JobUseCase = JobService<SqliteUnitOfWork, SqliteJobRepository>;
+/// The bounded job search use case over SQLite.
+pub type JobSearchUseCase = JobSearchService<SqliteUnitOfWork, SqliteJobRepository>;
 
 /// The MCP ports of the job tools. An absent port leaves its tools unregistered.
 #[derive(Debug, Clone, Default)]
@@ -87,16 +87,15 @@ mod tests {
     use jobniac_core::clock::SystemClock;
     use jobniac_core::jobs::{JobSearchService, JobService};
     use jobniac_core::pagination::{CursorCodec, CursorKey};
-    use jobniac_infra::postgres::config::load_database_config;
-    use jobniac_infra::postgres::jobs::PgJobRepository;
-    use jobniac_infra::postgres::migrations::migrate;
-    use jobniac_infra::postgres::pool::PgPool;
-    use jobniac_infra::postgres::unit_of_work::PgUnitOfWork;
+    use jobniac_infra::sqlite::jobs::SqliteJobRepository;
+    use jobniac_infra::sqlite::migrations::migrate;
+    use jobniac_infra::sqlite::pool::SqlitePool;
+    use jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork;
     use jobniac_mcp::catalog::Catalog;
     use jobniac_mcp::registry::{Arguments, ToolRegistry};
     use jobniac_mcp::result::ToolResult;
     use jobniac_mcp::tools::jobs;
-    use jobniac_testkit::pg::TestServer;
+    use jobniac_testkit::sqlite::TempDatabase;
     use serde_json::{Value, json};
 
     use super::build;
@@ -152,37 +151,30 @@ mod tests {
 
     fn capture_request(title: &str) -> Value {
         json!({
-            "text": "Synthetic posting text: Rust and PostgreSQL in a small team",
+            "text": "Synthetic posting text: Rust and SQLite in a small team",
             "sourceLabel": "synthetic-board",
             "title": title,
             "company": "Example Corp",
             "location": null,
-            "skills": ["Rust", "PostgreSQL"],
+            "skills": ["Rust", "SQLite"],
         })
     }
 
     /// The job tools through the MCP handler layer, over a disposable migrated database.
-    /// Skips with a notice when no PostgreSQL server is configured for the tests.
     #[tokio::test]
     async fn job_tools_capture_read_update_search_and_list_through_the_mcp_handlers() -> TestResult
     {
-        let Some(server) = TestServer::from_env() else {
-            eprintln!("skipped: JOBNIAC_TEST_PG_PORT is not set");
-            return Ok(());
-        };
-        let database = server.fresh_database().await;
-        let config = load_database_config(&database.environment())
-            .ok_or("the disposable database configuration is invalid")?;
-        migrate(&config).await.map_err(|error| error.0)?;
+        let database = TempDatabase::new()?;
+        migrate(database.path()).map_err(|error| error.0)?;
 
-        let uow = PgUnitOfWork::new(PgPool::new(Some(config)));
+        let uow = SqliteUnitOfWork::new(SqlitePool::open(database.path())?);
         let service = Arc::new(JobService::new(
             uow.clone(),
-            PgJobRepository,
+            SqliteJobRepository,
             Arc::new(SystemClock),
             CursorCodec::new(CursorKey::from_secret(CURSOR_SECRET)?),
         ));
-        let search = Arc::new(JobSearchService::new(uow.clone(), PgJobRepository));
+        let search = Arc::new(JobSearchService::new(uow.clone(), SqliteJobRepository));
         let ports = build(service, search);
         let mut registry = ToolRegistry::new(Catalog::load()?);
         jobs::register(&mut registry, ports.service, ports.search)?;

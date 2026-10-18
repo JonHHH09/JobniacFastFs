@@ -40,10 +40,9 @@ use jobniac_core::clock::SystemClock;
 use jobniac_core::env::Environment;
 use jobniac_core::job_links::service::{JobLinkPageFetcher, JobLinkService};
 use jobniac_core::job_links::{JobLinkContentFetcher, JobLinkFetchFailure, JobLinkFetchResult};
-use jobniac_infra::postgres::config::DatabaseConfig;
-use jobniac_infra::postgres::jobs::PgJobRepository;
-use jobniac_infra::postgres::pool::PgPool;
-use jobniac_infra::postgres::unit_of_work::PgUnitOfWork;
+use jobniac_infra::sqlite::jobs::SqliteJobRepository;
+use jobniac_infra::sqlite::pool::SqlitePool;
+use jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork;
 
 use crate::services::StartupError;
 use crate::worker_fetch::WorkerLinkFetcher;
@@ -54,8 +53,8 @@ pub const LINK_FETCH_ENABLED_VARIABLE: &str = "JOBNIAC_LINK_FETCH_ENABLED";
 /// The most link fetches that may run at once. Each one holds a thread and a child process.
 pub const MAX_CONCURRENT_LINK_FETCHES: usize = 4;
 
-/// The composed link use case over the PostgreSQL unit of work and the job repository.
-pub type JobLinkUseCase = JobLinkService<PgUnitOfWork, PgJobRepository>;
+/// The composed link use case over the SQLite unit of work and the job repository.
+pub type JobLinkUseCase = JobLinkService<SqliteUnitOfWork, SqliteJobRepository>;
 
 /// Whether the platform admits the owned child transports: Linux and Windows only.
 const fn platform_supported() -> bool {
@@ -71,7 +70,7 @@ fn admit_platform(supported: bool) -> Result<(), StartupError> {
     if supported { Ok(()) } else { Err(StartupError) }
 }
 
-/// Composes the link use case from the snapshot `env` and the database configuration.
+/// Composes the link use case from the snapshot `env` and the open database.
 ///
 /// The snapshot is the only input: the process environment is never read here. The flag is checked
 /// before the platform and the database, so a flag other than `1` composes nothing on any host.
@@ -81,7 +80,7 @@ fn admit_platform(supported: bool) -> Result<(), StartupError> {
 /// [`StartupError`] when the flag is exactly `1` on an unsupported platform, even without a database.
 pub fn compose_job_links(
     env: &Environment,
-    database: Option<&DatabaseConfig>,
+    database: Option<&SqlitePool>,
 ) -> Result<Option<Arc<JobLinkUseCase>>, StartupError> {
     if !env.flag_enabled(LINK_FETCH_ENABLED_VARIABLE) {
         return Ok(None);
@@ -90,7 +89,7 @@ pub fn compose_job_links(
     let Some(database) = database else {
         return Ok(None);
     };
-    let uow = PgUnitOfWork::new(PgPool::new(Some(database.clone())));
+    let uow = SqliteUnitOfWork::new(database.clone());
     // No cancellation check is passed (`None`): see the module docs.
     let inner = crate::diagnostics::current_process_supervisor().map(|supervisor| {
         Arc::new(WorkerLinkFetcher::new(supervisor, None))
@@ -98,7 +97,7 @@ pub fn compose_job_links(
     });
     Ok(Some(Arc::new(JobLinkService::new(
         uow,
-        PgJobRepository,
+        SqliteJobRepository,
         Arc::new(BlockingLinkFetcher::new(inner)),
         Arc::new(SystemClock),
     ))))
@@ -230,7 +229,6 @@ mod tests {
 
     use super::*;
 
-    const PASSWORD: &str = "synthetic-password";
     const URL: &str = "https://93.184.216.34/jobs/1";
 
     /// A fetcher whose calls wait until the test opens the gate, and count the calls that entered.
@@ -277,18 +275,10 @@ mod tests {
         }
     }
 
-    fn database_pairs() -> Vec<(&'static str, &'static str)> {
-        vec![
-            ("JOBNIAC_DB_HOST", "127.0.0.1"),
-            ("JOBNIAC_DB_PORT", "5432"),
-            ("JOBNIAC_DB_NAME", "jobniac_test"),
-            ("JOBNIAC_DB_USER", "app_user"),
-            ("JOBNIAC_DB_PASSWORD", PASSWORD),
-        ]
-    }
-
-    fn database_config(env: &Environment) -> Option<DatabaseConfig> {
-        jobniac_infra::postgres::config::load_database_config(env)
+    fn database() -> Result<(tempfile::TempDir, SqlitePool), Box<dyn std::error::Error>> {
+        let root = tempfile::tempdir()?;
+        let pool = SqlitePool::open(root.path().join("jobniac.sqlite3"))?;
+        Ok((root, pool))
     }
 
     #[test]
@@ -300,21 +290,16 @@ mod tests {
             .err()
             .map(|error| error.to_string())
             .unwrap_or_default();
-        assert!(!message.contains(PASSWORD), "{message}");
         assert!(!message.is_empty());
     }
 
     #[test]
-    fn disabled_flags_compose_nothing_even_with_a_database() -> Result<(), StartupError> {
+    fn disabled_flags_compose_nothing_even_with_a_database()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let (_root, pool) = database()?;
         for value in ["0", "", "true", "01", "yes", " 1"] {
-            let mut pairs = database_pairs();
-            pairs.push((LINK_FETCH_ENABLED_VARIABLE, value));
-            let env = Environment::from_pairs(pairs);
-            let database = database_config(&env);
-            assert!(
-                compose_job_links(&env, database.as_ref())?.is_none(),
-                "{value:?}"
-            );
+            let env = Environment::from_pairs([(LINK_FETCH_ENABLED_VARIABLE, value)]);
+            assert!(compose_job_links(&env, Some(&pool))?.is_none(), "{value:?}");
         }
         Ok(())
     }
@@ -330,22 +315,20 @@ mod tests {
 
     #[test]
     #[cfg(any(target_os = "linux", target_os = "windows"))]
-    fn enabled_construction_connects_spawns_and_fetches_nothing() -> Result<(), StartupError> {
-        // The pool connects lazily and the supervisor only records the current executable, so
-        // construction returns a service without a connection, a child or a fetch. The synthetic
-        // database settings are never contacted here; the test asserts the composed result only.
-        let mut pairs = database_pairs();
-        pairs.push((LINK_FETCH_ENABLED_VARIABLE, "1"));
-        let env = Environment::from_pairs(pairs);
-        let database = database_config(&env);
-        let service = compose_job_links(&env, database.as_ref())?;
-        let service = service.ok_or(StartupError)?;
-        assert!(!format!("{service:?}").contains(PASSWORD));
+    fn enabled_construction_connects_spawns_and_fetches_nothing()
+    -> Result<(), Box<dyn std::error::Error>> {
+        // The supervisor only records the current executable, so construction returns a service
+        // without a reader connection, a child or a fetch.
+        let (_root, pool) = database()?;
+        let env = Environment::from_pairs([(LINK_FETCH_ENABLED_VARIABLE, "1")]);
+        let service = compose_job_links(&env, Some(&pool))?.ok_or(StartupError)?;
+        assert_eq!(pool.idle_readers(), 0);
+        assert!(!format!("{service:?}").is_empty());
         Ok(())
     }
 
     #[test]
-    fn explicit_environment_mapping_is_honoured() -> Result<(), StartupError> {
+    fn explicit_environment_mapping_is_honoured() -> Result<(), Box<dyn std::error::Error>> {
         // Only the snapshot counts: the flag and the database come from `env`, never from the
         // process environment, so an empty snapshot composes nothing.
         let empty = Environment::from_pairs(Vec::<(&str, &str)>::new());
@@ -354,11 +337,9 @@ mod tests {
         assert!(compose_job_links(&flag_only, None)?.is_none());
         #[cfg(any(target_os = "linux", target_os = "windows"))]
         {
-            let mut pairs = database_pairs();
-            pairs.push((LINK_FETCH_ENABLED_VARIABLE, "1"));
-            let env = Environment::from_pairs(pairs);
-            let database = database_config(&env);
-            assert!(compose_job_links(&env, database.as_ref())?.is_some());
+            let (_root, pool) = database()?;
+            let env = Environment::from_pairs([(LINK_FETCH_ENABLED_VARIABLE, "1")]);
+            assert!(compose_job_links(&env, Some(&pool))?.is_some());
         }
         Ok(())
     }

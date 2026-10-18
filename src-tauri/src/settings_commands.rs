@@ -267,7 +267,10 @@ mod tests {
         });
         let supervisor = McpSupervisor::new(
             Arc::new(SharedSpawner(Arc::clone(&spawner))),
-            vec![(OsString::from("JOBNIAC_DB_HOST"), OsString::from("db.test"))],
+            vec![(
+                OsString::from("JOBNIAC_DB_PATH"),
+                OsString::from("/srv/jobniac-synthetic/jobniac.sqlite3"),
+            )],
         )
         .with_ready_deadline(Duration::from_millis(400));
         let mut settings = AppSettings::default();

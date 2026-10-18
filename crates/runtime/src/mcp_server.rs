@@ -684,7 +684,10 @@ mod tests {
 
     fn supervisor(spawner: &Arc<FakeSpawner>) -> McpSupervisor {
         let source = vec![
-            (OsString::from("JOBNIAC_DB_HOST"), OsString::from("db.test")),
+            (
+                OsString::from("JOBNIAC_DB_PATH"),
+                OsString::from("/srv/jobniac-synthetic/jobniac.sqlite3"),
+            ),
             (
                 OsString::from("JOBNIAC_HTTP_BEARER_TOKEN"),
                 OsString::from("inherited-token"),
@@ -991,7 +994,10 @@ mod tests {
                 .any(|name| name.eq_ignore_ascii_case("JOBNIAC_HTTP_EXTRA"))
         );
         // Database settings and the minimal OS variables cross; the rest does not.
-        assert_eq!(value("JOBNIAC_DB_HOST"), Some("db.test".to_owned()));
+        assert_eq!(
+            value("JOBNIAC_DB_PATH"),
+            Some("/srv/jobniac-synthetic/jobniac.sqlite3".to_owned())
+        );
         assert_eq!(value("PATH"), Some("/usr/bin".to_owned()));
         assert_eq!(value("HTTPS_PROXY"), None);
         assert_eq!(value("UNRELATED_SECRET"), None);

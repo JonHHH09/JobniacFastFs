@@ -1,4 +1,4 @@
-//! The MCP ports of the document tools and the profile PDF tools over the PostgreSQL-backed use
+//! The MCP ports of the document tools and the profile PDF tools over the SQLite-backed use
 //! cases.
 //!
 //! Like [`crate::match_ports`], the composition root is the only place that knows both the MCP
@@ -11,15 +11,15 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use jobniac_core::documents::{DocumentMetadata, DocumentService, PdfText, StoredExtraction};
 use jobniac_core::errors::AppError;
-use jobniac_infra::postgres::documents::PgDocumentRepository;
-use jobniac_infra::postgres::unit_of_work::PgUnitOfWork;
+use jobniac_infra::sqlite::documents::SqliteDocumentRepository;
+use jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork;
 use jobniac_mcp::tools::documents::DocumentPort;
 use jobniac_mcp::tools::profile_pdf::ProfilePdfPort;
 use jobniac_runtime::services::{DocumentServices, ProfilePdfServiceType};
 use serde_json::{Value, json};
 
-/// The document use cases over PostgreSQL.
-pub type DocumentUseCase = DocumentService<PgUnitOfWork, PgDocumentRepository>;
+/// The document use cases over SQLite.
+pub type DocumentUseCase = DocumentService<SqliteUnitOfWork, SqliteDocumentRepository>;
 
 /// The MCP ports of the document and profile PDF tools. An absent port leaves its tools
 /// unregistered.
@@ -39,7 +39,7 @@ pub fn from_services(
     from_use_cases(Arc::clone(&documents.service), Arc::clone(profile_pdf))
 }
 
-/// The ports over the given use cases (the composition root and the PostgreSQL tests share this).
+/// The ports over the given use cases (the composition root and the SQLite tests share this).
 pub fn from_use_cases(
     documents: Arc<DocumentUseCase>,
     profile_pdf: Arc<ProfilePdfServiceType>,

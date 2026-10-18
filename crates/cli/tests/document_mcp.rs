@@ -1,9 +1,8 @@
 //! The six document and profile PDF MCP tools, driven through their handlers over one disposable,
-//! migrated PostgreSQL database and the PDF worker of the built `jobniac-cli` binary.
+//! migrated SQLite database and the PDF worker of the built `jobniac-cli` binary.
 //!
-//! The PDF tools need PDFium (`JOBNIAC_PDFIUM_DIR`) and the database needs a `pg-test` cluster
-//! (`JOBNIAC_TEST_PG_PORT`). Without PDFium the test prints a skip note and passes locally; on CI
-//! (`CI` set) a missing `JOBNIAC_PDFIUM_DIR` fails the test. A missing database alone skips. The PDF
+//! The PDF tools need PDFium (`JOBNIAC_PDFIUM_DIR`). Without PDFium the test prints a skip note and
+//! passes locally; on CI (`CI` set) a missing `JOBNIAC_PDFIUM_DIR` fails the test. The PDF
 //! is a committed synthetic fixture of `crates/infra/tests/fixtures/pdf`, copied into a scratch
 //! import root that is removed afterwards. The composition root's adapters are compiled into this
 //! test from `src/document_ports.rs`, because the console crate is a binary without a library target.
@@ -23,20 +22,19 @@ use std::sync::Arc;
 use jobniac_core::clock::SystemClock;
 use jobniac_core::documents::{DocumentService, sha256_hex};
 use jobniac_core::profiles::pdf_ingest::ProfilePdfService;
-use jobniac_infra::postgres::config::load_database_config;
-use jobniac_infra::postgres::documents::PgDocumentRepository;
-use jobniac_infra::postgres::migrations::migrate;
-use jobniac_infra::postgres::pool::PgPool;
-use jobniac_infra::postgres::profiles::PgProfileRepository;
-use jobniac_infra::postgres::profiles::pdf::PgProfilePdfRepository;
-use jobniac_infra::postgres::unit_of_work::PgUnitOfWork;
+use jobniac_infra::sqlite::documents::SqliteDocumentRepository;
+use jobniac_infra::sqlite::migrations::migrate;
+use jobniac_infra::sqlite::pool::SqlitePool;
+use jobniac_infra::sqlite::profiles::SqliteProfileRepository;
+use jobniac_infra::sqlite::profiles::pdf::SqliteProfilePdfRepository;
+use jobniac_infra::sqlite::unit_of_work::SqliteUnitOfWork;
 use jobniac_infra::workers::WorkerSupervisor;
 use jobniac_mcp::catalog::Catalog;
 use jobniac_mcp::registry::{Arguments, ToolRegistry};
 use jobniac_mcp::result::ToolResult;
 use jobniac_mcp::tools::{documents, profile_pdf};
 use jobniac_runtime::document_ports::{ImportRootReader, WorkerPdfExtractor};
-use jobniac_testkit::pg::TestServer;
+use jobniac_testkit::sqlite::TempDatabase;
 use serde_json::{Value, json};
 
 use document_ports::from_use_cases;
@@ -97,14 +95,10 @@ async fn the_six_tools_run_through_their_handlers() -> TestResult {
     let Some(pdfium_dir) = pdfium::pdfium_dir_or_skip() else {
         return Ok(());
     };
-    let Some(server) = TestServer::from_env() else {
-        eprintln!("skipped: JOBNIAC_TEST_PG_PORT is not set");
-        return Ok(());
-    };
 
-    let database = server.fresh_database().await;
-    let config = load_database_config(&database.environment()).ok_or("invalid test database")?;
-    migrate(&config).await.map_err(|error| error.0)?;
+    let database = TempDatabase::new()?;
+    migrate(database.path()).map_err(|error| error.0)?;
+    let pool = SqlitePool::open(database.path())?;
 
     // A fresh directory that the guard removes when the test returns, whatever the outcome.
     let scratch = tempfile::Builder::new()
@@ -127,12 +121,12 @@ async fn the_six_tools_run_through_their_handlers() -> TestResult {
         ]),
     )?;
 
-    exercise(config, &root, &fixture, pdfium_dir).await
+    exercise(pool, &root, &fixture, pdfium_dir).await
 }
 
 /// The six tools, composed as the console composes them, over one database.
 async fn exercise(
-    config: jobniac_infra::postgres::config::DatabaseConfig,
+    pool: SqlitePool,
     root: &Path,
     fixture: &[u8],
     pdfium_dir: PathBuf,
@@ -144,7 +138,7 @@ async fn exercise(
         .join("escape-synthetic.pdf")
         .to_string_lossy()
         .into_owned();
-    let uow = PgUnitOfWork::new(PgPool::new(Some(config)));
+    let uow = SqliteUnitOfWork::new(pool);
     let reader = ImportRootReader::new(Some(root.to_string_lossy().into_owned()));
     let supervisor = WorkerSupervisor::new(
         PathBuf::from(env!("CARGO_BIN_EXE_jobniac-cli")),
@@ -153,15 +147,15 @@ async fn exercise(
     let extractor = WorkerPdfExtractor::new(Some(supervisor), Some(pdfium_dir));
     let documents_service = Arc::new(DocumentService::new(
         uow.clone(),
-        PgDocumentRepository,
+        SqliteDocumentRepository,
         Arc::new(reader),
         Arc::new(extractor),
         Arc::new(SystemClock),
     ));
     let profile_pdf_service = ProfilePdfService::new(
         uow,
-        PgProfileRepository,
-        PgProfilePdfRepository,
+        SqliteProfileRepository,
+        SqliteProfilePdfRepository,
         Arc::clone(&documents_service),
         Arc::new(SystemClock),
     );
