@@ -36,7 +36,7 @@ export async function click(browser, testId, timeout = WAIT) {
 /**
  * Opens a section of the shell through its navigation item and waits until its panel is
  * shown. A section mounts on its first visit and stays mounted, so a later call only switches.
- * The ids are the `?section=` values: profiles, profilePdf, jobs, arbeitnow, matching, reviews,
+ * The ids are the `?section=` values: profiles, jobs, arbeitnow, matching, reviews,
  * documents, artifacts, generation and health.
  */
 export async function openSection(browser, id) {

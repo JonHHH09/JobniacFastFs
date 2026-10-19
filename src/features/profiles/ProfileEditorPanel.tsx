@@ -1,4 +1,5 @@
-import { UserRound } from "lucide-react";
+import { Info, UserRound } from "lucide-react";
+import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { formatMessage } from "../../i18n/messages";
 import { Button } from "../../ui/button";
@@ -11,11 +12,17 @@ import { Textarea } from "../../ui/textarea";
 import { ConfirmDeleteDialog } from "../deletion/ConfirmDeleteDialog";
 import { CollectionEditor, type ProjectControls } from "./CollectionEditor";
 import { blankPersonal } from "./draft";
+import { guideText, profileGuides } from "./guide";
 import { PersonalDetailsForm } from "./PersonalDetailsForm";
 import { ProfileSection } from "./ProfileSection";
+import { ProfileSourceNote } from "./ProfileSourceNote";
 import { collectionSections } from "./schema";
 import { UnsavedChangesDialog } from "./UnsavedChangesDialog";
+import { useFormFeedback } from "./useFormFeedback";
 import type { ProfileEditorController } from "./useProfileEditor";
+import { FIELD_IDS, type FieldErrors, validateDraft } from "./validation";
+
+const noErrors: FieldErrors = new Map();
 
 /**
  * The profile workspace: a header with New and Reload, the profile fields, personal details and
@@ -35,6 +42,14 @@ export function ProfileEditorPanel({ editor }: { editor: ProfileEditorController
     onSaveProject: editor.saveProject,
   };
   const draft = state.draft;
+  const errors = useMemo(() => (draft === null ? noErrors : validateDraft(draft)), [draft]);
+  // A new baseline (another profile, a finished save) starts without errors on show.
+  const { feedback, blocked, attempt } = useFormFeedback(errors, state.version);
+  const statusMessage = blocked
+    ? formatMessage("profile.error.validation")
+    : message
+      ? formatMessage(message)
+      : "";
 
   return (
     <section
@@ -91,21 +106,39 @@ export function ProfileEditorPanel({ editor }: { editor: ProfileEditorController
         </div>
       ) : (
         <div className="@container divide-y divide-border">
+          <p
+            data-testid="formIntro"
+            className="flex items-start gap-2 px-4 py-3 text-[13px] text-muted-foreground"
+          >
+            <Info className="mt-0.5 size-4 shrink-0" strokeWidth={1.75} aria-hidden />
+            <span>{formatMessage("ui.form.intro")}</span>
+          </p>
           <div className="grid min-w-0 gap-4 p-4 @[480px]:grid-cols-2">
-            <Field label={formatMessage("ui.profile.fullName")} id="profile-full-name">
+            <Field
+              label={formatMessage("ui.profile.fullName")}
+              id={FIELD_IDS.fullName}
+              hint={guideText(profileGuides.fullName)}
+              error={feedback.errorFor(FIELD_IDS.fullName)}
+            >
               {(control) => (
                 <Input
                   {...control}
                   data-testid="fullNameInput"
                   value={draft.fullName}
                   disabled={busy}
+                  onBlur={() => feedback.touch(FIELD_IDS.fullName)}
                   onChange={(event) =>
                     dispatch({ type: "setField", field: "fullName", value: event.target.value })
                   }
                 />
               )}
             </Field>
-            <Field label={formatMessage("ui.profile.email")} id="profile-email">
+            <Field
+              label={formatMessage("ui.profile.email")}
+              id={FIELD_IDS.email}
+              hint={guideText(profileGuides.email)}
+              error={feedback.errorFor(FIELD_IDS.email)}
+            >
               {(control) => (
                 <Input
                   {...control}
@@ -113,6 +146,7 @@ export function ProfileEditorPanel({ editor }: { editor: ProfileEditorController
                   type="text"
                   value={draft.email}
                   disabled={busy}
+                  onBlur={() => feedback.touch(FIELD_IDS.email)}
                   onChange={(event) =>
                     dispatch({ type: "setField", field: "email", value: event.target.value })
                   }
@@ -122,6 +156,7 @@ export function ProfileEditorPanel({ editor }: { editor: ProfileEditorController
             <Field
               label={formatMessage("ui.profile.summary")}
               id="profile-summary"
+              hint={guideText(profileGuides.summary)}
               className="@[480px]:col-span-2"
             >
               {(control) => (
@@ -139,6 +174,7 @@ export function ProfileEditorPanel({ editor }: { editor: ProfileEditorController
               )}
             </Field>
           </div>
+          {state.mode === "edit" ? <ProfileSourceNote profileId={state.profileId} /> : null}
           <PersonalDetailsForm
             key={state.version}
             personal={state.personal ?? blankPersonal}
@@ -167,6 +203,7 @@ export function ProfileEditorPanel({ editor }: { editor: ProfileEditorController
                 }
                 onAdd={() => dispatch({ type: "addRow", collection: spec.key })}
                 onRemove={(index) => dispatch({ type: "removeRow", collection: spec.key, index })}
+                feedback={feedback}
                 projects={spec.key === "projects" ? projectControls : undefined}
               />
             </ProfileSection>
@@ -190,9 +227,7 @@ export function ProfileEditorPanel({ editor }: { editor: ProfileEditorController
             ? formatMessage("profile.progress.delete")
             : editor.loading
               ? formatMessage("profile.progress.load")
-              : message
-                ? formatMessage(message)
-                : ""}
+              : statusMessage}
         </p>
         {
           <div
@@ -224,7 +259,12 @@ export function ProfileEditorPanel({ editor }: { editor: ProfileEditorController
               type="button"
               data-testid="saveProfileButton"
               disabled={!editor.canSaveProfile}
-              onClick={editor.saveProfile}
+              onClick={() => {
+                // Invalid fields are marked and focused instead of sending a save Rust would refuse.
+                if (!attempt()) {
+                  editor.saveProfile();
+                }
+              }}
             >
               {editor.saving ? formatMessage("ui.editor.saving") : formatMessage("ui.editor.save")}
             </Button>

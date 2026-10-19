@@ -5,6 +5,7 @@ import {
   type ProfilePageDto,
   type ProfileSearchDto,
   type ProjectPatchDto,
+  type SourceViewDto,
 } from "../../ipc/bindings";
 import { requestText, runCommand } from "../../ipc/commands";
 
@@ -58,4 +59,9 @@ export function updatePersonalDetails(
   return runCommand(() =>
     commands.updatePersonalDetails(profileId, expectedRevision, requestText(request)),
   );
+}
+
+/** The stored PDF a profile was built from; refused with `not_found` when it has none. */
+export function lookupProfilePdfSource(profileId: string): Promise<SourceViewDto> {
+  return runCommand(() => commands.profilePdfLookupSource(requestText({ profileId })));
 }

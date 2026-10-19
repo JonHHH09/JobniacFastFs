@@ -4,6 +4,8 @@
  * use cases drop unknown keys on read and write, so the UI sends only these keys.
  */
 
+import type { FieldGuide } from "./guide";
+
 /** A collection of the profile graph that the form edits. */
 export type CollectionKey =
   | "contacts"
@@ -20,6 +22,8 @@ export type FieldSpec = {
   readonly label: string;
   /** Dates store `null` when cleared; every other field stores the typed text. */
   readonly kind?: "date";
+  /** What the field accepts, shown under it: required or optional, the kind of value, an example. */
+  readonly guide: FieldGuide;
 };
 
 /** One collection of the form. */
@@ -35,8 +39,23 @@ export type CollectionSpec = {
   readonly ordered: boolean;
 };
 
-const endDate: FieldSpec = { key: "endDate", label: "End date", kind: "date" };
-const startDate: FieldSpec = { key: "startDate", label: "Start date", kind: "date" };
+const endDate: FieldSpec = {
+  key: "endDate",
+  label: "End date",
+  kind: "date",
+  guide: {
+    required: false,
+    type: "date",
+    example: "2023-06-30",
+    note: "Leave empty if it is ongoing",
+  },
+};
+const startDate: FieldSpec = {
+  key: "startDate",
+  label: "Start date",
+  kind: "date",
+  guide: { required: false, type: "date", example: "2020-01-15" },
+};
 
 /** The collections of the profile form, in form order. */
 export const collectionSections: readonly CollectionSpec[] = [
@@ -45,9 +64,31 @@ export const collectionSections: readonly CollectionSpec[] = [
     label: "Contacts",
     writeKeys: ["id", "contactType", "contactValue", "label"],
     fields: [
-      { key: "contactType", label: "Type" },
-      { key: "contactValue", label: "Contact" },
-      { key: "label", label: "Label" },
+      {
+        key: "contactType",
+        label: "Type",
+        guide: {
+          required: true,
+          type: "text",
+          example: "email",
+          note: "Pick a suggestion or type your own",
+        },
+      },
+      {
+        key: "contactValue",
+        label: "Contact",
+        guide: {
+          required: true,
+          type: "text",
+          example: "ada@example.com",
+          note: "The same type and value cannot be listed twice",
+        },
+      },
+      {
+        key: "label",
+        label: "Label",
+        guide: { required: false, type: "text", example: "Work" },
+      },
     ],
     ordered: false,
   },
@@ -56,9 +97,31 @@ export const collectionSections: readonly CollectionSpec[] = [
     label: "Links",
     writeKeys: ["id", "linkType", "url", "label"],
     fields: [
-      { key: "linkType", label: "Type" },
-      { key: "url", label: "Link" },
-      { key: "label", label: "Label" },
+      {
+        key: "linkType",
+        label: "Type",
+        guide: {
+          required: true,
+          type: "text",
+          example: "github",
+          note: "Pick a suggestion or type your own",
+        },
+      },
+      {
+        key: "url",
+        label: "Link",
+        guide: {
+          required: true,
+          type: "link",
+          example: "github.com/ada-example",
+          note: "https:// is added when missing",
+        },
+      },
+      {
+        key: "label",
+        label: "Label",
+        guide: { required: false, type: "text", example: "Open-source work" },
+      },
     ],
     ordered: false,
   },
@@ -67,8 +130,12 @@ export const collectionSections: readonly CollectionSpec[] = [
     label: "Skills",
     writeKeys: ["id", "skill", "normalizedSkill", "category", "displayOrder"],
     fields: [
-      { key: "skill", label: "Skill" },
-      { key: "category", label: "Category" },
+      { key: "skill", label: "Skill", guide: { required: true, type: "text", example: "Rust" } },
+      {
+        key: "category",
+        label: "Category",
+        guide: { required: false, type: "text", example: "Programming languages" },
+      },
     ],
     ordered: true,
   },
@@ -77,8 +144,16 @@ export const collectionSections: readonly CollectionSpec[] = [
     label: "Languages",
     writeKeys: ["id", "language", "normalizedLanguage", "proficiency", "displayOrder"],
     fields: [
-      { key: "language", label: "Language" },
-      { key: "proficiency", label: "Proficiency" },
+      {
+        key: "language",
+        label: "Language",
+        guide: { required: true, type: "text", example: "German" },
+      },
+      {
+        key: "proficiency",
+        label: "Proficiency",
+        guide: { required: false, type: "text", example: "Fluent (C1)" },
+      },
     ],
     ordered: true,
   },
@@ -96,13 +171,33 @@ export const collectionSections: readonly CollectionSpec[] = [
       "relevantFocus",
     ],
     fields: [
-      { key: "institution", label: "Institution" },
-      { key: "degree", label: "Degree" },
-      { key: "field", label: "Field of study" },
-      { key: "location", label: "Location" },
+      {
+        key: "institution",
+        label: "Institution",
+        guide: { required: false, type: "text", example: "Example University" },
+      },
+      {
+        key: "degree",
+        label: "Degree",
+        guide: { required: false, type: "text", example: "BSc" },
+      },
+      {
+        key: "field",
+        label: "Field of study",
+        guide: { required: false, type: "text", example: "Computer Science" },
+      },
+      {
+        key: "location",
+        label: "Location",
+        guide: { required: false, type: "text", example: "Berlin, Germany" },
+      },
       startDate,
       endDate,
-      { key: "relevantFocus", label: "Relevant focus" },
+      {
+        key: "relevantFocus",
+        label: "Relevant focus",
+        guide: { required: false, type: "text", example: "Distributed systems" },
+      },
     ],
     ordered: false,
   },
@@ -120,12 +215,32 @@ export const collectionSections: readonly CollectionSpec[] = [
       "displayOrder",
     ],
     fields: [
-      { key: "company", label: "Company" },
-      { key: "title", label: "Role" },
-      { key: "location", label: "Location" },
+      {
+        key: "company",
+        label: "Company",
+        guide: { required: false, type: "text", example: "Example Labs" },
+      },
+      {
+        key: "title",
+        label: "Role",
+        guide: { required: false, type: "text", example: "Backend engineer" },
+      },
+      {
+        key: "location",
+        label: "Location",
+        guide: { required: false, type: "text", example: "Remote" },
+      },
       startDate,
       endDate,
-      { key: "description", label: "Description" },
+      {
+        key: "description",
+        label: "Description",
+        guide: {
+          required: false,
+          type: "longText",
+          example: "Built the matching service and cut query time by 40%",
+        },
+      },
     ],
     ordered: true,
   },
@@ -134,9 +249,25 @@ export const collectionSections: readonly CollectionSpec[] = [
     label: "Projects",
     writeKeys: ["id", "name", "url", "description", "displayOrder", "technologies"],
     fields: [
-      { key: "name", label: "Project" },
-      { key: "url", label: "Link" },
-      { key: "description", label: "Description" },
+      {
+        key: "name",
+        label: "Project",
+        guide: { required: false, type: "text", example: "Resume parser" },
+      },
+      {
+        key: "url",
+        label: "Link",
+        guide: { required: false, type: "link", example: "https://example.com/resume-parser" },
+      },
+      {
+        key: "description",
+        label: "Description",
+        guide: {
+          required: false,
+          type: "longText",
+          example: "Command-line tool that turns PDF resumes into structured data",
+        },
+      },
     ],
     ordered: true,
   },

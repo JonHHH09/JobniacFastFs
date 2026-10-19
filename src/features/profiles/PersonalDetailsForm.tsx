@@ -1,10 +1,14 @@
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { formatMessage } from "../../i18n/messages";
 import { Button } from "../../ui/button";
 import { Field } from "../../ui/field";
 import { Input } from "../../ui/input";
 import { blankPersonal, type PersonalDraft } from "./draft";
+import { guideText, profileGuides } from "./guide";
 import { ProfileSection } from "./ProfileSection";
+import { useFormFeedback } from "./useFormFeedback";
+import { FIELD_IDS, validatePersonal } from "./validation";
 
 export type PersonalDetailsFormProps = {
   personal: PersonalDraft;
@@ -22,8 +26,8 @@ export type PersonalDetailsFormProps = {
 
 /**
  * The personal details of the loaded profile. The form is mounted per baseline (the parent keys it
- * by version), so its defaults always match the loaded values. The form has no field-level checks:
- * Rust validates the date shape and the NUL rule and the save error shows the result.
+ * by version), so its defaults always match the loaded values. The date shape is checked here for
+ * early feedback; Rust still validates it (and the NUL rule) and the save error shows the result.
  */
 export function PersonalDetailsForm({
   personal,
@@ -35,10 +39,13 @@ export function PersonalDetailsForm({
   onChange,
   onSave,
 }: PersonalDetailsFormProps) {
-  // No UI checks beyond the placeholder: Rust validates the date and the nationality.
   const form = useForm<PersonalDraft>({
     defaultValues: { ...blankPersonal, ...personal },
   });
+  // The date is checked here too, so a wrong shape is marked before the save is sent.
+  const values = form.watch();
+  const errors = useMemo(() => validatePersonal({ ...blankPersonal, ...values }), [values]);
+  const { feedback, attempt } = useFormFeedback(errors, null);
 
   return (
     <ProfileSection
@@ -62,22 +69,37 @@ export function PersonalDetailsForm({
         data-testid="personalDetailsForm"
         className="grid min-w-0 gap-4 @[480px]:grid-cols-2"
         noValidate
-        onSubmit={form.handleSubmit(() => onSave())}
+        onSubmit={form.handleSubmit(() => {
+          if (!attempt()) {
+            onSave();
+          }
+        })}
       >
-        <Field label={formatMessage("ui.personal.dateOfBirth")} id="personal-date-of-birth">
+        <Field
+          label={formatMessage("ui.personal.dateOfBirth")}
+          id={FIELD_IDS.dateOfBirth}
+          hint={guideText(profileGuides.dateOfBirth)}
+          error={feedback.errorFor(FIELD_IDS.dateOfBirth)}
+        >
           {(control) => (
             <Input
               {...control}
               data-testid="dateOfBirthInput"
+              placeholder="YYYY-MM-DD"
               disabled={!canEdit || busy}
               {...form.register("dateOfBirth", {
+                onBlur: () => feedback.touch(FIELD_IDS.dateOfBirth),
                 onChange: (event: { target: { value: string } }) =>
                   onChange("dateOfBirth", event.target.value),
               })}
             />
           )}
         </Field>
-        <Field label={formatMessage("ui.personal.nationality")} id="personal-nationality">
+        <Field
+          label={formatMessage("ui.personal.nationality")}
+          id="personal-nationality"
+          hint={guideText(profileGuides.nationality)}
+        >
           {(control) => (
             <Input
               {...control}

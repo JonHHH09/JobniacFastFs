@@ -11,9 +11,10 @@ import type {
   ProfileIdentityDto,
   ProfilePageDto,
   ProfileSearchDto,
+  SourceViewDto,
 } from "../../ipc/bindings";
 import { isCommandError, unknownFailure } from "../../ipc/commands";
-import { fetchProfilePage, searchProfiles } from "./api";
+import { fetchProfilePage, lookupProfilePdfSource, searchProfiles } from "./api";
 
 /**
  * TanStack Query keys of the profile screens. The list is refreshed only by Refresh; a save patches
@@ -26,6 +27,7 @@ export const profileKeys = {
   search: (query: string) => ["profiles", "search", query] as const,
   graph: (profileId: string) => ["profiles", "graph", profileId] as const,
   personal: (profileId: string) => ["profiles", "personal", profileId] as const,
+  source: (profileId: string) => ["profiles", "source", profileId] as const,
 };
 
 /**
@@ -82,6 +84,7 @@ export function forgetProfile(queryClient: QueryClient, profileId: string): void
   );
   queryClient.removeQueries({ queryKey: profileKeys.graph(profileId), exact: true });
   queryClient.removeQueries({ queryKey: profileKeys.personal(profileId), exact: true });
+  queryClient.removeQueries({ queryKey: profileKeys.source(profileId), exact: true });
 }
 
 /** The state of the profile list as the screen shows it. */
@@ -182,4 +185,18 @@ export function useProfileSearch(submittedQuery: string) {
     enabled: submittedQuery !== "",
     retry: false,
   });
+}
+
+/**
+ * The stored-PDF source of a saved profile, or `null` when it has none or the lookup fails: the
+ * source line is informational, so a refusal shows nothing rather than an error.
+ */
+export function useProfileSource(profileId: string | null): SourceViewDto | null {
+  const query = useQuery({
+    queryKey: profileKeys.source(profileId ?? ""),
+    queryFn: () => lookupProfilePdfSource(profileId ?? ""),
+    enabled: profileId !== null,
+    retry: false,
+  });
+  return query.data ?? null;
 }
