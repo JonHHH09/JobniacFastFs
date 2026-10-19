@@ -5,7 +5,9 @@ import { Field } from "../../ui/field";
 import { Input } from "../../ui/input";
 import { Textarea } from "../../ui/textarea";
 import type { Row } from "./draft";
+import { guideText, profileGuides } from "./guide";
 import type { CollectionKey, CollectionSpec } from "./schema";
+import type { FormFeedback } from "./useFormFeedback";
 
 /** What each collection's items are called in the Add button (sentence case, singular). */
 const ITEM_NAME: Record<CollectionKey, string> = {
@@ -62,6 +64,8 @@ export type CollectionEditorProps = {
   onFieldChange: (index: number, field: string, value: string) => void;
   onAdd: () => void;
   onRemove: (index: number) => void;
+  /** Shows the errors of the fields once they are due; absent means no inline errors. */
+  feedback?: FormFeedback;
   projects?: ProjectControls;
 };
 
@@ -76,6 +80,7 @@ export function CollectionEditor({
   onFieldChange,
   onAdd,
   onRemove,
+  feedback,
   projects,
 }: CollectionEditorProps) {
   const name = capitalize(spec.key);
@@ -106,6 +111,8 @@ export function CollectionEditor({
                   key={field.key}
                   label={field.label}
                   id={id}
+                  hint={guideText(field.guide)}
+                  error={feedback?.errorFor(id)}
                   className={
                     field.key === "description" ||
                     (spec.fields.length === 3 && field.key === "label")
@@ -120,6 +127,7 @@ export function CollectionEditor({
                         data-testid={testId}
                         value={value}
                         disabled={disabled}
+                        onBlur={() => feedback?.touch(id)}
                         onChange={(event) => onFieldChange(index, field.key, event.target.value)}
                       />
                     ) : (
@@ -130,6 +138,8 @@ export function CollectionEditor({
                           value={value}
                           disabled={disabled}
                           list={TYPE_SUGGESTIONS[field.key] ? `${id}-options` : undefined}
+                          placeholder={field.kind === "date" ? "YYYY-MM-DD" : undefined}
+                          onBlur={() => feedback?.touch(id)}
                           onChange={(event) => onFieldChange(index, field.key, event.target.value)}
                         />
                         {TYPE_SUGGESTIONS[field.key] ? (
@@ -147,7 +157,13 @@ export function CollectionEditor({
             })}
           </div>
           {projects && spec.key === "projects" ? (
-            <ProjectExtras index={index} row={row} disabled={disabled} controls={projects} />
+            <ProjectExtras
+              index={index}
+              row={row}
+              disabled={disabled}
+              controls={projects}
+              feedback={feedback}
+            />
           ) : null}
           <div className="-mt-1 -mb-1 flex justify-end">
             <Button
@@ -188,11 +204,13 @@ function ProjectExtras({
   row,
   disabled,
   controls,
+  feedback,
 }: {
   index: number;
   row: Row;
   disabled: boolean;
   controls: ProjectControls;
+  feedback?: FormFeedback;
 }) {
   const technologies = Array.isArray(row.technologies) ? (row.technologies as Row[]) : [];
   const descriptionId = `project-save-description-${index}`;
@@ -211,6 +229,8 @@ function ProjectExtras({
               <Field
                 label={formatMessage("ui.technology.label")}
                 id={id}
+                hint={guideText(profileGuides.technology)}
+                error={feedback?.errorFor(id)}
                 className="min-w-0 flex-1"
               >
                 {(control) => (
@@ -220,6 +240,7 @@ function ProjectExtras({
                     placeholder={formatMessage("ui.technology.label")}
                     value={textOf(technology, "technology")}
                     disabled={disabled}
+                    onBlur={() => feedback?.touch(id)}
                     onChange={(event) =>
                       controls.onTechnologyChange(index, techIndex, event.target.value)
                     }

@@ -8,6 +8,11 @@ drafts take the body of their version section from this file.
 
 ### Changed
 
+- User interface: the "Profile from PDF" section is gone; profiles are built from PDFs through the
+  MCP tools, which are unchanged. The Profiles screen shows the stored-PDF source of a profile
+  built that way, tells the operator what each field accepts (required or optional, kind of value,
+  an example), marks invalid values next to their field with the input that is expected and does not
+  send a save Rust would refuse, and the profile workspace can be hidden and shown again.
 - Storage: the data now lives in an embedded SQLite file instead of a PostgreSQL 18 server. The
   desktop app, the MCP server and `jobniac-cli` open the same file (WAL mode, busy timeout), and
   `jobniac-cli migrate` acts on that file. Tool results, error messages and the health check keep

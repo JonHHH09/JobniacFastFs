@@ -25,10 +25,6 @@ export const copy = {
       label: "Profiles",
       description: "Create, edit and search the candidate profiles you match against.",
     },
-    profilePdf: {
-      label: "Profile from PDF",
-      description: "Fill a profile with the details found in a stored PDF.",
-    },
     jobs: {
       label: "Saved jobs",
       description: "Save job postings, edit them and find them again.",

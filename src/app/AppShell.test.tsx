@@ -81,9 +81,9 @@ describe("section navigation shell", () => {
     await renderShell();
     await screen.findByLabelText("Draft name");
     await user.keyboard("{Control>}2{/Control}");
-    expect(await screen.findByText("Profile from PDF", { selector: "h1" })).toBeInTheDocument();
-    expect(navItem("Profile from PDF")).toHaveAttribute("aria-current", "page");
-    expect(screen.getByRole("heading", { level: 1, name: "Profile from PDF" })).toHaveFocus();
+    expect(await screen.findByText("Saved jobs", { selector: "h1" })).toBeInTheDocument();
+    expect(navItem("Saved jobs")).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("heading", { level: 1, name: "Saved jobs" })).toHaveFocus();
   });
 
   it("does not jump while the user types in a field", async () => {
@@ -121,7 +121,7 @@ describe("section navigation shell", () => {
     await renderShell();
     navItem("Profiles").focus();
     await user.keyboard("{ArrowDown}");
-    expect(navItem("Profile from PDF")).toHaveFocus();
+    expect(navItem("Saved jobs")).toHaveFocus();
     await user.keyboard("{ArrowUp}{ArrowUp}");
     expect(navItem("Settings")).toHaveFocus();
   });
