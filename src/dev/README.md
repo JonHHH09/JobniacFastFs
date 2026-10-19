@@ -13,7 +13,7 @@ pnpm dev:mock --port 1431 --strictPort
 ```
 
 Open `http://localhost:1420/?section=<id>` (port 1420 by default; use another port when
-`pnpm tauri dev` runs). Section ids: `profiles`, `profilePdf`, `jobs`, `arbeitnow`, `matching`,
+`pnpm tauri dev` runs). Section ids: `profiles`, `jobs`, `arbeitnow`, `matching`,
 `reviews`, `documents`, `artifacts`, `generation`, `health`. Most screens load data after a user
 action (Refresh, Search, View PDF). Vite serves the page without Tauri's CSP, so `data:` page images
 load.
@@ -34,7 +34,7 @@ An unknown command logs `[mock-ipc] no mock for command "<name>"` once and rejec
 ## Fixtures
 
 Synthetic only: fictional people and companies, `example.com` / `example.org` addresses.
-Stored PDF ids to type into the Documents, Stored PDFs and Profile from PDF screens:
+Stored PDF ids to type into the Documents and Stored PDFs screens:
 
 - `00000000-0000-4000-8000-000600000001` synthetic-cv.pdf (2 pages)
 - `00000000-0000-4000-8000-000600000002` synthetic-cover-letter.pdf (1 page)
@@ -48,7 +48,7 @@ are shown on the Generate screen.
 - `mockIpc.ts`: installs `mockIPC` (with event mocking), merges the handler maps, adds latency,
   `mockFail` and the unknown-command behaviour.
 - `mocks/<feature>.ts`: one file per feature, each exporting a `HandlerMap`
-  (`profiles`, `jobs`, `matching`, `reviews`, `documents`, `artifacts`, `generation`, `profilePdf`,
+  (`profiles`, `jobs`, `matching`, `reviews`, `documents`, `artifacts`, `generation`, `profilePdf` (the profile PDF source lookup),
   `arbeitnow`, `health`, `deletion`, `shell`).
 - `mocks/util.ts`: `fail()`, `requestOf()`, `uuid()`, `pageOf()`, `seed()` and URL switches.
 

@@ -105,7 +105,7 @@ describe("command palette", () => {
     const dialog = await screen.findByRole("dialog", { name: "Command palette" });
     const input = within(dialog).getByRole("combobox", { name: "Command palette" });
     expect(input).toHaveFocus();
-    expect(within(dialog).getAllByRole("option")).toHaveLength(11);
+    expect(within(dialog).getAllByRole("option")).toHaveLength(10);
     expect(within(dialog).getByRole("option", { name: /Settings/ })).toBeInTheDocument();
     expect(within(dialog).getByRole("option", { name: /Saved jobs/ })).toBeInTheDocument();
     await user.keyboard("{Escape}");

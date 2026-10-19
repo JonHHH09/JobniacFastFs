@@ -3,7 +3,6 @@ import {
   Briefcase,
   Files,
   FileText,
-  FileUser,
   Globe,
   type LucideIcon,
   MessageSquareText,
@@ -19,7 +18,6 @@ import type { ShellDirtyWorkspace } from "../ipc/bindings";
 /** Every section of the shell, in navigation order. The id is the `?section=` value. */
 export const SECTION_IDS = [
   "profiles",
-  "profilePdf",
   "jobs",
   "arbeitnow",
   "matching",
@@ -57,9 +55,6 @@ export type SectionDefinition = {
 // One lazy chunk per section: a section is fetched the first time it is visited.
 const ProfilesPage = lazy(() =>
   import("../features/profiles/ProfilesPage").then((m) => ({ default: m.ProfilesPage })),
-);
-const ProfilePdfPage = lazy(() =>
-  import("../features/profilePdf/ProfilePdfPage").then((m) => ({ default: m.ProfilePdfPage })),
 );
 const JobsPage = lazy(() =>
   import("../features/jobs/JobsPage").then((m) => ({ default: m.JobsPage })),
@@ -103,13 +98,6 @@ export const SECTION_GROUPS: readonly SectionGroup[] = [
         width: "wide",
         dirtyWorkspace: "profile",
         component: ProfilesPage,
-      },
-      {
-        id: "profilePdf",
-        ...s.profilePdf,
-        icon: FileUser,
-        width: "form",
-        component: ProfilePdfPage,
       },
     ],
   },

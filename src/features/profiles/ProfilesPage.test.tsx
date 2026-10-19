@@ -886,7 +886,7 @@ describe("profile editor display orders and normalized fields", () => {
     ]);
   });
 
-  it("UI-PRF-006 clearing a skill name sends its normalized key as null on save", async () => {
+  it("UI-PRF-006 renaming a skill sends its normalized key as null on save", async () => {
     const skills = [
       {
         id: SKILL_ID,
@@ -907,7 +907,7 @@ describe("profile editor display orders and normalized fields", () => {
     renderPage();
     await openEditorProfile();
     fireEvent.change(within(editorSection()).getByTestId("skills_0_skillInput"), {
-      target: { value: "" },
+      target: { value: "Rust" },
     });
     fireEvent.click(screen.getByTestId("saveProfileButton"));
 
@@ -916,7 +916,7 @@ describe("profile editor display orders and normalized fields", () => {
     const skill = savedSkills[0];
     expect(skill).toEqual({
       id: SKILL_ID,
-      skill: "",
+      skill: "Rust",
       normalizedSkill: null,
       category: null,
       displayOrder: 0,
@@ -1204,4 +1204,153 @@ describe("personal details save response", () => {
       expect(updates[0]?.expectedRevision).toBe("7");
     },
   );
+});
+
+describe("profile form guidance and inline errors", () => {
+  it("explains the form and shows what each field accepts, with an example", async () => {
+    editorBackend(graphWith({}));
+    renderPage();
+    await openEditorProfile();
+
+    const editor = editorSection();
+    expect(within(editor).getByTestId("formIntro")).toHaveTextContent(
+      "Dates are written as YYYY-MM-DD",
+    );
+    const email = within(editor).getByTestId("emailInput");
+    expect(email).toHaveAccessibleDescription(
+      "Required · Email address · Example: ada@example.com",
+    );
+    expect(within(editor).getByTestId("dateOfBirthInput")).toHaveAccessibleDescription(
+      "Optional · Date as YYYY-MM-DD · Example: 1990-04-23. Leave empty to clear it",
+    );
+  });
+
+  it("marks a wrong email next to its field once it is left, and clears it when fixed", async () => {
+    editorBackend(graphWith({}));
+    renderPage();
+    await openEditorProfile();
+
+    const email = within(editorSection()).getByTestId("emailInput");
+    fireEvent.change(email, { target: { value: "ada@example" } });
+    expect(email).not.toHaveAttribute("aria-invalid");
+    fireEvent.blur(email);
+
+    expect(email).toHaveAttribute("aria-invalid", "true");
+    expect(email).toHaveAccessibleDescription(/not a valid email address.*name@example\.com/);
+
+    fireEvent.change(email, { target: { value: "ada@example.com" } });
+    expect(email).not.toHaveAttribute("aria-invalid");
+  });
+
+  it("refuses to save an invalid form, focuses the first wrong field and sends nothing", async () => {
+    const updates: unknown[] = [];
+    editorBackend(
+      graphWith({
+        education: [
+          {
+            id: "00000000-0000-4000-8000-0000000000f1",
+            institution: "Example University",
+            degree: null,
+            field: null,
+            location: null,
+            startDate: "2020-01-15",
+            endDate: "2019-12-31",
+            relevantFocus: null,
+          },
+        ],
+      }),
+      {
+        update_profile: (payload) => {
+          updates.push(payload);
+          return savedGraph(graphWith({}), "8");
+        },
+      },
+    );
+    renderPage();
+    await openEditorProfile();
+
+    const summary = within(editorSection()).getByTestId("summaryInput");
+    fireEvent.change(summary, { target: { value: "Edited" } });
+    fireEvent.click(screen.getByTestId("saveProfileButton"));
+
+    const endDate = within(editorSection()).getByTestId("education_0_endDateInput");
+    expect(endDate).toHaveFocus();
+    expect(endDate).toHaveAccessibleDescription(/end date is before the start date/);
+    expect(
+      screen.getByText("Some profile fields are invalid. Review the form and try again."),
+    ).toBeInTheDocument();
+    expect(updates).toEqual([]);
+  });
+
+  it("marks a required field left empty with an example of what to enter", async () => {
+    editorBackend(graphWith({ skills: [] }));
+    renderPage();
+    await openEditorProfile();
+
+    fireEvent.click(within(editorSection()).getByTestId("addSkillsButton"));
+    const skill = within(editorSection()).getByTestId("skills_0_skillInput");
+    expect(skill).not.toHaveAttribute("aria-invalid");
+    fireEvent.blur(skill);
+
+    expect(skill).toHaveAttribute("aria-invalid", "true");
+    expect(skill).toHaveAccessibleDescription(/Skill is required\. Enter a value such as Rust\./);
+  });
+
+  it("marks a wrong date of birth and does not send the personal save", async () => {
+    const seen: unknown[] = [];
+    editorBackend(graphWith({}), {
+      update_personal_details: (payload) => {
+        seen.push(payload);
+        return adaPersonal;
+      },
+    });
+    renderPage();
+    await openEditorProfile();
+
+    const date = within(editorSection()).getByTestId("dateOfBirthInput");
+    fireEvent.change(date, { target: { value: "23.04.1990" } });
+    fireEvent.click(screen.getByTestId("savePersonalDetailsButton"));
+
+    await waitFor(() => expect(date).toHaveAttribute("aria-invalid", "true"));
+    expect(date).toHaveAccessibleDescription(/not a valid date.*2023-06-30/);
+    expect(seen).toEqual([]);
+  });
+});
+
+describe("hiding the profile workspace", () => {
+  it("hides and shows the workspace without losing the draft, and flags unsaved edits while hidden", async () => {
+    editorBackend(graphWith({}));
+    renderPage();
+    await openEditorProfile();
+
+    const toggle = screen.getByTestId("toggleWorkspaceButton");
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    fireEvent.change(within(editorSection()).getByTestId("summaryInput"), {
+      target: { value: "Unsaved words" },
+    });
+
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(toggle).toHaveTextContent("Show workspace");
+    expect(screen.getByTestId("profileEditorPanel")).not.toBeVisible();
+    expect(screen.getByTestId("hiddenUnsavedMarker")).toBeVisible();
+
+    fireEvent.click(toggle);
+    expect(toggle).toHaveTextContent("Hide workspace");
+    expect(screen.getByTestId("profileEditorPanel")).toBeVisible();
+    expect(screen.queryByTestId("hiddenUnsavedMarker")).not.toBeInTheDocument();
+    expect(within(editorSection()).getByTestId("summaryInput")).toHaveValue("Unsaved words");
+  });
+
+  it("shows the workspace again when a profile is opened while it is hidden", async () => {
+    editorBackend(graphWith({}));
+    renderPage();
+    fireEvent.click(screen.getByTestId("toggleWorkspaceButton"));
+    expect(screen.getByTestId("profileEditorPanel")).not.toBeVisible();
+
+    await openEditorProfile();
+
+    expect(screen.getByTestId("profileEditorPanel")).toBeVisible();
+    expect(screen.getByTestId("toggleWorkspaceButton")).toHaveAttribute("aria-expanded", "true");
+  });
 });
