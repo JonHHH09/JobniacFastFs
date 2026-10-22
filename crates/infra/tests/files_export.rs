@@ -3,6 +3,13 @@
 //! The Windows cases run on Windows and the POSIX cases on Linux. Each test works in its own
 //! directory under the system temporary folder, and all content is synthetic.
 
+// The tests that need the files and generated backends run on Linux and Windows only; macOS fails
+// closed there, so their helpers are unused on macOS.
+#![cfg_attr(
+    not(any(target_os = "linux", windows)),
+    allow(dead_code, unused_imports)
+)]
+
 use std::error::Error;
 use std::path::{Path, PathBuf};
 
@@ -78,6 +85,7 @@ fn names_in(dir: &Path) -> Result<Vec<String>, Box<dyn Error>> {
     Ok(names)
 }
 
+#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn a_new_export_is_complete_and_returns_only_the_basename() -> TestResult {
     let dir = fresh_dir("new")?;
@@ -187,6 +195,7 @@ mod posix {
 
     use super::*;
 
+    #[cfg(any(target_os = "linux", windows))]
     #[test]
     fn the_export_is_owner_only_and_leaves_no_temporary_name() -> TestResult {
         let dir = fresh_dir("mode")?;

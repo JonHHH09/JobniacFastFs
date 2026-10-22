@@ -3,6 +3,9 @@
 //! content, symbolic link, hard link) blocks both removal and publication while the payload stays
 //! intact. Synthetic data only.
 
+// The owned generated-asset namespace exists only on Linux and Windows.
+#![cfg(any(target_os = "linux", windows))]
+
 mod files_support;
 
 use files_support::Scratch;

@@ -11,7 +11,8 @@
 //!    with a cleared environment and an allowlist, and the child is attached to the containment;
 //! 4. the parent writes the go byte and the request frame, then reads stdout up to the output limit
 //!    while it drains stderr and waits for the exit. When the child exits, its whole tree is
-//!    killed, so pipes close even if a descendant held them;
+//!    killed, so pipes close even if a descendant held them (macOS also kills the tree when the
+//!    child's memory footprint exceeds its limit);
 //! 5. on every exit path, success included, the tree is killed and the child is reaped. A failed
 //!    run uses no partial output.
 //!
@@ -248,6 +249,10 @@ async fn exchange(
     let mut sink = vec![0_u8; DRAIN_CHUNK_BYTES];
     let mut stdout_open = true;
     let mut stderr_open = true;
+    // macOS cannot limit the memory of a child itself, so the parent watches it (a no-op
+    // elsewhere).
+    let mut memory = platform::MemoryWatch::new(child, limits.memory_bytes);
+    let mut over_memory = false;
     let mut wait = pin!(platform::wait_for_exit(child, containment.tree_killer()));
 
     loop {
@@ -256,6 +261,12 @@ async fn exchange(
         }
         tokio::select! {
             biased;
+            () = memory.exceeded(), if exit.is_none() && !over_memory => {
+                // The tree dies as if a limit had ended it: the exit arrives as a signal and
+                // becomes a child failure, and the output is discarded.
+                over_memory = true;
+                containment.kill_tree();
+            }
             read = stdout.read(&mut chunk), if stdout_open => {
                 let read = read.map_err(|_| WorkerError::new(WorkerErrorKind::ProtocolViolation))?;
                 if read == 0 {

@@ -23,13 +23,13 @@ pub const ALLOWED_KEYS: [&str; 9] = [
     "LC_CTYPE",
 ];
 
-/// The locale that every Linux child runs under.
-#[cfg(target_os = "linux")]
-const LINUX_LOCALE: &str = "C.UTF-8";
+/// The locale that every Linux and macOS child runs under (both ship `C.UTF-8`).
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+const UNIX_LOCALE: &str = "C.UTF-8";
 
-/// The search path of every Linux child (a fixed default, never the parent's value).
-#[cfg(target_os = "linux")]
-const LINUX_DEFAULT_PATH: &str = "/usr/bin:/bin";
+/// The search path of every Linux and macOS child (a fixed default, never the parent's value).
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+const UNIX_DEFAULT_PATH: &str = "/usr/bin:/bin";
 
 /// Whether a variable name may cross into a worker child.
 #[must_use]
@@ -40,9 +40,9 @@ pub fn is_allowed(name: &str) -> bool {
 
 /// The complete environment of a child of `kind`, built from the parent's `source` variables.
 ///
-/// On Linux `LANG` and `LC_ALL` are always `C.UTF-8` and `PATH` is always the fixed system search
-/// path, so no parent value crosses for them. Windows children receive only the copied variables
-/// and the marker.
+/// On Linux and macOS `LANG` and `LC_ALL` are always `C.UTF-8` and `PATH` is always the fixed
+/// system search path, so no parent value crosses for them. Windows children receive only the
+/// copied variables and the marker.
 #[must_use]
 pub fn child_environment(
     source: &[(OsString, OsString)],
@@ -63,26 +63,27 @@ pub fn child_environment(
 }
 
 /// Variables that the platform sets itself, so the parent's values never cross: `PATH`, `LANG` and
-/// `LC_ALL` on Linux, and `PATH` on Windows (the PDFium library is loaded by absolute path).
-#[cfg(target_os = "linux")]
+/// `LC_ALL` on Linux and macOS, and `PATH` on Windows (the PDFium library is loaded by absolute
+/// path).
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 fn is_fixed_by_platform(name: &OsString) -> bool {
     name.to_str()
         .is_some_and(|name| matches!(name.to_uppercase().as_str(), "PATH" | "LANG" | "LC_ALL"))
 }
 
 /// Variables that the platform sets itself, so the parent's values never cross (Windows: `PATH`).
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 fn is_fixed_by_platform(name: &OsString) -> bool {
     name.to_str()
         .is_some_and(|name| name.eq_ignore_ascii_case("PATH"))
 }
 
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 fn add_platform_fixed(environment: &mut Vec<(OsString, OsString)>) {
-    environment.push((OsString::from("PATH"), LINUX_DEFAULT_PATH.into()));
-    environment.push((OsString::from("LANG"), LINUX_LOCALE.into()));
-    environment.push((OsString::from("LC_ALL"), LINUX_LOCALE.into()));
+    environment.push((OsString::from("PATH"), UNIX_DEFAULT_PATH.into()));
+    environment.push((OsString::from("LANG"), UNIX_LOCALE.into()));
+    environment.push((OsString::from("LC_ALL"), UNIX_LOCALE.into()));
 }
 
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 fn add_platform_fixed(_environment: &mut Vec<(OsString, OsString)>) {}

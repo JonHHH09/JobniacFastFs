@@ -20,14 +20,18 @@ use jobniac_core::env::{EnvValue, Environment};
 use crate::services::PDFIUM_DIR_VARIABLE;
 
 /// The folder inside a bundle root that holds the PDFium library. The installer payload and the
-/// Tauri `bundle.resources` mapping both use this name (`pdfium/pdfium.dll`, `pdfium/libpdfium.so`).
+/// Tauri `bundle.resources` mapping both use this name (`pdfium/pdfium.dll`,
+/// `pdfium/libpdfium.dylib`, `pdfium/libpdfium.so`).
 pub const PDFIUM_FOLDER: &str = "pdfium";
 
 /// The library file of the current platform.
 #[cfg(windows)]
 pub const PDFIUM_LIBRARY_FILE: &str = "pdfium.dll";
 /// The library file of the current platform.
-#[cfg(not(windows))]
+#[cfg(target_os = "macos")]
+pub const PDFIUM_LIBRARY_FILE: &str = "libpdfium.dylib";
+/// The library file of the current platform.
+#[cfg(not(any(windows, target_os = "macos")))]
 pub const PDFIUM_LIBRARY_FILE: &str = "libpdfium.so";
 
 /// The product name, which is also the Tauri resource folder name on Linux

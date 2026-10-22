@@ -14,7 +14,9 @@ use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 
 use jobniac_infra::workers::env::child_environment;
-use jobniac_infra::workers::probe::{ALLOCATION_REFUSED_EXIT, SECRET_VARIABLE};
+#[cfg(not(target_os = "macos"))]
+use jobniac_infra::workers::probe::ALLOCATION_REFUSED_EXIT;
+use jobniac_infra::workers::probe::SECRET_VARIABLE;
 use jobniac_infra::workers::protocol::{GO_BYTE, MARKER_VARIABLE, write_frame};
 use jobniac_infra::workers::{
     ExitClass, WorkerError, WorkerErrorKind, WorkerKind, WorkerSupervisor,
@@ -129,7 +131,13 @@ async fn child_environment_is_exactly_the_allowlist() -> TestResult {
     let body = supervisor()
         .run(WorkerKind::Probe, &probe("env_keys"), pending())
         .await?;
-    let keys: Vec<String> = serde_json::from_value(json(&body)?["keys"].clone())?;
+    #[allow(unused_mut)]
+    let mut keys: Vec<String> = serde_json::from_value(json(&body)?["keys"].clone())?;
+    // CoreFoundation, which the binary links for the system trust store, adds this variable to the
+    // environment of every process that loads it. It carries a text-encoding default, not a parent
+    // value.
+    #[cfg(target_os = "macos")]
+    keys.retain(|key| key != "__CF_USER_TEXT_ENCODING");
     assert_eq!(keys, expected);
     assert!(!keys.iter().any(|key| key == SECRET_VARIABLE));
     Ok(())
@@ -148,12 +156,21 @@ async fn secret_variable_of_the_parent_is_not_visible() -> TestResult {
 async fn memory_limit_stops_an_allocation_past_the_cap() -> TestResult {
     let _serial = CPU_BOUND.lock().await;
     let (result, elapsed) = run_probe("alloc").await;
+    // Linux: the address-space limit refuses the allocation and the probe says so. macOS enforces
+    // no such limit, so the parent's footprint watch kills the child tree (SIGKILL).
+    #[cfg(not(target_os = "macos"))]
     assert_eq!(
         kind_of(&result),
         Some(WorkerErrorKind::ChildFailed(ExitClass::Code(
             ALLOCATION_REFUSED_EXIT
         ))),
         "the probe must report that its allocation was refused, not fail for another reason"
+    );
+    #[cfg(target_os = "macos")]
+    assert_eq!(
+        kind_of(&result),
+        Some(WorkerErrorKind::ChildFailed(ExitClass::Signal(9))),
+        "the memory watch must kill the probe before it holds its whole target"
     );
     assert!(elapsed < PROBE_WALL * 2, "took {elapsed:?}");
     Ok(())
@@ -166,7 +183,7 @@ async fn cpu_limit_stops_a_spin_before_the_wall_clock() -> TestResult {
     // Linux: the soft and hard CPU limits are equal, so the kernel's SIGXCPU or SIGKILL ends the
     // child. Windows: the job's per-process user-time limit terminates the process, and the exit
     // status is whatever the job reports; it must be a child failure, never a success or a timeout.
-    #[cfg(target_os = "linux")]
+    #[cfg(unix)]
     assert!(
         matches!(
             kind_of(&result),
@@ -216,9 +233,9 @@ async fn a_child_cannot_start_a_process_that_outlives_the_operation() -> TestRes
     Ok(())
 }
 
-/// On Linux there is no process-count limit, so the descendant starts, and the supervisor must
+/// On Unix there is no process-count limit, so the descendant starts, and the supervisor must
 /// kill it with its worker.
-#[cfg(target_os = "linux")]
+#[cfg(unix)]
 #[tokio::test]
 async fn a_child_cannot_start_a_process_that_outlives_the_operation() -> TestResult {
     let body = supervisor()
@@ -238,7 +255,7 @@ async fn a_child_cannot_start_a_process_that_outlives_the_operation() -> TestRes
 
 /// A descendant that the child started is killed when the call is dropped on timeout, not only when
 /// the child exits on its own (E-NET-33).
-#[cfg(target_os = "linux")]
+#[cfg(unix)]
 #[tokio::test]
 async fn a_descendant_is_killed_when_the_call_is_dropped() -> TestResult {
     let supervisor = supervisor();
@@ -389,18 +406,22 @@ async fn stderr_is_drained_and_never_blocks_the_child() -> TestResult {
     Ok(())
 }
 
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 #[tokio::test]
-async fn linux_child_has_its_resource_limits_read_back() -> TestResult {
+async fn unix_child_has_its_resource_limits_read_back() -> TestResult {
     let body = supervisor()
         .run(WorkerKind::Probe, &probe("rlimits"), pending())
         .await?;
     let report = json(&body)?;
     let limits = WorkerKind::Probe.limits();
+    // macOS has no address-space limit; its memory is watched by the parent.
+    #[cfg(target_os = "linux")]
     assert_eq!(
         report["as"],
         serde_json::json!([limits.memory_bytes, limits.memory_bytes])
     );
+    #[cfg(target_os = "macos")]
+    assert_eq!(report["as"], Value::Null);
     assert_eq!(
         report["cpu"],
         serde_json::json!([limits.cpu_seconds, limits.cpu_seconds])
@@ -452,8 +473,8 @@ fn run_worker(
     Ok((output.status, output.stdout))
 }
 
-/// Waits until the process is gone or a zombie, for up to `limit` (Linux `/proc` only).
-#[cfg(target_os = "linux")]
+/// Waits until the process is gone or a zombie, for up to `limit`.
+#[cfg(unix)]
 fn wait_until_gone(pid: u64, limit: Duration) -> bool {
     let started = Instant::now();
     while started.elapsed() < limit {
@@ -490,6 +511,20 @@ fn scan_proc_for_token(token: &str) -> Option<u64> {
     None
 }
 
+#[cfg(target_os = "macos")]
+fn scan_proc_for_token(token: &str) -> Option<u64> {
+    let needle = format!("{}={token}", jobniac_infra::workers::probe::TOKEN_VARIABLE);
+    // `ps -E` appends the environment of each process to its command line.
+    let output = Command::new("/bin/ps")
+        .args(["-axwwE", "-o", "pid=,command="])
+        .output()
+        .ok()?;
+    String::from_utf8_lossy(&output.stdout)
+        .lines()
+        .filter(|line| line.contains(&needle))
+        .find_map(|line| line.split_whitespace().next()?.parse().ok())
+}
+
 #[cfg(target_os = "linux")]
 fn process_is_gone(pid: u64) -> bool {
     match std::fs::read_to_string(format!("/proc/{pid}/stat")) {
@@ -501,4 +536,15 @@ fn process_is_gone(pid: u64) -> bool {
                 == Some('Z')
         }
     }
+}
+
+#[cfg(target_os = "macos")]
+fn process_is_gone(pid: u64) -> bool {
+    let output = Command::new("/bin/ps")
+        .args(["-o", "stat=", "-p", &pid.to_string()])
+        .output()
+        .expect("ps");
+    let state = String::from_utf8_lossy(&output.stdout);
+    let state = state.trim();
+    state.is_empty() || state.starts_with('Z')
 }

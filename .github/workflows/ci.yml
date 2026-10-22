@@ -137,6 +137,25 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/rust-checks
 
+  # Not a required check, and not part of the passed marker: it proves the macOS worker sandbox
+  # (Seatbelt profiles and the memory watch). It runs wherever the Windows job runs, because a macOS
+  # runner costs the most minutes. The release platforms stay Windows and Linux.
+  rust-macos:
+    name: Rust (macos-latest)
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result != 'success' || (needs.changes.outputs.windows == 'true' && needs.changes.outputs.rust == 'true')) }}
+    runs-on: macos-latest
+    # Informational until macOS is a release platform: release.yml needs this workflow, and a runner
+    # flake here must not block a release.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # The release call tests the merge commit that release.yml pins, not the default merge ref.
+          ref: ${{ inputs.release-call && github.event.pull_request.merge_commit_sha || '' }}
+          persist-credentials: false
+      - uses: ./.github/actions/rust-checks
+
   supply-chain:
     name: Supply chain (cargo-deny)
     runs-on: ubuntu-26.04

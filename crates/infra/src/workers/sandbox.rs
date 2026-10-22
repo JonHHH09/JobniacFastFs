@@ -2,8 +2,9 @@
 //!
 //! A child calls [`apply`] once, after it has loaded what it needs from the file system and before
 //! it handles untrusted input. On Linux the call installs `no_new_privs`, a Landlock ruleset and a
-//! seccomp-BPF filter (see `platform/linux_sandbox.rs`). On other platforms the Job Object of the
-//! parent is the only containment, and [`apply`] reports [`SandboxLevel::NotApplicable`].
+//! seccomp-BPF filter (see `platform/linux_sandbox.rs`). On macOS it installs a Seatbelt profile
+//! per kind (see `platform/macos_sandbox.rs`). On Windows the Job Object of the parent is the only
+//! containment, and [`apply`] reports [`SandboxLevel::NotApplicable`].
 
 use crate::workers::child::WorkerFault;
 
@@ -28,6 +29,8 @@ pub enum SandboxLevel {
     Degraded,
     /// The kernel has no usable Landlock; only `no_new_privs` and seccomp apply.
     SeccompOnly,
+    /// A Seatbelt profile with `(deny default)` is in force (macOS).
+    Seatbelt,
     /// This platform has no child self-confinement (Windows relies on its Job Object).
     NotApplicable,
 }
@@ -40,6 +43,7 @@ impl SandboxLevel {
             Self::Full => "full",
             Self::Degraded => "degraded",
             Self::SeccompOnly => "seccomp-only",
+            Self::Seatbelt => "seatbelt",
             Self::NotApplicable => "not-applicable",
         }
     }
@@ -50,9 +54,9 @@ impl SandboxLevel {
 /// # Errors
 ///
 /// Returns [`WorkerFault`] when a mandatory layer cannot be installed (Linux: `no_new_privs` or the
-/// seccomp filter), so the child refuses to run unconfined. A missing Landlock is not an error: the
-/// returned level says what was reached.
-#[cfg(target_os = "linux")]
+/// seccomp filter; macOS: the Seatbelt profile), so the child refuses to run unconfined. A missing
+/// Landlock is not an error: the returned level says what was reached.
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 pub fn apply(profile: SandboxProfile) -> Result<SandboxLevel, WorkerFault> {
     crate::workers::platform::child_apply_sandbox(profile).map_err(|_| WorkerFault)
 }
@@ -62,20 +66,21 @@ pub fn apply(profile: SandboxProfile) -> Result<SandboxLevel, WorkerFault> {
 /// # Errors
 ///
 /// Never fails here.
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 pub fn apply(_profile: SandboxProfile) -> Result<SandboxLevel, WorkerFault> {
     Ok(SandboxLevel::NotApplicable)
 }
 
 /// The tripwire a child checks before it returns a response: whether the confinement of its kind is
-/// in force (Linux: `no_new_privs` set and a seccomp filter installed). A kind whose operation
-/// returns without having confined itself fails here, so skipping the confinement is not silent.
+/// in force (Linux: `no_new_privs` set and a seccomp filter installed; macOS: a Seatbelt profile).
+/// A kind whose operation returns without having confined itself fails here, so skipping the
+/// confinement is not silent.
 ///
 /// # Errors
 ///
 /// Returns [`WorkerFault`] when the confinement is not in force.
 pub fn verify_confined() -> Result<(), WorkerFault> {
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     {
         if crate::workers::platform::confined() {
             Ok(())
@@ -83,7 +88,7 @@ pub fn verify_confined() -> Result<(), WorkerFault> {
             Err(WorkerFault)
         }
     }
-    #[cfg(not(target_os = "linux"))]
+    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
     {
         Ok(())
     }
@@ -101,7 +106,11 @@ pub fn host_level() -> SandboxLevel {
             None => SandboxLevel::SeccompOnly,
         }
     }
-    #[cfg(not(target_os = "linux"))]
+    #[cfg(target_os = "macos")]
+    {
+        SandboxLevel::Seatbelt
+    }
+    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
     {
         SandboxLevel::NotApplicable
     }
@@ -122,11 +131,11 @@ pub fn warn_once_if_degraded() {
             "worker sandbox is seccomp-only: this kernel has no usable Landlock, so worker \
              children keep file system access"
         ),
-        SandboxLevel::Full | SandboxLevel::NotApplicable => {}
+        SandboxLevel::Full | SandboxLevel::Seatbelt | SandboxLevel::NotApplicable => {}
     });
 }
 
-#[cfg(all(test, target_os = "linux"))]
+#[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
 mod tests {
     use super::*;
 

@@ -39,6 +39,8 @@ pub const TEMP_PREFIX: &str = ".jobniac-tmp-";
 /// inside, or be reached through an ancestor that is one of them.
 #[derive(Debug, Clone, Default)]
 pub struct AtomicExporter {
+    // macOS fails closed here (see the platform modules), so only Linux and Windows use this.
+    #[cfg_attr(not(any(target_os = "linux", windows)), allow(dead_code))]
     protected_roots: Vec<String>,
 }
 
@@ -77,6 +79,8 @@ pub fn create_private_directory(path: &Path) -> std::io::Result<()> {
 
 /// The internal failure. `Refused` leaves no name; `Published` means the link or rename succeeded.
 #[derive(Debug)]
+// macOS fails closed here (see the platform modules), so only Linux and Windows use this.
+#[cfg_attr(not(any(target_os = "linux", windows)), allow(dead_code))]
 enum Failure {
     Refused,
     Published,
@@ -183,6 +187,8 @@ fn windows_syntax(destination: &str) -> Option<(String, String)> {
 }
 
 /// Protected-root snapshot: the real path of each root, or its text when it does not exist.
+// macOS fails closed here (see the platform modules), so only Linux and Windows use this.
+#[cfg_attr(not(any(target_os = "linux", windows)), allow(dead_code))]
 fn protected_snapshot(roots: &[String]) -> Vec<String> {
     roots
         .iter()
@@ -194,6 +200,8 @@ fn protected_snapshot(roots: &[String]) -> Vec<String> {
 }
 
 /// Whether `path` equals or lies inside any configured or resolved protected root.
+// macOS fails closed here (see the platform modules), so only Linux and Windows use this.
+#[cfg_attr(not(any(target_os = "linux", windows)), allow(dead_code))]
 fn inside_protected(path: &Path, roots: &[String], snapshot: &[String]) -> bool {
     roots
         .iter()

@@ -136,16 +136,21 @@ the desktop build fails with ``resource path `../vendor/pdfium/...` doesn't exis
 
 ```text
 scripts/fetch-pdfium.sh linux-x64   # fetch the pinned PDFium library (Linux)
+scripts/fetch-pdfium.sh mac-arm64   # fetch the pinned PDFium library (macOS, Apple Silicon; mac-x64 on Intel)
 pnpm install --frozen-lockfile      # install the locked UI dependencies
 pnpm tauri dev                      # run the desktop app
 pnpm build                          # type-check and build the UI
 pnpm tauri build                    # build a release bundle
 ```
 
+On macOS the bundle config `src-tauri/tauri.macos.conf.json` names the Apple Silicon library
+(`mac-arm64`) only; on an Intel Mac change that path to `mac-x64` before `pnpm tauri build`.
+
 Rust checks, from the repository root (the Cargo workspace is at the root). The PDF tests load PDFium
 from `JOBNIAC_PDFIUM_DIR`, so set it to the absolute path of `vendor/pdfium/<platform>` first:
 
 ```text
+export JOBNIAC_PDFIUM_DIR="$PWD/vendor/pdfium/mac-arm64"   # macOS, Apple Silicon (mac-x64 on Intel)
 cargo fmt --all --check
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo test --workspace --locked

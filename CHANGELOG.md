@@ -8,6 +8,16 @@ drafts take the body of their version section from this file.
 
 ### Changed
 
+- macOS: worker children (PDF extraction, PDF page rendering, link fetch and the Arbeitnow board)
+  now start on macOS instead of failing closed. Each runs in a process group with resource limits
+  (CPU time, file size, core dumps, open files), the same fixed environment as on Linux, and a
+  Seatbelt sandbox profile per kind (no file writes, no process creation, no network for the PDF
+  kinds, outbound TCP and DNS only for the fetch kinds). macOS enforces no address-space limit, so
+  the parent polls the memory footprint of a child every 10 ms and kills it above its limit; the cap
+  can be overshot by what a child allocates within one interval. Importing PDF files from the
+  import root and exporting still fail closed on macOS, so PDFs cannot yet reach the PDF workers
+  through the MCP tools or the desktop app. The link fetch and the Arbeitnow board are now offered on
+  macOS when their opt-in flags are set. No MCP tool name, argument or envelope changes.
 - User interface: the "Profile from PDF" section is gone; profiles are built from PDFs through the
   MCP tools, which are unchanged. The Profiles screen shows the stored-PDF source of a profile
   built that way, tells the operator what each field accepts (required or optional, kind of value,

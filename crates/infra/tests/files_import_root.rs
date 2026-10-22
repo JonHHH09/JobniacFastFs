@@ -1,6 +1,13 @@
 //! Import root rules that hold on every platform: root configuration, path shape, containment,
 //! size limit, regular-file classification and the exact refusal reasons.
 
+// The tests that need the files and generated backends run on Linux and Windows only; macOS fails
+// closed there, so their helpers are unused on macOS.
+#![cfg_attr(
+    not(any(target_os = "linux", windows)),
+    allow(dead_code, unused_imports)
+)]
+
 mod files_support;
 
 use files_support::{SAMPLE_PDF, Scratch};
@@ -24,6 +31,7 @@ fn unset_or_empty_root_refuses_every_read() {
     assert!(!never.exists(), "no root is created");
 }
 
+#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn relative_root_and_root_with_parent_component_are_refused() {
     let scratch = Scratch::new();
@@ -40,6 +48,7 @@ fn relative_root_and_root_with_parent_component_are_refused() {
     );
 }
 
+#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn parent_component_in_the_request_is_refused_before_normalization() {
     let scratch = Scratch::new();
@@ -49,6 +58,7 @@ fn parent_component_in_the_request_is_refused_before_normalization() {
     assert_eq!(reader.read(&text), Err(ImportRefusal::PathTraversal));
 }
 
+#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn relative_request_is_refused_instead_of_using_the_working_directory() {
     let scratch = Scratch::new();
@@ -60,6 +70,7 @@ fn relative_request_is_refused_instead_of_using_the_working_directory() {
     );
 }
 
+#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn blank_and_nul_requests_are_invalid_paths() {
     let scratch = Scratch::new();
@@ -75,6 +86,7 @@ fn blank_and_nul_requests_are_invalid_paths() {
     assert_eq!(reader.read(&with_nul), Err(ImportRefusal::InvalidPath));
 }
 
+#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn files_outside_the_root_and_the_root_itself_are_refused() {
     let scratch = Scratch::new();
@@ -98,6 +110,7 @@ fn files_outside_the_root_and_the_root_itself_are_refused() {
     );
 }
 
+#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn missing_file_and_missing_directory_are_not_found() {
     let scratch = Scratch::new();
@@ -112,6 +125,7 @@ fn missing_file_and_missing_directory_are_not_found() {
     );
 }
 
+#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn regular_file_is_read_with_its_last_component_as_name() {
     let scratch = Scratch::new();
@@ -127,6 +141,7 @@ fn regular_file_is_read_with_its_last_component_as_name() {
     assert_eq!(imported.content, SAMPLE_PDF);
 }
 
+#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn root_as_a_folder_with_trailing_separator_still_contains_the_file() {
     let scratch = Scratch::new();
@@ -138,6 +153,7 @@ fn root_as_a_folder_with_trailing_separator_still_contains_the_file() {
     assert_eq!(imported.content, SAMPLE_PDF);
 }
 
+#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn directory_at_the_requested_path_is_refused() {
     let scratch = Scratch::new();
@@ -153,6 +169,7 @@ fn directory_at_the_requested_path_is_refused() {
     assert_eq!(reader.read(&scratch.text("folder")), Err(expected));
 }
 
+#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn file_used_as_a_directory_component_is_not_readable() {
     let scratch = Scratch::new();
@@ -164,6 +181,7 @@ fn file_used_as_a_directory_component_is_not_readable() {
     );
 }
 
+#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn size_limit_accepts_exactly_the_maximum_and_refuses_one_more() {
     let scratch = Scratch::new();

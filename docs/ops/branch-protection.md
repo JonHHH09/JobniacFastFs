@@ -37,7 +37,7 @@ of the release build in `release.yml`, which stays on `ubuntu-24.04` because the
 glibc floor of the AppImage and deb. When the runner moves to a new LTS, the `Rust (ubuntu-...)`
 check is renamed, so update the required check in both rulesets in the same change.
 
-`Rust (windows-latest)` and `E2E (...)` are not required checks: they do not run on pull requests
+`Rust (windows-latest)`, `Rust (macos-latest)` and `E2E (...)` are not required checks: they do not run on pull requests
 into `development`. `E2E (windows-latest)` still fails on `main`. The end-to-end suite is a release
 gate (`release.yml` needs it), so a promotion pull request whose `E2E (...)` checks are red must not
 be merged: the release would stop after the merge.
@@ -48,7 +48,7 @@ A required check whose job is skipped counts as passed, so `ci.yml` and `e2e.yml
 
 - The `Changes` job (`scripts/ci/gate.sh`) path-filters pull requests into `development`: a
   docs-only change skips `UI`, `Rust (...)` and `E2E (...)`; Rust-only changes skip `UI`.
-- `Rust (windows-latest)` and `E2E (windows-latest)` do not run on pull
+- `Rust (windows-latest)`, `Rust (macos-latest)` and `E2E (windows-latest)` do not run on pull
   requests into `development`. They run on the promotion pull request (`development` to `main`), on
   the nightly run, on manual runs (`workflow_dispatch`) and in the release call.
 - Every job that is a required check must keep a literal `name:`. Do not turn the Rust or E2E jobs

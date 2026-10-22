@@ -6,6 +6,9 @@
 //! where the command needs them, the synthetic root values. All data is synthetic, and each root is
 //! a temporary directory removed at the end.
 
+// The generated root exists only on Linux and Windows.
+#![cfg(any(target_os = "linux", windows))]
+
 use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};

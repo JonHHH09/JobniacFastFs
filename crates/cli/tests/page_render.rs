@@ -70,6 +70,30 @@ async fn a_page_of_a_synthetic_pdf_renders_to_a_bounded_png() -> TestResult {
     Ok(())
 }
 
+/// The fixture draws its text with the standard Helvetica font, which it does not embed, so the
+/// confined render child must find a system font. A blank page or a fault would fail here.
+#[tokio::test]
+async fn text_in_a_non_embedded_standard_font_is_drawn_under_the_render_profile() -> TestResult {
+    let Some(directory) = pdfium_dir() else {
+        return Ok(());
+    };
+    let content = two_page_pdf()?;
+    let renderer = WorkerPdfRenderer::new(
+        Some(Arc::new(supervisor())),
+        Some(directory),
+        WorkerCancellation::new(),
+    );
+    let rendered = renderer.render(&content, 0).await?;
+    let image = image::load_from_memory_with_format(&rendered.png, image::ImageFormat::Png)?;
+    let dark = image
+        .to_luma8()
+        .pixels()
+        .filter(|pixel| pixel.0[0] < 128)
+        .count();
+    assert!(dark > 500, "the page is blank: {dark} dark pixels");
+    Ok(())
+}
+
 #[tokio::test]
 async fn the_second_page_renders_and_a_page_past_the_end_is_refused() -> TestResult {
     let Some(directory) = pdfium_dir() else {

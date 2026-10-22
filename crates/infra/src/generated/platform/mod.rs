@@ -42,6 +42,8 @@ pub(crate) enum Access {
 
 /// Outcome of an anonymous publication under a name.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+// macOS fails closed here (see the platform modules), so only Linux and Windows use this.
+#[cfg_attr(not(any(target_os = "linux", windows)), allow(dead_code))]
 pub(crate) enum Publish {
     /// The name was created with the complete content and verified.
     Created,
@@ -51,6 +53,8 @@ pub(crate) enum Publish {
 
 /// Failure of an anonymous publication, before the caller's content comparison.
 #[derive(Debug)]
+// macOS fails closed here (see the platform modules), so only Linux and Windows use this.
+#[cfg_attr(not(any(target_os = "linux", windows)), allow(dead_code))]
 pub(crate) enum PublishError {
     /// The published object does not match the content, or the name was swapped.
     Mismatch,

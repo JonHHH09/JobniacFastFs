@@ -2,6 +2,13 @@
 //! ACLs fail closed, junctions and symbolic links are never followed, POSIX permissions and
 //! control modes are private. Synthetic data only.
 
+// The tests that need the files and generated backends run on Linux and Windows only; macOS fails
+// closed there, so their helpers are unused on macOS.
+#![cfg_attr(
+    not(any(target_os = "linux", windows)),
+    allow(dead_code, unused_imports)
+)]
+
 mod files_support;
 
 use files_support::Scratch;
@@ -194,6 +201,7 @@ mod unix {
     use super::*;
     use std::os::unix::fs::{PermissionsExt, symlink};
 
+    #[cfg(any(target_os = "linux", windows))]
     #[test]
     fn a_symbolic_link_root_is_never_followed() {
         let (scratch, root, identity, files) = owned_with_asset();
@@ -211,6 +219,7 @@ mod unix {
         assert!(files.qualify_owned_root().is_ok());
     }
 
+    #[cfg(any(target_os = "linux", windows))]
     #[test]
     fn a_group_or_world_accessible_root_fails_closed() {
         let (_scratch, root, identity, files) = owned_with_asset();
@@ -226,6 +235,7 @@ mod unix {
         assert!(root.join(identity.relative_path()).exists());
     }
 
+    #[cfg(any(target_os = "linux", windows))]
     #[test]
     fn a_stale_temporary_file_is_refused_on_linux() {
         let scratch = Scratch::new();
@@ -240,6 +250,7 @@ mod unix {
         assert!(OwnedAssetFiles::initialize_owned_root(&root_text, Uuid::new_v4()).is_err());
     }
 
+    #[cfg(any(target_os = "linux", windows))]
     #[test]
     fn controls_and_published_assets_are_owner_only() {
         let (_scratch, root, identity, _files) = owned_with_asset();

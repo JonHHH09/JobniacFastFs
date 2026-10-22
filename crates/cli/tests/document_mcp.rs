@@ -7,6 +7,9 @@
 //! import root that is removed afterwards. The composition root's adapters are compiled into this
 //! test from `src/document_ports.rs`, because the console crate is a binary without a library target.
 
+// Reads the PDF through the import root, which fails closed on macOS.
+#![cfg(any(target_os = "linux", windows))]
+
 #[path = "../src/document_ports.rs"]
 #[allow(dead_code)]
 mod document_ports;

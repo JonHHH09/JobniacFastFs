@@ -669,7 +669,8 @@ fn initialize_controls(
     Ok(())
 }
 
-#[cfg(test)]
+// The only test needs the generated-asset backend, which exists on Linux and Windows only.
+#[cfg(all(test, any(target_os = "linux", windows)))]
 mod tests {
     use super::*;
 

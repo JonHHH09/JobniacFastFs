@@ -56,9 +56,13 @@ pub const MAX_CONCURRENT_LINK_FETCHES: usize = 4;
 /// The composed link use case over the SQLite unit of work and the job repository.
 pub type JobLinkUseCase = JobLinkService<SqliteUnitOfWork, SqliteJobRepository>;
 
-/// Whether the platform admits the owned child transports: Linux and Windows only.
+/// Whether the platform admits the owned child transports: Linux, macOS and Windows.
 const fn platform_supported() -> bool {
-    cfg!(any(target_os = "linux", target_os = "windows"))
+    cfg!(any(
+        target_os = "linux",
+        target_os = "macos",
+        target_os = "windows"
+    ))
 }
 
 /// The platform gate: refuses with the sanitized [`StartupError`] when the platform is not admitted.
@@ -314,7 +318,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_os = "linux", target_os = "windows"))]
+    #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
     fn enabled_construction_connects_spawns_and_fetches_nothing()
     -> Result<(), Box<dyn std::error::Error>> {
         // The supervisor only records the current executable, so construction returns a service
@@ -335,7 +339,7 @@ mod tests {
         assert!(compose_job_links(&empty, None)?.is_none());
         let flag_only = Environment::from_pairs([(LINK_FETCH_ENABLED_VARIABLE, "1")]);
         assert!(compose_job_links(&flag_only, None)?.is_none());
-        #[cfg(any(target_os = "linux", target_os = "windows"))]
+        #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
         {
             let (_root, pool) = database()?;
             let env = Environment::from_pairs([(LINK_FETCH_ENABLED_VARIABLE, "1")]);
