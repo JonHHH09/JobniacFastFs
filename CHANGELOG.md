@@ -8,6 +8,11 @@ drafts take the body of their version section from this file.
 
 ### Changed
 
+- Desktop Arbeitnow screen: a scan and "Load more results" each read up to five board pages instead
+  of one, so a narrow filter (a search term plus a location) finds older postings without repeated
+  clicks. When nothing has matched yet but older postings remain, the status says so instead of
+  reporting that no job was found. The MCP tools are unchanged.
+
 - macOS: worker children (PDF extraction, PDF page rendering, link fetch and the Arbeitnow board)
   now start on macOS instead of failing closed. Each runs in a process group with resource limits
   (CPU time, file size, core dumps, open files), the same fixed environment as on Linux, and a
