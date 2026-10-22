@@ -2,13 +2,6 @@
 //! ACLs fail closed, junctions and symbolic links are never followed, POSIX permissions and
 //! control modes are private. Synthetic data only.
 
-// The tests that need the files and generated backends run on Linux and Windows only; macOS fails
-// closed there, so their helpers are unused on macOS.
-#![cfg_attr(
-    not(any(target_os = "linux", windows)),
-    allow(dead_code, unused_imports)
-)]
-
 mod files_support;
 
 use files_support::Scratch;
@@ -201,7 +194,6 @@ mod unix {
     use super::*;
     use std::os::unix::fs::{PermissionsExt, symlink};
 
-    #[cfg(any(target_os = "linux", windows))]
     #[test]
     fn a_symbolic_link_root_is_never_followed() {
         let (scratch, root, identity, files) = owned_with_asset();
@@ -219,7 +211,6 @@ mod unix {
         assert!(files.qualify_owned_root().is_ok());
     }
 
-    #[cfg(any(target_os = "linux", windows))]
     #[test]
     fn a_group_or_world_accessible_root_fails_closed() {
         let (_scratch, root, identity, files) = owned_with_asset();
@@ -235,7 +226,7 @@ mod unix {
         assert!(root.join(identity.relative_path()).exists());
     }
 
-    #[cfg(any(target_os = "linux", windows))]
+    #[cfg(target_os = "linux")]
     #[test]
     fn a_stale_temporary_file_is_refused_on_linux() {
         let scratch = Scratch::new();
@@ -250,7 +241,148 @@ mod unix {
         assert!(OwnedAssetFiles::initialize_owned_root(&root_text, Uuid::new_v4()).is_err());
     }
 
-    #[cfg(any(target_os = "linux", windows))]
+    #[cfg(target_os = "macos")]
+    #[allow(unsafe_code)]
+    mod macos {
+        use super::*;
+        use jobniac_infra::generated::asset_files::{
+            PublicationFailureCategory, PublicationOutcome,
+        };
+
+        unsafe extern "C" {
+            // <sys/acl.h> of the macOS SDK: acl_from_text, acl_set_file and acl_free.
+            fn acl_from_text(text: *const std::ffi::c_char) -> *mut std::ffi::c_void;
+            fn acl_set_file(
+                path: *const std::ffi::c_char,
+                acl_type: std::ffi::c_uint,
+                acl: *mut std::ffi::c_void,
+            ) -> std::ffi::c_int;
+            fn acl_free(object: *mut std::ffi::c_void) -> std::ffi::c_int;
+        }
+
+        /// Adds an ACL entry that lets everyone read. It is set through the ACL API and not by a
+        /// `chmod` child: a forked child holds copies of the other tests' lock descriptors until
+        /// it execs, which would make their namespace locks look busy.
+        fn grant_everyone(path: &std::path::Path) {
+            use std::os::unix::ffi::OsStrExt;
+            const ACL_TYPE_EXTENDED: std::ffi::c_uint = 0x0000_0100;
+            let text = c"!#acl 1\ngroup:ABCDEFAB-CDEF-ABCD-EFAB-CDEF0000000C:everyone:12:allow:read,execute";
+            let path = std::ffi::CString::new(path.as_os_str().as_bytes()).expect("path");
+            // SAFETY: both strings are NUL-terminated and outlive the calls; the ACL is released
+            // exactly once after it was applied.
+            unsafe {
+                let acl = acl_from_text(text.as_ptr());
+                assert!(!acl.is_null(), "ACL text parsed");
+                let status = acl_set_file(path.as_ptr(), ACL_TYPE_EXTENDED, acl);
+                acl_free(acl);
+                assert_eq!(status, 0, "ACL entry applied");
+            }
+        }
+
+        /// Publication goes through a visible temporary name, so a crash can leave one behind; an
+        /// owned temporary name is tolerated (as on Windows) and a foreign name is not.
+        #[test]
+        fn a_stale_owned_temporary_file_does_not_block_initialization() {
+            let scratch = Scratch::new();
+            let root = scratch.join("generated");
+            let root_text = root.to_string_lossy().into_owned();
+            assert!(ensure_private_directory(&root_text));
+            let stale = root.join(format!(".jobniac-tmp-{}", "0123456789abcdef".repeat(2)));
+            fs::write(&stale, b"partial").expect("stale temp");
+            OwnedAssetFiles::initialize_owned_root(&root_text, Uuid::new_v4())
+                .expect("an owned temporary name is tolerated");
+            assert!(stale.exists());
+            assert!(root.join(".jobniac-generated-root").exists());
+        }
+
+        #[test]
+        fn a_foreign_or_case_variant_temporary_name_blocks_initialization() {
+            for name in [
+                ".jobniac-tmp-notours",
+                ".JOBNIAC-TMP-0123456789abcdef0123456789abcdef",
+            ] {
+                let scratch = Scratch::new();
+                let root = scratch.join("generated");
+                let root_text = root.to_string_lossy().into_owned();
+                assert!(ensure_private_directory(&root_text));
+                fs::write(root.join(name), b"x").expect("plant");
+                assert!(
+                    OwnedAssetFiles::initialize_owned_root(&root_text, Uuid::new_v4()).is_err(),
+                    "{name}"
+                );
+            }
+        }
+
+        /// Mode bits do not show an extended ACL, so a root or an asset that carries one is not
+        /// private.
+        #[test]
+        fn a_root_with_an_acl_fails_closed() {
+            let (_scratch, root, identity, files) = owned_with_asset();
+            grant_everyone(&root);
+            assert_eq!(
+                files.qualify_owned_root().map_err(|e| e.category()),
+                Err(RemovalFailureCategory::OwnershipUnproven)
+            );
+            assert_eq!(
+                files.remove_owned(&identity).map_err(|e| e.category()),
+                Err(RemovalFailureCategory::OwnershipUnproven)
+            );
+            assert!(root.join(identity.relative_path()).exists());
+        }
+
+        #[test]
+        fn an_asset_or_control_with_an_acl_is_an_unproven_owner() {
+            for name in [None, Some(".jobniac-generated-root")] {
+                let (_scratch, root, identity, files) = owned_with_asset();
+                let target =
+                    root.join(name.map_or_else(|| identity.relative_path(), str::to_owned));
+                grant_everyone(&target);
+                assert_eq!(
+                    files.remove_owned(&identity).map_err(|e| e.category()),
+                    Err(RemovalFailureCategory::OwnershipUnproven),
+                    "{name:?}"
+                );
+                assert!(root.join(identity.relative_path()).exists());
+            }
+        }
+
+        /// The default volume ignores case. A fence under a case variant of its name is still the
+        /// fence: it blocks publication, and no second name is created beside it.
+        #[test]
+        fn a_case_variant_fence_still_blocks_publication() {
+            let (_scratch, root, identity, files) = owned_with_asset();
+            let fence = format!(".jobniac-retired-{}", identity.asset_id());
+            assert_eq!(
+                files.remove_owned(&identity).map(|_| ()),
+                Ok(()),
+                "retire the asset"
+            );
+            let upper = root.join(fence.to_uppercase());
+            let lower = root.join(&fence);
+            if fs::rename(&lower, &upper).is_err() || lower.exists() != upper.exists() {
+                // A case-sensitive volume: a case variant is a different name there.
+                return;
+            }
+            let failure = files
+                .materialize_owned(&identity, CONTENT)
+                .expect_err("the case-variant fence blocks publication");
+            assert_eq!(failure.category(), PublicationFailureCategory::RetiredAsset);
+            assert!(!root.join(identity.relative_path()).exists());
+        }
+
+        #[test]
+        fn controls_carry_the_macos_capability_mechanism() {
+            let (_scratch, root, identity, files) = owned_with_asset();
+            let capability =
+                fs::read_to_string(root.join(".jobniac-generated-capability")).expect("capability");
+            assert!(capability.contains("macos-tempfile-rename-excl-fsync"));
+            assert_eq!(
+                files.materialize_owned(&identity, CONTENT),
+                Ok(PublicationOutcome::AlreadyPresent)
+            );
+        }
+    }
+
     #[test]
     fn controls_and_published_assets_are_owner_only() {
         let (_scratch, root, identity, _files) = owned_with_asset();

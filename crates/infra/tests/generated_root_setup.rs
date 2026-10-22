@@ -1,12 +1,5 @@
 //! Generated-root directory handling and the filesystem side of setup, on synthetic data.
 
-// The tests that need the files and generated backends run on Linux and Windows only; macOS fails
-// closed there, so their helpers are unused on macOS.
-#![cfg_attr(
-    not(any(target_os = "linux", windows)),
-    allow(dead_code, unused_imports)
-)]
-
 mod files_support;
 
 use files_support::Scratch;
@@ -16,7 +9,6 @@ use jobniac_infra::generated::setup::{RootDirectoryState, RootSetupFiles};
 use std::fs;
 use uuid::Uuid;
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn ensure_creates_the_missing_chain_and_leaves_an_existing_directory_alone() {
     let scratch = Scratch::new();
@@ -67,7 +59,6 @@ fn an_absent_explicit_root_is_unusable_and_never_created() {
     assert!(!scratch.join("explicit-missing").exists());
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn a_missing_default_root_is_created_privately_and_then_reads_as_empty() {
     let scratch = Scratch::new();
@@ -77,7 +68,6 @@ fn a_missing_default_root_is_created_privately_and_then_reads_as_empty() {
     assert!(is_plain_directory(&default));
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn setup_initializes_qualifies_and_reports_the_marker_identity() {
     let scratch = Scratch::new();

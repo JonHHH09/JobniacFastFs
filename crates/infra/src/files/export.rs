@@ -7,11 +7,14 @@
 //! * Windows ([`platform_windows`]): an exclusive, owner-only `.jobniac-tmp-` file in a pinned
 //!   directory chain, then a no-replace rename on the held handle. The temporary name is briefly
 //!   visible.
+//! * macOS ([`platform_macos`]): an exclusive, owner-only `.jobniac-tmp-` file in the held parent,
+//!   fsynced with `F_FULLFSYNC`, then a no-replace `renameatx_np` (`RENAME_EXCL`). The temporary
+//!   name is briefly visible and is removed on every failure. It uses the rustix safe API.
 //! * Every other target refuses before it touches the filesystem.
 //!
 //! This module is orchestration only: destination syntax, the protected-root snapshot and the
 //! mapping to the two fixed outcomes ([`ExportFailure`]). It contains no FFI. Every system call
-//! lives in a platform module, and the only `unsafe` code is in [`platform_windows`], with a
+//! lives in a platform module, and the only `unsafe` code is in `platform_windows`, with a
 //! `SAFETY:` comment on each block.
 //!
 //! Follow-up: the generated-root platform layer (`crate::generated::platform`) repeats the
@@ -26,21 +29,26 @@ use jobniac_core::artifacts::{
 
 #[cfg(target_os = "linux")]
 mod platform_linux;
+#[cfg(target_os = "macos")]
+mod platform_macos;
 #[cfg(windows)]
 mod platform_windows;
 
 /// The longest destination name, in UTF-8 bytes.
 const MAX_NAME_BYTES: usize = 4096;
 
-/// The prefix of the temporary file on Windows (`TEMP_PREFIX`).
+/// The prefix of the temporary file on Windows and macOS (`TEMP_PREFIX`).
 pub const TEMP_PREFIX: &str = ".jobniac-tmp-";
 
 /// The native exporter. It holds the protected roots, which the destination may never equal, lie
 /// inside, or be reached through an ancestor that is one of them.
 #[derive(Debug, Clone, Default)]
 pub struct AtomicExporter {
-    // macOS fails closed here (see the platform modules), so only Linux and Windows use this.
-    #[cfg_attr(not(any(target_os = "linux", windows)), allow(dead_code))]
+    // Other targets refuse before they read this (see `export_inner`).
+    #[cfg_attr(
+        not(any(target_os = "linux", target_os = "macos", windows)),
+        allow(dead_code)
+    )]
     protected_roots: Vec<String>,
 }
 
@@ -79,8 +87,11 @@ pub fn create_private_directory(path: &Path) -> std::io::Result<()> {
 
 /// The internal failure. `Refused` leaves no name; `Published` means the link or rename succeeded.
 #[derive(Debug)]
-// macOS fails closed here (see the platform modules), so only Linux and Windows use this.
-#[cfg_attr(not(any(target_os = "linux", windows)), allow(dead_code))]
+// Other targets refuse before they use this (see `export_inner`).
+#[cfg_attr(
+    not(any(target_os = "linux", target_os = "macos", windows)),
+    allow(dead_code)
+)]
 enum Failure {
     Refused,
     Published,
@@ -115,11 +126,15 @@ fn export_inner(
     {
         platform_linux::publish(exporter, &artifact, &parent, &name, published)
     }
+    #[cfg(target_os = "macos")]
+    {
+        platform_macos::publish(exporter, &artifact, &parent, &name, published)
+    }
     #[cfg(windows)]
     {
         platform_windows::publish(exporter, &artifact, &parent, &name, published)
     }
-    #[cfg(not(any(target_os = "linux", windows)))]
+    #[cfg(not(any(target_os = "linux", target_os = "macos", windows)))]
     {
         let _ = (exporter, artifact, parent, name, published);
         Err(Failure::Refused)
@@ -187,8 +202,11 @@ fn windows_syntax(destination: &str) -> Option<(String, String)> {
 }
 
 /// Protected-root snapshot: the real path of each root, or its text when it does not exist.
-// macOS fails closed here (see the platform modules), so only Linux and Windows use this.
-#[cfg_attr(not(any(target_os = "linux", windows)), allow(dead_code))]
+// Other targets refuse before they use this (see `export_inner`).
+#[cfg_attr(
+    not(any(target_os = "linux", target_os = "macos", windows)),
+    allow(dead_code)
+)]
 fn protected_snapshot(roots: &[String]) -> Vec<String> {
     roots
         .iter()
@@ -200,8 +218,11 @@ fn protected_snapshot(roots: &[String]) -> Vec<String> {
 }
 
 /// Whether `path` equals or lies inside any configured or resolved protected root.
-// macOS fails closed here (see the platform modules), so only Linux and Windows use this.
-#[cfg_attr(not(any(target_os = "linux", windows)), allow(dead_code))]
+// Other targets refuse before they use this (see `export_inner`).
+#[cfg_attr(
+    not(any(target_os = "linux", target_os = "macos", windows)),
+    allow(dead_code)
+)]
 fn inside_protected(path: &Path, roots: &[String], snapshot: &[String]) -> bool {
     roots
         .iter()

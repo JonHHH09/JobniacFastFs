@@ -1,14 +1,7 @@
 //! Native PDF export: publication of a new, private, complete file.
 //!
-//! The Windows cases run on Windows and the POSIX cases on Linux. Each test works in its own
+//! The Windows cases run on Windows, the POSIX cases on Linux and macOS. Each test works in its own
 //! directory under the system temporary folder, and all content is synthetic.
-
-// The tests that need the files and generated backends run on Linux and Windows only; macOS fails
-// closed there, so their helpers are unused on macOS.
-#![cfg_attr(
-    not(any(target_os = "linux", windows)),
-    allow(dead_code, unused_imports)
-)]
 
 use std::error::Error;
 use std::path::{Path, PathBuf};
@@ -44,9 +37,13 @@ fn artifact_of(size: usize) -> DocumentArtifact {
 
 /// The system temporary folder. On Windows it is returned in its final-path form: the export
 /// refuses a parent whose text differs from its final path, and `%TEMP%` can be an 8.3 alias
-/// (`RUNNER~1`) that the final path expands.
+/// (`RUNNER~1`) that the final path expands. On macOS it is canonicalized: `/var` and `/tmp` are
+/// symbolic links to `/private/...`, and the export (correctly) refuses a link in the parent.
 fn temp_base() -> Result<PathBuf, Box<dyn Error>> {
     let base = std::env::temp_dir();
+    if cfg!(target_os = "macos") {
+        return Ok(std::fs::canonicalize(base)?);
+    }
     if cfg!(windows) {
         let canonical = std::fs::canonicalize(base)?.to_string_lossy().into_owned();
         let plain = canonical.strip_prefix(r"\\?\").unwrap_or(&canonical);
@@ -85,7 +82,6 @@ fn names_in(dir: &Path) -> Result<Vec<String>, Box<dyn Error>> {
     Ok(names)
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn a_new_export_is_complete_and_returns_only_the_basename() -> TestResult {
     let dir = fresh_dir("new")?;
@@ -195,7 +191,6 @@ mod posix {
 
     use super::*;
 
-    #[cfg(any(target_os = "linux", windows))]
     #[test]
     fn the_export_is_owner_only_and_leaves_no_temporary_name() -> TestResult {
         let dir = fresh_dir("mode")?;
@@ -253,6 +248,193 @@ mod posix {
             Err(REFUSED)
         );
         assert!(names_in(&real)?.is_empty());
+        remove_dir(&dir);
+        Ok(())
+    }
+}
+
+/// The macOS-only properties: no replacement by case on a case-insensitive volume, resource-fork
+/// names refused, a temporary name that never survives a failure, and no write through a link.
+#[cfg(target_os = "macos")]
+#[allow(unsafe_code)] // the test sets an ACL through <sys/acl.h>
+mod macos {
+    use std::os::unix::fs::symlink;
+
+    use super::*;
+
+    /// Whether the volume of `dir` treats `A` and `a` as one name (APFS default).
+    fn is_case_insensitive(dir: &Path) -> Result<bool, Box<dyn Error>> {
+        std::fs::write(dir.join("Probe-Case"), b"")?;
+        let same = dir.join("probe-case").exists();
+        std::fs::remove_file(dir.join("Probe-Case"))?;
+        Ok(same)
+    }
+
+    #[test]
+    fn a_name_that_differs_only_by_case_never_replaces_the_existing_file() -> TestResult {
+        let dir = fresh_dir("case")?;
+        std::fs::write(dir.join("keep.pdf"), b"original")?;
+        let exporter = AtomicExporter::default();
+        let outcome = exporter.export(&artifact_of(64), &destination(&dir, "KEEP.pdf")?);
+        if is_case_insensitive(&dir)? {
+            assert_eq!(outcome, Err(REFUSED));
+            assert_eq!(names_in(&dir)?, ["keep.pdf"]);
+        } else {
+            // A case-sensitive volume holds two distinct names; neither may be touched.
+            assert!(outcome.is_ok());
+            assert_eq!(names_in(&dir)?, ["KEEP.pdf", "keep.pdf"]);
+        }
+        assert_eq!(std::fs::read(dir.join("keep.pdf"))?, b"original");
+        remove_dir(&dir);
+        Ok(())
+    }
+
+    /// Every case is otherwise valid (the parent exists, is private and the name ends in `.pdf`),
+    /// so only the `..namedfork` component can refuse it. The control proves the same layout
+    /// without the fork name publishes.
+    #[test]
+    fn resource_fork_and_named_fork_paths_are_refused() -> TestResult {
+        let dir = fresh_dir("fork")?;
+        let exporter = AtomicExporter::default();
+        let control = dir.join("forkless");
+        create_private_directory(&control)?;
+        exporter
+            .export(&artifact_of(64), &destination(&control, "x.pdf")?)
+            .map_err(|_| "control export refused")?;
+        for parent in ["..namedfork", "..NamedFork2", "holder..namedfork"] {
+            create_private_directory(&dir.join(parent))?;
+            assert_eq!(
+                exporter.export(&artifact_of(64), &destination(&dir.join(parent), "x.pdf")?),
+                Err(REFUSED),
+                "{parent}"
+            );
+            assert!(names_in(&dir.join(parent))?.is_empty(), "{parent}");
+        }
+        for name in ["..namedfork.pdf", "x..NAMEDFORK.pdf"] {
+            assert_eq!(
+                exporter.export(&artifact_of(64), &destination(&dir, name)?),
+                Err(REFUSED),
+                "{name}"
+            );
+        }
+        assert_eq!(
+            names_in(&dir)?,
+            [
+                "..NamedFork2",
+                "..namedfork",
+                "forkless",
+                "holder..namedfork"
+            ]
+        );
+        remove_dir(&dir);
+        Ok(())
+    }
+
+    unsafe extern "C" {
+        // <sys/acl.h> of the macOS SDK: acl_from_text, acl_set_file and acl_free.
+        fn acl_from_text(text: *const std::ffi::c_char) -> *mut std::ffi::c_void;
+        fn acl_set_file(
+            path: *const std::ffi::c_char,
+            acl_type: std::ffi::c_uint,
+            acl: *mut std::ffi::c_void,
+        ) -> std::ffi::c_int;
+        fn acl_free(object: *mut std::ffi::c_void) -> std::ffi::c_int;
+    }
+
+    /// Adds an ACL entry that lets everyone delete children, through the ACL API (not a `chmod` child).
+    fn grant_everyone_delete_child(path: &Path) {
+        use std::os::unix::ffi::OsStrExt;
+        const ACL_TYPE_EXTENDED: std::ffi::c_uint = 0x0000_0100;
+        let text =
+            c"!#acl 1\ngroup:ABCDEFAB-CDEF-ABCD-EFAB-CDEF0000000C:everyone:12:allow:delete_child";
+        let path = std::ffi::CString::new(path.as_os_str().as_bytes()).expect("path");
+        // SAFETY: both strings are NUL-terminated and outlive the calls; the ACL is released
+        // exactly once after it was applied.
+        unsafe {
+            let acl = acl_from_text(text.as_ptr());
+            assert!(!acl.is_null(), "ACL text parsed");
+            let status = acl_set_file(path.as_ptr(), ACL_TYPE_EXTENDED, acl);
+            acl_free(acl);
+            assert_eq!(status, 0, "ACL entry applied");
+        }
+    }
+
+    /// Mode bits do not show an extended ACL, so a parent with one is refused (macOS is stricter
+    /// than Linux here) and nothing is left behind.
+    #[test]
+    fn a_parent_with_an_extended_acl_is_refused() -> TestResult {
+        let dir = fresh_dir("acl")?;
+        let exporter = AtomicExporter::default();
+        let parent = dir.join("shared");
+        create_private_directory(&parent)?;
+        exporter
+            .export(&artifact_of(64), &destination(&parent, "before.pdf")?)
+            .map_err(|_| "export before the ACL refused")?;
+        std::fs::remove_file(parent.join("before.pdf"))?;
+        grant_everyone_delete_child(&parent);
+        assert_eq!(
+            exporter.export(&artifact_of(64), &destination(&parent, "after.pdf")?),
+            Err(REFUSED)
+        );
+        assert!(names_in(&parent)?.is_empty());
+        remove_dir(&dir);
+        Ok(())
+    }
+
+    #[test]
+    fn no_temporary_name_survives_a_successful_or_refused_export() -> TestResult {
+        let dir = fresh_dir("temp")?;
+        std::fs::write(dir.join("taken.pdf"), b"original")?;
+        let exporter = AtomicExporter::default();
+        exporter
+            .export(&artifact_of(64), &destination(&dir, "clean.pdf")?)
+            .map_err(|_| "export refused")?;
+        assert_eq!(
+            exporter.export(&artifact_of(64), &destination(&dir, "taken.pdf")?),
+            Err(REFUSED)
+        );
+        assert_eq!(names_in(&dir)?, ["clean.pdf", "taken.pdf"]);
+        remove_dir(&dir);
+        Ok(())
+    }
+
+    #[test]
+    fn the_temporary_directory_alias_is_refused_but_its_real_path_works() -> TestResult {
+        // `/tmp` is a link to `/private/tmp`: a parent reached through it is refused.
+        let leaf = format!("jobniac-export-alias-{}", Uuid::new_v4().simple());
+        let real = PathBuf::from("/private/tmp").join(&leaf);
+        create_private_directory(&real)?;
+        let through_link = PathBuf::from("/tmp").join(&leaf);
+        let exporter = AtomicExporter::default();
+        assert_eq!(
+            exporter.export(&artifact_of(64), &destination(&through_link, "a.pdf")?),
+            Err(REFUSED)
+        );
+        assert!(
+            exporter
+                .export(&artifact_of(64), &destination(&real, "a.pdf")?)
+                .is_ok()
+        );
+        remove_dir(&real);
+        Ok(())
+    }
+
+    #[test]
+    fn a_symlinked_ancestor_is_refused() -> TestResult {
+        let dir = fresh_dir("ancestor")?;
+        let real = dir.join("real");
+        create_private_directory(&real)?;
+        create_private_directory(&real.join("inner"))?;
+        symlink(&real, dir.join("alias"))?;
+        let exporter = AtomicExporter::default();
+        assert_eq!(
+            exporter.export(
+                &artifact_of(64),
+                &destination(&dir.join("alias").join("inner"), "a.pdf")?
+            ),
+            Err(REFUSED)
+        );
+        assert!(names_in(&real.join("inner"))?.is_empty());
         remove_dir(&dir);
         Ok(())
     }

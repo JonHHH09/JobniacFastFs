@@ -1,13 +1,6 @@
 //! Owned generated-asset namespace on the host platform: controls, create-only publication, fenced
 //! retirement and removal, busy locks and fail-closed roots, on synthetic data.
 
-// The tests that need the files and generated backends run on Linux and Windows only; macOS fails
-// closed there, so their helpers are unused on macOS.
-#![cfg_attr(
-    not(any(target_os = "linux", windows)),
-    allow(dead_code, unused_imports)
-)]
-
 mod files_support;
 
 use files_support::{SAMPLE_PDF, Scratch, skip_or_fail_without};
@@ -128,7 +121,6 @@ fn hold_namespace_lock(root: &Path) -> File {
     }
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn initialization_creates_only_the_controls_and_they_qualify_read_only() {
     let owned = Owned::new();
@@ -150,7 +142,6 @@ fn initialization_creates_only_the_controls_and_they_qualify_read_only() {
     );
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn publication_is_complete_idempotent_and_leaves_no_temporary_file() {
     let owned = Owned::new();
@@ -169,7 +160,6 @@ fn publication_is_complete_idempotent_and_leaves_no_temporary_file() {
     );
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn wrong_input_never_writes_anything() {
     let owned = Owned::new();
@@ -194,7 +184,6 @@ fn wrong_input_never_writes_anything() {
     assert_eq!(owned.names(), expected_controls(&[]));
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn an_existing_mismatched_file_is_preserved_without_replacement() {
     let owned = Owned::new();
@@ -213,7 +202,6 @@ fn an_existing_mismatched_file_is_preserved_without_replacement() {
     assert_eq!(fs::read(owned.asset_path()).expect("asset"), other);
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn retirement_fence_blocks_a_late_writer_after_removal() {
     let owned = Owned::new();
@@ -234,7 +222,6 @@ fn retirement_fence_blocks_a_late_writer_after_removal() {
     assert!(!owned.asset_path().exists());
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn removal_of_a_retired_identity_is_idempotent() {
     let owned = Owned::new();
@@ -255,7 +242,6 @@ fn removal_of_a_retired_identity_is_idempotent() {
     assert_eq!(owned.names(), expected_controls(&[&fence]));
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn a_replaced_asset_is_preserved_and_reported_as_a_mismatch() {
     let owned = Owned::new();
@@ -273,7 +259,6 @@ fn a_replaced_asset_is_preserved_and_reported_as_a_mismatch() {
     assert_eq!(fs::read(owned.asset_path()).expect("asset"), other);
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn a_hard_linked_asset_is_preserved() {
     let owned = Owned::new();
@@ -294,7 +279,6 @@ fn a_hard_linked_asset_is_preserved() {
     assert!(owned.asset_path().exists() && alias.exists());
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn a_symbolic_link_asset_is_preserved() {
     let owned = Owned::new();
@@ -324,7 +308,6 @@ fn symlink_file(target: &Path, link: &Path) -> std::io::Result<()> {
     std::os::windows::fs::symlink_file(target, link)
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn a_busy_namespace_lock_is_retried_without_deletion() {
     let owned = Owned::new();
@@ -347,7 +330,6 @@ fn a_busy_namespace_lock_is_retried_without_deletion() {
     assert!(!owned.asset_path().exists());
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn a_missing_control_leaves_ownership_unproven() {
     for control in CONTROLS {
@@ -374,7 +356,6 @@ fn a_missing_control_leaves_ownership_unproven() {
     }
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn a_tampered_marker_or_capability_never_authorizes_removal() {
     for control in [".jobniac-generated-root", ".jobniac-generated-capability"] {
@@ -404,7 +385,6 @@ fn a_tampered_marker_or_capability_never_authorizes_removal() {
     }
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn controls_copied_to_another_root_do_not_transfer_the_capability() {
     let owned = Owned::new();
@@ -423,7 +403,6 @@ fn controls_copied_to_another_root_do_not_transfer_the_capability() {
     );
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn initialization_refuses_a_non_empty_root_and_touches_nothing() {
     let scratch = Scratch::new();
@@ -440,7 +419,6 @@ fn initialization_refuses_a_non_empty_root_and_touches_nothing() {
     assert_eq!(sorted_names(&root), vec!["keep.txt".to_owned()]);
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn a_foreign_name_blocks_initialization() {
     let scratch = Scratch::new();
@@ -452,7 +430,6 @@ fn a_foreign_name_blocks_initialization() {
     assert_eq!(sorted_names(&root), vec![".jobniac-tmp-notours".to_owned()]);
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn unconfigured_or_invalid_roots_never_create_or_delete() {
     let scratch = Scratch::new();
@@ -474,7 +451,6 @@ fn unconfigured_or_invalid_roots_never_create_or_delete() {
     assert!(!absent.exists());
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn an_identity_from_another_root_is_refused() {
     let owned = Owned::new();
@@ -492,7 +468,6 @@ fn an_identity_from_another_root_is_refused() {
     );
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn qualification_without_a_registered_identity_is_refused() {
     let owned = Owned::new();
@@ -517,7 +492,6 @@ fn asset_identity_admits_only_canonical_digests_and_bounded_sizes() {
     assert_eq!(identity.relative_path(), format!("{asset}.pdf"));
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn a_group_readable_file_under_the_asset_name_is_an_unproven_owner_not_a_mismatch() {
     let owned = Owned::new();
@@ -538,7 +512,6 @@ fn a_group_readable_file_under_the_asset_name_is_an_unproven_owner_not_a_mismatc
     }
 }
 
-#[cfg(any(target_os = "linux", windows))]
 #[test]
 fn concurrent_first_run_creation_of_a_missing_root_succeeds_for_every_caller() {
     let scratch = Scratch::new();

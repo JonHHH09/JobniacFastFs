@@ -3,9 +3,6 @@
 //! identity is refused. All data is synthetic, and the root is a temporary directory removed at the
 //! end.
 
-// The generated root exists only on Linux and Windows.
-#![cfg(any(target_os = "linux", windows))]
-
 use std::error::Error;
 
 use jobniac_core::generated_root_setup::{SetupRefusal, SetupStatus};
