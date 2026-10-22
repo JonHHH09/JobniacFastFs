@@ -17,7 +17,9 @@ issue branch ──PR (squash, auto-merge)──▶ development ──PR (merge 
   branches never diverge. Auto-merge is not enabled on it: merging into `main` starts
   `release.yml`, so the owner merges it deliberately. When every gate passes, its last job tags the
   merge commit and publishes the release (the latest release for a stable version); a failed gate
-  leaves the draft unpublished.
+  leaves the draft unpublished. The release version is computed from the existing `v*` tags (the next
+  patch) and never committed, so the protected branches need no version commit; a manual `bump` on
+  `development` only raises the floor.
 
 ## Rulesets
 

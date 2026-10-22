@@ -14,6 +14,13 @@ drafts take the body of their version section from this file.
 
 ### Changed
 
+- Releases: each merged promotion now gets the next patch version automatically, computed from the
+  existing `v*` tags and stamped into the build checkout, so no version commit lands on `main` or
+  `development`. `release.py bump` sets a floor for a minor, major or `-dev.N` release. The release
+  notes are the changelog section of the version when there is one, otherwise GitHub's generated
+  notes. A draft is found by its name as well as its tag, and the verify and publish steps address it
+  by ID. The Windows release leg no longer fails when it runs `pnpm licenses`.
+
 - Desktop Arbeitnow screen: a scan and "Load more results" each read up to five board pages instead
   of one, so a narrow filter (a search term plus a location) finds older postings without repeated
   clicks. When nothing has matched yet but older postings remain, the status says so instead of
