@@ -7,7 +7,8 @@ name: CI
 #   - the `changes` job path-filters pull requests into development (a docs-only change skips Rust
 #     and UI) and skips everything when this exact source tree already passed on a trusted run;
 #   - a promotion pull request (development into main) and the release call run everything, with
-#     Windows; the Windows Rust job does not run on other pull requests;
+#     Windows; the Windows Rust job does not run on other pull requests. The macOS Rust job is like the
+#     Linux one: it runs on every pull request that changes Rust or the UI sources it embeds;
 #   - the `mark-passed` job records a fully green run, keyed by the git tree SHA. Runs that save a
 #     marker: pushes to development, the nightly dispatch of nightly.yml (a run on development, so
 #     its Rust caches are development-scoped and every pull request into development restores
@@ -16,7 +17,7 @@ name: CI
 #     the promotion merge is tested by the pull request and by the release call.
 #   - pull requests restore the Rust caches but never save them (`save-if`).
 # Skipped jobs report as skipped, which a required status check treats as passed. That is why the Rust
-# job is two plain jobs with literal names instead of a matrix (a skipped matrix job reports its
+# job is plain jobs with literal names instead of a matrix (a skipped matrix job reports its
 # unexpanded name and would leave `Rust (ubuntu-26.04)` pending forever).
 
 on:
@@ -109,7 +110,7 @@ jobs:
       - name: Build
         run: pnpm build
 
-  # The two Rust jobs share their steps through a local composite action.
+  # The Rust jobs share their steps through a local composite action.
   rust-linux:
     name: Rust (ubuntu-26.04)
     needs: changes
@@ -137,17 +138,14 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/rust-checks
 
-  # Not a required check, and not part of the passed marker: it proves the macOS worker sandbox
-  # (Seatbelt profiles and the memory watch). It runs wherever the Windows job runs, because a macOS
-  # runner costs the most minutes. The release platforms stay Windows and Linux.
+  # A required check like the Linux job, and part of the passed marker: macOS (Apple Silicon) is a
+  # release platform. It proves the macOS worker sandbox (Seatbelt profiles and the memory watch) and
+  # the macOS file handling. It runs whenever the Rust job of Linux runs.
   rust-macos:
     name: Rust (macos-latest)
     needs: changes
-    if: ${{ !cancelled() && (needs.changes.result != 'success' || (needs.changes.outputs.windows == 'true' && needs.changes.outputs.rust == 'true')) }}
+    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.rust == 'true') }}
     runs-on: macos-latest
-    # Informational until macOS is a release platform: release.yml needs this workflow, and a runner
-    # flake here must not block a release.
-    continue-on-error: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -211,10 +209,10 @@ jobs:
   # pull request (scoped to refs/pull/<n>/merge, which the gate verifies through the API). Never by
   # the release call, which has the same event and the same tree as the promotion pull request.
   # `success()` is false when a needed job was skipped, so a marker always means that every job ran
-  # and passed, Windows included.
+  # and passed, Windows and macOS included.
   mark-passed:
     name: Mark tree as passed
-    needs: [changes, ui, rust-linux, rust-windows, supply-chain, release-tools, privacy-scan]
+    needs: [changes, ui, rust-linux, rust-windows, rust-macos, supply-chain, release-tools, privacy-scan]
     if: >-
       ${{ success()
       && (github.event_name == 'push'
@@ -226,7 +224,8 @@ jobs:
       && needs.changes.outputs.already-passed != 'true'
       && needs.ui.result == 'success'
       && needs.rust-linux.result == 'success'
-      && needs.rust-windows.result == 'success' }}
+      && needs.rust-windows.result == 'success'
+      && needs.rust-macos.result == 'success' }}
     runs-on: ubuntu-26.04
     timeout-minutes: 5
     steps:

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- Ad-hoc builds only (see src-tauri/tauri.macos.conf.json). The hardened runtime that the bundler
+       enables refuses a library that does not carry the Team ID of the main executable; an ad-hoc
+       signature has none, so the bundled PDFium library would not load. Developer ID builds do not
+       carry this entitlement: the library is signed with the same identity as the app. -->
+  <key>com.apple.security.cs.disable-library-validation</key>
+  <true/>
+</dict>
+</plist>

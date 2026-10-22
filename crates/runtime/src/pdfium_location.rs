@@ -7,7 +7,9 @@
 //!    to a directory that does not exist.
 //! 2. Otherwise the bundle roots the caller supplies, in order. A root is used only when it is
 //!    absolute and holds `pdfium/<library>`. The desktop app passes its Tauri resource directory;
-//!    the console binary passes the locations next to its own executable.
+//!    the console binary passes the locations next to its own executable. On macOS a root inside an
+//!    app bundle (`Contents/Resources` or `Contents/MacOS`) also probes `Contents/Frameworks`, where
+//!    the bundler places and signs the library (code in `Resources` is not signed as code).
 //!
 //! The search never reads `PATH`, the working directory or any other environment variable, and the
 //! library is always loaded from an absolute directory. A missing library
@@ -68,9 +70,37 @@ where
     bundle_roots
         .iter()
         .filter(|root| root.is_absolute())
-        .map(|root| root.join(PDFIUM_FOLDER))
+        .flat_map(|root| library_directories(root))
         .find(|directory| is_file(&directory.join(PDFIUM_LIBRARY_FILE)))
         .ok_or(PdfiumNotFound)
+}
+
+/// The directories of one bundle root that may hold the library, in probe order.
+#[cfg(target_os = "macos")]
+fn library_directories(root: &Path) -> Vec<PathBuf> {
+    let mut directories = vec![root.join(PDFIUM_FOLDER)];
+    directories.extend(app_frameworks_directory(root));
+    directories
+}
+
+/// The directories of one bundle root that may hold the library, in probe order.
+#[cfg(not(target_os = "macos"))]
+fn library_directories(root: &Path) -> Vec<PathBuf> {
+    vec![root.join(PDFIUM_FOLDER)]
+}
+
+/// `Contents/Frameworks` of the app bundle that holds `root`, when `root` is `Contents/Resources` (the
+/// Tauri resource directory) or `Contents/MacOS` (the folder of the executables, which holds the
+/// console sidecar). The library sits directly in it: `bundle.macOS.frameworks` copies it there and
+/// signs it with the app.
+#[cfg(target_os = "macos")]
+fn app_frameworks_directory(root: &Path) -> Option<PathBuf> {
+    let contents = root.parent()?;
+    let in_bundle = contents.file_name().is_some_and(|name| name == "Contents")
+        && root
+            .file_name()
+            .is_some_and(|name| name == "Resources" || name == "MacOS");
+    in_bundle.then(|| contents.join("Frameworks"))
 }
 
 /// Reports the outcome of [`resolve_pdfium_dir`] once at startup and turns it into the directory
@@ -267,6 +297,40 @@ mod tests {
         let resolved =
             resolve_pdfium_dir(&Environment::default(), &roots, |path| path == deb_library);
         assert_eq!(resolved, Ok(deb_directory));
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn the_resource_directory_of_an_app_bundle_finds_the_library_in_frameworks() {
+        let contents = absolute("/Applications/JobniacFast.app/Contents");
+        let frameworks = contents.join("Frameworks");
+        let present = frameworks.join(PDFIUM_LIBRARY_FILE);
+        for root in [contents.join("Resources"), contents.join("MacOS")] {
+            let resolved =
+                resolve_pdfium_dir(&Environment::default(), &[root], |path| path == present);
+            assert_eq!(resolved, Ok(frameworks.clone()));
+        }
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_folder_outside_an_app_bundle_never_probes_frameworks() {
+        for root in [
+            absolute("/opt/jobniac/Resources"),
+            absolute("/opt/Contents/Other"),
+        ] {
+            let probes = RefCell::new(Vec::new());
+            let resolved = resolve_pdfium_dir(
+                &Environment::default(),
+                std::slice::from_ref(&root),
+                |path| {
+                    probes.borrow_mut().push(path.to_path_buf());
+                    false
+                },
+            );
+            assert_eq!(resolved, Err(PdfiumNotFound));
+            assert!(probes.borrow().iter().all(|path| path.starts_with(&root)));
+        }
     }
 
     #[test]

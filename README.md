@@ -13,7 +13,8 @@ on GitHub Releases that the owner publishes by hand.
 
 ## Requirements
 
-- Windows 11 (x64) or Linux (x64, AppImage or `.deb`).
+- Windows 11 (x64), Linux (x64, AppImage or `.deb`) or macOS 14 or later on Apple Silicon (`.dmg`).
+  Intel Macs are not supported.
 - WebView2 on Windows. Windows 11 includes it; the installer installs it if it is missing.
 
 ## Install
@@ -39,7 +40,16 @@ expected for unsigned downloads.
 **Linux:** download the AppImage or the `.deb`, and check it against `SHA256SUMS` in the same way
 (`sha256sum -c SHA256SUMS --ignore-missing`).
 
-**Uninstall:** use Settings, Apps, JobniacFast, Uninstall, or the `uninstall.exe` in the install folder.
+**macOS (Apple Silicon):** download `JobniacFast_<version>_aarch64.dmg` and `SHA256SUMS`, check the
+download (`shasum -a 256 -c SHA256SUMS --ignore-missing`), open the DMG and drag JobniacFast to
+Applications. A release signed with a Developer ID certificate and notarized by Apple opens normally. A
+release without that signature is only ad-hoc signed: macOS then says it cannot verify the app. After you
+have checked the hash, open System Settings, Privacy & Security, and choose **Open Anyway** for
+JobniacFast (or run `xattr -dr com.apple.quarantine /Applications/JobniacFast.app`). The release notes
+say which kind of signature the release has.
+
+**Uninstall:** on Windows use Settings, Apps, JobniacFast, Uninstall, or the `uninstall.exe` in the install
+folder. On macOS drag JobniacFast from Applications to the Bin; your data stays (see below).
 
 ## Data storage
 
@@ -48,6 +58,7 @@ first time they start; there is nothing to install or configure. The default loc
 and outside the install folder, so an update or a reinstall never touches it:
 
 - Windows: `%LOCALAPPDATA%\Jobniac\data\jobniac.sqlite3`
+- macOS: `~/Library/Application Support/Jobniac/data/jobniac.sqlite3`
 - Linux: `$XDG_DATA_HOME/jobniac/data/jobniac.sqlite3`, or `~/.local/share/jobniac/data/jobniac.sqlite3`
   when `XDG_DATA_HOME` is not set
 
@@ -144,7 +155,11 @@ pnpm tauri build                    # build a release bundle
 ```
 
 On macOS the bundle config `src-tauri/tauri.macos.conf.json` names the Apple Silicon library
-(`mac-arm64`) only; on an Intel Mac change that path to `mac-x64` before `pnpm tauri build`.
+(`mac-arm64`) only, and bundles it into `Contents/Frameworks` of the app, where the bundler signs it with
+the app (code in `Contents/Resources` is not signed as code). The default build is ad-hoc signed, with the
+entitlement in `src-tauri/macos/Entitlements.adhoc.plist` so that the hardened runtime loads that library;
+the release build uses a Developer ID when the repository secrets exist (see
+`docs/ops/release-owner-checklist.md`). Intel Macs are not supported: `mac-x64` is only a fetch target.
 
 Rust checks, from the repository root (the Cargo workspace is at the root). The PDF tests load PDFium
 from `JOBNIAC_PDFIUM_DIR`, so set it to the absolute path of `vendor/pdfium/<platform>` first:

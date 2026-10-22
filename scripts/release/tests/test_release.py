@@ -349,10 +349,21 @@ class ExactAssetSet(unittest.TestCase):
         names = release.expected_asset_names(self.VERSION)
         self.assertIn("JobniacFast_0.1.0_x64-setup.exe.sig", names)
         self.assertIn("JobniacFast_0.1.0_amd64.AppImage.sig", names)
+        self.assertIn("JobniacFast_0.1.0_aarch64.app.tar.gz.sig", names)
         self.assertNotIn("latest.json", names)
 
+    def test_the_set_holds_the_macos_dmg_archive_and_inventory(self) -> None:
+        names = release.expected_asset_names(self.VERSION)
+        self.assertIn("JobniacFast_0.1.0_aarch64.dmg", names)
+        self.assertIn("JobniacFast_0.1.0_aarch64.app.tar.gz", names)
+        self.assertIn("JobniacFast-0.1.0-macos-arm64.payload-inventory.json", names)
+
     def test_a_missing_signature_fails(self) -> None:
-        for name in ("JobniacFast_0.1.0_x64-setup.exe.sig", "JobniacFast_0.1.0_amd64.AppImage.sig"):
+        for name in (
+            "JobniacFast_0.1.0_x64-setup.exe.sig",
+            "JobniacFast_0.1.0_amd64.AppImage.sig",
+            "JobniacFast_0.1.0_aarch64.app.tar.gz.sig",
+        ):
             with self.subTest(name=name):
                 (self.tmp / name).unlink()
                 with self.assertRaises(release.ReleaseError):
@@ -481,6 +492,7 @@ class DraftVerification(unittest.TestCase):
 
         windows = entry(f"JobniacFast_{self.VERSION}_x64-setup.exe")
         linux = entry(f"JobniacFast_{self.VERSION}_amd64.AppImage")
+        macos = entry(f"JobniacFast_{self.VERSION}_aarch64.app.tar.gz")
         data: dict[str, object] = {
             "version": self.VERSION,
             "notes": "n",
@@ -489,6 +501,8 @@ class DraftVerification(unittest.TestCase):
                 "windows-x86_64-nsis": windows,
                 "linux-x86_64": linux,
                 "linux-x86_64-appimage": linux,
+                "darwin-aarch64": macos,
+                "darwin-aarch64-app": macos,
             },
         }
         data.update(overrides)
@@ -556,7 +570,12 @@ class DraftVerification(unittest.TestCase):
             self.verify(payload)
 
     def test_a_draft_without_latest_json_or_a_signature_fails(self) -> None:
-        for dropped in ("latest.json", "JobniacFast_0.1.0_x64-setup.exe.sig", "JobniacFast_0.1.0_amd64.AppImage.sig"):
+        for dropped in (
+            "latest.json",
+            "JobniacFast_0.1.0_x64-setup.exe.sig",
+            "JobniacFast_0.1.0_amd64.AppImage.sig",
+            "JobniacFast_0.1.0_aarch64.app.tar.gz.sig",
+        ):
             payload = self.release_payload()
             payload["assets"] = [a for a in payload["assets"] if a["name"] != dropped]  # type: ignore[index,union-attr]
             with self.subTest(dropped=dropped), self.assertRaises(release.ReleaseError):
@@ -579,6 +598,12 @@ class DraftVerification(unittest.TestCase):
         variants.append(bad)
         bad = json.loads(json.dumps(good))
         del bad["platforms"]["linux-x86_64"]
+        variants.append(bad)
+        bad = json.loads(json.dumps(good))
+        del bad["platforms"]["darwin-aarch64"]
+        variants.append(bad)
+        bad = json.loads(json.dumps(good))
+        bad["platforms"]["darwin-aarch64"]["signature"] = "other"
         variants.append(bad)
         self.assertIn("windows-x86_64", platforms)
         for variant in variants:
@@ -730,7 +755,10 @@ class PrepareDraft(unittest.TestCase):
             release.prepare_draft(api, release.tag_for_version("0.1.0"), self.SHA, "body")
 
     def test_a_rerun_prunes_installers_signatures_and_latest_json(self) -> None:
-        names = ["a-setup.exe", "a-setup.exe.sig", "a.AppImage.sig", "latest.json", "a.AppImage", "a.deb"]
+        names = [
+            "a-setup.exe", "a-setup.exe.sig", "a.AppImage.sig", "latest.json", "a.AppImage", "a.deb",
+            "a_aarch64.dmg", "a_aarch64.app.tar.gz", "a_aarch64.app.tar.gz.sig",
+        ]
         draft = {"id": 5, "tag_name": "v0.1.0", "draft": True, "prerelease": False,
                  "assets": [{"id": i, "name": n} for i, n in enumerate(names)]}
         transport = FakeTransport({
@@ -741,7 +769,11 @@ class PrepareDraft(unittest.TestCase):
         api = release.GitHubApi("owner/repo", "token", transport)
         self.assertEqual(release.prepare_draft(api, release.tag_for_version("0.1.0"), self.SHA, "body"), 5)
         deleted = sorted(path for method, path in transport.calls if method == "DELETE")
-        self.assertEqual(deleted, ["/releases/assets/0", "/releases/assets/1", "/releases/assets/2", "/releases/assets/3"])
+        # setup.exe, its .sig, the AppImage .sig, latest.json, the DMG, the app archive and its .sig.
+        self.assertEqual(
+            deleted,
+            [f"/releases/assets/{index}" for index in (0, 1, 2, 3, 6, 7, 8)],
+        )
 
     def test_new_draft_is_created_once(self) -> None:
         transport = FakeTransport({
@@ -846,6 +878,7 @@ class BundleConfig(unittest.TestCase):
     STAGED_NOTICES = "resources/THIRD-PARTY-NOTICES.txt"
     PDFIUM_WINDOWS = "../vendor/pdfium/windows-x64/pdfium.dll"
     PDFIUM_LINUX = "../vendor/pdfium/linux-x64/libpdfium.so"
+    PDFIUM_MACOS = "../vendor/pdfium/mac-arm64/libpdfium.dylib"
 
     def load(self, name: str) -> dict[str, object]:
         return json.loads((REPO_ROOT / "src-tauri" / name).read_text(encoding="utf-8"))
@@ -869,6 +902,35 @@ class BundleConfig(unittest.TestCase):
             {self.PDFIUM_LINUX: "pdfium/libpdfium.so"},
         )
 
+    def test_default_macos_config_signs_ad_hoc_and_bundles_pdfium_as_a_framework(self) -> None:
+        macos = self.load("tauri.macos.conf.json")["bundle"]
+        # Code in Contents/Resources is not signed as code and breaks notarization, so the library goes
+        # to Contents/Frameworks, where the bundler signs it with the app.
+        self.assertNotIn("resources", macos)
+        self.assertEqual(macos["macOS"]["frameworks"], [self.PDFIUM_MACOS])
+        self.assertEqual(macos["macOS"]["signingIdentity"], "-")
+        self.assertEqual(macos["targets"], ["app", "dmg"])
+        self.assertEqual(macos["macOS"]["minimumSystemVersion"], "14.0")
+
+    def test_the_library_validation_entitlement_is_ad_hoc_only(self) -> None:
+        # The ad-hoc default carries it (no Team ID to match); the Developer ID build removes it.
+        macos = self.load("tauri.macos.conf.json")["bundle"]["macOS"]
+        self.assertEqual(macos["entitlements"], "macos/Entitlements.adhoc.plist")
+        plist = (REPO_ROOT / "src-tauri" / macos["entitlements"]).read_text(encoding="utf-8")
+        self.assertIn("com.apple.security.cs.disable-library-validation", plist)
+        self.assertNotIn("allow-jit", plist)
+        script = (RELEASE_DIR / "macos_build.sh").read_text(encoding="utf-8")
+        self.assertIn('"entitlements":null', script.replace(" ", ""))
+
+    def test_release_config_adds_sidecar_and_notices_for_macos_and_keeps_the_framework(self) -> None:
+        effective = self.effective("tauri.macos.conf.json")
+        bundle = effective["bundle"]
+        self.assertEqual(bundle["externalBin"], self.STAGED_EXTERNAL_BIN)
+        self.assertEqual(bundle["resources"], {self.STAGED_NOTICES: "THIRD-PARTY-NOTICES.txt"})
+        self.assertEqual(bundle["macOS"]["frameworks"], [self.PDFIUM_MACOS])
+        self.assertIs(bundle["createUpdaterArtifacts"], True)
+        self.assertEqual(effective["plugins"]["updater"]["endpoints"], [release.UPDATER_ENDPOINT])
+
     def test_release_config_adds_sidecar_and_notices_and_keeps_pdfium(self) -> None:
         for platform_file, pdfium in (
             ("tauri.windows.conf.json", self.PDFIUM_WINDOWS),
@@ -889,13 +951,34 @@ class BundleConfig(unittest.TestCase):
         text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
         self.assertRegex(text, r"args: --bundles \$\{\{ matrix\.bundles \}\} --config src-tauri/tauri\.release\.conf\.json")
 
+    def test_the_macos_leg_builds_through_the_signing_script_without_the_github_token(self) -> None:
+        text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        self.assertIn("platform: macos-arm64", text)
+        self.assertIn("bundles: app,dmg", text)
+        self.assertIn("library: libpdfium.dylib", text)
+        self.assertIn("bash scripts/release/macos_build.sh", text)
+        script = (RELEASE_DIR / "macos_build.sh").read_text(encoding="utf-8")
+        self.assertIn("--config src-tauri/tauri.release.conf.json", script)
+        self.assertNotIn("GITHUB_TOKEN", script)
+        # The Apple secrets reach exactly one step, and never tauri-action (which holds the token).
+        for name in (
+            "APPLE_CERTIFICATE", "APPLE_CERTIFICATE_PASSWORD", "APPLE_SIGNING_IDENTITY",
+            "APPLE_API_ISSUER", "APPLE_API_KEY", "APPLE_API_PRIVATE_KEY",
+            "APPLE_ID", "APPLE_PASSWORD", "APPLE_TEAM_ID",
+        ):
+            with self.subTest(secret=name):
+                self.assertEqual(text.count(f"{name}: ${{{{ secrets.{name} }}}}"), 1)
+        tauri_action = text.split("uses: tauri-apps/tauri-action", 1)[1].split("- name:", 1)[0]
+        self.assertNotIn("APPLE_", tauri_action)
+        self.assertRegex(text, r"- name: Build and attach the draft assets[^\n]*\n\s+if: runner\.os != 'macOS'")
+
     def test_default_config_has_no_updater_so_dev_builds_need_no_key(self) -> None:
         default = self.load("tauri.conf.json")
         self.assertNotIn("updater", default.get("plugins", {}))
         self.assertIs(default["bundle"]["createUpdaterArtifacts"], False)
 
     def test_release_config_builds_signed_updater_artifacts(self) -> None:
-        for platform_file in ("tauri.windows.conf.json", "tauri.linux.conf.json"):
+        for platform_file in ("tauri.windows.conf.json", "tauri.linux.conf.json", "tauri.macos.conf.json"):
             with self.subTest(platform=platform_file):
                 effective = self.effective(platform_file)
                 self.assertIs(effective["bundle"]["createUpdaterArtifacts"], True)
@@ -967,7 +1050,7 @@ class WorkflowRules(unittest.TestCase):
         names = [job.split(":", 1)[0] for job in jobs if job.strip()]
         self.assertEqual(names[-1], "publish")
         publish = next(job for job in jobs if job.startswith("publish:"))
-        for gate in ("prepare", "draft", "build", "clean-machine", "attach", "attest", "verify-draft"):
+        for gate in ("prepare", "draft", "build", "clean-machine", "clean-machine-macos", "attach", "attest", "verify-draft"):
             self.assertRegex(publish, rf"needs: \[[^\]]*\b{gate}\b")
         self.assertRegex(publish, r"permissions:\n\s+contents: write")
         self.assertIn("release.py publish", publish)

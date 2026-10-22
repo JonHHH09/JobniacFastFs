@@ -17,14 +17,14 @@
     Change the tag and the digests together.
 
 .PARAMETER Platform
-    windows-x64, linux-x64 or all (default).
+    windows-x64, linux-x64, mac-arm64 or all (default: the three release platforms).
 
 .EXAMPLE
     pwsh -File scripts/fetch-pdfium.ps1 -Platform windows-x64
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('all', 'windows-x64', 'linux-x64')]
+    [ValidateSet('all', 'windows-x64', 'linux-x64', 'mac-arm64')]
     [string]$Platform = 'all'
 )
 
@@ -49,6 +49,13 @@ $Targets = @(
         ArchiveSha256 = '1470e21b8b4a3b4ad7f85684e2da11d94f3b69a86d81dee11b9b6709d927ac1d'
         LibraryPath   = 'lib/libpdfium.so'
         LibrarySha256 = 'f728930966f503652b92acc89b9374a2eeca00ce42e26dccd3e4b5c5161b2d64'
+    },
+    @{
+        Platform      = 'mac-arm64'
+        Archive       = 'pdfium-mac-arm64.tgz'
+        ArchiveSha256 = '52e94ca5aa8847934330daf3f8150c190682c5ca93831468794f8b90d4392e40'
+        LibraryPath   = 'lib/libpdfium.dylib'
+        LibrarySha256 = '1bc45b15466b34cef96641ce25c77a876e70010c6b114f909dda2f5325fc5bd7'
     }
 )
 

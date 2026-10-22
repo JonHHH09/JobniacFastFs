@@ -29,16 +29,20 @@ issue branch ──PR (squash, auto-merge)──▶ development ──PR (merge 
 There is no bypass actor: direct pushes are blocked for everyone, including the owner.
 
 Required status checks (named as the jobs are named in the workflows): `Branch policy`, `UI`,
-`Rust (ubuntu-26.04)`, `Supply chain (cargo-deny)`, `Release tool unit tests` and
+`Rust (ubuntu-26.04)`, `Rust (macos-latest)`, `Supply chain (cargo-deny)`, `Release tool unit tests` and
 `Privacy scan (working tree and history, generic classes)`.
 
 Linux jobs run on the latest Ubuntu LTS runner (`ubuntu-26.04`). The one exception is the Linux leg
 of the release build in `release.yml`, which stays on `ubuntu-24.04` because the build host sets the
 glibc floor of the AppImage and deb. When the runner moves to a new LTS, the `Rust (ubuntu-...)`
-check is renamed, so update the required check in both rulesets in the same change.
+check is renamed, so update the required check in both rulesets in the same change. The macOS job runs
+on `macos-latest` (Apple Silicon); when GitHub moves that label to a new macOS version the check name stays,
+but a runner that is no longer arm64 fails the release leg, which checks the architecture.
 
-`Rust (windows-latest)`, `Rust (macos-latest)` and `E2E (...)` are not required checks: they do not run on pull requests
-into `development`. `E2E (windows-latest)` still fails on `main`. The end-to-end suite is a release
+`Rust (windows-latest)` and `E2E (...)` are not required checks: they do not run on pull requests
+into `development`. `Rust (macos-latest)` is required and runs on every pull request that changes Rust or
+the UI sources (a docs-only change skips it, which counts as passed). The WebDriver suite has no macOS leg
+(`tauri-driver` has no macOS driver). `E2E (windows-latest)` still fails on `main`. The end-to-end suite is a release
 gate (`release.yml` needs it), so a promotion pull request whose `E2E (...)` checks are red must not
 be merged: the release would stop after the merge.
 
@@ -48,9 +52,10 @@ A required check whose job is skipped counts as passed, so `ci.yml` and `e2e.yml
 
 - The `Changes` job (`scripts/ci/gate.sh`) path-filters pull requests into `development`: a
   docs-only change skips `UI`, `Rust (...)` and `E2E (...)`; Rust-only changes skip `UI`.
-- `Rust (windows-latest)`, `Rust (macos-latest)` and `E2E (windows-latest)` do not run on pull
-  requests into `development`. They run on the promotion pull request (`development` to `main`), on
-  the nightly run, on manual runs (`workflow_dispatch`) and in the release call.
+- `Rust (windows-latest)` and `E2E (windows-latest)` do not run on pull requests into `development`.
+  They run on the promotion pull request (`development` to `main`), on the nightly run, on manual runs
+  (`workflow_dispatch`) and in the release call. `Rust (macos-latest)` follows the Linux Rust job: it runs
+  on every pull request whose path filter turns Rust on, and on all the runs above.
 - Every job that is a required check must keep a literal `name:`. Do not turn the Rust or E2E jobs
   back into a matrix: a skipped matrix job reports its unexpanded name, and the required check would
   stay pending forever.
@@ -68,6 +73,7 @@ A required check whose job is skipped counts as passed, so `ci.yml` and `e2e.yml
 - Rust caches are saved only by runs that are not pull requests (`save-if`); pull requests only
   restore them. This keeps the Actions cache under its 10 GB limit, so markers and base caches are
   not evicted.
+- `Mark tree as passed` needs `Rust (macos-latest)` as well as the Linux and Windows jobs.
 - After a fully green run, `Mark tree as passed` saves a cache entry `ci-passed-<tree SHA>` (or
   `e2e-passed-<tree SHA>`). It is saved by a push or a manual or nightly run on `development` or
   `main`, and by the promotion pull request.

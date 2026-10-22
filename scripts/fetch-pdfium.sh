@@ -13,7 +13,7 @@
 # Change the tag and the digests together.
 #
 # Usage: scripts/fetch-pdfium.sh [windows-x64|linux-x64|mac-arm64|mac-x64|all]   (default: all, which is
-# windows-x64 and linux-x64, the release platforms)
+# windows-x64, linux-x64 and mac-arm64, the release platforms; mac-x64 is fetched by name)
 set -euo pipefail
 
 readonly RELEASE_BASE_URL="https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F7881"
@@ -68,8 +68,8 @@ command -v curl >/dev/null 2>&1 || { echo "curl is required" >&2; exit 1; }
 command -v tar >/dev/null 2>&1 || { echo "tar is required" >&2; exit 1; }
 
 if [[ "$requested" == "all" ]]; then
-  # The release platforms only (scripts/release/release.py); the macOS builds are fetched by name.
-  platforms=(windows-x64 linux-x64)
+  # The release platforms only (scripts/release/release.py); Intel macOS is not one and is fetched by name.
+  platforms=(windows-x64 linux-x64 mac-arm64)
 else
   platforms=("$requested")
 fi

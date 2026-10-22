@@ -27,7 +27,8 @@ hosted runner yet.
      notes below predate it. Required checks named as the CI jobs are named
      in `ci.yml`: `rust` (both systems), `supply-chain`, `ui` and `bindings`. The names in `ci.yml`
      today are `ui`, `rust` and `supply-chain`; the `bindings` check is a step of `rust`. Confirm the
-     names in the GitHub picker before you save.
+     names in the GitHub picker before you save. `Rust (macos-latest)` is a required check too (see
+     branch-protection.md): add it to both rulesets.
   3. **Pull request rules:** pull requests into `development` and `main`, one approval if you
      want one (single maintainer; owner choice).
   4. **Tag protection:** tags `v*` restricted to the owner, because the release tag must point at the
@@ -61,19 +62,66 @@ hosted runner yet.
 - **Each route is its own pull request with its own gate.** The route is not chosen by this checklist.
 - **Failure:** no route decided. Keep the release unsigned and say so in the release notes.
 
+### G3a macOS signing and notarization (Apple Developer ID)
+
+- **Who:** owner. **Where:** the Apple Developer account, then the repository's Settings, Secrets and variables,
+  Actions (repository secrets, or the secrets of a protected release environment).
+- **What:** `release.yml` signs and notarizes the macOS app by itself once the secrets below exist, and
+  builds an ad-hoc signed app until then (macOS then asks the user to allow it by hand; see the README).
+  Nothing else changes in the workflow when the secrets arrive. The names are the ones the Tauri
+  documentation defines (`distribute/sign/macos`), plus `APPLE_API_PRIVATE_KEY`:
+  - **Signing, all three required:**
+    - `APPLE_CERTIFICATE`: the base64 of the exported `.p12` of a "Developer ID Application" certificate
+      (`openssl base64 -A -in certificate.p12`).
+    - `APPLE_CERTIFICATE_PASSWORD`: the password chosen when the `.p12` was exported.
+    - `APPLE_SIGNING_IDENTITY`: the certificate name, for example
+      `Developer ID Application: <Name> (<TEAMID>)` (`security find-identity -v -p codesigning`).
+  - **Notarization, one complete set:**
+    - App Store Connect API key (preferred): `APPLE_API_ISSUER` (the issuer ID), `APPLE_API_KEY` (the key
+      ID) and `APPLE_API_PRIVATE_KEY` (the full text of the downloaded `AuthKey_<id>.p8`; the build step
+      writes it to a private temporary file and exports `APPLE_API_KEY_PATH` for the step).
+    - or an Apple ID: `APPLE_ID`, `APPLE_PASSWORD` (an app-specific password) and `APPLE_TEAM_ID`.
+  - Partly defined secrets fail the macOS leg on purpose (a Developer ID app that is not notarized is
+    refused by Gatekeeper). All of them undefined means ad-hoc.
+- **Repository variable `MACOS_SIGNING_REQUIRED` (Settings, Secrets and variables, Actions, Variables):**
+  set it to exactly `1` once the Apple secrets are in place, so a missing or misspelled secret fails the
+  release instead of shipping ad-hoc. With it set, an ad-hoc macOS build fails in `macos_build.sh` before
+  building, and `clean-machine-macos` asserts a Developer ID signature. Unset (or any other value), an
+  ad-hoc build only emits a `::warning::` annotation on the run. A stable release is published as the latest
+  either way, so check the annotation until the variable is set.
+- **`JOBNIAC_PDFIUM_DIR` on a Developer ID build:** library validation is on there, so the variable can only
+  point at a PDFium build signed by the same team. Ad-hoc and development builds load any library.
+- **Where they are read:** only the step "Build the macOS bundles" of the `build` job, through
+  `scripts/release/macos_build.sh`. That step does not hold the GitHub token and does not run for a pull
+  request from a fork (the release itself runs only for a merged promotion pull request of this
+  repository). No secret is echoed, and the notarization key file is deleted when the step ends. The script
+  compiles first with `pnpm tauri build --no-bundle` with none of the Apple or updater secrets in the
+  environment, then runs `pnpm tauri bundle` with them, so build scripts and proc-macros never see them.
+- **Hardened runtime:** the bundler signs with the hardened runtime. A Developer ID build needs no
+  entitlement: the bundled PDFium library (`Contents/Frameworks/libpdfium.dylib`) is signed with the same
+  identity as the app, so library validation passes. The ad-hoc build adds
+  `com.apple.security.cs.disable-library-validation` (`src-tauri/macos/Entitlements.adhoc.plist`), because an
+  ad-hoc signature has no Team ID to match.
+- **Expected:** the `clean-machine-macos` job prints `INFO: Developer ID signature` and passes its
+  Gatekeeper (`spctl --assess`) and stapler checks; it prints `INFO: ad-hoc signature` before the secrets exist.
+- **Failure:** `clean-machine-macos` fails at "PDF text through the bundled worker" on a Developer ID build:
+  the library and the app do not share a Team ID. Read the step's output before changing any entitlement.
+
 ## G4 First draft
 
 - **Who:** owner. **Where:** GitHub Actions and Releases.
 - **What:** the release workflow (`release.yml`, as written when this checklist was written) runs when a
   promotion pull request from `development` into `main` is merged in the same repository. It creates a
   **draft** only. Its jobs in order: `checks` (the CI gates on the merge commit), `prepare` (read-only:
-  version and tag rules), `draft` (the only job that creates the draft), `build` (Windows and Linux),
-  `clean-machine` (the scripted smoke on a fresh runner), `attach` (writes `SHA256SUMS`), `attest`
+  version and tag rules), `draft` (the only job that creates the draft), `build` (Windows, Linux and
+  macOS Apple Silicon), `clean-machine` and `clean-machine-macos` (the scripted smokes on fresh runners),
+  `attach` (writes `SHA256SUMS`), `attest`
   (provenance, public repositories only) and `verify-draft` (a final API check).
   The version rules: `X.Y.Z` gives tag `vX.Y.Z` and a stable release; `X.Y.Z-dev.N` gives tag
   `vX.Y.Z-dev.N` and a prerelease.
 - **Expected:** `verify-draft` prints its single PASS line. The draft contains the installer, the
-  Linux bundles, `SHA256SUMS`, the SBOM and the notices.
+  Linux bundles, the macOS DMG and app archive (with their update signatures), `SHA256SUMS`, the SBOM and
+  the notices.
 - **Failure:** any job red. A failed `clean-machine` leaves the draft in place; the next promotion
   prunes the stale Windows assets and rebuilds it. Read the failed step's log before you re-run.
 - **Open:** whether `tauri-action` attaches to an existing draft by ID or commitish is to be confirmed
@@ -81,9 +129,10 @@ hosted runner yet.
 
 ## G5 Clean-machine run on another machine
 
-- **Who:** owner. **Where:** a Windows 11 virtual machine or Windows Sandbox that you control.
+- **Who:** owner. **Where:** a Windows 11 virtual machine or Windows Sandbox that you control, and an
+  Apple Silicon Mac that has never had the app.
 - **What:** the [clean-machine smoke checklist](clean-machine-smoke-checklist.md), with the installer from the
-  draft (digest checked against the draft's `SHA256SUMS`).
+  draft (digest checked against the draft's `SHA256SUMS`); on the Mac, the macOS section of that checklist.
 - **Expected:** every step PASS, and the run record written outside the repository.
 - **Failure:** any FAIL. Fix it, publish a new draft (a new commit and a new promotion), and repeat.
 
@@ -168,6 +217,10 @@ Each one is decided in writing before the gate it belongs to.
 
 - **G11 Privacy history.** Decide between a history rewrite and acceptance before G7 step 3. Until then the `privacy-scan` job of `ci.yml` fails on pushes and pull requests. A rewrite changes every commit id, so every open branch and pull request must be redone.
 - **G12 Installed-application checks before G5.** On an installed desktop build, exercise what the hosted smoke cannot: the 60-second timeout and the refusal paths of the smoke hook, a PDF extraction from the installed application, and an NSIS install with the silent switch confirmed on the built installer. Record each result outside the repository.
+- **G16 macOS results.** Read the logs of the first `Rust (macos-latest)` run and of the macOS leg and the
+  `clean-machine-macos` job of `release.yml`. The macOS-only code and the DMG step (`bundle_dmg.sh` drives
+  Finder) are verified by CI only on a hosted runner; a first run may need a retry if the DMG step fails
+  on the runner.
 - **G13 Linux results.** Read the logs of the first `ci.yml` run (the `Rust (ubuntu-26.04)` job), the Linux leg of `e2e.yml` and the Linux leg of `release.yml`. The Linux-only code is verified by CI only.
 - **G14 Notice items.** Decide whether the PDFBox Apache-2.0 notice, the HTML4 NOTICE and the W3C entity-set licence (G6, point 3) are needed in `THIRD-PARTY-NOTICES.txt`, and record the decision with G6.
 - **G15 Two behaviour choices.** Decide the smoke outcome for a DOWN health report (exit 0 now) and the artifact and generation controls when their services are absent (not rendered now).

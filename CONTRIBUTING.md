@@ -29,7 +29,7 @@ pnpm build
 
 - Tests use synthetic data only. Database tests run in plain `cargo test` against a temporary SQLite
   file, never a real or personal database.
-- CI runs on Windows and Linux; platform-specific code needs tests on both.
+- CI runs on Windows, Linux and macOS; platform-specific code needs tests on all three.
 
 ## Architecture rules
 

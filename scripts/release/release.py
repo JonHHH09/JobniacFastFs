@@ -1,7 +1,7 @@
 """Release helpers for the JobniacFast release workflow (stdlib only).
 
 Run locally with `py -I scripts/release/release.py <command>`; in CI with `python` (Windows runners)
-or `python3` (Linux runners) after actions/setup-python. All release logic lives in this one
+or `python3` (Linux and macOS runners) after actions/setup-python. All release logic lives in this one
 module, with unit tests in scripts/release/tests.
 
 Every command fails closed: it prints one short `FAIL:` line and exits with status 1. GitHub API
@@ -37,7 +37,7 @@ API_TIMEOUT_SECONDS = 30
 API_MAX_BYTES = 1024 * 1024
 UPLOAD_TIMEOUT_SECONDS = 600
 API_VERSION_HEADER = "2022-11-28"
-PLATFORMS = ("windows-x64", "linux-x64")
+PLATFORMS = ("windows-x64", "linux-x64", "macos-arm64")
 PRODUCT = "JobniacFast"
 LEG_DIGESTS = "leg-digests.txt"
 SHA256SUMS = "SHA256SUMS"
@@ -46,8 +46,9 @@ SHA256SUMS = "SHA256SUMS"
 UPDATER_MANIFEST = "latest.json"
 UPDATER_PUBKEY_PLACEHOLDER = "REPLACE_WITH_UPDATER_PUBLIC_KEY"
 UPDATER_ENDPOINT = "https://github.com/JonHHH09/JobniacFastFs/releases/latest/download/latest.json"
-# The `platforms` keys of latest.json that the installed copies read (Windows NSIS, Linux AppImage).
-UPDATER_PLATFORMS = ("windows-x86_64", "linux-x86_64")
+# The `platforms` keys of latest.json that the installed copies read (Windows NSIS, Linux AppImage, macOS
+# Apple Silicon app archive).
+UPDATER_PLATFORMS = ("windows-x86_64", "linux-x86_64", "darwin-aarch64")
 RELEASE_DOWNLOAD_BASE = "https://github.com/JonHHH09/JobniacFastFs/releases/download"
 # Only the installed tree may hold these names beyond the staged payload.
 INSTALLED_ONLY_ALLOWLIST = ("uninstall.exe",)
@@ -287,12 +288,18 @@ def expected_asset_names(version: str) -> list[str]:
         f"{PRODUCT}_{version}_amd64.AppImage",
         f"{PRODUCT}_{version}_amd64.AppImage.sig",
         f"{PRODUCT}_{version}_amd64.deb",
+        # macOS: the DMG for people, the app archive (renamed from JobniacFast.app.tar.gz, which carries no
+        # version or architecture) and its signature for the updater.
+        f"{PRODUCT}_{version}_aarch64.dmg",
+        f"{PRODUCT}_{version}_aarch64.app.tar.gz",
+        f"{PRODUCT}_{version}_aarch64.app.tar.gz.sig",
         f"{PRODUCT}-{version}-desktop.cargo.cdx.json",
         f"{PRODUCT}-{version}-cli.cargo.cdx.json",
         f"{PRODUCT}-{version}.npm.cdx.json",
         "THIRD-PARTY-NOTICES.txt",
         f"{PRODUCT}-{version}-windows-x64.payload-inventory.json",
         f"{PRODUCT}-{version}-linux-x64.payload-inventory.json",
+        f"{PRODUCT}-{version}-macos-arm64.payload-inventory.json",
         SHA256SUMS,
     ]
     return sorted(names)
@@ -708,11 +715,12 @@ def prepare_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, body: s
         if release.get("prerelease") != intent.prerelease:
             raise ReleaseError("the draft prerelease flag does not match the tag form")
         release_id = int(release["id"])  # type: ignore[arg-type]
-        # The Windows installer is not reproducible, and every signature and latest.json belong to one
-        # build (a signature carries a timestamp), so a rerun rebuilds and re-attaches them all.
+        # The Windows installer and the macOS DMG and app archive are not reproducible, and every signature
+        # and latest.json belong to one build (a signature carries a timestamp), so a rerun rebuilds and
+        # re-attaches them all.
         for asset in release.get("assets", []):  # type: ignore[union-attr]
             name = str(asset["name"])
-            if name.endswith(("-setup.exe", ".sig")) or name == UPDATER_MANIFEST:
+            if name.endswith(("-setup.exe", ".dmg", ".app.tar.gz", ".sig")) or name == UPDATER_MANIFEST:
                 api.call("DELETE", f"/releases/assets/{asset['id']}", ok=(204,))
         api.call("PATCH", f"/releases/{release_id}", {"body": body})
         return release_id
@@ -753,6 +761,7 @@ def updater_installers(version: str) -> dict[str, str]:
     return {
         "windows-x86_64": f"{PRODUCT}_{version}_x64-setup.exe",
         "linux-x86_64": f"{PRODUCT}_{version}_amd64.AppImage",
+        "darwin-aarch64": f"{PRODUCT}_{version}_aarch64.app.tar.gz",
     }
 
 
