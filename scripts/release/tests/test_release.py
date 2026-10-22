@@ -448,6 +448,64 @@ class PayloadReconciliation(unittest.TestCase):
             release.compare_installed(inventory_path, installed, release.INSTALLED_ONLY_ALLOWLIST)
 
 
+class PayloadStaging(unittest.TestCase):
+    """The staged files match what the bundles ship: the sidecar mode and the Tauri bundle type."""
+
+    MARKER = release.TAURI_BUNDLE_TYPE_MARKER
+
+    def setUp(self) -> None:
+        self.tmp = Path(tempfile.mkdtemp())
+        self.target = self.tmp / "target"
+        self.target.mkdir()
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    @unittest.skipIf(sys.platform == "win32", "POSIX mode bits")
+    def test_sidecar_keeps_the_executable_bit(self) -> None:
+        source = self.target / "jobniac-cli"
+        source.write_bytes(b"cli")
+        source.chmod(0o755)
+        staged = release.stage_sidecar(self.target, self.tmp / "binaries", "x86_64-unknown-linux-gnu")
+        self.assertEqual(staged.stat().st_mode & 0o777, 0o755)
+
+    def stage_windows(self, desktop: bytes) -> int:
+        (self.target / "jobniac.exe").write_bytes(desktop)
+        (self.target / "jobniac-cli.exe").write_bytes(b"cli")
+        (self.tmp / "pdfium.dll").write_bytes(b"dll")
+        (self.tmp / "notices.txt").write_bytes(b"n")
+        return release.main([
+            "stage-payload", "--target-dir", str(self.target), "--platform", "windows-x64",
+            "--pdfium-library", str(self.tmp / "pdfium.dll"), "--notices", str(self.tmp / "notices.txt"),
+            "--out", str(self.tmp / "payload"),
+        ])
+
+    def test_windows_payload_gets_the_nsis_bundle_type(self) -> None:
+        # The constant table of all types stays as it is; only the UNK variable is patched.
+        table = self.MARKER + b"DEB" + self.MARKER + b"NSS"
+        self.assertEqual(self.stage_windows(b"head" + table + b"mid" + self.MARKER + b"UNK" + b"tail"), 0)
+        staged = (self.tmp / "payload" / "jobniac.exe").read_bytes()
+        self.assertEqual(staged, b"head" + table + b"mid" + self.MARKER + b"NSS" + b"tail")
+        self.assertIn(self.MARKER + b"UNK", (self.target / "jobniac.exe").read_bytes())
+
+    def test_windows_payload_without_a_single_marker_fails(self) -> None:
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(self.stage_windows(b"no marker"), 1)
+
+
+class SmokeFailureText(unittest.TestCase):
+    """A smoke FAIL line names the cause and never a path."""
+
+    def test_fixed_messages_are_shown_and_paths_are_not(self) -> None:
+        import clean_machine_smoke as smoke
+
+        self.assertEqual(smoke.describe(smoke.SmokeFailure("--help failed")), "SmokeFailure: --help failed")
+        self.assertEqual(smoke.describe(release.ReleaseError("installed file differs")), "ReleaseError: installed file differs")
+        error = PermissionError(13, "Permission denied", "/private/path/jobniac-cli")
+        self.assertEqual(smoke.describe(error), "PermissionError: Permission denied")
+        self.assertEqual(smoke.describe(KeyError("/private/path")), "KeyError")
+
+
 class FakeTransport:
     """Serves canned GitHub API responses keyed by (method, path suffix)."""
 
@@ -1313,8 +1371,11 @@ class BundleConfig(unittest.TestCase):
 
     def test_release_workflow_signs_and_writes_the_updater_manifest(self) -> None:
         text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
-        # latest.json comes from the `attach` job; two build legs would race to merge it.
-        self.assertIn("includeUpdaterJson: false", text)
+        # latest.json and the signatures come from the `attach` job; two build legs would race to merge
+        # latest.json. `includeUpdaterJson` is not a tauri-action v1 input and was silently ignored.
+        self.assertIn("uploadUpdaterJson: false", text)
+        self.assertIn("uploadUpdaterSignatures: false", text)
+        self.assertNotIn("includeUpdaterJson", text)
         self.assertIn("release.py updater-manifest", text)
         for name in ("TAURI_SIGNING_PRIVATE_KEY", "TAURI_SIGNING_PRIVATE_KEY_PASSWORD"):
             self.assertIn(f"{name}: ${{{{ secrets.{name} }}}}", text)

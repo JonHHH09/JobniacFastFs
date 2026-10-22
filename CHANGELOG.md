@@ -136,6 +136,11 @@ drafts take the body of their version section from this file.
   lease refuses before any file write.
 - `migrate` and `inspect_schema` refuse while `PGSERVICE` is set.
 - A profile search truncation-flag decode failure is an internal error, not database unavailable.
+- Release packages: `jobniac-cli` in the deb, the AppImage and the macOS app is executable again (the
+  staged sidecar lost its mode bits). The Windows clean-machine check compares the installed
+  `jobniac.exe` with a payload that carries the bundle type Tauri writes into the installer copy, and
+  tauri-action no longer uploads its own `latest.json` and signatures to the draft (the input name was
+  wrong). The Linux release leg runs the CLI from the deb and the AppImage.
 
 ### Performance
 
