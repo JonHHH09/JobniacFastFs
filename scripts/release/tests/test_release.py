@@ -15,6 +15,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 HERE = Path(__file__).resolve().parent
 RELEASE_DIR = HERE.parent
@@ -281,7 +282,7 @@ class UpdaterConfigGate(unittest.TestCase):
         commands = (
             ["check-updater-config"],
             ["prepare", "--merge-sha", "a" * 40],
-            ["draft", "--repo", "o/r", "--merge-sha", "a" * 40],
+            ["draft", "--repo", "o/r", "--merge-sha", "a" * 40, "--version", "0.1.0"],
         )
         for command in commands:
             with self.subTest(command=command[0]), contextlib.redirect_stderr(io.StringIO()) as captured:
@@ -538,6 +539,7 @@ class DraftVerification(unittest.TestCase):
         routes: dict[tuple[str, str], tuple[int, object]] = {
             ("GET", "/git/ref/tags/"): (200, {"object": {"type": "commit", "sha": tag_sha}}),
             ("GET", "/releases?"): (200, [release_payload]),
+            ("GET", "/releases/7"): (200, release_payload),
         }
         return release.GitHubApi("owner/repo", "token", FakeTransport(routes))
 
@@ -545,7 +547,21 @@ class DraftVerification(unittest.TestCase):
         return release.tag_for_version(self.VERSION)
 
     def verify(self, payload: dict[str, object], tag_sha: str | None = None) -> None:
-        release.verify_draft(self.api(payload, tag_sha), self.intent(), self.SHA, self.assets, self.latest)
+        release.verify_draft(self.api(payload, tag_sha), self.intent(), self.SHA, self.assets, self.latest, 7)
+
+    def test_a_draft_with_a_placeholder_tag_name_is_read_by_id(self) -> None:
+        self.verify(self.release_payload(tag_name="untagged-7bdbb8652c30764f6f8b"))
+
+    def test_another_published_release_holding_the_tag_fails(self) -> None:
+        other = self.release_payload(id=9, draft=False)
+        routes: dict[tuple[str, str], tuple[int, object]] = {
+            ("GET", "/git/ref/tags/"): (404, {}),
+            ("GET", "/releases?"): (200, [self.release_payload(), other]),
+            ("GET", "/releases/7"): (200, self.release_payload()),
+        }
+        api = release.GitHubApi("owner/repo", "token", FakeTransport(routes))
+        with self.assertRaises(release.ReleaseError):
+            release.verify_draft(api, self.intent(), self.SHA, self.assets, self.latest, 7)
 
     def test_matching_draft_passes(self) -> None:
         self.verify(self.release_payload())
@@ -635,40 +651,51 @@ class DraftVerification(unittest.TestCase):
             release.build_updater_manifest(self.tmp, self.VERSION, "n", "2026-01-02T03:04:05Z")
 
     def test_the_updater_manifest_command_writes_latest_json(self) -> None:
-        repo_version = release.resolve_version(REPO_ROOT).version
-        assets = self.tmp / "repo-version-assets"
+        assets = self.tmp / "version-assets"
         assets.mkdir()
-        for name in release.updater_installers(repo_version).values():
+        for name in release.updater_installers("0.4.2").values():
             (assets / name).write_bytes(b"x")
             (assets / f"{name}.sig").write_text("sig", encoding="utf-8")
+        notes = self.tmp / "release-notes.md"
+        notes.write_text("### Added\n\n- a thing\n", encoding="utf-8")
         out = self.tmp / "out" / "latest.json"
         with contextlib.redirect_stdout(io.StringIO()):
             status = release.main([
-                "updater-manifest", "--dir", str(assets), "--out", str(out),
-                "--pub-date", "2026-01-02T03:04:05Z",
+                "updater-manifest", "--version", "0.4.2", "--dir", str(assets), "--out", str(out),
+                "--notes-file", str(notes), "--pub-date", "2026-01-02T03:04:05Z",
             ])
         self.assertEqual(status, 0)
         data = json.loads(out.read_text(encoding="utf-8"))
-        self.assertEqual(data["version"], repo_version)
-        self.assertTrue(data["notes"])
+        self.assertEqual(data["version"], "0.4.2")
+        self.assertEqual(data["notes"], "### Added\n\n- a thing")
 
     def test_a_missing_tag_is_fine_for_a_draft(self) -> None:
         routes: dict[tuple[str, str], tuple[int, object]] = {
             ("GET", "/git/ref/tags/"): (404, {}),
             ("GET", "/releases?"): (200, [self.release_payload()]),
+            ("GET", "/releases/7"): (200, self.release_payload()),
         }
         api = release.GitHubApi("owner/repo", "token", FakeTransport(routes))
-        release.verify_draft(api, self.intent(), self.SHA, self.assets, self.latest)
+        release.verify_draft(api, self.intent(), self.SHA, self.assets, self.latest, 7)
 
     def publish_api(self, payload: dict[str, object], tag_sha: str | None) -> tuple[release.GitHubApi, FakeTransport]:
         published = dict(payload, draft=False)
         tag_route = (200, {"object": {"type": "commit", "sha": tag_sha}}) if tag_sha else (404, {})
-        transport = FakeTransport({
+
+        class PublishTransport(FakeTransport):
+            def __call__(self, method: str, url: str, token: str, body: bytes | None, content_type: str) -> tuple[int, bytes]:
+                result = super().__call__(method, url, token, body, content_type)
+                if method == "PATCH":
+                    # From here on the release reads as published.
+                    self.routes[("GET", "/releases/7")] = (200, published)
+                return result
+
+        transport = PublishTransport({
             ("GET", "/git/ref/tags/"): tag_route,
             ("GET", "/releases?"): (200, [payload]),
             ("POST", "/git/refs"): (201, {}),
             ("PATCH", "/releases/7"): (200, published),
-            ("GET", "/releases/7"): (200, published),
+            ("GET", "/releases/7"): (200, payload),
         })
         return release.GitHubApi("owner/repo", "token", transport), transport
 
@@ -686,7 +713,7 @@ class DraftVerification(unittest.TestCase):
             return original(method, url, token, body, content_type)
 
         api.transport = spy
-        message = release.publish_release(api, self.intent(), self.SHA)
+        message = release.publish_release(api, self.intent(), self.SHA, 7)
         self.assertIn("latest release", message)
         self.assertEqual(
             [call for call in transport.calls if call[0] in ("POST", "PATCH")],
@@ -694,7 +721,7 @@ class DraftVerification(unittest.TestCase):
         )
         tag_body, patch_body = (json.loads(b) for b in sent)
         self.assertEqual(tag_body, {"ref": "refs/tags/v0.1.0", "sha": self.SHA})
-        self.assertEqual(patch_body, {"draft": False, "prerelease": False, "make_latest": "true"})
+        self.assertEqual(patch_body, {"tag_name": "v0.1.0", "draft": False, "prerelease": False, "make_latest": "true"})
 
     def test_publish_of_a_dev_version_is_a_prerelease_and_never_latest(self) -> None:
         intent = release.tag_for_version("0.1.0-dev.2")
@@ -703,34 +730,52 @@ class DraftVerification(unittest.TestCase):
         sent: list[bytes] = []
         original = api.transport
         api.transport = lambda m, u, t, b, c: (sent.append(b) if b else None, original(m, u, t, b, c))[1]
-        self.assertIn("prerelease", release.publish_release(api, intent, self.SHA))
-        self.assertEqual(json.loads(sent[-1]), {"draft": False, "prerelease": True, "make_latest": "false"})
+        self.assertIn("prerelease", release.publish_release(api, intent, self.SHA, 7))
+        self.assertEqual(
+            json.loads(sent[-1]),
+            {"tag_name": "v0.1.0-dev.2", "draft": False, "prerelease": True, "make_latest": "false"},
+        )
 
     def test_publish_fails_closed_when_the_tag_is_on_another_commit(self) -> None:
         api, transport = self.publish_api(self.release_payload(), "b" * 40)
         with self.assertRaises(release.ReleaseError):
-            release.publish_release(api, self.intent(), self.SHA)
+            release.publish_release(api, self.intent(), self.SHA, 7)
         self.assertFalse([c for c in transport.calls if c[0] in ("POST", "PATCH")])
 
     def test_publish_reuses_a_tag_already_on_the_merge_commit(self) -> None:
         api, transport = self.publish_api(self.release_payload(), self.SHA)
-        release.publish_release(api, self.intent(), self.SHA)
+        release.publish_release(api, self.intent(), self.SHA, 7)
         self.assertNotIn(("POST", "/git/refs"), transport.calls)
         self.assertIn(("PATCH", "/releases/7"), transport.calls)
 
     def test_publish_of_an_already_published_release_is_a_success_without_writes(self) -> None:
         api, transport = self.publish_api(self.release_payload(draft=False), self.SHA)
-        self.assertIn("already published", release.publish_release(api, self.intent(), self.SHA))
+        self.assertIn("already published", release.publish_release(api, self.intent(), self.SHA, 7))
         self.assertFalse([c for c in transport.calls if c[0] in ("POST", "PATCH")])
 
-    def test_publish_refuses_a_missing_or_duplicate_release_or_a_wrong_target(self) -> None:
-        for payloads in ([], [self.release_payload(), self.release_payload()], [self.release_payload(target_commitish="c" * 40)]):
-            transport = FakeTransport({
+    def test_publish_refuses_a_missing_release_a_wrong_target_or_another_published_holder(self) -> None:
+        other = self.release_payload(id=9, draft=False)
+        cases = {
+            "missing": (None, []),
+            "wrong target": (self.release_payload(target_commitish="c" * 40), []),
+            "another published holder": (self.release_payload(), [other]),
+        }
+        for name, (payload, listing) in cases.items():
+            routes: dict[tuple[str, str], tuple[int, object]] = {
                 ("GET", "/git/ref/tags/"): (404, {}),
-                ("GET", "/releases?"): (200, payloads),
-            })
-            with self.subTest(count=len(payloads)), self.assertRaises(release.ReleaseError):
-                release.publish_release(release.GitHubApi("o/r", "t", transport), self.intent(), self.SHA)
+                ("GET", "/releases?"): (200, [*listing, *([payload] if payload else [])]),
+            }
+            if payload:
+                routes[("GET", "/releases/7")] = (200, payload)
+            transport = FakeTransport(routes)
+            with self.subTest(case=name), self.assertRaises(release.ReleaseError):
+                release.publish_release(release.GitHubApi("o/r", "t", transport), self.intent(), self.SHA, 7)
+            self.assertFalse([c for c in transport.calls if c[0] in ("POST", "PATCH")])
+
+    def test_publish_of_a_published_release_with_another_tag_name_is_refused(self) -> None:
+        api, _ = self.publish_api(self.release_payload(draft=False, tag_name="untagged-abc"), self.SHA)
+        with self.assertRaises(release.ReleaseError):
+            release.publish_release(api, self.intent(), self.SHA, 7)
 
     def test_duplicate_json_keys_are_rejected(self) -> None:
         routes = {("GET", "/git/ref/tags/"): (200, b'{"object": {"type": "commit", "sha": "x"}, "object": {}}')}
@@ -759,7 +804,7 @@ class PrepareDraft(unittest.TestCase):
             "a-setup.exe", "a-setup.exe.sig", "a.AppImage.sig", "latest.json", "a.AppImage", "a.deb",
             "a_aarch64.dmg", "a_aarch64.app.tar.gz", "a_aarch64.app.tar.gz.sig",
         ]
-        draft = {"id": 5, "tag_name": "v0.1.0", "draft": True, "prerelease": False,
+        draft = {"id": 5, "tag_name": "v0.1.0", "draft": True, "prerelease": False, "target_commitish": self.SHA,
                  "assets": [{"id": i, "name": n} for i, n in enumerate(names)]}
         transport = FakeTransport({
             ("GET", "/releases?"): (200, [draft]),
@@ -775,6 +820,54 @@ class PrepareDraft(unittest.TestCase):
             [f"/releases/assets/{index}" for index in (0, 1, 2, 3, 6, 7, 8)],
         )
 
+    def test_a_draft_from_another_commit_loses_every_asset(self) -> None:
+        names = ["SHA256SUMS", "a.deb", "a.cdx.json", "a-setup.exe", "latest.json"]
+        draft = {"id": 5, "tag_name": "untagged-abc", "name": "JobniacFast 0.1.1", "draft": True,
+                 "prerelease": False, "target_commitish": "b" * 40,
+                 "assets": [{"id": i, "name": n} for i, n in enumerate(names)]}
+        transport = FakeTransport({
+            ("GET", "/releases?"): (200, [draft]),
+            ("DELETE", "/releases/assets/"): (204, b""),
+            ("PATCH", "/releases/5"): (200, {}),
+        })
+        api = release.GitHubApi("owner/repo", "token", transport)
+        self.assertEqual(release.prepare_draft(api, release.tag_for_version("0.1.1"), self.SHA, "body"), 5)
+        deleted = sorted(path for method, path in transport.calls if method == "DELETE")
+        self.assertEqual(deleted, [f"/releases/assets/{index}" for index in range(5)])
+
+    def test_a_draft_with_a_placeholder_tag_name_is_reused_by_name_and_retargeted(self) -> None:
+        # GitHub lists a draft as `untagged-<hash>`, so only its name identifies it.
+        draft = {"id": 5, "tag_name": "untagged-7bdbb8652c30764f6f8b", "name": "JobniacFast 0.1.1", "draft": True,
+                 "prerelease": False, "assets": []}
+        elsewhere = {"id": 6, "tag_name": "untagged-0123456789abcdef0123", "name": "JobniacFast 0.1.0", "draft": True,
+                     "prerelease": False, "assets": []}
+        transport = FakeTransport({
+            ("GET", "/releases?"): (200, [elsewhere, draft]),
+            ("PATCH", "/releases/5"): (200, {}),
+        })
+        sent: list[bytes] = []
+        api = release.GitHubApi("owner/repo", "token", lambda m, u, t, b, c: (sent.append(b) if b else None, transport(m, u, t, b, c))[1])
+        self.assertEqual(release.prepare_draft(api, release.tag_for_version("0.1.1"), self.SHA, "body"), 5)
+        self.assertEqual(
+            json.loads(sent[-1]), {"tag_name": "v0.1.1", "target_commitish": self.SHA, "body": "body"}
+        )
+        self.assertNotIn(("POST", "/releases"), transport.calls)
+
+    def test_two_drafts_matching_by_tag_and_name_refuse(self) -> None:
+        drafts = [
+            {"id": 5, "tag_name": "v0.1.1", "name": "x", "draft": True, "prerelease": False, "assets": []},
+            {"id": 6, "tag_name": "untagged-abc", "name": "JobniacFast 0.1.1", "draft": True, "prerelease": False, "assets": []},
+        ]
+        api = release.GitHubApi("owner/repo", "token", FakeTransport({("GET", "/releases?"): (200, drafts)}))
+        with self.assertRaises(release.ReleaseError):
+            release.prepare_draft(api, release.tag_for_version("0.1.1"), self.SHA, "body")
+
+    def test_a_published_release_with_the_name_refuses(self) -> None:
+        published = {"id": 1, "tag_name": "v0.1.1", "name": "JobniacFast 0.1.1", "draft": False, "prerelease": False, "assets": []}
+        api = release.GitHubApi("owner/repo", "token", FakeTransport({("GET", "/releases?"): (200, [published])}))
+        with self.assertRaises(release.ReleaseError):
+            release.prepare_draft(api, release.tag_for_version("0.1.1"), self.SHA, "body")
+
     def test_new_draft_is_created_once(self) -> None:
         transport = FakeTransport({
             ("GET", "/releases?"): (200, []),
@@ -783,6 +876,237 @@ class PrepareDraft(unittest.TestCase):
         api = release.GitHubApi("owner/repo", "token", transport)
         self.assertEqual(release.prepare_draft(api, release.tag_for_version("0.1.0"), self.SHA, "body"), 42)
         self.assertEqual(transport.calls.count(("POST", "/releases")), 1)
+
+
+class NextVersion(unittest.TestCase):
+    def test_the_first_release_takes_the_version_of_the_files(self) -> None:
+        self.assertEqual(release.next_version("0.1.0", [], []), ("0.1.0", ""))
+
+    def test_the_patch_after_the_highest_stable_tag(self) -> None:
+        self.assertEqual(release.next_version("0.1.0", ["v0.1.0"], []), ("0.1.1", "v0.1.0"))
+        # Numeric order, not text order: 0.1.10 is above 0.1.9.
+        self.assertEqual(release.next_version("0.1.0", ["v0.1.9", "v0.1.10", "v0.1.2"], []), ("0.1.11", "v0.1.10"))
+
+    def test_a_higher_untagged_file_version_is_the_floor(self) -> None:
+        self.assertEqual(release.next_version("0.2.0", ["v0.1.0", "v0.1.4"], []), ("0.2.0", "v0.1.4"))
+        self.assertEqual(release.next_version("1.0.0", ["v0.9.3"], []), ("1.0.0", "v0.9.3"))
+        self.assertEqual(release.next_version("0.1.5-dev.1", ["v0.1.4"], []), ("0.1.5-dev.1", "v0.1.4"))
+
+    def test_a_file_version_that_is_already_tagged_or_lower_gives_the_next_patch(self) -> None:
+        self.assertEqual(release.next_version("0.2.0", ["v0.1.4", "v0.2.0"], []), ("0.2.1", "v0.2.0"))
+        self.assertEqual(release.next_version("0.1.0", ["v0.2.3"], []), ("0.2.4", "v0.2.3"))
+        # A dev version below the highest stable tag is not a floor.
+        self.assertEqual(release.next_version("0.2.0-dev.1", ["v0.2.0"], []), ("0.2.1", "v0.2.0"))
+
+    def test_a_tag_on_the_merge_commit_keeps_its_version(self) -> None:
+        self.assertEqual(release.next_version("0.1.0", ["v0.1.0", "v0.1.1"], ["v0.1.1"]), ("0.1.1", "v0.1.0"))
+        self.assertEqual(release.next_version("0.1.0", ["v0.1.1", "v0.1.2"], ["v0.1.1", "v0.1.2"]), ("0.1.2", "v0.1.1"))
+        self.assertEqual(release.next_version("0.1.0", ["v0.1.0"], ["v0.1.0"]), ("0.1.0", ""))
+
+    def test_dev_and_other_tags_do_not_count_as_the_highest_stable_tag(self) -> None:
+        tags = ["v0.1.0", "v0.3.0-dev.2", "latest", "v1", "v1.2", "release-9.9.9", "v0.2.0-rc.1", "vx.y.z"]
+        self.assertEqual(release.next_version("0.1.0", tags, []), ("0.1.1", "v0.1.0"))
+        # A tag that is not a release tag on the merge commit is ignored too.
+        self.assertEqual(release.next_version("0.1.0", tags, ["latest"]), ("0.1.1", "v0.1.0"))
+
+    def test_the_previous_tag_is_the_highest_stable_tag_below_the_result(self) -> None:
+        self.assertEqual(release.next_version("0.1.0", ["v0.1.0", "v0.2.0"], ["v0.1.0"]), ("0.1.0", ""))
+        self.assertEqual(release.next_version("0.1.0", ["v0.1.0", "v0.2.0", "v0.1.1-dev.3"], ["v0.1.1-dev.3"]),
+                         ("0.1.1-dev.3", "v0.1.0"))
+
+    def test_an_unreleasable_file_version_is_refused(self) -> None:
+        with self.assertRaises(release.ReleaseError):
+            release.next_version("1.0", [], [])
+
+
+class GitTags(unittest.TestCase):
+    def run_git(self, root: Path, *arguments: str) -> str:
+        completed = release.subprocess.run(
+            ["git", "-c", "user.name=t", "-c", "user.email=t@example.org", "-c", "commit.gpgsign=false",
+             "-c", "tag.gpgsign=false", *arguments],
+            cwd=root, capture_output=True, encoding="utf-8", check=True,
+        )
+        return completed.stdout.strip()
+
+    def test_lists_the_release_tags_and_those_at_the_merge_commit(self) -> None:
+        if shutil.which("git") is None:
+            self.skipTest("git is not installed")
+        root = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, root, True)
+        self.run_git(root, "init", "-q")
+        self.run_git(root, "commit", "-q", "--allow-empty", "-m", "one")
+        self.run_git(root, "tag", "v0.1.0")
+        self.run_git(root, "tag", "not-a-release")
+        self.run_git(root, "commit", "-q", "--allow-empty", "-m", "two")
+        self.run_git(root, "tag", "-a", "-m", "annotated", "v0.1.1")
+        merge_sha = self.run_git(root, "rev-parse", "HEAD")
+        tags, at_merge = release.git_release_tags(root, merge_sha)
+        self.assertEqual(sorted(tags), ["v0.1.0", "v0.1.1"])
+        self.assertEqual(at_merge, ["v0.1.1"])
+        self.assertEqual(release.next_version("0.1.0", tags, at_merge), ("0.1.1", "v0.1.0"))
+
+    def test_the_newest_stable_tag_must_be_an_ancestor_of_the_merge_commit(self) -> None:
+        if shutil.which("git") is None:
+            self.skipTest("git is not installed")
+        root = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, root, True)
+        self.run_git(root, "init", "-q")
+        self.run_git(root, "commit", "-q", "--allow-empty", "-m", "one")
+        old_sha = self.run_git(root, "rev-parse", "HEAD")
+        self.run_git(root, "commit", "-q", "--allow-empty", "-m", "two")
+        self.run_git(root, "tag", "v0.1.0")
+        self.run_git(root, "commit", "-q", "--allow-empty", "-m", "three")
+        new_sha = self.run_git(root, "rev-parse", "HEAD")
+        release.check_newest_release_is_ancestor(root, new_sha, ["v0.1.0"], [])
+        # An old merge is not a descendant of the newest release.
+        with self.assertRaises(release.ReleaseError):
+            release.check_newest_release_is_ancestor(root, old_sha, ["v0.1.0"], [])
+        # Skipped: a release tag on the merge commit (rerun), and no stable tag at all.
+        release.check_newest_release_is_ancestor(root, old_sha, ["v0.1.0"], ["v0.1.0"])
+        release.check_newest_release_is_ancestor(root, old_sha, ["v0.2.0-dev.1"], [])
+        release.check_newest_release_is_ancestor(root, old_sha, [], [])
+
+    def test_a_bad_sha_or_a_missing_repository_fails(self) -> None:
+        with self.assertRaises(release.ReleaseError):
+            release.git_release_tags(Path(tempfile.gettempdir()), "abc")
+        root = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, root, True)
+        if shutil.which("git") is not None:
+            with self.assertRaises(release.ReleaseError):
+                release.git_release_tags(root, "a" * 40)
+
+
+class SetVersion(unittest.TestCase):
+    LOCK = (
+        "# This file is automatically @generated by Cargo.\nversion = 4\n\n"
+        '[[package]]\nname = "jobniac-core"\nversion = "0.1.0"\ndependencies = [\n "serde",\n]\n\n'
+        '[[package]]\nname = "jobniac-cli"\nversion = "0.1.0"\n\n'
+        '[[package]]\nname = "serde"\nversion = "0.1.0"\nsource = "registry+https://github.com/rust-lang/crates.io-index"\n'
+        'checksum = "abc"\n\n'
+        '[[package]]\nname = "jobniac-mcp"\nversion = "0.1.0"\n'
+    )
+
+    def setUp(self) -> None:
+        self.repo = FakeRepo()
+        self.addCleanup(self.repo.cleanup)
+        self.lock = self.repo.root / "Cargo.lock"
+        self.lock.write_text(self.LOCK, encoding="utf-8")
+
+    def test_stamps_the_three_files_and_only_the_workspace_members_of_the_lock(self) -> None:
+        release.set_version(self.repo.root, "0.4.2")
+        self.assertEqual(set(release.read_versions(self.repo.root).values()), {"0.4.2"})
+        self.assertEqual(
+            self.lock.read_text(encoding="utf-8"),
+            self.LOCK.replace('name = "jobniac-core"\nversion = "0.1.0"', 'name = "jobniac-core"\nversion = "0.4.2"')
+            .replace('name = "jobniac-cli"\nversion = "0.1.0"', 'name = "jobniac-cli"\nversion = "0.4.2"')
+            .replace('name = "jobniac-mcp"\nversion = "0.1.0"', 'name = "jobniac-mcp"\nversion = "0.4.2"'),
+        )
+
+    def test_is_idempotent_and_leaves_the_changelog_alone(self) -> None:
+        changelog = self.repo.changelog.read_bytes()
+        release.set_version(self.repo.root, "0.4.2")
+        names = ["Cargo.toml", "src-tauri/tauri.conf.json", "package.json", "Cargo.lock"]
+        first = {name: (self.repo.root / name).read_bytes() for name in names}
+        release.set_version(self.repo.root, "0.4.2")
+        self.assertEqual(first, {name: (self.repo.root / name).read_bytes() for name in names})
+        self.assertEqual(changelog, self.repo.changelog.read_bytes())
+
+    def test_a_dev_version_is_accepted_and_other_forms_and_a_missing_lock_are_refused(self) -> None:
+        release.set_version(self.repo.root, "0.5.0-dev.1")
+        self.assertEqual(release.resolve_version(self.repo.root).tag, "v0.5.0-dev.1")
+        with self.assertRaises(release.ReleaseError):
+            release.set_version(self.repo.root, "0.5")
+        self.lock.unlink()
+        with self.assertRaises(release.ReleaseError):
+            release.set_version(self.repo.root, "0.5.1")
+
+    def test_the_command_line_stamps(self) -> None:
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(release.main(["set-version", "0.4.3", "--repo-root", str(self.repo.root)]), 0)
+        self.assertEqual(release.resolve_version(self.repo.root).version, "0.4.3")
+
+    def test_the_repository_lock_follows_the_stamp(self) -> None:
+        # Every workspace member of the real Cargo.lock carries the workspace version, so the stamp reaches all.
+        lock = (REPO_ROOT / "Cargo.lock").read_text(encoding="utf-8")
+        stamped = release._lock_with_version(lock, "9.9.9")
+        members = re.findall(r'^name = "(jobniac-[^"]+)"\nversion = "9\.9\.9"\n(?!source)', stamped, re.MULTILINE)
+        self.assertTrue(members)
+        self.assertNotIn("9.9.9", re.sub(r'(?ms)^\[\[package\]\]\nname = "jobniac-[^\n]*\nversion = "9\.9\.9"', "", stamped))
+
+
+class ReleaseNotes(unittest.TestCase):
+    SHA = "a" * 40
+
+    def setUp(self) -> None:
+        self.repo = FakeRepo()
+        self.addCleanup(self.repo.cleanup)
+
+    def api(self, transport: FakeTransport) -> release.GitHubApi:
+        return release.GitHubApi("owner/repo", "token", transport)
+
+    def test_the_changelog_section_wins_without_an_api_call(self) -> None:
+        transport = FakeTransport({})
+        notes = release.release_notes(
+            self.api(transport), self.repo.changelog, release.tag_for_version("0.1.0"), self.SHA, "v0.0.9"
+        )
+        self.assertEqual(notes, "- first\n")
+        self.assertEqual(transport.calls, [])
+
+    def test_a_version_without_a_section_uses_generated_notes(self) -> None:
+        transport = FakeTransport({("POST", "/releases/generate-notes"): (200, {"name": "n", "body": "## What's Changed\n* x\n"})})
+        sent: list[bytes] = []
+        api = self.api(transport)
+        original = api.transport
+        api.transport = lambda m, u, t, b, c: (sent.append(b) if b else None, original(m, u, t, b, c))[1]
+        notes = release.release_notes(api, self.repo.changelog, release.tag_for_version("0.1.1"), self.SHA, "v0.1.0")
+        self.assertEqual(notes, "## What's Changed\n* x\n")
+        self.assertEqual(
+            json.loads(sent[0]),
+            {"tag_name": "v0.1.1", "target_commitish": self.SHA, "previous_tag_name": "v0.1.0"},
+        )
+
+    def test_the_previous_tag_is_left_out_when_empty_and_checked_when_given(self) -> None:
+        transport = FakeTransport({("POST", "/releases/generate-notes"): (200, {"body": "b"})})
+        api = self.api(transport)
+        sent: list[bytes] = []
+        original = api.transport
+        api.transport = lambda m, u, t, b, c: (sent.append(b) if b else None, original(m, u, t, b, c))[1]
+        release.release_notes(api, self.repo.changelog, release.tag_for_version("0.1.1"), self.SHA, "")
+        self.assertEqual(json.loads(sent[0]), {"tag_name": "v0.1.1", "target_commitish": self.SHA})
+        with self.assertRaises(release.ReleaseError):
+            release.release_notes(api, self.repo.changelog, release.tag_for_version("0.1.1"), self.SHA, "main")
+
+    def test_an_empty_or_failed_generation_fails(self) -> None:
+        for route in ((200, {"body": " "}), (200, {}), (500, {})):
+            api = self.api(FakeTransport({("POST", "/releases/generate-notes"): route}))
+            with self.subTest(route=route), self.assertRaises(release.ReleaseError):
+                release.release_notes(api, self.repo.changelog, release.tag_for_version("0.1.1"), self.SHA, "")
+
+    def test_an_empty_changelog_section_still_fails(self) -> None:
+        self.repo.changelog.write_text("## [Unreleased]\n\n## [0.1.1] - 2026-01-02\n\n## [0.1.0] - 2026-01-01\n\n- a\n", encoding="utf-8")
+        with self.assertRaises(release.ReleaseError):
+            release.release_notes(self.api(FakeTransport({})), self.repo.changelog, release.tag_for_version("0.1.1"), self.SHA, "")
+
+
+class ToolResolution(unittest.TestCase):
+    def test_pnpm_is_resolved_with_which_so_windows_finds_pnpm_cmd(self) -> None:
+        seen: list[list[str]] = []
+
+        def fake_run(command: list[str], **_: object) -> object:
+            seen.append(command)
+            return type("Done", (), {"returncode": 0, "stdout": "{}"})()
+
+        with mock.patch.object(release.shutil, "which", return_value="C:\\pnpm\\pnpm.cmd") as which, \
+                mock.patch.object(release.subprocess, "run", fake_run):
+            self.assertEqual(release.run_pnpm_licences(), {})
+        which.assert_called_once_with("pnpm")
+        self.assertEqual(seen[0][:2], ["C:\\pnpm\\pnpm.cmd", "licenses"])
+
+    def test_a_missing_pnpm_fails_closed(self) -> None:
+        with mock.patch.object(release.shutil, "which", return_value=None), \
+                mock.patch.object(release.subprocess, "run", side_effect=AssertionError("must not run")):
+            with self.assertRaises(release.ReleaseError):
+                release.run_pnpm_licences()
 
 
 class SbomNormalisation(unittest.TestCase):
@@ -1057,6 +1381,41 @@ class WorkflowRules(unittest.TestCase):
         self.assertEqual(text.count("release.py publish"), 1)
         self.assertRegex(publish, r"needs\.verify-draft\.result == 'success'")
         self.assertRegex(publish, r"needs\.attest\.result == 'skipped'")
+
+    def job(self, name: str) -> str:
+        text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        jobs = re.split(r"(?m)^  (?=[a-z][a-z-]*:\n)", text.split("\njobs:\n", 1)[1])
+        return next(job for job in jobs if job.startswith(f"{name}:"))
+
+    def test_merged_runs_share_one_group_and_unmerged_closes_get_their_own(self) -> None:
+        text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        self.assertIn(
+            "  group: ${{ github.event.pull_request.merged == true && 'release' || format('skip-{0}', github.run_id) }}\n"
+            "  cancel-in-progress: false",
+            text,
+        )
+
+    def test_the_version_is_computed_from_the_tags_and_stamped_before_the_builds(self) -> None:
+        prepare = self.job("prepare")
+        self.assertRegex(prepare, r"fetch-depth: 0")
+        self.assertIn('release.py next-version --merge-sha "$MERGE_SHA"', prepare)
+        self.assertNotIn("resolve-version", (WORKFLOWS / "release.yml").read_text(encoding="utf-8"))
+        self.assertIn("previous_tag: ${{ steps.resolve.outputs.previous_tag }}", prepare)
+        build = self.job("build")
+        stamp = build.index('release.py set-version "$VERSION"')
+        self.assertLess(build.index("release.py check-checkout"), stamp)
+        self.assertLess(stamp, build.index("pnpm install"))
+
+    def test_draft_verify_and_publish_get_the_version_and_the_draft_id(self) -> None:
+        self.assertRegex(self.job("draft"), r'--version "\$VERSION" --previous-tag "\$PREVIOUS_TAG"')
+        self.assertRegex(self.job("draft"), r"needs: prepare")
+        for name in ("verify-draft", "publish"):
+            with self.subTest(job=name):
+                job = self.job(name)
+                self.assertIn('--version "$VERSION" --release-id "$RELEASE_ID"', job)
+                self.assertIn("needs.draft.outputs.release_id", job)
+        self.assertIn("gh api", self.job("attach"))
+        self.assertIn("--notes-file release-notes.md", self.job("attach"))
 
     def test_checkouts_do_not_persist_credentials(self) -> None:
         for path in self.workflow_files():
