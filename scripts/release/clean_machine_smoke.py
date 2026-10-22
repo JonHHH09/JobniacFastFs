@@ -36,6 +36,19 @@ class SmokeFailure(Exception):
     """A step failed; the message is printed without any path or response text."""
 
 
+def describe(error: BaseException) -> str:
+    """The error class, with the message when it carries no path or response text.
+
+    SmokeFailure and ReleaseError messages are fixed texts; an OSError gives its strerror only (the
+    filename is left out).
+    """
+    if isinstance(error, (SmokeFailure, release.ReleaseError)):
+        return f"{error.__class__.__name__}: {error}"
+    if isinstance(error, OSError) and error.strerror:
+        return f"{error.__class__.__name__}: {error.strerror}"
+    return error.__class__.__name__
+
+
 def per_user_roots() -> list[Path]:
     return [Path(os.environ[name]) for name in ("LOCALAPPDATA", "APPDATA") if os.environ.get(name)]
 
@@ -179,7 +192,7 @@ def main(argv: list[str] | None = None) -> int:
         try:
             action()
         except (SmokeFailure, release.ReleaseError, OSError, subprocess.SubprocessError, ValueError, KeyError) as error:
-            sys.stdout.write(f"FAIL: {name} ({error.__class__.__name__})\n")
+            sys.stdout.write(f"FAIL: {name} ({describe(error)})\n")
             return 1
         sys.stdout.write(f"PASS: {name}\n")
     return 0

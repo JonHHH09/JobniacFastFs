@@ -210,14 +210,20 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: ./scripts/fetch-pdfium.ps1 -Platform all
-      - name: Install the release tools (versions pinned)
+      # Prebuilt and checksum-verified by install-action, with no fallback to a source build: compiling
+      # them took 4 to 11 minutes per leg. The cargo-about binary only exists with its `cli` feature, and
+      # `binary-scanning` is a default feature of cargo-audit, so the prebuilt binaries have both.
+      - name: Install the release tools (prebuilt, versions pinned)
+        uses: taiki-e/install-action@83ac0ad63c0167e6f06796fab0fce28db1bf3db0 # v2.87.22
+        with:
+          tool: cargo-about@0.9.2,cargo-cyclonedx@0.5.9,cargo-audit@0.22.1
+          fallback: none
+      # This install-action release has no cargo-auditable 0.7.7 build, so it is built from source.
+      - name: Install cargo-auditable (versions pinned)
         run: |
           set -euo pipefail
           TOOLS="$RUNNER_TEMP/tools"
-          cargo install --locked --root "$TOOLS" --version 0.9.2 --features cli cargo-about
-          cargo install --locked --root "$TOOLS" --version 0.5.9 cargo-cyclonedx
           cargo install --locked --root "$TOOLS" --version 0.7.7 cargo-auditable
-          cargo install --locked --root "$TOOLS" --version 0.22.1 --features binary-scanning cargo-audit
           echo "$TOOLS/bin" >> "$GITHUB_PATH"
           # tauri-action runs `tauri build`, which runs `cargo build` directly, so `cargo auditable` is not
           # used there. Cargo's workspace wrapper hook does the same job: cargo-auditable answers as the
@@ -256,8 +262,11 @@ jobs:
           releaseId: ${{ needs.draft.outputs.release_id }}
           releaseDraft: true
           prerelease: ${{ env.PRERELEASE == 'true' }}
-          # latest.json is written by the `attach` job (two legs would race to merge it here).
-          includeUpdaterJson: false
+          # latest.json and the updater signatures are attached by the `attach` job (two legs would race
+          # to merge latest.json here, and tauri-action would also upload a .deb.sig that is not a
+          # release asset). tauri-action v1 ignores unknown inputs with a warning only.
+          uploadUpdaterJson: false
+          uploadUpdaterSignatures: false
           args: --bundles ${{ matrix.bundles }} --config src-tauri/tauri.release.conf.json
       # The macOS build. The Apple secrets are passed to this step only (never to tauri-action, which
       # holds the GitHub token, and never echoed). The release runs only for a merged promotion pull
@@ -356,6 +365,18 @@ jobs:
           fi
           cp src-tauri/resources/THIRD-PARTY-NOTICES.txt "$RELEASE_OUT/"
           python -I scripts/release/release.py leg-digests --dir "$RELEASE_OUT"
+      # The Windows and macOS installers get a clean-machine job; the Linux packages get this check that
+      # the CLI they ship runs (a sidecar copied without its mode bits once shipped as 0644).
+      - name: The deb and the AppImage ship a runnable CLI
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          OUT="$PWD/$RELEASE_OUT"
+          dpkg-deb -x "$OUT/JobniacFast_${VERSION}_amd64.deb" "$RUNNER_TEMP/deb-root"
+          "$RUNNER_TEMP/deb-root/usr/bin/jobniac-cli" --version | grep -Fq "$VERSION"
+          cd "$RUNNER_TEMP"
+          "$OUT/JobniacFast_${VERSION}_amd64.AppImage" --appimage-extract >/dev/null
+          squashfs-root/usr/bin/jobniac-cli --version | grep -Fq "$VERSION"
       - name: Upload the leg artifacts (workflow artifacts, not the draft)
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

@@ -236,7 +236,7 @@ def main(argv: list[str] | None = None) -> int:
             try:
                 action()
             except (SmokeFailure, release.ReleaseError, OSError, subprocess.SubprocessError, tarfile.TarError, ValueError, KeyError) as error:
-                sys.stdout.write(f"FAIL: {name} ({error.__class__.__name__}: {error})\n" if isinstance(error, SmokeFailure) else f"FAIL: {name} ({error.__class__.__name__})\n")
+                sys.stdout.write(f"FAIL: {name} ({common.describe(error)})\n")
                 return 1
             sys.stdout.write(f"PASS: {name}\n")
     finally:

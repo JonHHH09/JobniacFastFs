@@ -52,6 +52,11 @@ UPDATER_PLATFORMS = ("windows-x86_64", "linux-x86_64", "darwin-aarch64")
 RELEASE_DOWNLOAD_BASE = "https://github.com/JonHHH09/JobniacFastFs/releases/download"
 # Only the installed tree may hold these names beyond the staged payload.
 INSTALLED_ONLY_ALLOWLIST = ("uninstall.exe",)
+# tauri-bundler writes the bundle type into the main binary it packs (the updater reads it): the marker
+# `__TAURI_BUNDLE_TYPE_VAR_UNK` of the build output becomes `..._NSS` inside the NSIS installer. The
+# staged payload of a platform listed here gets the same patch, so it matches the installed tree.
+TAURI_BUNDLE_TYPE_MARKER = b"__TAURI_BUNDLE_TYPE_VAR_"
+STAGED_BUNDLE_TYPE = {"windows-x64": b"NSS"}
 PRUNE_PAGE_SIZE = 20
 PRUNE_MAX_PAGES = 50
 
@@ -528,9 +533,23 @@ def stage_sidecar(target_dir: Path, binaries_dir: Path, triple: str) -> Path:
     binaries_dir.mkdir(parents=True, exist_ok=True)
     destination = binaries_dir / f"jobniac-cli-{triple}{suffix}"
     shutil.copyfile(source, destination)
+    # Tauri copies the sidecar into the bundles with its mode: without the executable bit the deb, the
+    # AppImage and the macOS app ship a CLI that cannot run.
+    shutil.copymode(source, destination)
     if sha256_file(destination) != sha256_file(source):
         raise ReleaseError("sidecar copy differs from the built binary")
+    if not suffix and not os.access(destination, os.X_OK):
+        raise ReleaseError("sidecar copy is not executable")
     return destination
+
+
+def patch_bundle_type(binary: Path, bundle_type: bytes) -> None:
+    """Writes the bundle type into a staged main binary, as tauri-bundler does for the installer copy."""
+    data = binary.read_bytes()
+    unknown = TAURI_BUNDLE_TYPE_MARKER + b"UNK"
+    if data.count(unknown) != 1:
+        raise ReleaseError("the main binary does not hold exactly one Tauri bundle type marker")
+    binary.write_bytes(data.replace(unknown, TAURI_BUNDLE_TYPE_MARKER + bundle_type))
 
 
 def host_triple() -> str:
@@ -1263,6 +1282,8 @@ def run_command(args: argparse.Namespace) -> int:
             if not source.is_file():
                 raise ReleaseError(f"{name} is missing from the target directory")
             shutil.copyfile(source, args.out / name)
+        if args.platform in STAGED_BUNDLE_TYPE:
+            patch_bundle_type(args.out / f"jobniac{suffix}", STAGED_BUNDLE_TYPE[args.platform])
         (args.out / "pdfium").mkdir(exist_ok=True)
         shutil.copyfile(args.pdfium_library, args.out / "pdfium" / args.pdfium_library.name)
         shutil.copyfile(args.notices, args.out / "THIRD-PARTY-NOTICES.txt")
