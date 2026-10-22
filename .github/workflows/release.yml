@@ -210,16 +210,20 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: ./scripts/fetch-pdfium.ps1 -Platform all
-      - name: Install the release tools (versions pinned)
+      # Prebuilt and checksum-verified by install-action, with no fallback to a source build: compiling
+      # them took 4 to 11 minutes per leg. The cargo-about binary only exists with its `cli` feature, and
+      # `binary-scanning` is a default feature of cargo-audit, so the prebuilt binaries have both.
+      - name: Install the release tools (prebuilt, versions pinned)
+        uses: taiki-e/install-action@83ac0ad63c0167e6f06796fab0fce28db1bf3db0 # v2.87.22
+        with:
+          tool: cargo-about@0.9.2,cargo-cyclonedx@0.5.9,cargo-audit@0.22.1
+          fallback: none
+      # This install-action release has no cargo-auditable 0.7.7 build, so it is built from source.
+      - name: Install cargo-auditable (versions pinned)
         run: |
           set -euo pipefail
           TOOLS="$RUNNER_TEMP/tools"
-          # One target directory for the four installs: the dependencies they share build once.
-          export CARGO_TARGET_DIR="$RUNNER_TEMP/tools-target"
-          cargo install --locked --root "$TOOLS" --version 0.9.2 --features cli cargo-about
-          cargo install --locked --root "$TOOLS" --version 0.5.9 cargo-cyclonedx
           cargo install --locked --root "$TOOLS" --version 0.7.7 cargo-auditable
-          cargo install --locked --root "$TOOLS" --version 0.22.1 --features binary-scanning cargo-audit
           echo "$TOOLS/bin" >> "$GITHUB_PATH"
           # tauri-action runs `tauri build`, which runs `cargo build` directly, so `cargo auditable` is not
           # used there. Cargo's workspace wrapper hook does the same job: cargo-auditable answers as the
