@@ -51,7 +51,9 @@ be merged: the release would stop after the merge.
 A required check whose job is skipped counts as passed, so `ci.yml` and `e2e.yml` skip work safely:
 
 - The `Changes` job (`scripts/ci/gate.sh`) path-filters pull requests into `development`: a
-  docs-only change skips `UI`, `Rust (...)` and `E2E (...)`; Rust-only changes skip `UI`.
+  docs-only change skips `UI`, `Rust (...)` and `E2E (...)`; Rust-only changes skip `UI`. The `UI`
+  job also runs the Playwright browser suite (`pnpm test:ui`), so it is part of the required `UI`
+  check; a change under `playwright/` runs only that job.
 - `Rust (windows-latest)` and `E2E (windows-latest)` do not run on pull requests into `development`.
   They run on the promotion pull request (`development` to `main`), on the nightly run, on manual runs
   (`workflow_dispatch`) and in the release call. `Rust (macos-latest)` follows the Linux Rust job: it runs
