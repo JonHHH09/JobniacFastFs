@@ -195,7 +195,8 @@ export const arbeitnowHandlers: HandlerMap = {
         (!req.location || location.toLowerCase().includes(req.location.toLowerCase())) &&
         (!req.remoteOnly || remote) &&
         wantedTags.every((tag) => tags.includes(tag)) &&
-        wantedTypes.every((type) => types.includes(type));
+        // The feed spells `full-time`; the wire value of the filter is the enum name `full_time`.
+        wantedTypes.every((type) => types.some((feedType) => feedType.replace("-", "_") === type));
       return ok ? [index] : [];
     });
     if (mockConfig.empty) {
