@@ -54,13 +54,13 @@ fn only_allowlisted_variables_cross_and_secrets_never_do() {
             "{name} must not cross into the child"
         );
     }
-    #[cfg(not(target_os = "linux"))]
+    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
     assert_eq!(value_of(&environment, "PATH"), None);
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     assert_eq!(
         value_of(&environment, "PATH").as_deref(),
         Some("/usr/bin:/bin"),
-        "the parent's PATH never crosses on Linux"
+        "the parent's PATH never crosses on Linux and macOS"
     );
     assert_eq!(
         value_of(&environment, "SYSTEMROOT").as_deref(),
@@ -97,9 +97,9 @@ fn marker_is_present_once_with_the_kind_value_and_cannot_be_forged() {
     );
 }
 
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 #[test]
-fn linux_children_run_under_the_fixed_locale_and_a_search_path() {
+fn unix_children_run_under_the_fixed_locale_and_a_search_path() {
     let environment = child_environment(&[], WorkerKind::Probe);
     assert_eq!(value_of(&environment, "LANG").as_deref(), Some("C.UTF-8"));
     assert_eq!(value_of(&environment, "LC_ALL").as_deref(), Some("C.UTF-8"));

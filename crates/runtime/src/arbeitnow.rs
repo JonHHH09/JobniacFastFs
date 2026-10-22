@@ -260,9 +260,13 @@ fn system_instant() -> Option<ArbeitnowInstant> {
     .ok()
 }
 
-/// Whether the platform admits the owned child transports (`linux` and `win32` only).
+/// Whether the platform admits the owned child transports (`linux`, `darwin` and `win32`).
 const fn platform_supported() -> bool {
-    cfg!(any(target_os = "linux", target_os = "windows"))
+    cfg!(any(
+        target_os = "linux",
+        target_os = "macos",
+        target_os = "windows"
+    ))
 }
 
 /// Composes the use cases from validated keys, one unit of work and the worker supervisor.
@@ -752,7 +756,11 @@ mod tests {
             (CURSOR_SECRET_KEY, CURSOR_SECRET),
         ];
         let services = composed_with_database(&pairs)?;
-        if cfg!(any(target_os = "linux", target_os = "windows")) {
+        if cfg!(any(
+            target_os = "linux",
+            target_os = "macos",
+            target_os = "windows"
+        )) {
             assert!(services.is_some());
         } else {
             assert!(services.is_none());
@@ -767,7 +775,11 @@ mod tests {
             (CANDIDATE_KEY, KEY32),
             (CURSOR_SECRET_KEY, CURSOR_SECRET),
         ];
-        if cfg!(any(target_os = "linux", target_os = "windows")) {
+        if cfg!(any(
+            target_os = "linux",
+            target_os = "macos",
+            target_os = "windows"
+        )) {
             assert!(composed(&pairs)?.is_none());
         } else {
             assert!(composed(&pairs).is_err());
@@ -804,11 +816,15 @@ mod tests {
     }
 
     #[test]
-    fn the_platform_gate_admits_linux_and_windows_only() {
-        // macOS is refused at startup when the flag is 1.
+    fn the_platform_gate_admits_linux_macos_and_windows() {
+        // Other platforms are refused at startup when the flag is 1.
         assert_eq!(
             platform_supported(),
-            cfg!(any(target_os = "linux", target_os = "windows"))
+            cfg!(any(
+                target_os = "linux",
+                target_os = "macos",
+                target_os = "windows"
+            ))
         );
     }
 

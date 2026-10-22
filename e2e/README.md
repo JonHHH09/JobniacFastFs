@@ -91,6 +91,14 @@ run's import and generated roots and its database file (all in both slash forms)
 page text and every attribute value. The suite refuses any database file outside the run folder
 under `target/`.
 
+## Platforms
+
+The WebDriver suite runs on Windows and Linux only. `tauri-driver` has no macOS driver, because WKWebView
+has no WebDriver server that Tauri can drive. On macOS the app is covered by the Rust job (`Rust
+(macos-latest)`, including the sandboxed PDF worker tests) and, for a release, by the scripted smoke of the
+built DMG (`scripts/release/macos_smoke.py`: launch with the smoke quit hook, CLI, MCP and a PDF
+extraction through the bundled PDFium).
+
 ## CI
 
 `.github/workflows/e2e.yml` runs the same steps on `windows-latest` and `ubuntu-26.04`. The Windows job

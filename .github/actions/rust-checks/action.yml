@@ -1,7 +1,7 @@
 name: Rust checks
 description: >-
   Builds the UI, fetches PDFium and runs format, clippy and the tests of the Rust workspace. Shared by
-  the `Rust (ubuntu-26.04)` and `Rust (windows-latest)` jobs of ci.yml. The caller checks out first.
+  the `Rust (ubuntu-26.04)`, `Rust (windows-latest)` and `Rust (macos-latest)` jobs of ci.yml. The caller checks out first.
 
 runs:
   using: composite
@@ -42,6 +42,16 @@ runs:
       run: |
         ./scripts/fetch-pdfium.ps1 -Platform windows-x64
         "JOBNIAC_PDFIUM_DIR=$env:GITHUB_WORKSPACE\vendor\pdfium\windows-x64" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+    - name: Fetch the pinned PDFium library (macOS)
+      if: runner.os == 'macOS'
+      shell: bash
+      run: |
+        bash scripts/fetch-pdfium.sh mac-arm64
+        echo "JOBNIAC_PDFIUM_DIR=$GITHUB_WORKSPACE/vendor/pdfium/mac-arm64" >> "$GITHUB_ENV"
+    - name: Confirm the PDFium library is visible to the tests (macOS)
+      if: runner.os == 'macOS'
+      shell: bash
+      run: test -f "$JOBNIAC_PDFIUM_DIR/libpdfium.dylib"
     - name: Confirm the PDFium library is visible to the tests (Linux)
       if: runner.os == 'Linux'
       shell: bash

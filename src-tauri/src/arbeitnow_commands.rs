@@ -33,6 +33,9 @@ pub const ARBEITNOW_UNCONFIGURED: &str = "arbeitnow.unconfigured";
 const VALIDATION: &str = "validation_error";
 /// Jobs per scan page.
 const PAGE_LIMIT: i64 = 25;
+/// Upstream pages one scan or next page reads (the scan maximum): a narrow filter often matches
+/// nothing on the newest page alone.
+const SCAN_PAGES: i64 = 5;
 /// Code points of the description excerpt.
 const EXCERPT_LIMIT: usize = 280;
 
@@ -246,7 +249,7 @@ fn scan_filters(request: &ArbeitnowScanRequestDto) -> ScanRequest {
         tags: split_list(&request.tags),
         job_types: split_list(&request.job_types),
         limit: None,
-        max_pages: None,
+        max_pages: Some(SCAN_PAGES),
         cursor: None,
     }
 }
@@ -588,6 +591,7 @@ mod tests {
         assert_eq!(sent[0].tags, Some(vec!["rust".to_owned(), "go".to_owned()]));
         assert_eq!(sent[0].job_types, None);
         assert_eq!(sent[0].limit, Some(PAGE_LIMIT));
+        assert_eq!(sent[0].max_pages, Some(SCAN_PAGES));
         assert_eq!(sent[0].cursor, None);
         Ok(())
     }
@@ -604,6 +608,7 @@ mod tests {
         let sent = port.scan_requests();
         assert_eq!(sent[1].cursor.as_deref(), Some(CURSOR));
         assert_eq!(sent[1].limit, Some(PAGE_LIMIT));
+        assert_eq!(sent[1].max_pages, Some(SCAN_PAGES));
         assert_eq!(second.rows.len(), 1);
         assert!(!second.has_next_page);
         assert!(!json_of(&second).contains(CURSOR));

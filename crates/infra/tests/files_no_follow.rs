@@ -6,6 +6,7 @@
 
 #![cfg(any(
     windows,
+    target_os = "macos",
     all(
         target_os = "linux",
         any(target_arch = "x86_64", target_arch = "aarch64")
@@ -113,7 +114,7 @@ fn chain_names_must_be_plain_components() {
 
 /// A link at the leaf or inside the chain is refused on every architecture: the open flags come
 /// from `libc`, not from hand-written x86 values.
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 #[test]
 fn links_are_refused_at_the_leaf_and_in_the_chain() {
     let scratch = Scratch::new();

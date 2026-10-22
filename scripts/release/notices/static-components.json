@@ -5,7 +5,7 @@
     {
       "id": "pdfium",
       "title": "PDFium (bblanchon/pdfium-binaries, release chromium/7881; BSD-3-Clause upstream)",
-      "payload_any": ["pdfium/pdfium.dll", "pdfium/libpdfium.so"],
+      "payload_any": ["pdfium/pdfium.dll", "pdfium/libpdfium.so", "pdfium/libpdfium.dylib"],
       "texts": [{ "kind": "pdfium-archive" }]
     },
     {

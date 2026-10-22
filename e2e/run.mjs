@@ -50,7 +50,13 @@ function main() {
     repoRoot,
     "vendor",
     "pdfium",
-    process.platform === "win32" ? "windows-x64" : "linux-x64",
+    process.platform === "win32"
+      ? "windows-x64"
+      : process.platform === "darwin"
+        ? process.arch === "arm64"
+          ? "mac-arm64"
+          : "mac-x64"
+        : "linux-x64",
   );
   const shared = {
     ...database,

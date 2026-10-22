@@ -1,0 +1,11 @@
+{
+  "bundle": {
+    "targets": ["app", "dmg"],
+    "macOS": {
+      "minimumSystemVersion": "14.0",
+      "signingIdentity": "-",
+      "entitlements": "macos/Entitlements.adhoc.plist",
+      "frameworks": ["../vendor/pdfium/mac-arm64/libpdfium.dylib"]
+    }
+  }
+}

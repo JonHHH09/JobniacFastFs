@@ -578,6 +578,8 @@ export const messages = {
   "arbeitnow.progress.next": "Loading more Arbeitnow results…",
   "arbeitnow.progress.import": "Importing the selected job…",
   "arbeitnow.result.empty": "No matching Arbeitnow jobs found.",
+  "arbeitnow.result.emptySoFar":
+    "No matches in the postings checked so far. Load more results to search older postings.",
   "arbeitnow.result.reused": "This posting was already saved.",
   "arbeitnow.result.created": "Job imported from Arbeitnow.",
   "arbeitnow.close": "Wait for the current Arbeitnow operation before closing.",

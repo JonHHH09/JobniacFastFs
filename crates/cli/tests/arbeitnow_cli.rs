@@ -22,7 +22,11 @@ const SECRET_VALUE: &str = "synthetic-cursor-secret-0123456789abcdef";
 /// A token that was never signed by any key.
 const FORGED_TOKEN: &str = "Zm9yZ2VkLXN5bnRoZXRpYy1wYXlsb2Fk.c3ludGhldGljLXNpZ25hdHVyZQ";
 
-const SUPPORTED: bool = cfg!(any(target_os = "linux", target_os = "windows"));
+const SUPPORTED: bool = cfg!(any(
+    target_os = "linux",
+    target_os = "macos",
+    target_os = "windows"
+));
 
 fn initialize() -> &'static str {
     r#"{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"synthetic-client","version":"0.0.0"}}}"#

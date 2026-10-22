@@ -7,5 +7,7 @@ pub mod arbeitnow;
 pub mod blocking;
 pub mod files;
 pub mod generated;
+#[cfg(target_os = "macos")]
+mod platform_macos_acl;
 pub mod sqlite;
 pub mod workers;

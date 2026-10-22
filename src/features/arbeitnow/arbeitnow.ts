@@ -162,7 +162,7 @@ export function startOperation(view: ArbeitnowView, operation: ArbeitnowOperatio
 
 /**
  * A scan replaces the rows; a next page appends its rows. The status line says that nothing matched
- * only when the screen holds no row at all.
+ * only when the screen holds no row at all, and that older postings remain while a next page exists.
  */
 export function finishPage(
   view: ArbeitnowView,
@@ -176,7 +176,12 @@ export function finishPage(
     rows,
     hasNextPage: page.hasNextPage,
     notice: page.consistencyNotice,
-    message: rows.length === 0 ? "arbeitnow.result.empty" : null,
+    message:
+      rows.length > 0
+        ? null
+        : page.hasNextPage
+          ? "arbeitnow.result.emptySoFar"
+          : "arbeitnow.result.empty",
   };
 }
 

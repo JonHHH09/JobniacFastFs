@@ -65,6 +65,8 @@ pub fn handle(request: &[u8], output: &mut dyn Write) -> Result<(), WorkerFault>
         Some("env_secret") => secret_visibility(output),
         Some("rlimits") => report_rlimits(output),
         Some("contained") => report_containment(output),
+        #[cfg(target_os = "macos")]
+        Some("close_fds") => close_descriptors(output),
         Some("partial") => partial_then_fail(output),
         Some("garbage") => garbage(output),
         Some("stderr") => flood_stderr(request, output),
@@ -98,8 +100,9 @@ fn flood_stderr(request: &[u8], output: &mut dyn Write) -> Result<(), WorkerFaul
     write_response(output, request)
 }
 
-/// Reports the resource limits that this process reads back, as `[soft, hard]` pairs (Linux).
-#[cfg(target_os = "linux")]
+/// Reports the resource limits that this process reads back, as `[soft, hard]` pairs (Linux and
+/// macOS; macOS has no address-space limit, so its report has no `as`).
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 fn report_rlimits(output: &mut dyn Write) -> Result<(), WorkerFault> {
     use rlimit::Resource;
     let read = |resource: Resource| -> Result<[u64; 2], WorkerFault> {
@@ -107,8 +110,12 @@ fn report_rlimits(output: &mut dyn Write) -> Result<(), WorkerFault> {
         Ok([soft, hard])
     };
     // Each value is read back from the kernel, so a limit that was never applied shows up here.
+    #[cfg(target_os = "linux")]
+    let address_space = json!(read(Resource::AS)?);
+    #[cfg(not(target_os = "linux"))]
+    let address_space = Value::Null;
     let report = json!({
-        "as": read(Resource::AS)?,
+        "as": address_space,
         "cpu": read(Resource::CPU)?,
         "fsize": read(Resource::FSIZE)?,
         "core": read(Resource::CORE)?,
@@ -118,9 +125,29 @@ fn report_rlimits(output: &mut dyn Write) -> Result<(), WorkerFault> {
 }
 
 /// Reports that this platform applies no resource limits to the child itself (Windows).
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 fn report_rlimits(output: &mut dyn Write) -> Result<(), WorkerFault> {
     write_response(output, json!({ "supported": false }).to_string().as_bytes())
+}
+
+/// Opens a file, closes every descriptor above stderr as a child does at its start, and reports
+/// whether the file's descriptor was open before and is open after (macOS).
+#[cfg(target_os = "macos")]
+fn close_descriptors(output: &mut dyn Write) -> Result<(), WorkerFault> {
+    use std::os::fd::IntoRawFd;
+    // The descriptor number is kept without an owner, so closing it behind the file's back cannot
+    // trip the standard library's ownership check.
+    let descriptor = std::fs::File::open("/dev/null")?.into_raw_fd();
+    let is_open = || std::fs::metadata(format!("/dev/fd/{descriptor}")).is_ok();
+    let before = is_open();
+    platform::close_inherited_descriptors()?;
+    let after = is_open();
+    write_response(
+        output,
+        json!({ "before": before, "after": after })
+            .to_string()
+            .as_bytes(),
+    )
 }
 
 /// Reports whether this process is inside its containment, as `contained` (Windows Job Object)
@@ -138,6 +165,10 @@ fn report_containment(output: &mut dyn Write) -> Result<(), WorkerFault> {
 pub const ALLOCATION_REFUSED_EXIT: i32 = 42;
 
 /// Holds more memory than the limit allows. Every block is touched, so it is committed.
+///
+/// Linux: the address-space limit refuses an allocation and the probe exits with
+/// [`ALLOCATION_REFUSED_EXIT`]. macOS: the probe holds the memory until the parent kills it.
+#[cfg_attr(target_os = "macos", allow(unused_variables))]
 fn allocate(output: &mut dyn Write) -> Result<(), WorkerFault> {
     let mut held: Vec<Vec<u8>> = Vec::new();
     let mut total = 0_usize;
@@ -150,6 +181,14 @@ fn allocate(output: &mut dyn Write) -> Result<(), WorkerFault> {
         total += ALLOCATION_BLOCK_BYTES;
         held.push(block);
     }
+    // macOS refuses no allocation: the parent polls the footprint and kills the child. The probe
+    // therefore holds what it has and waits to be killed, and never reports success, so how fast
+    // the host runs cannot decide the outcome.
+    #[cfg(target_os = "macos")]
+    loop {
+        std::thread::sleep(Duration::from_secs(SLEEP_SECONDS));
+    }
+    #[cfg(not(target_os = "macos"))]
     write_response(
         output,
         json!({ "allocatedBytes": total }).to_string().as_bytes(),
@@ -246,11 +285,13 @@ fn secret_visibility(output: &mut dyn Write) -> Result<(), WorkerFault> {
 
 /// Applies a sandbox profile, then tries one action and reports what the confinement answered.
 ///
-/// The request carries `profile` (`pdf-extract`, `pdf-render` or `fetch`), `action` (`level`, `open`, `create`,
-/// `tcp_connect`, `tcp_bind`, `udp_bind`, `unix_socket`, `exec`, `thread`, `held_file`) and, for
-/// the actions that need one, `path` or `address`. `held_file` opens `path` before the sandbox and
-/// reads it after, which must keep working. The response is `{level, ok, errno}`: the level that
-/// the sandbox reached, whether the action succeeded, and the raw OS error code when it failed.
+/// The request carries `profile` (`pdf-extract`, `pdf-render` or `fetch`), `action` (`level`,
+/// `open`, `create`, `tcp_connect`, `udp_send`, `tcp_bind`, `udp_bind`, `unix_socket`, `exec`,
+/// `thread`, `held_file`) and, for the actions that need one, `path` or `address`. `held_file`
+/// opens `path` before the sandbox and reads it after, which must keep working. The response is
+/// `{level, confined, ok, errno}`: the level that the sandbox reached, whether the tripwire of
+/// [`sandbox::verify_confined`] passes, whether the action succeeded, and the raw OS error code
+/// when it failed.
 #[cfg(any(test, feature = "worker-probe"))]
 fn sandboxed_action(request: &[u8], output: &mut dyn Write) -> Result<(), WorkerFault> {
     let value: Value = serde_json::from_slice(request).map_err(|_| WorkerFault)?;
@@ -286,6 +327,9 @@ fn sandboxed_action(request: &[u8], output: &mut dyn Write) -> Result<(), Worker
         "open" => std::fs::File::open(&argument).map(drop),
         "create" => std::fs::File::create(&argument).map(drop),
         "tcp_connect" => std::net::TcpStream::connect(&argument).map(drop),
+        "udp_send" => std::net::UdpSocket::bind("0.0.0.0:0")
+            .and_then(|socket| socket.send_to(b"x", &argument))
+            .map(drop),
         "tcp_bind" => std::net::TcpListener::bind(&argument).map(drop),
         "udp_bind" => std::net::UdpSocket::bind(&argument).map(drop),
         "unix_socket" => unix_socket(&argument),
@@ -303,6 +347,7 @@ fn sandboxed_action(request: &[u8], output: &mut dyn Write) -> Result<(), Worker
     };
     let response = json!({
         "level": level.name(),
+        "confined": sandbox::verify_confined().is_ok(),
         "ok": outcome.is_ok(),
         "errno": outcome.err().and_then(|error| error.raw_os_error()),
         "descriptors": descriptors,
@@ -325,7 +370,7 @@ fn unix_socket(_path: &str) -> Result<(), std::io::Error> {
 
 /// The targets of the descriptors above stderr, other than the `/proc` directory handle that the
 /// listing itself uses.
-#[cfg(any(test, feature = "worker-probe"))]
+#[cfg(all(not(target_os = "macos"), any(test, feature = "worker-probe")))]
 fn inherited_descriptors() -> Vec<String> {
     let Ok(entries) = std::fs::read_dir("/proc/self/fd") else {
         return Vec::new();
@@ -342,6 +387,16 @@ fn inherited_descriptors() -> Vec<String> {
         .filter_map(|entry| std::fs::read_link(entry.path()).ok())
         .map(|target| target.display().to_string())
         .filter(|target| !target.starts_with("/proc/"))
+        .collect()
+}
+
+/// The descriptors above stderr that are open, by number. `/dev/fd/N` exists exactly for the open
+/// ones, and the target of a descriptor is not read on this platform.
+#[cfg(all(target_os = "macos", any(test, feature = "worker-probe")))]
+fn inherited_descriptors() -> Vec<String> {
+    (3..256)
+        .filter(|number| std::fs::metadata(format!("/dev/fd/{number}")).is_ok())
+        .map(|number| format!("fd {number}"))
         .collect()
 }
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Downloads the pinned PDFium binary into vendor/pdfium/<platform>/ (Linux, Git Bash or macOS with coreutils).
+# Downloads the pinned PDFium binary into vendor/pdfium/<platform>/ (Linux, Git Bash or macOS).
 #
 # Source: bblanchon/pdfium-binaries, release tag chromium/7881 (PDFium 151.0.7881.0). Each archive is checked
 # against its pinned SHA-256 before it is extracted, and the extracted library is checked against its pinned
@@ -12,7 +12,8 @@
 # The code and tests find the library through JOBNIAC_PDFIUM_DIR, which must point at vendor/pdfium/<platform>/.
 # Change the tag and the digests together.
 #
-# Usage: scripts/fetch-pdfium.sh [windows-x64|linux-x64|all]   (default: all)
+# Usage: scripts/fetch-pdfium.sh [windows-x64|linux-x64|mac-arm64|mac-x64|all]   (default: all, which is
+# windows-x64, linux-x64 and mac-arm64, the release platforms; mac-x64 is fetched by name)
 set -euo pipefail
 
 readonly RELEASE_BASE_URL="https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F7881"
@@ -32,8 +33,20 @@ pin_for() {
       LIBRARY_PATH="lib/libpdfium.so"
       LIBRARY_SHA256="f728930966f503652b92acc89b9374a2eeca00ce42e26dccd3e4b5c5161b2d64"
       ;;
+    mac-arm64)
+      ARCHIVE="pdfium-mac-arm64.tgz"
+      ARCHIVE_SHA256="52e94ca5aa8847934330daf3f8150c190682c5ca93831468794f8b90d4392e40"
+      LIBRARY_PATH="lib/libpdfium.dylib"
+      LIBRARY_SHA256="1bc45b15466b34cef96641ce25c77a876e70010c6b114f909dda2f5325fc5bd7"
+      ;;
+    mac-x64)
+      ARCHIVE="pdfium-mac-x64.tgz"
+      ARCHIVE_SHA256="6dedf83990e0e3d6b7c93c9e7589c5a126b0ae14b7464d76120cff7a26afb18b"
+      LIBRARY_PATH="lib/libpdfium.dylib"
+      LIBRARY_SHA256="4eaad6c3e8d786cf6f66a45d7d014edf5c65f372f98c3070e66595ebb50e43d9"
+      ;;
     *)
-      echo "unknown platform: $1 (expected windows-x64, linux-x64 or all)" >&2
+      echo "unknown platform: $1 (expected windows-x64, linux-x64, mac-arm64, mac-x64 or all)" >&2
       exit 2
       ;;
   esac
@@ -55,7 +68,8 @@ command -v curl >/dev/null 2>&1 || { echo "curl is required" >&2; exit 1; }
 command -v tar >/dev/null 2>&1 || { echo "tar is required" >&2; exit 1; }
 
 if [[ "$requested" == "all" ]]; then
-  platforms=(windows-x64 linux-x64)
+  # The release platforms only (scripts/release/release.py); Intel macOS is not one and is fetched by name.
+  platforms=(windows-x64 linux-x64 mac-arm64)
 else
   platforms=("$requested")
 fi

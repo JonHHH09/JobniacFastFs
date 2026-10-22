@@ -8,6 +8,28 @@ drafts take the body of their version section from this file.
 
 ### Changed
 
+- Desktop Arbeitnow screen: a scan and "Load more results" each read up to five board pages instead
+  of one, so a narrow filter (a search term plus a location) finds older postings without repeated
+  clicks. When nothing has matched yet but older postings remain, the status says so instead of
+  reporting that no job was found. The MCP tools are unchanged.
+
+- macOS: worker children (PDF extraction, PDF page rendering, link fetch and the Arbeitnow board)
+  now start on macOS instead of failing closed. Each runs in a process group with resource limits
+  (CPU time, file size, core dumps, open files), the same fixed environment as on Linux, and a
+  Seatbelt sandbox profile per kind (no file writes, no process creation, no network for the PDF
+  kinds, outbound TCP and DNS only for the fetch kinds). macOS enforces no address-space limit, so
+  the parent polls the memory footprint of a child every 10 ms and kills it above its limit; the cap
+  can be overshot by what a child allocates within one interval. The link fetch and the Arbeitnow
+  board are offered on macOS when their opt-in flags are set. No MCP tool name, argument or envelope
+  changes.
+- macOS: importing PDFs from the import root, exporting documents and publishing generated documents
+  now work instead of failing closed, with the guarantees of the Linux backends. Every path component
+  is opened relative to a held directory without following a symbolic link (an import root or export
+  folder reached through a link, such as `/tmp`, is refused), resource-fork names (`..namedfork`) are
+  refused, files are written under a private temporary name and published with an exclusive rename
+  that never replaces an existing name (a name that differs only by case included), and a generated
+  root, control or asset that carries an extended ACL is refused as not private.
+- `scripts/fetch-pdfium.sh all` and `fetch-pdfium.ps1 -Platform all` now fetch `mac-arm64` too.
 - User interface: the "Profile from PDF" section is gone; profiles are built from PDFs through the
   MCP tools, which are unchanged. The Profiles screen shows the stored-PDF source of a profile
   built that way, tells the operator what each field accepts (required or optional, kind of value,
@@ -38,6 +60,13 @@ drafts take the body of their version section from this file.
 
 ### Added
 
+- macOS (Apple Silicon) is a supported platform next to Windows and Linux. Releases carry a DMG and an
+  updater archive (`darwin-aarch64`). macOS builds are signed with a Developer ID and notarized when the
+  Apple signing secrets are set, and ad-hoc signed otherwise; PDFium ships in `Contents/Frameworks`.
+  `Rust (macos-latest)` is a required CI check, and every release runs a smoke test on macOS that
+  extracts a fixture PDF through the bundled `jobniac-cli` and PDFium. The WebDriver end-to-end suite
+  stays on Windows and Linux, because no WebDriver exists for the macOS webview. The startup refusal
+  message box is shown on macOS too.
 - In-app updates: Settings has an Updates card ("Check for updates", and a switch to check once after
   startup, off by default and remembered across restarts) and an "Update available" banner with
   "Install and restart" behind a confirmation. Updates come from the signed GitHub releases and are
@@ -54,7 +83,7 @@ drafts take the body of their version section from this file.
 - `JOBNIAC_DB_PATH`: absolute path of the SQLite database file. Without it the file is
   `%LOCALAPPDATA%\Jobniac\data\jobniac.sqlite3` on Windows and
   `$XDG_DATA_HOME/jobniac/data/jobniac.sqlite3` (or `~/.local/share/jobniac/data/jobniac.sqlite3`) on
-  Linux. The app and `jobniac-cli` create the folder owner-only (on Unix the database file is `0600`
+  Linux and `~/Library/Application Support/Jobniac/data/jobniac.sqlite3` on macOS. The app and `jobniac-cli` create the folder owner-only (on Unix the database file is `0600`
   too) and bring the schema up to date when they start. The MCP server that the app starts receives the
   database file the app opened as `JOBNIAC_DB_PATH`, so it finds the default location too.
 - MCP: the `store_document_file` tool description now says the PDF is stored "in the local database".
@@ -107,6 +136,7 @@ drafts take the body of their version section from this file.
 
 - Linux worker children get a fixed `PATH` and default signal dispositions; the Environment `Debug`
   output prints counts only; SDK error answers and the rmcp log no longer carry request content.
+- `rustls-webpki` 0.103.16 (RUSTSEC-2026-0382).
 
 ## [0.1.0] - 2026-10-16
 

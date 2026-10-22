@@ -4,8 +4,8 @@
 use jobniac_core::env::Environment;
 use jobniac_core::generated_root::{
     RootPlatform, admit_root_path, asset_file_name, fence_bytes, fence_name,
-    linux_capability_bytes, marker_bytes, parse_marker, resolve_default_generated_root,
-    windows_capability_bytes,
+    linux_capability_bytes, macos_capability_bytes, marker_bytes, parse_marker,
+    resolve_default_generated_root, windows_capability_bytes,
 };
 use serde_json::Value;
 use uuid::Uuid;
@@ -171,7 +171,7 @@ fn marker_and_fence_layouts_match_the_golden_vectors() {
 }
 
 #[test]
-fn capability_lines_follow_the_two_platform_layouts() {
+fn capability_lines_follow_the_three_platform_layouts() {
     let root: Uuid = "6f1c2a4e-3b5d-4e7f-8a9b-0c1d2e3f4a5b"
         .parse()
         .expect("uuid");
@@ -184,6 +184,11 @@ fn capability_lines_follow_the_two_platform_layouts() {
         String::from_utf8(windows_capability_bytes(root, 1234, 99)).expect("ascii"),
         "jobniac-generated-capability-v1\nwindows-createnew-rename-noreplace\n\
          6f1c2a4e-3b5d-4e7f-8a9b-0c1d2e3f4a5b\n1234\n99\n"
+    );
+    assert_eq!(
+        String::from_utf8(macos_capability_bytes(root, 16_777_232, 31_337)).expect("ascii"),
+        "jobniac-generated-capability-v1\nmacos-tempfile-rename-excl-fsync\n\
+         6f1c2a4e-3b5d-4e7f-8a9b-0c1d2e3f4a5b\n16777232\n31337\n"
     );
 }
 

@@ -503,7 +503,8 @@ impl OwnedAssetFiles {
         pinned.verify().map_err(|_| ownership())?;
         let entries = pinned.list_names().map_err(|_| ownership())?;
         for name in entries {
-            let tolerated = cfg!(windows) && name.to_str().is_some_and(is_owned_temp_name);
+            let tolerated = cfg!(any(windows, target_os = "macos"))
+                && name.to_str().is_some_and(is_owned_temp_name);
             if !tolerated {
                 return Err(ownership());
             }
@@ -677,7 +678,14 @@ mod tests {
     /// concurrent initializer must never be on the list that a failed run discards.
     #[test]
     fn a_lock_created_by_someone_else_is_not_recorded_for_rollback() {
-        let path = std::env::temp_dir().join(format!("jobniac-init-{}", Uuid::new_v4()));
+        // macOS reaches the temporary directory through a link (`/var`), which the production open
+        // refuses, so it is canonicalized there only (a verbatim `\\?\` path is refused on Windows).
+        let base = if cfg!(target_os = "macos") {
+            std::fs::canonicalize(std::env::temp_dir()).expect("canonical temp dir")
+        } else {
+            std::env::temp_dir()
+        };
+        let path = base.join(format!("jobniac-init-{}", Uuid::new_v4()));
         let text = path.to_str().expect("utf-8 temp path");
         platform::create_private_directory(text).expect("mkdir");
         let root = Root::open(text).expect("open root");

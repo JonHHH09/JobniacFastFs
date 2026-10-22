@@ -206,11 +206,13 @@ const STARTUP_REFUSED_TITLE: &str = "Jobniac";
 
 /// Ends a startup the configuration refused. `message` is one of the fixed startup texts; it never
 /// names a setting or a value. It goes to stderr for a console run and into a native message box,
-/// because a Windows release build has no console and would otherwise exit with no sign at all.
-/// No window exists yet, so the dialog has no parent. The dialog is Windows-only: the plugin's
-/// blocking call must not run on the main thread, and there it dispatches to the native message
-/// box on its own thread; on Linux the loop is not running yet and the call could hang, and a
-/// Linux launch always has stderr. The exit does not depend on the dialog result.
+/// because a Windows release build has no console and a macOS app launched from Finder has no
+/// terminal, so either would otherwise exit with no sign at all. No window exists yet, so the dialog
+/// has no parent. On Windows the plugin's blocking call dispatches to the native message box on its
+/// own thread. On macOS the plugin cannot be used (it dispatches to the main thread, whose loop is not
+/// running yet), so the system `osascript` shows the alert: the message is a script argument, never
+/// part of the script text. On Linux the loop is not running yet and the call could hang, and a Linux
+/// launch always has stderr. The exit does not depend on the dialog result.
 fn exit_startup_refused(app: &tauri::AppHandle<tauri::Wry>, message: &str) -> ! {
     eprintln!("{message}");
     #[cfg(windows)]
@@ -222,9 +224,37 @@ fn exit_startup_refused(app: &tauri::AppHandle<tauri::Wry>, message: &str) -> ! 
             .kind(MessageDialogKind::Error)
             .blocking_show();
     }
-    #[cfg(not(windows))]
+    #[cfg(target_os = "macos")]
+    {
+        let _ = app;
+        show_macos_alert(message);
+    }
+    #[cfg(not(any(windows, target_os = "macos")))]
     let _ = (app, STARTUP_REFUSED_TITLE);
     std::process::exit(1);
+}
+
+/// Shows the refusal as a modal alert through `/usr/bin/osascript` (an absolute path, so nothing is
+/// searched on `PATH`) and waits for it. The title and the message are read from the argument list
+/// by the script, so neither is interpreted as script text. A failure to start the tool is ignored.
+#[cfg(target_os = "macos")]
+fn show_macos_alert(message: &str) {
+    let _ = std::process::Command::new("/usr/bin/osascript")
+        .args([
+            "-e",
+            "on run argv",
+            "-e",
+            "display alert (item 1 of argv) message (item 2 of argv) as critical",
+            "-e",
+            "end run",
+            "--",
+            STARTUP_REFUSED_TITLE,
+            message,
+        ])
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status();
 }
 
 /// Start the desktop application. The environment is read once. The Tauri application is built
@@ -314,7 +344,8 @@ pub fn run() {
     jobniac_runtime::diagnostics::install_panic_hook(log_file);
 
     // The PDFium library comes from the bundle: the `pdfium` folder of the Tauri resource directory
-    // (the install folder on Windows, `/usr/lib/JobniacFast` on Linux packages). `JOBNIAC_PDFIUM_DIR`
+    // (the install folder on Windows, `/usr/lib/JobniacFast` on Linux packages) or, in a macOS app,
+    // `Contents/Frameworks` next to that resource directory. `JOBNIAC_PDFIUM_DIR`
     // still wins when set. A missing library leaves the PDF operations failing with their own fixed
     // messages, as before; startup does not change, but one fixed warning says why.
     let bundle_roots: Vec<PathBuf> = app.path().resource_dir().into_iter().collect();

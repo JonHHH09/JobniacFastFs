@@ -112,8 +112,11 @@ describe("state transitions", () => {
   });
 
   it("an empty scan reports the empty copy; an empty next page keeps the rows", () => {
+    expect(
+      finishPage(INITIAL_VIEW, "scan", { ...PAGE, rows: [], hasNextPage: false }).message,
+    ).toBe("arbeitnow.result.empty");
     expect(finishPage(INITIAL_VIEW, "scan", { ...PAGE, rows: [] }).message).toBe(
-      "arbeitnow.result.empty",
+      "arbeitnow.result.emptySoFar",
     );
     expect(finishPage(viewWithRow(), "next", { ...PAGE, rows: [] }).message).toBeNull();
   });
