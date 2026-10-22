@@ -6,6 +6,12 @@ drafts take the body of their version section from this file.
 
 ## [Unreleased]
 
+### Added
+
+- Project wiki: pages for users (installation, getting started, data and privacy, updates,
+  troubleshooting), MCP clients and contributors live in `docs/wiki/`, and the `Wiki` workflow mirrors
+  them to the GitHub wiki whenever `main` changes them.
+
 ### Changed
 
 - Releases: each merged promotion now gets the next patch version automatically, computed from the
