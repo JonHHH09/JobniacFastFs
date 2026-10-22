@@ -410,6 +410,11 @@ const SPECS: Spec[] = [
 const profileGraphs: Map<string, ProfileGraphDto> = new Map();
 let counter = 100;
 
+/** The fixtures list months (`2020-04`); the editor and Rust only accept a full `YYYY-MM-DD`. */
+function isoDate(value: string | null): string | null {
+  return value !== null && /^\d{4}-\d{2}$/.test(value) ? `${value}-01` : value;
+}
+
 function nextChildId(): string {
   counter += 1;
   return uuid(0x20, counter);
@@ -457,8 +462,8 @@ function expand(id: string, spec: Spec, index: number): ProfileGraphDto {
       degree,
       field,
       location,
-      startDate,
-      endDate,
+      startDate: isoDate(startDate),
+      endDate: isoDate(endDate),
       relevantFocus: null,
     }),
   );
@@ -468,8 +473,8 @@ function expand(id: string, spec: Spec, index: number): ProfileGraphDto {
       company,
       title,
       location,
-      startDate,
-      endDate,
+      startDate: isoDate(startDate),
+      endDate: isoDate(endDate),
       description,
       displayOrder: i,
     }),

@@ -23,6 +23,8 @@ __pycache__/
 
 # Test and coverage output
 coverage
+/playwright/.artifacts/
+/playwright-report/
 
 # Local secrets and machine-specific state (never commit)
 .env

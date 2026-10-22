@@ -913,6 +913,18 @@
       "classes": ["ip-address"],
       "paths": ["crates/runtime/src/job_links.rs"],
       "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed). (re-reviewed after the macOS platform gate)"
+    },
+    {
+      "sha256": "c0261a6c92d704ee9bdb4fa80760d1af511eae1af5a7a5bb72336945b3fc93de",
+      "classes": ["email"],
+      "paths": ["pnpm-lock.yaml"],
+      "reason": "Same glob deprecation notice (maintainer's published contact address, verbatim from the npm registry) in the lockfile after the Playwright dev dependency was added. Reviewed."
+    },
+    {
+      "sha256": "62986c5a261e482342be93dcb91d3b33d8cc8061d2f19cdf4c3ea6d86217d9aa",
+      "classes": ["personal-data"],
+      "paths": ["src/dev/mocks/profiles.ts"],
+      "reason": "Development-only mock fixture: phone numbers come from the London number block Ofcom reserves for drama and fiction; names and emails are synthetic (example.com). Re-reviewed after the fixture dates were made full ISO dates."
     }
   ]
 }

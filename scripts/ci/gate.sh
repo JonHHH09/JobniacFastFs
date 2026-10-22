@@ -97,6 +97,8 @@ if [ "$plain_pr" = true ]; then
     rust=true ui=true app=true
   fi
   if matches "$ui_paths"; then rust=true ui=true app=true; fi
+  # The browser UI suite runs in the UI job and is not embedded in the app: only the UI job reruns.
+  if matches '^(playwright/|playwright\.config\.ts$)'; then ui=true; fi
   # Rust-only changes cannot break the UI lint, type-check and unit tests: that job stays off.
   if matches "$rust_paths"; then rust=true app=true; fi
 fi

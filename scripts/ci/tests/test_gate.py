@@ -141,6 +141,12 @@ class GateTests(unittest.TestCase):
         out = self.run_gate()
         self.assertDecision(out, rust=True, ui=False, app=True, windows=False, already=False)
 
+    def test_plain_pull_request_with_browser_suite_change_runs_only_the_ui_job(self) -> None:
+        self.make_merge_commit({"playwright/shell.spec.ts": "changed\n"})
+        self.caches()
+        out = self.run_gate()
+        self.assertDecision(out, rust=False, ui=True, app=False, windows=False, already=False)
+
     def test_plain_pull_request_with_ui_change_runs_everything_but_windows(self) -> None:
         self.make_merge_commit({"src/app.ts": "changed\n"})
         self.caches()
