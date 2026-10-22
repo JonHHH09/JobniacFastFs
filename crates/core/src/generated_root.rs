@@ -34,6 +34,8 @@ pub const CAPABILITY_HEADER: &str = "jobniac-generated-capability-v1";
 pub const LINUX_CAPABILITY_MECHANISM: &str = "linux-anonymous-proc-link-fsync";
 /// Mechanism tag of a capability published on Windows (create-new, no-replace rename).
 pub const WINDOWS_CAPABILITY_MECHANISM: &str = "windows-createnew-rename-noreplace";
+/// Mechanism tag of a capability published on macOS (private temp file, exclusive rename, fsync).
+pub const MACOS_CAPABILITY_MECHANISM: &str = "macos-tempfile-rename-excl-fsync";
 /// Largest generated PDF, in bytes.
 pub const MAX_GENERATED_BYTES: u64 = 10 * 1024 * 1024;
 
@@ -220,6 +222,13 @@ pub fn linux_capability_bytes(root_id: Uuid, device: u64, inode: u64) -> Vec<u8>
 #[must_use]
 pub fn windows_capability_bytes(root_id: Uuid, volume: u64, index: u64) -> Vec<u8> {
     format!("{CAPABILITY_HEADER}\n{WINDOWS_CAPABILITY_MECHANISM}\n{root_id}\n{volume}\n{index}\n")
+        .into_bytes()
+}
+
+/// Exact bytes of a macOS capability file: root identity plus the device and inode of the root.
+#[must_use]
+pub fn macos_capability_bytes(root_id: Uuid, device: u64, inode: u64) -> Vec<u8> {
+    format!("{CAPABILITY_HEADER}\n{MACOS_CAPABILITY_MECHANISM}\n{root_id}\n{device}\n{inode}\n")
         .into_bytes()
 }
 

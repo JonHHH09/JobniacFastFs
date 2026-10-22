@@ -183,3 +183,27 @@ repository, and do not write machine names, user names or local paths into any t
     observed tool count, and the residue list. Restore the snapshot.
 
 A release is not ready for publication until every step is PASS, or each FAIL is fixed and the run is repeated.
+
+## macOS (Apple Silicon)
+
+The Windows steps above do not apply. Run this on an Apple Silicon Mac (macOS 14 or later) that has never
+run the app, with the DMG and `SHA256SUMS` from the draft, kept outside the repository. CI runs the scripted
+version (`scripts/release/macos_smoke.py`, job `clean-machine-macos`); this is the manual run for the owner.
+
+M1. Check the digest. Expected: equal to the `SHA256SUMS` line.
+    `shasum -a 256 JobniacFast_<version>_aarch64.dmg` and `grep aarch64.dmg SHA256SUMS`.
+M2. Open the DMG, accept the licence and drag JobniacFast to Applications. Open it from Applications.
+    Expected, Developer ID release: it opens with no warning. Expected, ad-hoc release: macOS says it
+    cannot verify the app; choose **Open Anyway** in System Settings, Privacy & Security, then open it again.
+M3. Check the signature. Expected: no output from `codesign --verify --deep --strict /Applications/JobniacFast.app`;
+    for a Developer ID release also `spctl --assess --type execute -v /Applications/JobniacFast.app`
+    (accepted, source Notarized Developer ID) and `xcrun stapler validate /Applications/JobniacFast.app`.
+M4. Check the layout: `ls /Applications/JobniacFast.app/Contents/Frameworks` lists `libpdfium.dylib`, and
+    `ls /Applications/JobniacFast.app/Contents/MacOS` lists `jobniac` and `jobniac-cli`.
+M5. Use the app: create a profile, import a PDF on the Documents screen (this loads the bundled PDFium in
+    the sandboxed worker), and quit.
+M6. CLI: `/Applications/JobniacFast.app/Contents/MacOS/jobniac-cli --version` prints `Jobniac <version>`.
+M7. Residue after you drag the app to the Bin: the per-user data under
+    `~/Library/Application Support/Jobniac` stays by design, and the WebKit data under
+    `~/Library/WebKit/io.github.jonhhh09.jobniacfast` and `~/Library/Caches/io.github.jonhhh09.jobniacfast`
+    may remain; record them. Restore the snapshot.

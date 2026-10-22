@@ -27,6 +27,12 @@ type TestResult = Result<(), Box<dyn Error>>;
 fn source_library_dir() -> Option<PathBuf> {
     let platform = if cfg!(windows) {
         "windows-x64"
+    } else if cfg!(target_os = "macos") {
+        if cfg!(target_arch = "aarch64") {
+            "mac-arm64"
+        } else {
+            "mac-x64"
+        }
     } else {
         "linux-x64"
     };

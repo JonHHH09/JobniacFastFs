@@ -275,7 +275,11 @@ const GROUP_FLAGS: [(&str, &str, &[&str]); 4] = [
     ),
 ];
 /// The link group composes only on the platforms its owned fetch child supports.
-const LINK_SUPPORTED: bool = cfg!(any(target_os = "linux", target_os = "windows"));
+const LINK_SUPPORTED: bool = cfg!(any(
+    target_os = "linux",
+    target_os = "macos",
+    target_os = "windows"
+));
 
 /// The environment of the database and key settings, plus the given flag value pairs.
 fn environment_with<'a>(

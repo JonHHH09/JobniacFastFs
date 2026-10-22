@@ -46,9 +46,11 @@ pub type WorkerHandler = fn(&[u8], &mut dyn Write) -> Result<(), WorkerFault>;
 /// The resource limits of one worker operation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct WorkerLimits {
-    /// Address space on Linux (`RLIMIT_AS`); committed process memory and job memory on Windows.
+    /// Address space on Linux (`RLIMIT_AS`, a hard limit); committed process memory and job memory
+    /// on Windows. On macOS the physical footprint, enforced by the parent polling every 10 ms, so
+    /// a child can overshoot it by what it allocates within one interval.
     pub memory_bytes: u64,
-    /// CPU seconds: `RLIMIT_CPU` on Linux; per-process user time on Windows.
+    /// CPU seconds: `RLIMIT_CPU` on Linux and macOS; per-process user time on Windows.
     pub cpu_seconds: u64,
     /// Wall-clock time from the start of the operation, enforced by the parent.
     pub wall: Duration,

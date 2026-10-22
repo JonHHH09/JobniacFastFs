@@ -901,6 +901,18 @@
       "classes": ["local-path"],
       "paths": ["crates/core/src/database_location.rs"],
       "reason": "Home and profile segments in the database-location tests are single-word synthetic names such as someone (reviewed)."
+    },
+    {
+      "sha256": "f80e2cf44c99ba52de3b2c65a0d1555f4d9da025e7c64e7c6a84ac97575aa06c",
+      "classes": ["local-path"],
+      "paths": ["crates/core/tests/generated_root.rs"],
+      "reason": "Windows profile segments in path-handling tests and golden vectors are single-letter synthetic names (reviewed). (re-reviewed after the macOS capability layout test)"
+    },
+    {
+      "sha256": "b78d62c79c1834c0a7b653699cfda0856d54d2f80b6563e6d4331cc3250d1406",
+      "classes": ["ip-address"],
+      "paths": ["crates/runtime/src/job_links.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed). (re-reviewed after the macOS platform gate)"
     }
   ]
 }

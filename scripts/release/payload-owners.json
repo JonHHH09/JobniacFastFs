@@ -8,6 +8,7 @@
     { "path": "jobniac-cli", "owner": "crate:jobniac-cli" },
     { "path": "pdfium/pdfium.dll", "owner": "static:pdfium" },
     { "path": "pdfium/libpdfium.so", "owner": "static:pdfium" },
+    { "path": "pdfium/libpdfium.dylib", "owner": "static:pdfium" },
     { "path": "THIRD-PARTY-NOTICES.txt", "owner": "self:notices" }
   ]
 }
