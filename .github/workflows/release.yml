@@ -5,6 +5,11 @@ name: Release
 # (`publish`) tags the merge commit and publishes the draft, after every other job has passed.
 # A stable version becomes the latest release (the one the in-app updater reads); a -dev.N
 # version is published as a prerelease and never as the latest.
+#
+# The version is computed, never committed (main and development are PR-only): the `prepare` job takes
+# the patch after the highest stable `v*` tag, or the version in the files when a manual bump on
+# development set a higher, untagged one (a minor, major or -dev.N floor). The build legs stamp that
+# version into their checkout (`set-version`), so nothing is pushed to any branch.
 
 on:
   pull_request:
@@ -14,8 +19,12 @@ on:
 permissions:
   contents: read
 
+# Runs of merged promotions share one group, so they run one after another and two merges cannot
+# compute the same version from the same tags. GitHub keeps one pending run per group: of several
+# quick merges the middle pending run is cancelled, and its changes ship with the next release. A pull
+# request closed without a merge gets its own group, so it never cancels a real release run.
 concurrency:
-  group: release-${{ github.event.pull_request.merge_commit_sha }}
+  group: ${{ github.event.pull_request.merged == true && 'release' || format('skip-{0}', github.run_id) }}
   cancel-in-progress: false
 
 defaults:
@@ -63,7 +72,7 @@ jobs:
     with:
       release-call: true
 
-  # 2. Read-only: checks out MERGE_SHA, asserts HEAD and resolves the version intent.
+  # 2. Read-only: checks out MERGE_SHA with every tag, asserts HEAD and computes the version.
   prepare:
     needs: [checks, e2e]
     runs-on: ubuntu-26.04
@@ -74,20 +83,21 @@ jobs:
       version: ${{ steps.resolve.outputs.version }}
       tag: ${{ steps.resolve.outputs.tag }}
       prerelease: ${{ steps.resolve.outputs.prerelease }}
+      previous_tag: ${{ steps.resolve.outputs.previous_tag }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ env.MERGE_SHA }}
-          fetch-depth: 1
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.14"
       - name: Check that HEAD is the merge commit
         run: python -I scripts/release/release.py check-checkout --merge-sha "$MERGE_SHA"
-      - name: Resolve the version intent (three fields must agree)
+      - name: Compute the version from the tags (the three fields must agree)
         id: resolve
-        run: python -I scripts/release/release.py resolve-version
+        run: python -I scripts/release/release.py next-version --merge-sha "$MERGE_SHA"
       - name: Refuse the updater public key placeholder
         run: python -I scripts/release/release.py check-updater-config
 
@@ -113,9 +123,12 @@ jobs:
         id: draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+          PREVIOUS_TAG: ${{ needs.prepare.outputs.previous_tag }}
         run: >-
           python -I scripts/release/release.py draft
           --repo "$GITHUB_REPOSITORY" --merge-sha "$MERGE_SHA"
+          --version "$VERSION" --previous-tag "$PREVIOUS_TAG"
 
   # 4. Builds, one leg per platform. On Windows and Linux tauri-action attaches to the draft; the token is
   #    passed to that step only, next to the updater signing key. The NSIS installer (Windows, not
@@ -180,6 +193,10 @@ jobs:
           python-version: "3.14"
       - name: Check that HEAD is the merge commit
         run: python -I scripts/release/release.py check-checkout --merge-sha "$MERGE_SHA"
+      # The files hold the version of the last manual bump; every build below (and the tools that read the
+      # files, such as `tauri build`, cargo and the notices) must see the computed one.
+      - name: Stamp the computed version into the checkout (not committed)
+        run: python -I scripts/release/release.py set-version "$VERSION"
       - name: Install pnpm (version from package.json packageManager)
         uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - name: Install the locked dependencies
@@ -422,6 +439,7 @@ jobs:
       contents: write
     env:
       VERSION: ${{ needs.prepare.outputs.version }}
+      RELEASE_ID: ${{ needs.draft.outputs.release_id }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -446,8 +464,16 @@ jobs:
           --dir release-assets
       # latest.json is written once here, after both legs, so no two legs race to merge it. A rerun
       # deletes the old one (prepare_draft), so the new pub_date never conflicts.
+      # The notes are the draft's body (the changelog section or GitHub's generated notes), so latest.json
+      # and the release page say the same.
       - name: Write latest.json from the assembled installers and signatures
-        run: python -I scripts/release/release.py updater-manifest --dir release-assets --out updater-manifest/latest.json
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" --jq .body > release-notes.md
+          python -I scripts/release/release.py updater-manifest --version "$VERSION" --dir release-assets \
+            --out updater-manifest/latest.json --notes-file release-notes.md
       - name: Attach latest.json to the draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -520,9 +546,12 @@ jobs:
       - name: Verify the draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+          RELEASE_ID: ${{ needs.draft.outputs.release_id }}
         run: >-
           python -I scripts/release/release.py verify-draft
           --repo "$GITHUB_REPOSITORY" --merge-sha "$MERGE_SHA" --dir release-assets
+          --version "$VERSION" --release-id "$RELEASE_ID"
           --latest-json updater-manifest/latest.json
 
   # 9. The only job that publishes. It runs after every other job has passed (the provenance job only
@@ -557,6 +586,9 @@ jobs:
       - name: Tag the merge commit and publish the draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+          RELEASE_ID: ${{ needs.draft.outputs.release_id }}
         run: >-
           python -I scripts/release/release.py publish
           --repo "$GITHUB_REPOSITORY" --merge-sha "$MERGE_SHA"
+          --version "$VERSION" --release-id "$RELEASE_ID"

@@ -118,7 +118,19 @@ hosted runner yet.
   `attach` (writes `SHA256SUMS`), `attest`
   (provenance, public repositories only) and `verify-draft` (a final API check).
   The version rules: `X.Y.Z` gives tag `vX.Y.Z` and a stable release; `X.Y.Z-dev.N` gives tag
-  `vX.Y.Z-dev.N` and a prerelease.
+  `vX.Y.Z-dev.N` and a prerelease. The version is computed in `prepare` from the existing `v*` tags and
+  never committed: each merged promotion gets the patch after the highest stable tag (the first release
+  takes the version in the files). If the version in the files is higher than that and not tagged yet
+  (a `bump` to a minor, major or `-dev.N` version on `development`), the release takes the file version
+  instead. A tag already on the merge commit keeps its version, so a rerun reuses it. The build legs stamp
+  the computed version into their checkout before building. Release notes are the `CHANGELOG.md` section of
+  that version when it exists, otherwise GitHub's generated notes since the previous stable tag.
+  Runs of merged promotions share one concurrency group, so they serialize and never compute the same
+  version. GitHub keeps one pending run per group, so when several promotions merge quickly the middle
+  pending run is cancelled; its changes ship with the next release. The run refuses (fails closed) when
+  the highest stable tag is not an ancestor of the merge commit, so a stale re-run of an old merge cannot
+  publish older code as a newer release. After a `-dev.N` prerelease, the next automatic release is the
+  next stable patch of the last stable line.
 - **Expected:** `verify-draft` prints its single PASS line. The draft contains the installer, the
   Linux bundles, the macOS DMG and app archive (with their update signatures), `SHA256SUMS`, the SBOM and
   the notices.
@@ -187,9 +199,11 @@ hosted runner yet.
   `vX.Y.Z` on the merge commit (it fails if the tag exists on another commit) and publishes the draft:
   the latest release for `X.Y.Z`, a prerelease for `X.Y.Z-dev.N` (never the latest, so the updater
   ignores it). To stop a release, do not merge the promotion pull request; a failed job leaves the draft
-  unpublished. To cut a release, bump on `development` first with
+  unpublished. To cut a patch release, merge the promotion pull request: the version is automatic. To
+  cut a minor, major or `-dev.N` release, bump on `development` first with
   `py -I scripts/release/release.py bump X.Y.Z` (then `cargo update -w` if it was not run) and open the
-  `chore: release X.Y.Z` pull request. Then announce where you choose. The announcement text is yours.
+  `chore: release X.Y.Z` pull request; the bumped version is the floor of the next release. Then announce
+  where you choose. The announcement text is yours.
 - **Expected:** the release is public, the installer digest matches `SHA256SUMS`, and the release notes
   include the SmartScreen guidance from the [README](../../README.md#install).
 - **Failure:** a job fails, so nothing is published. Read the log, fix, and re-run; a rerun reuses the

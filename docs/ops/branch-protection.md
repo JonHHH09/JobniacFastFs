@@ -17,7 +17,9 @@ issue branch ──PR (squash, auto-merge)──▶ development ──PR (merge 
   branches never diverge. Auto-merge is not enabled on it: merging into `main` starts
   `release.yml`, so the owner merges it deliberately. When every gate passes, its last job tags the
   merge commit and publishes the release (the latest release for a stable version); a failed gate
-  leaves the draft unpublished.
+  leaves the draft unpublished. The release version is computed from the existing `v*` tags (the next
+  patch) and never committed, so the protected branches need no version commit; a manual `bump` on
+  `development` only raises the floor.
 
 ## Rulesets
 
@@ -112,6 +114,11 @@ ruleset cannot express that, so it is a required check.
 - Automatically delete head branches: on. The rulesets forbid deleting `development` and `main`, so
   the promotion pull request does not remove `development`.
 - Dependabot pull requests target `development`.
+- Wiki: on, with "Restrict editing to collaborators only" checked. The pages live in `docs/wiki/` and the `Wiki`
+  workflow (`.github/workflows/wiki.yml`) mirrors them to the wiki whenever `main` changes them; an
+  edit made in the wiki web editor is overwritten by the next sync. GitHub creates the wiki repository
+  only when a first page is saved in the web UI, so save one placeholder page once before the first
+  sync (or rerun the workflow afterwards from the Actions tab).
 
 ## Review requirement
 

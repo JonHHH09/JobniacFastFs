@@ -188,6 +188,14 @@ def refresh_lockfile(repo_root: Path, run: Callable[..., "subprocess.CompletedPr
     return True
 
 
+def _write_version_fields(repo_root: Path, version: str) -> None:
+    """Writes the version into Cargo.toml [workspace.package], tauri.conf.json and package.json."""
+    _replace_once(repo_root / "Cargo.toml", r'(\[workspace\.package\]\n(?:(?!\[)[^\n]*\n)*?version = ")[^"]*(")',
+                  rf"\g<1>{version}\g<2>")
+    _replace_once(repo_root / "src-tauri" / "tauri.conf.json", r'^(  "version": ")[^"]*(")', rf"\g<1>{version}\g<2>")
+    _replace_once(repo_root / "package.json", r'^(  "version": ")[^"]*(")', rf"\g<1>{version}\g<2>")
+
+
 def bump_version(repo_root: Path, version: str, today: str) -> None:
     """Sets the version in the three files and turns the Unreleased notes into the version section."""
     tag_for_version(version)
@@ -196,11 +204,34 @@ def bump_version(repo_root: Path, version: str, today: str) -> None:
     changelog = repo_root / "CHANGELOG.md"
     # The changelog is checked and rewritten first in memory, so a refusal leaves every file as it was.
     new_changelog = _changelog_for_release(changelog.read_text(encoding="utf-8"), version, today)
-    _replace_once(repo_root / "Cargo.toml", r'(\[workspace\.package\]\n(?:(?!\[)[^\n]*\n)*?version = ")[^"]*(")',
-                  rf"\g<1>{version}\g<2>")
-    _replace_once(repo_root / "src-tauri" / "tauri.conf.json", r'^(  "version": ")[^"]*(")', rf"\g<1>{version}\g<2>")
-    _replace_once(repo_root / "package.json", r'^(  "version": ")[^"]*(")', rf"\g<1>{version}\g<2>")
+    _write_version_fields(repo_root, version)
     changelog.write_bytes(new_changelog.encode("utf-8"))
+    resolve_version(repo_root)
+
+
+def _lock_with_version(text: str, version: str) -> str:
+    """Cargo.lock text with the version of every workspace member (a package without a `source`) replaced."""
+
+    def stamp(block: re.Match[str]) -> str:
+        if re.search(r"^source = ", block.group(0), re.MULTILINE):
+            return block.group(0)
+        return re.sub(r'^version = "[^"]*"', f'version = "{version}"', block.group(0), count=1, flags=re.MULTILINE)
+
+    return re.sub(r"^\[\[package\]\]\n.*?(?=^\[\[package\]\]\n|\Z)", stamp, text, flags=re.MULTILINE | re.DOTALL)
+
+
+def set_version(repo_root: Path, version: str) -> None:
+    """Stamps the version into the three files and Cargo.lock in the checkout (no changelog, no commit).
+
+    The release build runs this on the merge commit, so the built version is the computed one while the
+    branches keep the version of the last manual bump. Cargo.lock follows, so `--locked` builds pass.
+    """
+    tag_for_version(version)
+    lock = repo_root / "Cargo.lock"
+    if not lock.is_file():
+        raise ReleaseError("Cargo.lock is missing")
+    _write_version_fields(repo_root, version)
+    lock.write_bytes(_lock_with_version(lock.read_bytes().decode("utf-8"), version).encode("utf-8"))
     resolve_version(repo_root)
 
 
@@ -217,6 +248,82 @@ def check_checkout(repo_root: Path, merge_sha: str) -> None:
     )
     if completed.returncode != 0 or completed.stdout.strip() != merge_sha:
         raise ReleaseError("checkout HEAD is not MERGE_SHA")
+
+
+def _version_key(version: str) -> tuple[int, int, int, int, int]:
+    """SemVer order for the released forms: X.Y.Z-dev.N sorts below X.Y.Z."""
+    core, _, dev = version.partition("-dev.")
+    major, minor, patch = (int(part) for part in core.split("."))
+    return (major, minor, patch, 0, int(dev)) if dev else (major, minor, patch, 1, 0)
+
+
+def _is_stable(version: str) -> bool:
+    return "-dev." not in version
+
+
+def _release_versions(tags: list[str]) -> set[str]:
+    """The versions of the tags that are release tags (`v` + X.Y.Z or X.Y.Z-dev.N); other tags are ignored."""
+    return {tag[1:] for tag in tags if tag.startswith("v") and VERSION_RE.fullmatch(tag[1:])}
+
+
+def next_version(file_version: str, tags: list[str], tags_at_merge: list[str]) -> tuple[str, str]:
+    """The version of this release and the tag of the previous stable release (empty when there is none).
+
+    A release tag already on the merge commit keeps its version (a rerun after `publish` tagged it).
+    Otherwise it is the patch after the highest stable tag, unless the files' version is higher and not
+    tagged yet: a manual `bump` to a minor, major or dev version on development sets that floor.
+    """
+    tag_for_version(file_version)
+    versions = _release_versions(tags)
+    stable = [version for version in versions if _is_stable(version)]
+    at_merge = _release_versions(tags_at_merge)
+    if at_merge:
+        result = max(at_merge, key=_version_key)
+    elif not stable:
+        result = file_version
+    else:
+        highest = max(stable, key=_version_key)
+        if _version_key(file_version) > _version_key(highest) and file_version not in versions:
+            result = file_version
+        else:
+            major, minor, patch = (int(part) for part in highest.split("."))
+            result = f"{major}.{minor}.{patch + 1}"
+    below = [version for version in stable if _version_key(version) < _version_key(result)]
+    previous = f"v{max(below, key=_version_key)}" if below else ""
+    return result, previous
+
+
+def check_newest_release_is_ancestor(repo_root: Path, merge_sha: str, tags: list[str], tags_at_merge: list[str]) -> None:
+    """Fails unless the highest stable tag is an ancestor of the merge commit.
+
+    A stale re-run of an old merge would otherwise publish older code as a newer latest release. Skipped
+    when the merge commit already carries a release tag (the rerun path) and when no stable tag exists.
+    """
+    stable = [version for version in _release_versions(tags) if _is_stable(version)]
+    if not stable or _release_versions(tags_at_merge):
+        return
+    newest = f"v{max(stable, key=_version_key)}"
+    completed = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", f"refs/tags/{newest}", merge_sha],
+        cwd=repo_root, capture_output=True, encoding="utf-8", errors="replace", check=False,
+    )
+    if completed.returncode != 0:
+        raise ReleaseError(f"{newest} is not an ancestor of MERGE_SHA: refusing to release older code")
+
+
+def git_release_tags(repo_root: Path, merge_sha: str) -> tuple[list[str], list[str]]:
+    """The `v*` tags of the checkout and those that point at the merge commit."""
+    check_merge_sha(merge_sha)
+
+    def lines(arguments: list[str]) -> list[str]:
+        completed = subprocess.run(
+            ["git", *arguments], cwd=repo_root, capture_output=True, encoding="utf-8", errors="replace", check=False
+        )
+        if completed.returncode != 0:
+            raise ReleaseError("git tag listing failed")
+        return [line.strip() for line in completed.stdout.splitlines() if line.strip()]
+
+    return lines(["tag", "--list", "v*"]), lines(["tag", "--points-at", merge_sha])
 
 
 # ---------------------------------------------------------------------------
@@ -557,8 +664,12 @@ def run_cargo_about() -> str:
 
 
 def run_pnpm_licences() -> dict[str, list[dict[str, object]]]:
+    # On Windows pnpm is pnpm.cmd, which subprocess cannot find by the bare name.
+    pnpm = shutil.which("pnpm")
+    if pnpm is None:
+        raise ReleaseError("pnpm was not found on PATH")
     completed = subprocess.run(
-        ["pnpm", "licenses", "list", "--prod", "--json"], cwd=REPO_ROOT, capture_output=True, encoding="utf-8", errors="replace", check=False,
+        [pnpm, "licenses", "list", "--prod", "--json"], cwd=REPO_ROOT, capture_output=True, encoding="utf-8", errors="replace", check=False,
     )
     if completed.returncode != 0:
         raise ReleaseError("pnpm licenses list failed")
@@ -662,16 +773,33 @@ class GitHubApi:
         except (UnicodeDecodeError, json.JSONDecodeError) as error:
             raise ReleaseError("GitHub API response is not JSON") from error
 
-    def releases_for_tag(self, tag: str) -> list[dict[str, object]]:
+    def releases_matching(self, tag: str, name: str | None = None) -> list[dict[str, object]]:
+        """Releases whose tag_name is the tag or, when a name is given, whose name is it.
+
+        GitHub returns a draft with a placeholder `tag_name` (`untagged-<hash>`), so a draft is also
+        recognised by its name.
+        """
         found: list[dict[str, object]] = []
         for page in range(1, PRUNE_MAX_PAGES + 1):
             batch = self.call("GET", f"/releases?per_page={PRUNE_PAGE_SIZE}&page={page}")
             if not isinstance(batch, list):
                 raise ReleaseError("releases listing is not a list")
-            found.extend(item for item in batch if item.get("tag_name") == tag)  # type: ignore[union-attr]
+            found.extend(
+                item for item in batch  # type: ignore[union-attr]
+                if item.get("tag_name") == tag or (name is not None and item.get("name") == name)
+            )
             if len(batch) < PRUNE_PAGE_SIZE:
                 return found
         raise ReleaseError("releases listing exceeds the page cap")
+
+    def releases_for_tag(self, tag: str) -> list[dict[str, object]]:
+        return self.releases_matching(tag)
+
+    def release_by_id(self, release_id: int) -> dict[str, object]:
+        release = self.call("GET", f"/releases/{release_id}")
+        if not isinstance(release, dict):
+            raise ReleaseError("release is not an object")
+        return release
 
     def tag_commit(self, tag: str) -> str | None:
         """The commit a tag peels to, or None when the tag does not exist (peel limit 8)."""
@@ -701,11 +829,16 @@ class GitHubApi:
 
 
 def prepare_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, body: str) -> int:
-    """Precheck the tag, then create the draft once or reuse the single existing draft (pruning Windows installers)."""
+    """Precheck the tag, then create the draft once or reuse the single existing draft (pruning Windows installers).
+
+    A draft is found by its tag or by its name (see `releases_matching`). A reused draft is pointed at this
+    tag and commit again, because the same automatic version can be computed for a later merge after a
+    failed run.
+    """
     existing_commit = api.tag_commit(intent.tag)
     if existing_commit is not None and existing_commit != merge_sha:
         raise ReleaseError("tag exists at another commit: failing closed")
-    releases = api.releases_for_tag(intent.tag)
+    releases = api.releases_matching(intent.tag, f"{PRODUCT} {intent.version}")
     if any(not release.get("draft") for release in releases):
         raise ReleaseError("a published release already exists for this tag")
     if len(releases) > 1:
@@ -717,12 +850,18 @@ def prepare_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, body: s
         release_id = int(release["id"])  # type: ignore[arg-type]
         # The Windows installer and the macOS DMG and app archive are not reproducible, and every signature
         # and latest.json belong to one build (a signature carries a timestamp), so a rerun rebuilds and
-        # re-attaches them all.
+        # re-attaches them all. A draft left by a failed run on another commit keeps nothing: every asset
+        # (checksums, SBOMs, inventories, the deb) belongs to that commit and would fail the digest check.
+        other_commit = release.get("target_commitish") != merge_sha
         for asset in release.get("assets", []):  # type: ignore[union-attr]
             name = str(asset["name"])
-            if name.endswith(("-setup.exe", ".dmg", ".app.tar.gz", ".sig")) or name == UPDATER_MANIFEST:
+            if other_commit or name.endswith(("-setup.exe", ".dmg", ".app.tar.gz", ".sig")) or name == UPDATER_MANIFEST:
                 api.call("DELETE", f"/releases/assets/{asset['id']}", ok=(204,))
-        api.call("PATCH", f"/releases/{release_id}", {"body": body})
+        api.call(
+            "PATCH",
+            f"/releases/{release_id}",
+            {"tag_name": intent.tag, "target_commitish": merge_sha, "body": body},
+        )
         return release_id
     created = api.call(
         "POST",
@@ -813,9 +952,18 @@ def check_updater_manifest(manifest: Path, version: str, assets_dir: Path) -> No
             raise ReleaseError(fixed)
 
 
-def verify_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, assets_dir: Path, latest_json: Path) -> None:
+def _other_published_release(api: GitHubApi, tag: str, release_id: int) -> bool:
+    """Whether a published release other than this one holds the tag."""
+    return any(
+        item.get("draft") is not True and item.get("id") != release_id for item in api.releases_for_tag(tag)
+    )
+
+
+def verify_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, assets_dir: Path, latest_json: Path,
+                 release_id: int) -> None:
     """Checks the draft against the tag, the commit, the local asset set and the updater manifest.
 
+    The draft is read by its ID (its `tag_name` is a placeholder until it is published).
     `latest_json` is the draft's own latest.json, downloaded by the workflow. The draft must hold exactly
     the local assets plus that file, and the file must be the one that the API digest describes.
     Fails with a fixed message.
@@ -824,10 +972,9 @@ def verify_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, assets_d
     # A draft has no tag yet (`publish` creates it); one that exists must already be on the merge commit.
     if api.tag_commit(intent.tag) not in (None, merge_sha):
         raise ReleaseError(fixed)
-    releases = api.releases_for_tag(intent.tag)
-    if len(releases) != 1:
+    release = api.release_by_id(release_id)
+    if _other_published_release(api, intent.tag, release_id):
         raise ReleaseError(fixed)
-    release = releases[0]
     if release.get("draft") is not True or release.get("prerelease") != intent.prerelease:
         raise ReleaseError(fixed)
     if release.get("target_commitish") != merge_sha:
@@ -848,37 +995,41 @@ def verify_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, assets_d
     check_updater_manifest(latest_json, intent.version, assets_dir)
 
 
-def publish_release(api: GitHubApi, intent: ReleaseIntent, merge_sha: str) -> str:
+def publish_release(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, release_id: int) -> str:
     """Creates the tag on the merge commit and publishes the verified draft. Returns a status line.
 
-    Fails closed: the tag may only be missing or already on the merge commit, and exactly one release
-    for it must exist. A stable version becomes the latest release (the one the updater endpoint serves);
-    a `-dev.N` version stays a prerelease and never becomes the latest. A rerun after a partial publish
-    finishes the job, and an already published release for this commit is a success.
+    Fails closed: the tag may only be missing or already on the merge commit, the draft is read by its ID,
+    and no other published release may hold the tag. A stable version becomes the latest release (the one
+    the updater endpoint serves); a `-dev.N` version stays a prerelease and never becomes the latest. A
+    rerun after a partial publish finishes the job, and an already published release for this commit is
+    a success.
     """
     tag_sha = api.tag_commit(intent.tag)
     if tag_sha is not None and tag_sha != merge_sha:
         raise ReleaseError("tag exists at another commit: failing closed")
-    releases = api.releases_for_tag(intent.tag)
-    if len(releases) != 1:
-        raise ReleaseError("publish refused: expected exactly one release for the tag")
-    release = releases[0]
+    release = api.release_by_id(release_id)
+    if _other_published_release(api, intent.tag, release_id):
+        raise ReleaseError("publish refused: another published release holds the tag")
     if release.get("prerelease") != intent.prerelease or release.get("target_commitish") != merge_sha:
         raise ReleaseError("publish refused: the release does not match the tag form or the commit")
     if release.get("draft") is not True:
-        if tag_sha == merge_sha:
+        if tag_sha == merge_sha and release.get("tag_name") == intent.tag:
             return f"{intent.tag} is already published"
         raise ReleaseError("publish refused: the release is published but its tag is missing")
-    release_id = int(release["id"])  # type: ignore[arg-type]
     if tag_sha is None:
         api.call("POST", "/git/refs", {"ref": f"refs/tags/{intent.tag}", "sha": merge_sha}, ok=(201,))
     api.call(
         "PATCH",
         f"/releases/{release_id}",
-        {"draft": False, "prerelease": intent.prerelease, "make_latest": "false" if intent.prerelease else "true"},
+        {
+            "tag_name": intent.tag,
+            "draft": False,
+            "prerelease": intent.prerelease,
+            "make_latest": "false" if intent.prerelease else "true",
+        },
     )
-    published = api.call("GET", f"/releases/{release_id}")
-    if not isinstance(published, dict) or published.get("draft") is not False or api.tag_commit(intent.tag) != merge_sha:
+    published = api.release_by_id(release_id)
+    if published.get("draft") is not False or api.tag_commit(intent.tag) != merge_sha:
         raise ReleaseError("publish could not be confirmed")
     kind = "prerelease" if intent.prerelease else "latest release"
     return f"published {intent.tag} as the {kind}"
@@ -912,6 +1063,22 @@ def changelog_body(changelog: Path, version: str) -> str:
     return body + "\n"
 
 
+def release_notes(api: GitHubApi, changelog: Path, intent: ReleaseIntent, merge_sha: str, previous_tag: str) -> str:
+    """The CHANGELOG.md section of the version when there is one, else GitHub's generated release notes."""
+    if re.search(rf"^## \[{re.escape(intent.version)}\]", changelog.read_text(encoding="utf-8"), re.MULTILINE):
+        return changelog_body(changelog, intent.version)
+    payload = {"tag_name": intent.tag, "target_commitish": merge_sha}
+    if previous_tag:
+        if not (previous_tag.startswith("v") and VERSION_RE.fullmatch(previous_tag[1:])):
+            raise ReleaseError("previous tag rejected: only vX.Y.Z and vX.Y.Z-dev.N are release tags")
+        payload["previous_tag_name"] = previous_tag
+    generated = api.call("POST", "/releases/generate-notes", payload)
+    body = generated.get("body") if isinstance(generated, dict) else None
+    if not isinstance(body, str) or not body.strip():
+        raise ReleaseError("GitHub generated no release notes")
+    return body.rstrip("\n") + "\n"
+
+
 def token_from_env() -> str:
     token = os.environ.get("GITHUB_TOKEN", "")
     if not token:
@@ -927,6 +1094,14 @@ def build_parser() -> argparse.ArgumentParser:
         return sub.add_parser(name, help=help_text)
 
     p = add("resolve-version", "check the three version fields and print the tag")
+    p.add_argument("--repo-root", type=Path, default=REPO_ROOT)
+
+    p = add("next-version", "compute the version of this release from the tags; print the outputs")
+    p.add_argument("--repo-root", type=Path, default=REPO_ROOT)
+    p.add_argument("--merge-sha", required=True)
+
+    p = add("set-version", "stamp a version into the three files and Cargo.lock of the checkout (build only)")
+    p.add_argument("version", help="X.Y.Z or X.Y.Z-dev.N")
     p.add_argument("--repo-root", type=Path, default=REPO_ROOT)
 
     p = add("check-checkout", "HEAD must equal MERGE_SHA")
@@ -995,6 +1170,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--repo", required=True)
     p.add_argument("--repo-root", type=Path, default=REPO_ROOT)
     p.add_argument("--merge-sha", required=True)
+    p.add_argument("--version", required=True)
+    p.add_argument("--previous-tag", default="", help="tag of the previous stable release (may be empty)")
     p.add_argument("--changelog", type=Path, default=REPO_ROOT / "CHANGELOG.md")
 
     p = add("attach", "upload the missing assets to the draft; fail on a digest conflict")
@@ -1004,21 +1181,23 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = add("verify-draft", "check the draft against the tag, the commit and the asset set")
     p.add_argument("--repo", required=True)
-    p.add_argument("--repo-root", type=Path, default=REPO_ROOT)
+    p.add_argument("--version", required=True)
+    p.add_argument("--release-id", type=int, required=True)
     p.add_argument("--merge-sha", required=True)
     p.add_argument("--dir", type=Path, required=True)
     p.add_argument("--latest-json", type=Path, required=True, help="the draft's latest.json, downloaded")
 
     p = add("updater-manifest", "write latest.json from the assembled installers and signatures")
-    p.add_argument("--repo-root", type=Path, default=REPO_ROOT)
+    p.add_argument("--version", required=True)
     p.add_argument("--dir", type=Path, required=True, help="the assembled asset directory")
     p.add_argument("--out", type=Path, required=True)
-    p.add_argument("--changelog", type=Path, default=REPO_ROOT / "CHANGELOG.md")
+    p.add_argument("--notes-file", type=Path, required=True, help="the release notes (the draft's body)")
     p.add_argument("--pub-date", help="RFC 3339 UTC time (default: now)")
 
     p = add("publish", "create the tag on the merge commit and publish the verified draft (write scope)")
     p.add_argument("--repo", required=True)
-    p.add_argument("--repo-root", type=Path, default=REPO_ROOT)
+    p.add_argument("--version", required=True)
+    p.add_argument("--release-id", type=int, required=True)
     p.add_argument("--merge-sha", required=True)
 
     p = add("bump", "set the version in Cargo.toml, tauri.conf.json and package.json and date the changelog")
@@ -1041,6 +1220,22 @@ def run_command(args: argparse.Namespace) -> int:
     if command == "resolve-version":
         intent = resolve_version(args.repo_root)
         write_github_output({"version": intent.version, "tag": intent.tag, "prerelease": str(intent.prerelease).lower()})
+    elif command == "next-version":
+        file_intent = resolve_version(args.repo_root)
+        check_checkout(args.repo_root, args.merge_sha)
+        tags, tags_at_merge = git_release_tags(args.repo_root, args.merge_sha)
+        check_newest_release_is_ancestor(args.repo_root, args.merge_sha, tags, tags_at_merge)
+        version, previous_tag = next_version(file_intent.version, tags, tags_at_merge)
+        intent = tag_for_version(version)
+        write_github_output({
+            "version": intent.version,
+            "tag": intent.tag,
+            "prerelease": str(intent.prerelease).lower(),
+            "previous_tag": previous_tag,
+        })
+    elif command == "set-version":
+        set_version(args.repo_root, args.version)
+        sys.stdout.write(f"checkout stamped with version {args.version}\n")
     elif command == "check-checkout":
         check_checkout(args.repo_root, args.merge_sha)
         sys.stdout.write("checkout is MERGE_SHA\n")
@@ -1095,16 +1290,18 @@ def run_command(args: argparse.Namespace) -> int:
         check_checkout(args.repo_root, args.merge_sha)
         write_github_output({"version": intent.version, "tag": intent.tag, "prerelease": str(intent.prerelease).lower()})
     elif command == "draft":
-        intent = resolve_version(args.repo_root)
+        # The checkout still has the version of the last bump; the release version is the explicit one.
+        intent = tag_for_version(args.version)
         check_updater_config(args.repo_root)
         check_checkout(args.repo_root, args.merge_sha)
-        body = changelog_body(args.changelog, intent.version)
-        release_id = prepare_draft(GitHubApi(args.repo, token_from_env()), intent, args.merge_sha, body)
+        api = GitHubApi(args.repo, token_from_env())
+        body = release_notes(api, args.changelog, intent, args.merge_sha, args.previous_tag)
+        release_id = prepare_draft(api, intent, args.merge_sha, body)
         write_github_output({"release_id": str(release_id)})
     elif command == "updater-manifest":
-        intent = resolve_version(args.repo_root)
+        intent = tag_for_version(args.version)
         pub_date = args.pub_date or datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-        notes = changelog_body(args.changelog, intent.version).strip()
+        notes = args.notes_file.read_text(encoding="utf-8").strip()
         manifest = build_updater_manifest(args.dir, intent.version, notes, pub_date)
         args.out.parent.mkdir(parents=True, exist_ok=True)
         write_json(args.out, manifest)
@@ -1113,12 +1310,14 @@ def run_command(args: argparse.Namespace) -> int:
         uploaded = attach_assets(GitHubApi(args.repo, token_from_env()), args.release_id, args.dir)
         sys.stdout.write(f"attached {uploaded} missing assets; existing assets match their digests\n")
     elif command == "verify-draft":
-        intent = resolve_version(args.repo_root)
-        verify_draft(GitHubApi(args.repo, token_from_env()), intent, args.merge_sha, args.dir, args.latest_json)
+        intent = tag_for_version(args.version)
+        verify_draft(GitHubApi(args.repo, token_from_env()), intent, args.merge_sha, args.dir, args.latest_json,
+                     args.release_id)
         sys.stdout.write("PASS: draft matches the tag, the commit, the asset set and the updater manifest\n")
     elif command == "publish":
-        intent = resolve_version(args.repo_root)
-        sys.stdout.write(publish_release(GitHubApi(args.repo, token_from_env()), intent, args.merge_sha) + "\n")
+        intent = tag_for_version(args.version)
+        message = publish_release(GitHubApi(args.repo, token_from_env()), intent, args.merge_sha, args.release_id)
+        sys.stdout.write(message + "\n")
     elif command == "bump":
         today = args.date or datetime.date.today().isoformat()
         if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", today):

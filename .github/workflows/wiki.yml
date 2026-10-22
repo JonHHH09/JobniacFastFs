@@ -1,0 +1,64 @@
+name: Wiki
+
+# Mirrors docs/wiki/ to the GitHub wiki of this repository whenever `main` changes it. The pages are
+# written and reviewed in pull requests like any other file; the wiki itself is a read-only copy, and
+# an edit made in the wiki's web editor is overwritten by the next sync.
+#
+# GitHub creates the wiki repository only when its first page is saved in the web UI, so the owner
+# saves one placeholder page once (see docs/ops/branch-protection.md); until then the clone fails.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/wiki/**"
+      - "scripts/ci/wiki_sync.py"
+      - ".github/workflows/wiki.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wiki
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync the wiki
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    # Pushing to the wiki repository needs write access to the contents.
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+      - name: Mirror docs/wiki into the wiki and push
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          WIKI="$RUNNER_TEMP/wiki"
+          AUTH="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          # The token travels in a header for these two commands only; it is never written to a git config.
+          if ! git -c http.extraheader="AUTHORIZATION: basic $AUTH" clone --depth 1 \
+              "https://github.com/$GITHUB_REPOSITORY.wiki.git" "$WIKI"; then
+            echo "::error::The wiki repository does not exist yet. Save a first page in the wiki web UI once, then rerun."
+            exit 1
+          fi
+          python -I scripts/ci/wiki_sync.py --source docs/wiki --wiki "$WIKI"
+          cd "$WIKI"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "wiki is up to date"
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "Sync from $GITHUB_REPOSITORY@$GITHUB_SHA"
+          git -c http.extraheader="AUTHORIZATION: basic $AUTH" push origin HEAD
