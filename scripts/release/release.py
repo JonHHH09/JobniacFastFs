@@ -480,7 +480,11 @@ def build_inventory(payload: Path, owners_path: Path, components_path: Path, not
 
 
 def compare_installed(inventory_path: Path, installed: Path, allowlist: tuple[str, ...]) -> int:
-    """Compares the staged inventory with an installed tree by path, size and digest."""
+    """Compares the staged inventory with an installed tree by path, size and digest.
+
+    A failure names the offending path, relative to the install root (the same text as in the
+    inventory), never a digest or an absolute path.
+    """
     staged = {str(entry["path"]): entry for entry in load_json(inventory_path)["files"]}  # type: ignore[index,union-attr]
     actual = {
         path.relative_to(installed).as_posix(): path
@@ -489,14 +493,28 @@ def compare_installed(inventory_path: Path, installed: Path, allowlist: tuple[st
     }
     for name in sorted(set(actual) - set(staged)):
         if name not in allowlist:
-            raise ReleaseError("installed tree has a file that the staged payload does not")
+            raise ReleaseError(f"unexpected file in the installed tree: {name}")
     for name, entry in staged.items():
         if name not in actual:
-            raise ReleaseError("installed tree lacks a staged payload file")
+            raise ReleaseError(f"missing file in the installed tree: {name}")
         path = actual[name]
         if path.stat().st_size != entry["size"] or sha256_file(path) != entry["sha256"]:
-            raise ReleaseError("installed file differs from the staged payload")
+            raise ReleaseError(f"installed file differs from the staged payload: {name}")
     return len(staged)
+
+
+def check_binary_pubkey(binary: Path, repo_root: Path = REPO_ROOT) -> None:
+    """The shipped main binary must embed the updater public key of the release config exactly once.
+
+    The key is compiled into the app from plugins.updater.pubkey, so this proves that an installed copy
+    verifies updates against the intended key. The messages are fixed and name no path.
+    """
+    check_updater_config(repo_root)
+    config = json.loads((repo_root / "src-tauri" / "tauri.release.conf.json").read_text(encoding="utf-8"))
+    pubkey = str(config["plugins"]["updater"]["pubkey"]).strip().encode("ascii")
+    found = binary.read_bytes().count(pubkey)
+    if found != 1:
+        raise ReleaseError(f"the main binary embeds the updater public key {found} times, expected exactly once")
 
 
 SBOM_NAMESPACE = uuid.UUID("6f1c2a52-7d1e-4f0b-9a57-3c2d8e4b1a90")
@@ -1164,6 +1182,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--inventory", type=Path, required=True)
     p.add_argument("--installed", type=Path, required=True)
 
+    p = add("check-binary-pubkey", "a main binary must embed the updater public key of the release config once")
+    p.add_argument("--binary", type=Path, required=True)
+    p.add_argument("--repo-root", type=Path, default=REPO_ROOT)
+
     p = add("leg-digests", "write leg-digests.txt for one platform leg")
     p.add_argument("--dir", type=Path, required=True)
 
@@ -1294,6 +1316,9 @@ def run_command(args: argparse.Namespace) -> int:
     elif command == "compare-installed":
         count = compare_installed(args.inventory, args.installed, INSTALLED_ONLY_ALLOWLIST)
         sys.stdout.write(f"installed tree matches the staged payload ({count} files)\n")
+    elif command == "check-binary-pubkey":
+        check_binary_pubkey(args.binary, args.repo_root)
+        sys.stdout.write("the main binary embeds the updater public key once\n")
     elif command == "leg-digests":
         write_digest_manifest(args.dir, LEG_DIGESTS, set())
         sys.stdout.write(f"{LEG_DIGESTS} written\n")

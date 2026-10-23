@@ -374,6 +374,8 @@ jobs:
           OUT="$PWD/$RELEASE_OUT"
           dpkg-deb -x "$OUT/JobniacFast_${VERSION}_amd64.deb" "$RUNNER_TEMP/deb-root"
           "$RUNNER_TEMP/deb-root/usr/bin/jobniac-cli" --version | grep -Fq "$VERSION"
+          # The app in the deb embeds the updater public key of the release config, exactly once.
+          python -I scripts/release/release.py check-binary-pubkey --binary "$RUNNER_TEMP/deb-root/usr/bin/jobniac"
           cd "$RUNNER_TEMP"
           "$OUT/JobniacFast_${VERSION}_amd64.AppImage" --appimage-extract >/dev/null
           squashfs-root/usr/bin/jobniac-cli --version | grep -Fq "$VERSION"
