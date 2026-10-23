@@ -37,6 +37,9 @@ drafts take the body of their version section from this file.
   `latest.json` into a workflow artifact, and never creates or changes a release, draft, tag or
   attestation. The build legs no longer cancel each other when one fails, and the smoke jobs still
   run for the legs that built. `release.py check-updater-manifest` checks a local `latest.json`.
+- CI: apt on the Linux runners retries and times out a stalled mirror connection sooner, every CI job
+  has a timeout instead of the 6-hour default (the end-to-end jobs already had one), and a failed or cancelled nightly run on
+  `development` opens or updates an issue labelled `ci-nightly`.
 
 - Desktop Arbeitnow screen: a scan and "Load more results" each read up to five board pages instead
   of one, so a narrow filter (a search term plus a location) finds older postings without repeated

@@ -1,0 +1,18 @@
+name: Bound apt downloads
+description: >-
+  Writes an apt.conf.d drop-in so that every later apt call on the Linux runner (including the ones
+  `playwright install --with-deps` makes) retries and gives up on a silent connection instead of
+  waiting on it. Run it before the first `apt-get update`. Does nothing on other systems.
+
+runs:
+  using: composite
+  steps:
+    # The Azure mirror of the runner image has stalled for 6 to 16 minutes in some runs. The timeout trips
+    # on a connection that sends no data; a retry then asks the mirror again. dpkg is never wrapped in
+    # `timeout`, which could leave it half-configured.
+    - name: Retry apt downloads and bound the wait on a silent connection
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        printf '%s\n' 'Acquire::Retries "3";' 'Acquire::http::Timeout "20";' 'Acquire::https::Timeout "20";' \
+          | sudo tee /etc/apt/apt.conf.d/99-ci-network >/dev/null
