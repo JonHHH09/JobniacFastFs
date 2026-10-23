@@ -444,8 +444,69 @@ class PayloadReconciliation(unittest.TestCase):
         (installed / "uninstall.exe").write_bytes(b"u")
         self.assertEqual(release.compare_installed(inventory_path, installed, release.INSTALLED_ONLY_ALLOWLIST), 3)
         (installed / "stray.dll").write_bytes(b"s")
-        with self.assertRaises(release.ReleaseError):
+        with self.assertRaises(release.ReleaseError) as caught:
             release.compare_installed(inventory_path, installed, release.INSTALLED_ONLY_ALLOWLIST)
+        self.assertEqual(str(caught.exception), "unexpected file in the installed tree: stray.dll")
+
+    def test_installed_tree_failures_name_the_relative_path(self) -> None:
+        inventory_path = self.tmp / "inventory.json"
+        release.write_json(inventory_path, self.inventory())
+        installed = self.tmp / "installed"
+        shutil.copytree(self.payload, installed)
+        allowlist = release.INSTALLED_ONLY_ALLOWLIST
+        (installed / "pdfium" / "pdfium.dll").write_bytes(b"changed")
+        with self.assertRaises(release.ReleaseError) as caught:
+            release.compare_installed(inventory_path, installed, allowlist)
+        self.assertEqual(str(caught.exception), "installed file differs from the staged payload: pdfium/pdfium.dll")
+        (installed / "pdfium" / "pdfium.dll").unlink()
+        with self.assertRaises(release.ReleaseError) as caught:
+            release.compare_installed(inventory_path, installed, allowlist)
+        self.assertEqual(str(caught.exception), "missing file in the installed tree: pdfium/pdfium.dll")
+        self.assertNotIn(str(self.tmp), str(caught.exception))
+
+
+class BinaryPubkey(unittest.TestCase):
+    """The shipped main binary embeds the updater public key of the release config exactly once."""
+
+    PUBKEY = "dGVzdC1wdWJsaWMta2V5LWZvci10aGUtdW5pdC10ZXN0cw=="
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.tmp = Path(self._tmp.name)
+        (self.tmp / "src-tauri").mkdir()
+        config = {
+            "bundle": {"createUpdaterArtifacts": True},
+            "plugins": {"updater": {"pubkey": self.PUBKEY, "endpoints": [release.UPDATER_ENDPOINT]}},
+        }
+        (self.tmp / "src-tauri" / "tauri.release.conf.json").write_text(json.dumps(config), encoding="utf-8")
+
+    def check(self, content: bytes) -> None:
+        binary = self.tmp / "app"
+        binary.write_bytes(content)
+        release.check_binary_pubkey(binary, self.tmp)
+
+    def test_one_occurrence_passes(self) -> None:
+        self.check(b"head" + self.PUBKEY.encode() + b"tail")
+
+    def test_zero_occurrences_fail(self) -> None:
+        with self.assertRaises(release.ReleaseError) as caught:
+            self.check(b"no key here")
+        self.assertIn("0 times", str(caught.exception))
+
+    def test_two_occurrences_fail(self) -> None:
+        with self.assertRaises(release.ReleaseError) as caught:
+            self.check(self.PUBKEY.encode() + b"mid" + self.PUBKEY.encode())
+        self.assertIn("2 times", str(caught.exception))
+        self.assertNotIn(str(self.tmp), str(caught.exception))
+
+    def test_the_command_reports_the_result(self) -> None:
+        binary = self.tmp / "app"
+        binary.write_bytes(b"x" + self.PUBKEY.encode())
+        self.assertEqual(release.main(["check-binary-pubkey", "--binary", str(binary), "--repo-root", str(self.tmp)]), 0)
+        binary.write_bytes(b"x")
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(release.main(["check-binary-pubkey", "--binary", str(binary), "--repo-root", str(self.tmp)]), 1)
 
 
 class PayloadStaging(unittest.TestCase):
@@ -504,6 +565,23 @@ class SmokeFailureText(unittest.TestCase):
         error = PermissionError(13, "Permission denied", "/private/path/jobniac-cli")
         self.assertEqual(smoke.describe(error), "PermissionError: Permission denied")
         self.assertEqual(smoke.describe(KeyError("/private/path")), "KeyError")
+
+
+class SmokeEnvironment(unittest.TestCase):
+    """The smoke children get a database under the work directory and no other JOBNIAC_* variable."""
+
+    def test_database_is_isolated_under_the_work_directory(self) -> None:
+        import clean_machine_smoke as smoke
+
+        with tempfile.TemporaryDirectory() as name:
+            work = Path(name)
+            with mock.patch.dict("os.environ", {"JOBNIAC_DB_PATH": "elsewhere", "JOBNIAC_PDFIUM_DIR": "x", "KEEP_ME": "1"}):
+                env = smoke.smoke_env(work, JOBNIAC_SMOKE_QUIT_AFTER_LOAD="1")
+            self.assertEqual(env["JOBNIAC_DB_PATH"], str(work.resolve() / "data" / "smoke.sqlite3"))
+            self.assertTrue(Path(env["JOBNIAC_DB_PATH"]).is_absolute())
+            self.assertEqual(env["JOBNIAC_SMOKE_QUIT_AFTER_LOAD"], "1")
+            self.assertNotIn("JOBNIAC_PDFIUM_DIR", env)
+            self.assertEqual(env["KEEP_ME"], "1")
 
 
 class FakeTransport:

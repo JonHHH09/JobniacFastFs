@@ -88,10 +88,7 @@ def main(argv: list[str] | None = None) -> int:
     state = {"mounted": False}
 
     def smoke_env(**extra: str) -> dict[str, str]:
-        env = common.clean_env()
-        env["JOBNIAC_DB_PATH"] = str(data_dir / "smoke.db")
-        env.update(extra)
-        return env
+        return common.smoke_env(args.work, **extra)
 
     def check_digests() -> None:
         recorded = {}
@@ -164,6 +161,9 @@ def main(argv: list[str] | None = None) -> int:
         if command(["/usr/bin/codesign", "--verify", "--deep", "--strict", str(extracted)]).returncode != 0:
             raise SmokeFailure("codesign verification of the archive failed")
 
+    def pubkey() -> None:
+        release.check_binary_pubkey(gui)
+
     def launch() -> None:
         env = smoke_env(JOBNIAC_SMOKE_QUIT_AFTER_LOAD="1")
         if command([str(gui)], env=env).returncode != 0:
@@ -226,6 +226,7 @@ def main(argv: list[str] | None = None) -> int:
         ("bundle layout: PDFium in Contents/Frameworks", layout),
         ("code signature of the app", signature),
         ("updater archive unpacks to a verified app", archive),
+        ("app embeds the updater public key once", pubkey),
         ("GUI launches and exits 0 with the smoke quit hook", launch),
         ("CLI --version and --help", cli_checks),
         ("MCP over STDIO: initialize and tools/list (34 tools)", mcp),

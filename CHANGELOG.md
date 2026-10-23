@@ -14,6 +14,12 @@ drafts take the body of their version section from this file.
 
 ### Changed
 
+- Releases: the clean-machine smoke tests now keep the database under their work directory, so the
+  Windows residue check no longer trips over the default per-user data folder. A failed installed-tree
+  comparison names the offending file, and the Windows and macOS smoke tests and the Linux leg check
+  that the shipped app embeds the updater public key of the release config exactly once
+  (`release.py check-binary-pubkey`).
+
 - Dependencies: `clipboard-win` 5.4.1 (yanked upstream after an out-of-bounds read fix) is locked to
   5.4.3, and `ctutils` 0.4.3 (RUSTSEC-2026-0385, non-constant-time mask generation, reached through
   `hmac`) to 0.4.5, which the supply-chain check requires.
