@@ -52,6 +52,11 @@ UPDATER_PLATFORMS = ("windows-x86_64", "linux-x86_64", "darwin-aarch64")
 RELEASE_DOWNLOAD_BASE = "https://github.com/JonHHH09/JobniacFastFs/releases/download"
 # Only the installed tree may hold these names beyond the staged payload.
 INSTALLED_ONLY_ALLOWLIST = ("uninstall.exe",)
+# tauri-bundler writes the bundle type into the main binary it packs (the updater reads it): the marker
+# `__TAURI_BUNDLE_TYPE_VAR_UNK` of the build output becomes `..._NSS` inside the NSIS installer. The
+# staged payload of a platform listed here gets the same patch, so it matches the installed tree.
+TAURI_BUNDLE_TYPE_MARKER = b"__TAURI_BUNDLE_TYPE_VAR_"
+STAGED_BUNDLE_TYPE = {"windows-x64": b"NSS"}
 PRUNE_PAGE_SIZE = 20
 PRUNE_MAX_PAGES = 50
 
@@ -475,7 +480,11 @@ def build_inventory(payload: Path, owners_path: Path, components_path: Path, not
 
 
 def compare_installed(inventory_path: Path, installed: Path, allowlist: tuple[str, ...]) -> int:
-    """Compares the staged inventory with an installed tree by path, size and digest."""
+    """Compares the staged inventory with an installed tree by path, size and digest.
+
+    A failure names the offending path, relative to the install root (the same text as in the
+    inventory), never a digest or an absolute path.
+    """
     staged = {str(entry["path"]): entry for entry in load_json(inventory_path)["files"]}  # type: ignore[index,union-attr]
     actual = {
         path.relative_to(installed).as_posix(): path
@@ -484,14 +493,28 @@ def compare_installed(inventory_path: Path, installed: Path, allowlist: tuple[st
     }
     for name in sorted(set(actual) - set(staged)):
         if name not in allowlist:
-            raise ReleaseError("installed tree has a file that the staged payload does not")
+            raise ReleaseError(f"unexpected file in the installed tree: {name}")
     for name, entry in staged.items():
         if name not in actual:
-            raise ReleaseError("installed tree lacks a staged payload file")
+            raise ReleaseError(f"missing file in the installed tree: {name}")
         path = actual[name]
         if path.stat().st_size != entry["size"] or sha256_file(path) != entry["sha256"]:
-            raise ReleaseError("installed file differs from the staged payload")
+            raise ReleaseError(f"installed file differs from the staged payload: {name}")
     return len(staged)
+
+
+def check_binary_pubkey(binary: Path, repo_root: Path = REPO_ROOT) -> None:
+    """The shipped main binary must embed the updater public key of the release config exactly once.
+
+    The key is compiled into the app from plugins.updater.pubkey, so this proves that an installed copy
+    verifies updates against the intended key. The messages are fixed and name no path.
+    """
+    check_updater_config(repo_root)
+    config = json.loads((repo_root / "src-tauri" / "tauri.release.conf.json").read_text(encoding="utf-8"))
+    pubkey = str(config["plugins"]["updater"]["pubkey"]).strip().encode("ascii")
+    found = binary.read_bytes().count(pubkey)
+    if found != 1:
+        raise ReleaseError(f"the main binary embeds the updater public key {found} times, expected exactly once")
 
 
 SBOM_NAMESPACE = uuid.UUID("6f1c2a52-7d1e-4f0b-9a57-3c2d8e4b1a90")
@@ -528,9 +551,23 @@ def stage_sidecar(target_dir: Path, binaries_dir: Path, triple: str) -> Path:
     binaries_dir.mkdir(parents=True, exist_ok=True)
     destination = binaries_dir / f"jobniac-cli-{triple}{suffix}"
     shutil.copyfile(source, destination)
+    # Tauri copies the sidecar into the bundles with its mode: without the executable bit the deb, the
+    # AppImage and the macOS app ship a CLI that cannot run.
+    shutil.copymode(source, destination)
     if sha256_file(destination) != sha256_file(source):
         raise ReleaseError("sidecar copy differs from the built binary")
+    if not suffix and not os.access(destination, os.X_OK):
+        raise ReleaseError("sidecar copy is not executable")
     return destination
+
+
+def patch_bundle_type(binary: Path, bundle_type: bytes) -> None:
+    """Writes the bundle type into a staged main binary, as tauri-bundler does for the installer copy."""
+    data = binary.read_bytes()
+    unknown = TAURI_BUNDLE_TYPE_MARKER + b"UNK"
+    if data.count(unknown) != 1:
+        raise ReleaseError("the main binary does not hold exactly one Tauri bundle type marker")
+    binary.write_bytes(data.replace(unknown, TAURI_BUNDLE_TYPE_MARKER + bundle_type))
 
 
 def host_triple() -> str:
@@ -1145,6 +1182,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--inventory", type=Path, required=True)
     p.add_argument("--installed", type=Path, required=True)
 
+    p = add("check-binary-pubkey", "a main binary must embed the updater public key of the release config once")
+    p.add_argument("--binary", type=Path, required=True)
+    p.add_argument("--repo-root", type=Path, default=REPO_ROOT)
+
     p = add("leg-digests", "write leg-digests.txt for one platform leg")
     p.add_argument("--dir", type=Path, required=True)
 
@@ -1193,6 +1234,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--notes-file", type=Path, required=True, help="the release notes (the draft's body)")
     p.add_argument("--pub-date", help="RFC 3339 UTC time (default: now)")
+
+    p = add("check-updater-manifest", "latest.json names this version and this release's installers and signatures")
+    p.add_argument("--version", required=True)
+    p.add_argument("--dir", type=Path, required=True, help="the assembled asset directory")
+    p.add_argument("--latest-json", type=Path, required=True)
 
     p = add("publish", "create the tag on the merge commit and publish the verified draft (write scope)")
     p.add_argument("--repo", required=True)
@@ -1263,6 +1309,8 @@ def run_command(args: argparse.Namespace) -> int:
             if not source.is_file():
                 raise ReleaseError(f"{name} is missing from the target directory")
             shutil.copyfile(source, args.out / name)
+        if args.platform in STAGED_BUNDLE_TYPE:
+            patch_bundle_type(args.out / f"jobniac{suffix}", STAGED_BUNDLE_TYPE[args.platform])
         (args.out / "pdfium").mkdir(exist_ok=True)
         shutil.copyfile(args.pdfium_library, args.out / "pdfium" / args.pdfium_library.name)
         shutil.copyfile(args.notices, args.out / "THIRD-PARTY-NOTICES.txt")
@@ -1273,6 +1321,9 @@ def run_command(args: argparse.Namespace) -> int:
     elif command == "compare-installed":
         count = compare_installed(args.inventory, args.installed, INSTALLED_ONLY_ALLOWLIST)
         sys.stdout.write(f"installed tree matches the staged payload ({count} files)\n")
+    elif command == "check-binary-pubkey":
+        check_binary_pubkey(args.binary, args.repo_root)
+        sys.stdout.write("the main binary embeds the updater public key once\n")
     elif command == "leg-digests":
         write_digest_manifest(args.dir, LEG_DIGESTS, set())
         sys.stdout.write(f"{LEG_DIGESTS} written\n")
@@ -1306,6 +1357,11 @@ def run_command(args: argparse.Namespace) -> int:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         write_json(args.out, manifest)
         sys.stdout.write(f"{args.out.name} written for {intent.version}\n")
+    elif command == "check-updater-manifest":
+        # The manifest check of `verify-draft` on local files, for the dry run on a promotion pull request.
+        intent = tag_for_version(args.version)
+        check_updater_manifest(args.latest_json, intent.version, args.dir)
+        sys.stdout.write(f"PASS: {args.latest_json.name} names {intent.version} and its installers and signatures\n")
     elif command == "attach":
         uploaded = attach_assets(GitHubApi(args.repo, token_from_env()), args.release_id, args.dir)
         sys.stdout.write(f"attached {uploaded} missing assets; existing assets match their digests\n")

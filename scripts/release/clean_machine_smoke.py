@@ -5,9 +5,9 @@ Stdlib only (it imports the release helpers of this folder). Run with
 FAIL; the first failure stops the run and exits 1.
 
 Steps: installer digest against the build leg's digest, silent per-user install, staged payload
-against the installed tree, GUI launch with the smoke quit hook, CLI --version and --help, MCP over
-STDIO (initialize and tools/list with 34 tools; stdout carries only JSON-RPC), silent uninstall,
-removal check and the per-user residue check.
+against the installed tree, the updater public key in the installed app, GUI launch with the smoke
+quit hook, CLI --version and --help, MCP over STDIO (initialize and tools/list with 34 tools; stdout
+carries only JSON-RPC), silent uninstall, removal check and the per-user residue check.
 """
 
 from __future__ import annotations
@@ -36,6 +36,19 @@ class SmokeFailure(Exception):
     """A step failed; the message is printed without any path or response text."""
 
 
+def describe(error: BaseException) -> str:
+    """The error class, with the message when it carries no path or response text.
+
+    SmokeFailure and ReleaseError messages are fixed texts; an OSError gives its strerror only (the
+    filename is left out).
+    """
+    if isinstance(error, (SmokeFailure, release.ReleaseError)):
+        return f"{error.__class__.__name__}: {error}"
+    if isinstance(error, OSError) and error.strerror:
+        return f"{error.__class__.__name__}: {error.strerror}"
+    return error.__class__.__name__
+
+
 def per_user_roots() -> list[Path]:
     return [Path(os.environ[name]) for name in ("LOCALAPPDATA", "APPDATA") if os.environ.get(name)]
 
@@ -51,6 +64,18 @@ def root_entries() -> set[str]:
 def clean_env() -> dict[str, str]:
     """The environment of a child process with every JOBNIAC_* variable removed."""
     return {key: value for key, value in os.environ.items() if not key.upper().startswith("JOBNIAC_")}
+
+
+def smoke_env(work: Path, **extra: str) -> dict[str, str]:
+    """clean_env() plus a database under `work/data`, so a run never writes the per-user default.
+
+    The database stays outside the install directory (the uninstall waits for that directory to be
+    empty) and the path is absolute, as JOBNIAC_DB_PATH requires.
+    """
+    env = clean_env()
+    env["JOBNIAC_DB_PATH"] = str(work.resolve() / "data" / "smoke.sqlite3")
+    env.update(extra)
+    return env
 
 
 def run(command: list[str], env: dict[str, str] | None = None, stdin: str | None = None) -> subprocess.CompletedProcess[str]:
@@ -110,6 +135,7 @@ def main(argv: list[str] | None = None) -> int:
 
     def install() -> None:
         install_dir.mkdir(parents=True, exist_ok=True)
+        (args.work / "data").mkdir(parents=True, exist_ok=True)
         completed = run([str(args.installer), "/S", f"/D={install_dir_text}"])
         if completed.returncode != 0:
             raise SmokeFailure("silent install failed")
@@ -118,21 +144,23 @@ def main(argv: list[str] | None = None) -> int:
     def tree() -> None:
         release.compare_installed(args.inventory, install_dir, release.INSTALLED_ONLY_ALLOWLIST)
 
+    def pubkey() -> None:
+        release.check_binary_pubkey(gui)
+
     def launch() -> None:
-        env = clean_env()
-        env["JOBNIAC_SMOKE_QUIT_AFTER_LOAD"] = "1"
+        env = smoke_env(args.work, JOBNIAC_SMOKE_QUIT_AFTER_LOAD="1")
         if run([str(gui)], env=env).returncode != 0:
             raise SmokeFailure("the application did not load and exit 0")
 
     def cli_checks() -> None:
-        version = run([str(cli), "--version"], env=clean_env())
+        version = run([str(cli), "--version"], env=smoke_env(args.work))
         if version.returncode != 0 or args.version not in version.stdout:
             raise SmokeFailure("--version does not print the release version")
-        if run([str(cli), "--help"], env=clean_env()).returncode != 0:
+        if run([str(cli), "--help"], env=smoke_env(args.work)).returncode != 0:
             raise SmokeFailure("--help failed")
 
     def mcp() -> None:
-        completed = run([str(cli), "mcp"], env=clean_env(), stdin=mcp_requests())
+        completed = run([str(cli), "mcp"], env=smoke_env(args.work), stdin=mcp_requests())
         if completed.returncode != 0:
             raise SmokeFailure("mcp exited with an error")
         messages = [json.loads(line) for line in completed.stdout.splitlines() if line.strip()]
@@ -169,6 +197,7 @@ def main(argv: list[str] | None = None) -> int:
         ("installer digest matches the build leg", check_digest),
         ("silent per-user install", install),
         ("installed tree matches the staged payload", tree),
+        ("installed app embeds the updater public key once", pubkey),
         ("GUI launches and exits 0 with the smoke quit hook", launch),
         ("CLI --version and --help", cli_checks),
         ("MCP over STDIO: initialize and tools/list (34 tools)", mcp),
@@ -179,7 +208,7 @@ def main(argv: list[str] | None = None) -> int:
         try:
             action()
         except (SmokeFailure, release.ReleaseError, OSError, subprocess.SubprocessError, ValueError, KeyError) as error:
-            sys.stdout.write(f"FAIL: {name} ({error.__class__.__name__})\n")
+            sys.stdout.write(f"FAIL: {name} ({describe(error)})\n")
             return 1
         sys.stdout.write(f"PASS: {name}\n")
     return 0

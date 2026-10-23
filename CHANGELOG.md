@@ -14,12 +14,32 @@ drafts take the body of their version section from this file.
 
 ### Changed
 
+- Releases: the clean-machine smoke tests now keep the database under their work directory, so the
+  Windows residue check no longer trips over the default per-user data folder. A failed installed-tree
+  comparison names the offending file, and the Windows and macOS smoke tests and the Linux leg check
+  that the shipped app embeds the updater public key of the release config exactly once
+  (`release.py check-binary-pubkey`).
+
+- Dependencies: `clipboard-win` 5.4.1 (yanked upstream after an out-of-bounds read fix) is locked to
+  5.4.3, and `ctutils` 0.4.3 (RUSTSEC-2026-0385, non-constant-time mask generation, reached through
+  `hmac`) to 0.4.5, which the supply-chain check requires.
+
 - Releases: each merged promotion now gets the next patch version automatically, computed from the
   existing `v*` tags and stamped into the build checkout, so no version commit lands on `main` or
   `development`. `release.py bump` sets a floor for a minor, major or `-dev.N` release. The release
   notes are the changelog section of the version when there is one, otherwise GitHub's generated
   notes. A draft is found by its name as well as its tag, and the verify and publish steps address it
   by ID. The Windows release leg no longer fails when it runs `pnpm licenses`.
+- Releases: the release workflow now also runs as a dry run on the open promotion pull request
+  (`development` into `main`), on its merge ref and again for every push to `development` while the
+  pull request is open, so release fixes are exercised before the promotion merges. It builds all three platforms (updater artifacts signed
+  with the real key, macOS ad-hoc), runs both clean-machine smokes and assembles the asset set and
+  `latest.json` into a workflow artifact, and never creates or changes a release, draft, tag or
+  attestation. The build legs no longer cancel each other when one fails, and the smoke jobs still
+  run for the legs that built. `release.py check-updater-manifest` checks a local `latest.json`.
+- CI: apt on the Linux runners retries and times out a stalled mirror connection sooner, every CI job
+  has a timeout instead of the 6-hour default (the end-to-end jobs already had one), and a failed or cancelled nightly run on
+  `development` opens or updates an issue labelled `ci-nightly`.
 
 - Desktop Arbeitnow screen: a scan and "Load more results" each read up to five board pages instead
   of one, so a narrow filter (a search term plus a location) finds older postings without repeated
@@ -136,6 +156,11 @@ drafts take the body of their version section from this file.
   lease refuses before any file write.
 - `migrate` and `inspect_schema` refuse while `PGSERVICE` is set.
 - A profile search truncation-flag decode failure is an internal error, not database unavailable.
+- Release packages: `jobniac-cli` in the deb, the AppImage and the macOS app is executable again (the
+  staged sidecar lost its mode bits). The Windows clean-machine check compares the installed
+  `jobniac.exe` with a payload that carries the bundle type Tauri writes into the installer copy, and
+  tauri-action no longer uploads its own `latest.json` and signatures to the draft (the input name was
+  wrong). The Linux release leg runs the CLI from the deb and the AppImage.
 
 ### Performance
 

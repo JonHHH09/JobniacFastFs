@@ -12,6 +12,7 @@ inputs:
 runs:
   using: composite
   steps:
+    - uses: ./.github/actions/apt-config
     - name: Install Linux system dependencies (Tauri, WebKitWebDriver, xvfb)
       if: runner.os == 'Linux'
       shell: bash
@@ -30,9 +31,13 @@ runs:
       shell: bash
       run: pnpm install --frozen-lockfile
 
-    - uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249 # stable branch at the pinned commit
-      with:
-        toolchain: stable
+    # The pinned toolchain only (rust-toolchain.toml). A separate `stable` would never build anything
+    # here, and its version would enter the rust-cache key and change it whenever stable moves.
+    - name: Rust toolchain from rust-toolchain.toml
+      shell: bash
+      run: |
+        rustup toolchain install
+        rustup show active-toolchain
     - uses: swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
       with:
         # Pull request caches are unreadable by other pull requests and fill the quota.

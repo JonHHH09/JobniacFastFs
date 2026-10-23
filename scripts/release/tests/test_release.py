@@ -444,8 +444,144 @@ class PayloadReconciliation(unittest.TestCase):
         (installed / "uninstall.exe").write_bytes(b"u")
         self.assertEqual(release.compare_installed(inventory_path, installed, release.INSTALLED_ONLY_ALLOWLIST), 3)
         (installed / "stray.dll").write_bytes(b"s")
-        with self.assertRaises(release.ReleaseError):
+        with self.assertRaises(release.ReleaseError) as caught:
             release.compare_installed(inventory_path, installed, release.INSTALLED_ONLY_ALLOWLIST)
+        self.assertEqual(str(caught.exception), "unexpected file in the installed tree: stray.dll")
+
+    def test_installed_tree_failures_name_the_relative_path(self) -> None:
+        inventory_path = self.tmp / "inventory.json"
+        release.write_json(inventory_path, self.inventory())
+        installed = self.tmp / "installed"
+        shutil.copytree(self.payload, installed)
+        allowlist = release.INSTALLED_ONLY_ALLOWLIST
+        (installed / "pdfium" / "pdfium.dll").write_bytes(b"changed")
+        with self.assertRaises(release.ReleaseError) as caught:
+            release.compare_installed(inventory_path, installed, allowlist)
+        self.assertEqual(str(caught.exception), "installed file differs from the staged payload: pdfium/pdfium.dll")
+        (installed / "pdfium" / "pdfium.dll").unlink()
+        with self.assertRaises(release.ReleaseError) as caught:
+            release.compare_installed(inventory_path, installed, allowlist)
+        self.assertEqual(str(caught.exception), "missing file in the installed tree: pdfium/pdfium.dll")
+        self.assertNotIn(str(self.tmp), str(caught.exception))
+
+
+class BinaryPubkey(unittest.TestCase):
+    """The shipped main binary embeds the updater public key of the release config exactly once."""
+
+    PUBKEY = "dGVzdC1wdWJsaWMta2V5LWZvci10aGUtdW5pdC10ZXN0cw=="
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.tmp = Path(self._tmp.name)
+        (self.tmp / "src-tauri").mkdir()
+        config = {
+            "bundle": {"createUpdaterArtifacts": True},
+            "plugins": {"updater": {"pubkey": self.PUBKEY, "endpoints": [release.UPDATER_ENDPOINT]}},
+        }
+        (self.tmp / "src-tauri" / "tauri.release.conf.json").write_text(json.dumps(config), encoding="utf-8")
+
+    def check(self, content: bytes) -> None:
+        binary = self.tmp / "app"
+        binary.write_bytes(content)
+        release.check_binary_pubkey(binary, self.tmp)
+
+    def test_one_occurrence_passes(self) -> None:
+        self.check(b"head" + self.PUBKEY.encode() + b"tail")
+
+    def test_zero_occurrences_fail(self) -> None:
+        with self.assertRaises(release.ReleaseError) as caught:
+            self.check(b"no key here")
+        self.assertIn("0 times", str(caught.exception))
+
+    def test_two_occurrences_fail(self) -> None:
+        with self.assertRaises(release.ReleaseError) as caught:
+            self.check(self.PUBKEY.encode() + b"mid" + self.PUBKEY.encode())
+        self.assertIn("2 times", str(caught.exception))
+        self.assertNotIn(str(self.tmp), str(caught.exception))
+
+    def test_the_command_reports_the_result(self) -> None:
+        binary = self.tmp / "app"
+        binary.write_bytes(b"x" + self.PUBKEY.encode())
+        self.assertEqual(release.main(["check-binary-pubkey", "--binary", str(binary), "--repo-root", str(self.tmp)]), 0)
+        binary.write_bytes(b"x")
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(release.main(["check-binary-pubkey", "--binary", str(binary), "--repo-root", str(self.tmp)]), 1)
+
+
+class PayloadStaging(unittest.TestCase):
+    """The staged files match what the bundles ship: the sidecar mode and the Tauri bundle type."""
+
+    MARKER = release.TAURI_BUNDLE_TYPE_MARKER
+
+    def setUp(self) -> None:
+        self.tmp = Path(tempfile.mkdtemp())
+        self.target = self.tmp / "target"
+        self.target.mkdir()
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    @unittest.skipIf(sys.platform == "win32", "POSIX mode bits")
+    def test_sidecar_keeps_the_executable_bit(self) -> None:
+        source = self.target / "jobniac-cli"
+        source.write_bytes(b"cli")
+        source.chmod(0o755)
+        staged = release.stage_sidecar(self.target, self.tmp / "binaries", "x86_64-unknown-linux-gnu")
+        self.assertEqual(staged.stat().st_mode & 0o777, 0o755)
+
+    def stage_windows(self, desktop: bytes) -> int:
+        (self.target / "jobniac.exe").write_bytes(desktop)
+        (self.target / "jobniac-cli.exe").write_bytes(b"cli")
+        (self.tmp / "pdfium.dll").write_bytes(b"dll")
+        (self.tmp / "notices.txt").write_bytes(b"n")
+        return release.main([
+            "stage-payload", "--target-dir", str(self.target), "--platform", "windows-x64",
+            "--pdfium-library", str(self.tmp / "pdfium.dll"), "--notices", str(self.tmp / "notices.txt"),
+            "--out", str(self.tmp / "payload"),
+        ])
+
+    def test_windows_payload_gets_the_nsis_bundle_type(self) -> None:
+        # The constant table of all types stays as it is; only the UNK variable is patched.
+        table = self.MARKER + b"DEB" + self.MARKER + b"NSS"
+        self.assertEqual(self.stage_windows(b"head" + table + b"mid" + self.MARKER + b"UNK" + b"tail"), 0)
+        staged = (self.tmp / "payload" / "jobniac.exe").read_bytes()
+        self.assertEqual(staged, b"head" + table + b"mid" + self.MARKER + b"NSS" + b"tail")
+        self.assertIn(self.MARKER + b"UNK", (self.target / "jobniac.exe").read_bytes())
+
+    def test_windows_payload_without_a_single_marker_fails(self) -> None:
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(self.stage_windows(b"no marker"), 1)
+
+
+class SmokeFailureText(unittest.TestCase):
+    """A smoke FAIL line names the cause and never a path."""
+
+    def test_fixed_messages_are_shown_and_paths_are_not(self) -> None:
+        import clean_machine_smoke as smoke
+
+        self.assertEqual(smoke.describe(smoke.SmokeFailure("--help failed")), "SmokeFailure: --help failed")
+        self.assertEqual(smoke.describe(release.ReleaseError("installed file differs")), "ReleaseError: installed file differs")
+        error = PermissionError(13, "Permission denied", "/private/path/jobniac-cli")
+        self.assertEqual(smoke.describe(error), "PermissionError: Permission denied")
+        self.assertEqual(smoke.describe(KeyError("/private/path")), "KeyError")
+
+
+class SmokeEnvironment(unittest.TestCase):
+    """The smoke children get a database under the work directory and no other JOBNIAC_* variable."""
+
+    def test_database_is_isolated_under_the_work_directory(self) -> None:
+        import clean_machine_smoke as smoke
+
+        with tempfile.TemporaryDirectory() as name:
+            work = Path(name)
+            with mock.patch.dict("os.environ", {"JOBNIAC_DB_PATH": "elsewhere", "JOBNIAC_PDFIUM_DIR": "x", "KEEP_ME": "1"}):
+                env = smoke.smoke_env(work, JOBNIAC_SMOKE_QUIT_AFTER_LOAD="1")
+            self.assertEqual(env["JOBNIAC_DB_PATH"], str(work.resolve() / "data" / "smoke.sqlite3"))
+            self.assertTrue(Path(env["JOBNIAC_DB_PATH"]).is_absolute())
+            self.assertEqual(env["JOBNIAC_SMOKE_QUIT_AFTER_LOAD"], "1")
+            self.assertNotIn("JOBNIAC_PDFIUM_DIR", env)
+            self.assertEqual(env["KEEP_ME"], "1")
 
 
 class FakeTransport:
@@ -668,6 +804,35 @@ class DraftVerification(unittest.TestCase):
         data = json.loads(out.read_text(encoding="utf-8"))
         self.assertEqual(data["version"], "0.4.2")
         self.assertEqual(data["notes"], "### Added\n\n- a thing")
+
+    def test_the_check_updater_manifest_command_verifies_a_local_latest_json(self) -> None:
+        assets = self.tmp / "version-assets"
+        assets.mkdir()
+        for name in release.updater_installers("0.4.2").values():
+            (assets / name).write_bytes(b"x")
+            (assets / f"{name}.sig").write_text("sig", encoding="utf-8")
+        latest = self.tmp / "out" / "latest.json"
+        notes = self.tmp / "release-notes.md"
+        notes.write_text("notes\n", encoding="utf-8")
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(release.main([
+                "updater-manifest", "--version", "0.4.2", "--dir", str(assets), "--out", str(latest),
+                "--notes-file", str(notes),
+            ]), 0)
+            self.assertEqual(release.main([
+                "check-updater-manifest", "--version", "0.4.2", "--dir", str(assets), "--latest-json", str(latest),
+            ]), 0)
+        # Another version, or a signature that differs from the asset's, fails with the fixed message.
+        with contextlib.redirect_stderr(io.StringIO()) as stderr:
+            self.assertEqual(release.main([
+                "check-updater-manifest", "--version", "0.4.3", "--dir", str(assets), "--latest-json", str(latest),
+            ]), 1)
+            first = next(iter(release.updater_installers("0.4.2").values()))
+            (assets / f"{first}.sig").write_text("other", encoding="utf-8")
+            self.assertEqual(release.main([
+                "check-updater-manifest", "--version", "0.4.2", "--dir", str(assets), "--latest-json", str(latest),
+            ]), 1)
+        self.assertIn("updater manifest verification failed", stderr.getvalue())
 
     def test_a_missing_tag_is_fine_for_a_draft(self) -> None:
         routes: dict[tuple[str, str], tuple[int, object]] = {
@@ -965,6 +1130,39 @@ class GitTags(unittest.TestCase):
         release.check_newest_release_is_ancestor(root, old_sha, ["v0.1.0"], ["v0.1.0"])
         release.check_newest_release_is_ancestor(root, old_sha, ["v0.2.0-dev.1"], [])
         release.check_newest_release_is_ancestor(root, old_sha, [], [])
+
+    def test_the_merge_ref_of_an_open_promotion_passes_the_checks_of_the_dry_run(self) -> None:
+        """The dry run on an open promotion pull request builds refs/pull/N/merge, a merge of development into main."""
+        if shutil.which("git") is None:
+            self.skipTest("git is not installed")
+        root = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, root, True)
+        self.run_git(root, "init", "-q", "-b", "main")
+        self.run_git(root, "commit", "-q", "--allow-empty", "-m", "base")
+        self.run_git(root, "switch", "-q", "-c", "development")
+        self.run_git(root, "commit", "-q", "--allow-empty", "-m", "dev work")
+        self.run_git(root, "switch", "-q", "main")
+        # Zero tags: the first release takes the files' version.
+        self.run_git(root, "merge", "-q", "--no-ff", "-m", "merge ref", "development")
+        merge_sha = self.run_git(root, "rev-parse", "HEAD")
+        release.check_checkout(root, merge_sha)
+        tags, at_merge = release.git_release_tags(root, merge_sha)
+        release.check_newest_release_is_ancestor(root, merge_sha, tags, at_merge)
+        self.assertEqual(release.next_version("0.1.0", tags, at_merge), ("0.1.0", ""))
+        # After a release: the tag sits on main, which is a parent of the merge ref, and development lacks it.
+        self.run_git(root, "reset", "-q", "--hard", "HEAD^")
+        self.run_git(root, "commit", "-q", "--allow-empty", "-m", "release merge")
+        self.run_git(root, "tag", "v0.1.0")
+        self.run_git(root, "merge", "-q", "--no-ff", "-m", "merge ref", "development")
+        merge_sha = self.run_git(root, "rev-parse", "HEAD")
+        tags, at_merge = release.git_release_tags(root, merge_sha)
+        self.assertEqual((tags, at_merge), (["v0.1.0"], []))
+        release.check_newest_release_is_ancestor(root, merge_sha, tags, at_merge)
+        self.assertEqual(release.next_version("0.1.0", tags, at_merge), ("0.1.1", "v0.1.0"))
+        # The development tip alone is not a descendant of the tag: that is why the dry run uses the merge ref.
+        development = self.run_git(root, "rev-parse", "development")
+        with self.assertRaises(release.ReleaseError):
+            release.check_newest_release_is_ancestor(root, development, tags, [])
 
     def test_a_bad_sha_or_a_missing_repository_fails(self) -> None:
         with self.assertRaises(release.ReleaseError):
@@ -1291,10 +1489,13 @@ class BundleConfig(unittest.TestCase):
             "APPLE_ID", "APPLE_PASSWORD", "APPLE_TEAM_ID",
         ):
             with self.subTest(secret=name):
-                self.assertEqual(text.count(f"{name}: ${{{{ secrets.{name} }}}}"), 1)
+                # Passed only for the `closed` event of a real release; the dry run gets an empty value (ad-hoc).
+                self.assertEqual(
+                    text.count(f"{name}: ${{{{ github.event.action == 'closed' && secrets.{name} || '' }}}}"), 1)
+                self.assertEqual(len(re.findall(rf"secrets\.{name}\b", text)), 1)
         tauri_action = text.split("uses: tauri-apps/tauri-action", 1)[1].split("- name:", 1)[0]
         self.assertNotIn("APPLE_", tauri_action)
-        self.assertRegex(text, r"- name: Build and attach the draft assets[^\n]*\n\s+if: runner\.os != 'macOS'")
+        self.assertRegex(text, r"- name: Build, and attach the draft assets[^\n]*\n\s+if: runner\.os != 'macOS'")
 
     def test_default_config_has_no_updater_so_dev_builds_need_no_key(self) -> None:
         default = self.load("tauri.conf.json")
@@ -1313,8 +1514,11 @@ class BundleConfig(unittest.TestCase):
 
     def test_release_workflow_signs_and_writes_the_updater_manifest(self) -> None:
         text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
-        # latest.json comes from the `attach` job; two build legs would race to merge it.
-        self.assertIn("includeUpdaterJson: false", text)
+        # latest.json and the signatures come from the `attach` job; two build legs would race to merge
+        # latest.json. `includeUpdaterJson` is not a tauri-action v1 input and was silently ignored.
+        self.assertIn("uploadUpdaterJson: false", text)
+        self.assertIn("uploadUpdaterSignatures: false", text)
+        self.assertNotIn("includeUpdaterJson", text)
         self.assertIn("release.py updater-manifest", text)
         for name in ("TAURI_SIGNING_PRIVATE_KEY", "TAURI_SIGNING_PRIVATE_KEY_PASSWORD"):
             self.assertIn(f"{name}: ${{{{ secrets.{name} }}}}", text)
@@ -1370,7 +1574,7 @@ class WorkflowRules(unittest.TestCase):
 
     def test_publish_is_the_last_job_with_its_own_write_permission(self) -> None:
         text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
-        jobs = re.split(r"(?m)^  (?=[a-z][a-z-]*:\n)", text.split("\njobs:\n", 1)[1])
+        jobs = re.split(r"(?m)^  (?=[a-z][a-z0-9-]*:\n)", text.split("\njobs:\n", 1)[1])
         names = [job.split(":", 1)[0] for job in jobs if job.strip()]
         self.assertEqual(names[-1], "publish")
         publish = next(job for job in jobs if job.startswith("publish:"))
@@ -1384,16 +1588,118 @@ class WorkflowRules(unittest.TestCase):
 
     def job(self, name: str) -> str:
         text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
-        jobs = re.split(r"(?m)^  (?=[a-z][a-z-]*:\n)", text.split("\njobs:\n", 1)[1])
+        jobs = re.split(r"(?m)^  (?=[a-z][a-z0-9-]*:\n)", text.split("\njobs:\n", 1)[1])
         return next(job for job in jobs if job.startswith(f"{name}:"))
 
-    def test_merged_runs_share_one_group_and_unmerged_closes_get_their_own(self) -> None:
+    def test_merged_runs_share_one_group_dry_runs_and_unmerged_closes_get_their_own(self) -> None:
         text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        block = text.split("\nconcurrency:\n", 1)[1].split("\n\n", 1)[0]
+        self.assertIn("github.event.action != 'closed' && format('release-dry-run-{0}', github.event.pull_request.number)", block)
+        self.assertIn("|| github.event.pull_request.merged == true && 'release'", block)
+        self.assertIn("|| format('skip-{0}', github.run_id)", block)
+        # A newer push cancels an older dry run; a real release run is never cancelled.
+        self.assertIn("cancel-in-progress: ${{ github.event.action != 'closed' }}", block)
+
+    def test_the_trigger_adds_the_open_events_for_the_dry_run_on_the_promotion_pull_request(self) -> None:
+        text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        self.assertIn("    types: [opened, synchronize, reopened, closed]\n    branches: [main]", text)
+        self.assertNotIn("pull_request_target", text)
+        # A dry run builds the merge ref of the pull request; a real release the merge commit on main.
         self.assertIn(
-            "  group: ${{ github.event.pull_request.merged == true && 'release' || format('skip-{0}', github.run_id) }}\n"
-            "  cancel-in-progress: false",
+            "MERGE_SHA: ${{ github.event.action != 'closed' && github.sha || github.event.pull_request.merge_commit_sha }}",
             text,
         )
+
+    CLOSED_AND_MERGED = (
+        "github.event.action == 'closed'",
+        "github.event.pull_request.merged == true",
+    )
+    PROMOTION = (
+        "github.event.pull_request.head.ref == 'development'",
+        "github.event.pull_request.base.ref == 'main'",
+        "github.event.pull_request.head.repo.full_name == github.repository",
+    )
+
+    def condition(self, name: str) -> str:
+        match = re.search(r"(?m)^    if: (?:>-\n)?((?:      .*\n|    if: .*\n)+)", self.job(name))
+        self.assertIsNotNone(match, f"job {name} has no if")
+        return " ".join(line.strip() for line in match.group(1).splitlines())  # type: ignore[union-attr]
+
+    def test_the_jobs_that_write_to_a_release_run_only_for_a_merged_closed_promotion(self) -> None:
+        for name in ("draft", "attach", "attest", "verify-draft", "publish"):
+            condition = self.condition(name)
+            for clause in self.CLOSED_AND_MERGED:
+                with self.subTest(job=name, clause=clause):
+                    self.assertIn(clause, condition)
+            # attest only adds the visibility test to the event test.
+            if name != "attest":
+                for clause in self.PROMOTION:
+                    with self.subTest(job=name, clause=clause):
+                        self.assertIn(clause, condition)
+
+    def test_the_dry_run_job_never_runs_for_a_closed_event_and_has_no_write_permission(self) -> None:
+        job = self.job("dry-run-assemble")
+        self.assertIn("github.event.action != 'closed'", self.condition("dry-run-assemble"))
+        self.assertRegex(job, r"permissions:\n\s+contents: read")
+        self.assertNotIn("contents: write", job)
+        self.assertNotIn("GITHUB_TOKEN", job)
+        self.assertNotIn("GH_TOKEN", job)
+        self.assertNotIn("release.py attach", job)
+        self.assertNotIn("gh api", job)
+        self.assertIn("release.py assemble", job)
+        self.assertIn("release.py updater-manifest", job)
+        self.assertIn("release.py check-updater-manifest", job)
+        # The dry-run artifact must not match the `release-*` pattern that `attach` downloads the legs with.
+        name = re.search(r"(?m)^\s+name: (dry-run-assets)$", job)
+        self.assertIsNotNone(name)
+        self.assertNotRegex(name.group(1), r"^release-")  # type: ignore[union-attr]
+        self.assertRegex(job, r"retention-days: [1-7]\b")
+
+    def test_a_skipped_dependency_never_lets_a_real_release_proceed(self) -> None:
+        # prepare: on `closed` it needs checks and e2e to have succeeded; only a dry run may skip them.
+        prepare = self.condition("prepare")
+        self.assertIn("(github.event.action != 'closed' || (github.event.pull_request.merged == true "
+                      "&& needs.checks.result == 'success' && needs.e2e.result == 'success'))", prepare)
+        for clause in self.PROMOTION:
+            self.assertIn(clause, prepare)
+        # build: a skipped `draft` is accepted only outside the `closed` event.
+        build = self.condition("build")
+        self.assertIn("needs.prepare.result == 'success'", build)
+        self.assertIn("(needs.draft.result == 'success' || (github.event.action != 'closed' "
+                      "&& needs.draft.result == 'skipped'))", build)
+        self.assertNotIn("needs.draft.result == 'skipped' ||", build)
+        # The checks and e2e calls keep their real-release condition (merged is false on a dry run).
+        for name in ("checks", "e2e"):
+            condition = self.condition(name)
+            for clause in ("github.event.pull_request.merged == true", *self.PROMOTION):
+                self.assertIn(clause, condition)
+
+    def test_publish_still_needs_every_result_to_be_a_success(self) -> None:
+        publish = self.condition("publish")
+        for gate in ("prepare", "draft", "build", "clean-machine", "clean-machine-macos", "attach", "verify-draft"):
+            self.assertIn(f"needs.{gate}.result == 'success'", publish)
+
+    def test_the_build_legs_do_not_cancel_each_other(self) -> None:
+        self.assertIn("fail-fast: false", self.job("build"))
+        self.assertNotIn("fail-fast: true", (WORKFLOWS / "release.yml").read_text(encoding="utf-8"))
+        # The smoke jobs still run after a failed leg, so that its failure does not hide theirs.
+        for name in ("clean-machine", "clean-machine-macos"):
+            self.assertIn("needs.build.result == 'failure'", self.condition(name))
+
+    def test_the_dry_run_builds_only_and_passes_no_token_or_apple_secret(self) -> None:
+        build = self.job("build")
+        action = build.split("uses: tauri-apps/tauri-action", 1)[1].split("      - name:", 1)[0]
+        self.assertIn("GITHUB_TOKEN: ${{ github.event.action == 'closed' && secrets.GITHUB_TOKEN || '' }}", action)
+        self.assertIn("tagName: ${{ github.event.action == 'closed' && env.TAG || '' }}", action)
+        self.assertIn(
+            "releaseId: ${{ github.event.action == 'closed' && needs.draft.outputs.release_id || '' }}", action)
+        # No other step of the build job reads the token.
+        self.assertEqual(build.count("secrets.GITHUB_TOKEN"), 1)
+        self.assertIn("MACOS_SIGNING_REQUIRED: ${{ github.event.action == 'closed' && vars.MACOS_SIGNING_REQUIRED || '' }}",
+                      build)
+        macos = self.job("clean-machine-macos")
+        self.assertIn("github.event.action == 'closed' && vars.MACOS_SIGNING_REQUIRED == '1' && '--require-developer-id'",
+                      macos)
 
     def test_the_version_is_computed_from_the_tags_and_stamped_before_the_builds(self) -> None:
         prepare = self.job("prepare")
