@@ -57,3 +57,22 @@ Add an entry only after reading the flagged content. Do not add entries for pers
 credentials or real contact details: those need a fix in the content or a history rewrite decided by
 the owner. The CI job `privacy-scan` runs the unit tests and the generic scan on every push and pull
 request.
+
+## Workflow helpers
+
+### apt drop-in (`.github/actions/apt-config`)
+
+The Linux jobs of `rust-checks`, `e2e-suite` and the UI job of `ci.yml` run this small composite action
+before their first `apt-get update`. It writes `/etc/apt/apt.conf.d/99-ci-network` with `Acquire::Retries "3"`
+and a 20 second `http` and `https` timeout, so a stalled download from the runner image mirror is retried
+instead of waiting for minutes. The drop-in also covers the apt calls of `playwright install --with-deps`.
+dpkg is never wrapped in `timeout`. `release.yml` does not use it.
+
+### Nightly alert (`.github/workflows/nightly-alert.yml`)
+
+`nightly.yml` only dispatches `ci.yml` and `e2e.yml` on development and is green itself. The alert workflow
+runs on `workflow_run` of those two workflows and, when a dispatched run on development ends as `failure`,
+`cancelled` or `timed_out`, comments on the open issue labelled `ci-nightly` (creating the label and the
+issue when needed) with the run URL, workflow, commit and failed jobs. A manual dispatch on development
+alerts too. It checks out nothing and only reads run metadata. `workflow_run` uses the copy of the file on
+the default branch, so it works once promoted to main.

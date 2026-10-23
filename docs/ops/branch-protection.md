@@ -95,6 +95,26 @@ promotion merge commit. Both skip the heavy jobs when the promotion pull request
 already passed that tree, so the build starts about a minute after the merge. A red end-to-end suite
 blocks the release.
 
+### Release dry run on the promotion pull request
+
+`release.yml` also runs while the promotion pull request is open (opened, reopened, and every push to
+`development`). It uses the workflow of the pull request's merge ref, so a release fix on `development`
+is exercised before the promotion merges. It builds the merge ref on all three platforms, signs the
+updater artifacts with the real key (a same-repository pull request from the PR-protected `development`
+branch is the only one that gets it), builds macOS ad-hoc without any Apple secret, runs both
+clean-machine smokes, and assembles the assets and `latest.json` into a workflow artifact that expires
+after 3 days. It creates no release, draft, tag or attestation, and it skips `checks` and `e2e` (they
+run on the same pull request as `ci.yml` and `e2e.yml`). It takes about 25 to 35 minutes per push to the
+open promotion pull request; a newer push cancels the older run (concurrency group
+`release-dry-run-<PR number>`, separate from the `release` group of real runs).
+
+It is not a required check, and it is not listed under the required checks above: its job names
+(`prepare`, `build`, `clean-machine`, ...) are shared with the real release run, and a pull request
+from another branch skips them all. Add them to the `Protect main` ruleset only if the owner wants a red
+dry run to block the merge. A "Re-run" of a failed `Release` run replays the old merge commit and
+workflow, so it is only for transient runner or network failures; a fix goes through `development`
+and a new promotion (see G4 in the [release owner checklist](release-owner-checklist.md)).
+
 `ci.yml` and `e2e.yml` no longer run on pushes to `main`: `main` only receives the promotion merge,
 which the release call checks. CodeQL and Scorecard still run on `main`.
 
@@ -118,7 +138,10 @@ ruleset cannot express that, so it is a required check.
   workflow (`.github/workflows/wiki.yml`) mirrors them to the wiki whenever `main` changes them; an
   edit made in the wiki web editor is overwritten by the next sync. GitHub creates the wiki repository
   only when a first page is saved in the web UI, so save one placeholder page once before the first
-  sync (or rerun the workflow afterwards from the Actions tab).
+  sync (or rerun the workflow afterwards from the Actions tab). This is a one-time owner step: until
+  the wiki repository exists, the `Wiki` workflow fails with "The wiki repository does not exist yet",
+  and it runs again only when `docs/wiki/`, `scripts/ci/wiki_sync.py` or `wiki.yml` changes on `main`, so
+  start it by hand (`workflow_dispatch`) after saving the first page.
 
 ## Review requirement
 

@@ -10,10 +10,28 @@ name: Release
 # the patch after the highest stable `v*` tag, or the version in the files when a manual bump on
 # development set a higher, untagged one (a minor, major or -dev.N floor). The build legs stamp that
 # version into their checkout (`set-version`), so nothing is pushed to any branch.
+#
+# The same workflow also runs as a dry run on the OPEN promotion pull request (opened, a push to
+# development, reopened). A pull request run uses the workflow file of its merge ref, so a release fix
+# that sits on development is exercised here before the promotion merges, not by the merge itself. The
+# dry run builds on the pull request's merge ref (the tree that the merge will produce), signs the
+# updater artifacts with the real key (a same-repository pull request from the protected development
+# branch is the only one that gets it, and it is what proves a key rotation), builds the macOS leg
+# ad-hoc (no Apple secret), runs both clean-machine smokes, and assembles the asset set and
+# latest.json into a short-lived workflow artifact. It never creates or changes a release, a draft, a
+# tag or an attestation: `draft`, `attach`, `attest`, `verify-draft` and `publish` run only for the
+# `closed` event of a merged promotion. `checks` and `e2e` are skipped in it, because ci.yml and e2e.yml
+# already run on the pull request as workflows of their own.
+#
+# What the jobs run for each event (P = promotion pull request, development into main, same repository):
+#   P opened, pushed to, reopened: prepare, build (build only), both smokes, dry-run-assemble.
+#   P closed and merged: checks, e2e, prepare, draft, build (attaches), both smokes, attach, attest,
+#                        verify-draft, publish.
+#   P closed unmerged, or any other pull request into main: every job is skipped.
 
 on:
   pull_request:
-    types: [closed]
+    types: [opened, synchronize, reopened, closed]
     branches: [main]
 
 permissions:
@@ -21,24 +39,34 @@ permissions:
 
 # Runs of merged promotions share one group, so they run one after another and two merges cannot
 # compute the same version from the same tags. GitHub keeps one pending run per group: of several
-# quick merges the middle pending run is cancelled, and its changes ship with the next release. A pull
-# request closed without a merge gets its own group, so it never cancels a real release run.
+# quick merges the middle pending run is cancelled, and its changes ship with the next release. A dry
+# run has a group per pull request and a newer push cancels the older dry run (it is only a check, and
+# it never touches the release group). A pull request closed without a merge gets its own group, so it
+# never cancels a real release run.
 concurrency:
-  group: ${{ github.event.pull_request.merged == true && 'release' || format('skip-{0}', github.run_id) }}
-  cancel-in-progress: false
+  group: >-
+    ${{ github.event.action != 'closed' && format('release-dry-run-{0}', github.event.pull_request.number)
+    || github.event.pull_request.merged == true && 'release'
+    || format('skip-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event.action != 'closed' }}
 
 defaults:
   run:
     shell: bash
 
 env:
-  MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+  # The commit that every job checks out and asserts. A real release uses the merge commit on main. A dry
+  # run uses the commit of the pull request's merge ref (github.sha on these events). The first
+  # expression is never empty on a dry run, and a closed event falls through to merge_commit_sha, so a
+  # missing merge commit still fails the commit-id check instead of building something else.
+  MERGE_SHA: ${{ github.event.action != 'closed' && github.sha || github.event.pull_request.merge_commit_sha }}
   RELEASE_OUT: release-out
 
 jobs:
   # 1. Every CI and E2E gate on the merge commit. ci.yml and e2e.yml declare `workflow_call` with the
   #    input `release-call`, which runs the full set there. Both skip the work when the promotion pull
-  #    request already passed them on this exact tree.
+  #    request already passed them on this exact tree. Skipped in the dry run (merged is false there):
+  #    ci.yml and e2e.yml run on the open pull request as their own workflows.
   checks:
     if: >-
       github.event.pull_request.merged == true
@@ -72,9 +100,23 @@ jobs:
     with:
       release-call: true
 
-  # 2. Read-only: checks out MERGE_SHA with every tag, asserts HEAD and computes the version.
+  # 2. Read-only: checks out MERGE_SHA with every tag, asserts HEAD and computes the version. The merge
+  #    ref of an open promotion has main as a parent, so the check that the newest stable tag is an
+  #    ancestor holds there too (with no tag at all it is skipped), and the version is the one the merge
+  #    will get. A real release needs `checks` and `e2e` to have succeeded: a skipped one does not pass.
+  #    The dry run needs neither, and the same-repository development-to-main test keeps every other
+  #    pull request out.
   prepare:
     needs: [checks, e2e]
+    if: >-
+      ${{ !cancelled()
+      && github.event.pull_request.head.ref == 'development'
+      && github.event.pull_request.base.ref == 'main'
+      && github.event.pull_request.head.repo.full_name == github.repository
+      && (github.event.action != 'closed'
+      || (github.event.pull_request.merged == true
+      && needs.checks.result == 'success'
+      && needs.e2e.result == 'success')) }}
     runs-on: ubuntu-26.04
     timeout-minutes: 15
     permissions:
@@ -101,9 +143,15 @@ jobs:
       - name: Refuse the updater public key placeholder
         run: python -I scripts/release/release.py check-updater-config
 
-  # 3. The only write step that creates the draft. The build legs attach to it by ID.
+  # 3. The only write step that creates the draft. The build legs attach to it by ID. Never in the dry run.
   draft:
     needs: prepare
+    if: >-
+      github.event.action == 'closed'
+      && github.event.pull_request.merged == true
+      && github.event.pull_request.head.ref == 'development'
+      && github.event.pull_request.base.ref == 'main'
+      && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-26.04
     timeout-minutes: 15
     permissions:
@@ -137,10 +185,19 @@ jobs:
   #    scripts/release/macos_build.sh, which never sees the token: it signs with Developer ID and
   #    notarizes when the Apple secrets exist, and signs ad-hoc otherwise. The app archive gets an updater
   #    signature. The `attach` job uploads the macOS files. latest.json is written later by the `attach` job.
+  #    In the dry run `draft` is skipped (a real release needs it to have succeeded), tauri-action gets
+  #    neither a release ID nor a tag and so only builds, and no step holds the GitHub token or an Apple
+  #    secret. The legs do not cancel each other (`fail-fast: false`): a failure in one leg must not hide
+  #    the failures of the others, and nothing publishes unless every leg succeeded.
   build:
     needs: [prepare, draft]
+    if: >-
+      ${{ !cancelled()
+      && needs.prepare.result == 'success'
+      && (needs.draft.result == 'success'
+      || (github.event.action != 'closed' && needs.draft.result == 'skipped')) }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         include:
           - os: windows-latest
@@ -163,6 +220,8 @@ jobs:
             library: libpdfium.dylib
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
+    # Write access is for tauri-action's upload to the draft. A permission cannot depend on the event, so
+    # the dry run holds it too, but no step of the dry run is given the token.
     permissions:
       contents: write
     env:
@@ -245,11 +304,17 @@ jobs:
           set -euo pipefail
           cargo auditable build --release --locked -p jobniac-cli
           python -I scripts/release/release.py stage-sidecar --target-dir target/release --binaries-dir src-tauri/binaries
-      - name: Build and attach the draft assets (tauri-action, the only step with the token)
+      # With a release ID or a tag name tauri-action uploads what it built; with neither it only builds
+      # ("No releaseId or tagName provided, skipping all uploads", src/index.ts at the pinned commit), and
+      # it reads the token only inside the release calls. The dry run (any event but `closed`) passes
+      # neither and no token, so it cannot reach the draft. The updater signing key is the real one in
+      # both: only a same-repository promotion pull request from the protected development branch gets
+      # it, and a build that signs with it is what proves that the secret matches the public key.
+      - name: Build, and attach the draft assets on a real release (tauri-action, the only step with the token)
         if: runner.os != 'macOS'
         uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1.0.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.event.action == 'closed' && secrets.GITHUB_TOKEN || '' }}
           # Makes the desktop binary auditable: cargo-auditable is the workspace rustc wrapper for this build.
           RUSTC_WORKSPACE_WRAPPER: ${{ env.JOBNIAC_AUDITABLE_WRAPPER }}
           CARGO_AUDITABLE_ORIG_ARGS: '{"config":[],"offline":false,"locked":true,"frozen":false}'
@@ -258,8 +323,8 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           projectPath: .
-          tagName: ${{ env.TAG }}
-          releaseId: ${{ needs.draft.outputs.release_id }}
+          tagName: ${{ github.event.action == 'closed' && env.TAG || '' }}
+          releaseId: ${{ github.event.action == 'closed' && needs.draft.outputs.release_id || '' }}
           releaseDraft: true
           prerelease: ${{ env.PRERELEASE == 'true' }}
           # latest.json and the updater signatures are attached by the `attach` job (two legs would race
@@ -271,26 +336,30 @@ jobs:
       # The macOS build. The Apple secrets are passed to this step only (never to tauri-action, which
       # holds the GitHub token, and never echoed). The release runs only for a merged promotion pull
       # request of this repository, so a fork's pull request never reaches it. Without the secrets the
-      # script builds an ad-hoc signed app; with them it signs with Developer ID and notarizes.
-      - name: Build the macOS bundles (Developer ID signing and notarization when the secrets exist)
+      # script builds an ad-hoc signed app; with them it signs with Developer ID and notarizes. The dry run
+      # (any event but `closed`) passes no Apple secret, so it always builds ad-hoc: it checks the build
+      # and the smoke test, not the signing and notarization, which only a real release exercises. The
+      # updater key is passed in both, as for the other legs.
+      - name: Build the macOS bundles (Developer ID signing and notarization on a real release when the secrets exist)
         if: runner.os == 'macOS' && github.event.pull_request.head.repo.full_name == github.repository
         env:
           BUNDLES: ${{ matrix.bundles }}
-          # Opt-in, exactly `1`: an ad-hoc macOS build then fails the release instead of warning.
-          MACOS_SIGNING_REQUIRED: ${{ vars.MACOS_SIGNING_REQUIRED }}
+          # Opt-in, exactly `1`: an ad-hoc macOS build then fails the release instead of warning. Not in the
+          # dry run, which builds ad-hoc by design.
+          MACOS_SIGNING_REQUIRED: ${{ github.event.action == 'closed' && vars.MACOS_SIGNING_REQUIRED || '' }}
           RUSTC_WORKSPACE_WRAPPER: ${{ env.JOBNIAC_AUDITABLE_WRAPPER }}
           CARGO_AUDITABLE_ORIG_ARGS: '{"config":[],"offline":false,"locked":true,"frozen":false}'
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
-          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
-          APPLE_API_PRIVATE_KEY: ${{ secrets.APPLE_API_PRIVATE_KEY }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_CERTIFICATE: ${{ github.event.action == 'closed' && secrets.APPLE_CERTIFICATE || '' }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ github.event.action == 'closed' && secrets.APPLE_CERTIFICATE_PASSWORD || '' }}
+          APPLE_SIGNING_IDENTITY: ${{ github.event.action == 'closed' && secrets.APPLE_SIGNING_IDENTITY || '' }}
+          APPLE_API_ISSUER: ${{ github.event.action == 'closed' && secrets.APPLE_API_ISSUER || '' }}
+          APPLE_API_KEY: ${{ github.event.action == 'closed' && secrets.APPLE_API_KEY || '' }}
+          APPLE_API_PRIVATE_KEY: ${{ github.event.action == 'closed' && secrets.APPLE_API_PRIVATE_KEY || '' }}
+          APPLE_ID: ${{ github.event.action == 'closed' && secrets.APPLE_ID || '' }}
+          APPLE_PASSWORD: ${{ github.event.action == 'closed' && secrets.APPLE_PASSWORD || '' }}
+          APPLE_TEAM_ID: ${{ github.event.action == 'closed' && secrets.APPLE_TEAM_ID || '' }}
         run: bash scripts/release/macos_build.sh
       - name: Audit the built binaries (embedded cargo-auditable data is required)
         run: |
@@ -385,11 +454,19 @@ jobs:
           name: release-${{ matrix.platform }}
           path: ${{ env.RELEASE_OUT }}/*
           if-no-files-found: error
-          retention-days: 30
+          # A dry run's legs are never released, so they expire with its dry-run-assets artifact.
+          retention-days: ${{ github.event.action == 'closed' && 30 || 3 }}
 
-  # 5. Installs the Windows installer on a fresh runner, from the workflow artifact, before attach.
+  # 5. Installs the Windows installer on a fresh runner, from the workflow artifact, before attach. It runs
+  #    when every leg succeeded and also when one failed, so that a failed Linux leg does not hide a
+  #    smoke failure on the legs that did build (a failed Windows leg leaves no artifact, so this job then
+  #    fails on the download). `attach` and `publish` still need every leg to have succeeded.
   clean-machine:
     needs: [prepare, build]
+    if: >-
+      ${{ !cancelled()
+      && needs.prepare.result == 'success'
+      && (needs.build.result == 'success' || needs.build.result == 'failure') }}
     runs-on: windows-latest
     timeout-minutes: 30
     permissions:
@@ -420,9 +497,15 @@ jobs:
 
   # 5b. Opens the macOS DMG and the updater archive on a fresh runner, from the workflow artifact, before
   #     attach: bundle layout, signature (Developer ID builds also Gatekeeper and the stapled ticket), GUI
-  #     launch, CLI, MCP, and a PDF extraction through the bundled worker and the bundled PDFium.
+  #     launch, CLI, MCP, and a PDF extraction through the bundled worker and the bundled PDFium. It runs
+  #     under the same condition as `clean-machine`. The dry run builds ad-hoc, so only a real release
+  #     can require a Developer ID signature.
   clean-machine-macos:
     needs: [prepare, build]
+    if: >-
+      ${{ !cancelled()
+      && needs.prepare.result == 'success'
+      && (needs.build.result == 'success' || needs.build.result == 'failure') }}
     runs-on: macos-latest
     timeout-minutes: 30
     permissions:
@@ -450,12 +533,69 @@ jobs:
           --leg-digests legs/macos-arm64/leg-digests.txt
           --pdf-fixture crates/infra/tests/fixtures/pdf/corpus/resume-simple.pdf
           --version "$VERSION"
-          ${{ vars.MACOS_SIGNING_REQUIRED == '1' && '--require-developer-id' || '' }}
+          ${{ github.event.action == 'closed' && vars.MACOS_SIGNING_REQUIRED == '1' && '--require-developer-id' || '' }}
           --work "$RUNNER_TEMP/macos-smoke"
 
+  # 5c. The dry run's stand-in for `attach` and `verify-draft`: the same assemble step (leg verification, the
+  #     exact asset set, SHA256SUMS), the same latest.json writer and the same manifest check, all on local
+  #     files, with nothing uploaded to a release. The assembled files go to a workflow artifact that
+  #     expires after three days. Its name must not match `release-*`, the pattern of the leg artifacts that
+  #     `attach` and this job download. It runs when every leg built, whatever the smokes said.
+  dry-run-assemble:
+    needs: [prepare, build, clean-machine, clean-machine-macos]
+    if: >-
+      ${{ !cancelled()
+      && github.event.action != 'closed'
+      && needs.prepare.result == 'success'
+      && needs.build.result == 'success' }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ env.MERGE_SHA }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: release-*
+          path: legs
+      - name: Assemble the asset set and write SHA256SUMS (write, then verify)
+        run: python -I scripts/release/release.py assemble --legs legs --out release-assets --version "$VERSION"
+      - name: Write latest.json and check it like verify-draft does (nothing is uploaded)
+        run: |
+          set -euo pipefail
+          echo "Dry run on a promotion pull request." > release-notes.md
+          python -I scripts/release/release.py updater-manifest --version "$VERSION" --dir release-assets \
+            --out updater-manifest/latest.json --notes-file release-notes.md
+          python -I scripts/release/release.py check-updater-manifest --version "$VERSION" --dir release-assets \
+            --latest-json updater-manifest/latest.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dry-run-assets
+          path: |
+            release-assets/*
+            updater-manifest/latest.json
+          if-no-files-found: error
+          retention-days: 3
+
   # 6. Verifies the legs, assembles the exact asset set, writes SHA256SUMS and attaches what the draft lacks.
+  #    Never in the dry run: it writes to the draft.
   attach:
     needs: [prepare, draft, build, clean-machine, clean-machine-macos]
+    if: >-
+      github.event.action == 'closed'
+      && github.event.pull_request.merged == true
+      && github.event.pull_request.head.ref == 'development'
+      && github.event.pull_request.base.ref == 'main'
+      && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-26.04
     timeout-minutes: 20
     permissions:
@@ -512,10 +652,14 @@ jobs:
           retention-days: 30
 
   # 7. Build provenance, only for a public repository (GitHub refuses it for user-owned private ones).
-  #    The permissions sit on this job because a job cannot grant them conditionally.
+  #    The permissions sit on this job because a job cannot grant them conditionally. Never in the dry run:
+  #    provenance of an unreleased build would be public.
   attest:
     needs: [attach]
-    if: github.event.repository.visibility == 'public'
+    if: >-
+      github.event.action == 'closed'
+      && github.event.pull_request.merged == true
+      && github.event.repository.visibility == 'public'
     runs-on: ubuntu-26.04
     timeout-minutes: 15
     permissions:
@@ -533,9 +677,15 @@ jobs:
 
   # 8. Final API check of the draft: tag peel, flags, target commit, exact asset set and digests, and
   #    the updater manifest (latest.json) that `attach` wrote: this version, and per platform this
-  #    release's installer and its signature.
+  #    release's installer and its signature. Never in the dry run (`dry-run-assemble` runs the manifest check).
   verify-draft:
     needs: [prepare, draft, attach]
+    if: >-
+      github.event.action == 'closed'
+      && github.event.pull_request.merged == true
+      && github.event.pull_request.head.ref == 'development'
+      && github.event.pull_request.base.ref == 'main'
+      && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:
@@ -580,11 +730,17 @@ jobs:
   # 9. The only job that publishes. It runs after every other job has passed (the provenance job only
   #    when it runs at all, in a public repository). It tags the merge commit (a tag that already exists
   #    must be on that exact commit) and publishes the verified draft: the latest release for a stable
-  #    version, a prerelease for -dev.N. The permission sits on this job only.
+  #    version, a prerelease for -dev.N. The permission sits on this job only. It can run only for the
+  #    `closed` event of a merged promotion; a dry run never gets here.
   publish:
     needs: [prepare, draft, build, clean-machine, clean-machine-macos, attach, attest, verify-draft]
     if: >-
       ${{ !cancelled()
+      && github.event.action == 'closed'
+      && github.event.pull_request.merged == true
+      && github.event.pull_request.head.ref == 'development'
+      && github.event.pull_request.base.ref == 'main'
+      && github.event.pull_request.head.repo.full_name == github.repository
       && needs.prepare.result == 'success'
       && needs.draft.result == 'success'
       && needs.build.result == 'success'

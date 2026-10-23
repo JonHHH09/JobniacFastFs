@@ -1235,6 +1235,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--notes-file", type=Path, required=True, help="the release notes (the draft's body)")
     p.add_argument("--pub-date", help="RFC 3339 UTC time (default: now)")
 
+    p = add("check-updater-manifest", "latest.json names this version and this release's installers and signatures")
+    p.add_argument("--version", required=True)
+    p.add_argument("--dir", type=Path, required=True, help="the assembled asset directory")
+    p.add_argument("--latest-json", type=Path, required=True)
+
     p = add("publish", "create the tag on the merge commit and publish the verified draft (write scope)")
     p.add_argument("--repo", required=True)
     p.add_argument("--version", required=True)
@@ -1352,6 +1357,11 @@ def run_command(args: argparse.Namespace) -> int:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         write_json(args.out, manifest)
         sys.stdout.write(f"{args.out.name} written for {intent.version}\n")
+    elif command == "check-updater-manifest":
+        # The manifest check of `verify-draft` on local files, for the dry run on a promotion pull request.
+        intent = tag_for_version(args.version)
+        check_updater_manifest(args.latest_json, intent.version, args.dir)
+        sys.stdout.write(f"PASS: {args.latest_json.name} names {intent.version} and its installers and signatures\n")
     elif command == "attach":
         uploaded = attach_assets(GitHubApi(args.repo, token_from_env()), args.release_id, args.dir)
         sys.stdout.write(f"attached {uploaded} missing assets; existing assets match their digests\n")

@@ -6,6 +6,7 @@ description: >-
 runs:
   using: composite
   steps:
+    - uses: ./.github/actions/apt-config
     - name: Install Linux system dependencies
       if: runner.os == 'Linux'
       shell: bash

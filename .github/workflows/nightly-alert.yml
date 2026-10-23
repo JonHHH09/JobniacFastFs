@@ -1,0 +1,65 @@
+name: Nightly alert
+
+# Opens (or comments on) an issue labelled ci-nightly when a CI or End-to-end run dispatched by
+# nightly.yml fails. The Nightly workflow itself only dispatches and is green either way, and a run
+# started by the token's actor notifies nobody.
+#
+# - workflow_run starts from the copy of this file on the default branch, so it takes effect once it
+#   has been promoted to main.
+# - The gate is a dispatched run on development. nightly.yml dispatches with `gh workflow run`, so its
+#   runs have the event workflow_dispatch; a manual dispatch on development alerts too, which is wanted.
+# - Nothing is checked out and nothing from the triggering run is executed (only its metadata is
+#   read). The metadata goes through env, never into the script text.
+
+on:
+  workflow_run:
+    workflows: [CI, End-to-end]
+    types: [completed]
+
+permissions: {}
+
+# CI and End-to-end are separate triggers, so when both fail in one nightly two alert runs start
+# together and could each find no open issue and create one. Running them one at a time lets the
+# second find the issue the first created. Only two workflows trigger this, so at most one run
+# waits and none is dropped.
+concurrency:
+  group: nightly-alert
+  cancel-in-progress: false
+
+jobs:
+  alert:
+    name: Open or update the nightly failure issue
+    if: >-
+      ${{ github.event.workflow_run.event == 'workflow_dispatch'
+      && github.event.workflow_run.head_branch == 'development'
+      && contains(fromJSON('["failure", "cancelled", "timed_out"]'), github.event.workflow_run.conclusion) }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    permissions:
+      issues: write
+      # Reads the jobs of the failed run.
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RUN_ID: ${{ github.event.workflow_run.id }}
+      RUN_URL: ${{ github.event.workflow_run.html_url }}
+      RUN_NAME: ${{ github.event.workflow_run.name }}
+      RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+      RUN_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+    steps:
+      - name: Comment on the open ci-nightly issue, or create it
+        run: |
+          failed=$(gh run view "$RUN_ID" --repo "$GITHUB_REPOSITORY" --json jobs \
+            --jq '[.jobs[] | select(.conclusion == "failure" or .conclusion == "cancelled" or .conclusion == "timed_out") | .name] | join(", ")')
+          body=$(printf '%s run %s on %s: %s\n\nRun: %s\nFailed jobs: %s\n' \
+            "$RUN_NAME" "$RUN_ID" "${RUN_SHA:0:12}" "$RUN_CONCLUSION" "$RUN_URL" "${failed:-none listed}")
+          gh label create ci-nightly --repo "$GITHUB_REPOSITORY" --force \
+            --color B60205 --description "A nightly CI or end-to-end run on development failed"
+          issue=$(gh issue list --repo "$GITHUB_REPOSITORY" --label ci-nightly --state open \
+            --json number --jq '.[0].number // empty')
+          if [ -n "$issue" ]; then
+            gh issue comment "$issue" --repo "$GITHUB_REPOSITORY" --body "$body"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --label ci-nightly \
+              --title "Nightly run on development failed" --body "$body"
+          fi

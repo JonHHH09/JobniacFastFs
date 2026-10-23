@@ -88,6 +88,7 @@ jobs:
     # Fail open: when the gate itself did not succeed, run (a skipped required check counts as passed).
     if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.ui == 'true') }}
     runs-on: ubuntu-26.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -109,6 +110,8 @@ jobs:
         run: pnpm test
       - name: Build
         run: pnpm build
+      # Bounds the apt calls that `--with-deps` makes below.
+      - uses: ./.github/actions/apt-config
       # The React app in Chromium against the mock IPC (playwright/README.md); no Rust core involved.
       - name: Install Chromium for the browser UI suite
         run: pnpm exec playwright install --with-deps chromium
@@ -131,6 +134,7 @@ jobs:
     needs: changes
     if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.rust == 'true') }}
     runs-on: ubuntu-26.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -145,6 +149,7 @@ jobs:
     # Not on pull requests: the gate turns `windows` off for them (a failed gate runs it anyway).
     if: ${{ !cancelled() && (needs.changes.result != 'success' || (needs.changes.outputs.windows == 'true' && needs.changes.outputs.rust == 'true')) }}
     runs-on: windows-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -161,6 +166,7 @@ jobs:
     needs: changes
     if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.rust == 'true') }}
     runs-on: macos-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -172,6 +178,7 @@ jobs:
   supply-chain:
     name: Supply chain (cargo-deny)
     runs-on: ubuntu-26.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -186,6 +193,7 @@ jobs:
   release-tools:
     name: Release tool unit tests
     runs-on: ubuntu-26.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -204,6 +212,7 @@ jobs:
   privacy-scan:
     name: Privacy scan (working tree and history, generic classes)
     runs-on: ubuntu-26.04
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:

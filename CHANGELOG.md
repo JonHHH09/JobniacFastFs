@@ -30,6 +30,16 @@ drafts take the body of their version section from this file.
   notes are the changelog section of the version when there is one, otherwise GitHub's generated
   notes. A draft is found by its name as well as its tag, and the verify and publish steps address it
   by ID. The Windows release leg no longer fails when it runs `pnpm licenses`.
+- Releases: the release workflow now also runs as a dry run on the open promotion pull request
+  (`development` into `main`), on its merge ref and again for every push to `development` while the
+  pull request is open, so release fixes are exercised before the promotion merges. It builds all three platforms (updater artifacts signed
+  with the real key, macOS ad-hoc), runs both clean-machine smokes and assembles the asset set and
+  `latest.json` into a workflow artifact, and never creates or changes a release, draft, tag or
+  attestation. The build legs no longer cancel each other when one fails, and the smoke jobs still
+  run for the legs that built. `release.py check-updater-manifest` checks a local `latest.json`.
+- CI: apt on the Linux runners retries and times out a stalled mirror connection sooner, every CI job
+  has a timeout instead of the 6-hour default (the end-to-end jobs already had one), and a failed or cancelled nightly run on
+  `development` opens or updates an issue labelled `ci-nightly`.
 
 - Desktop Arbeitnow screen: a scan and "Load more results" each read up to five board pages instead
   of one, so a narrow filter (a search term plus a location) finds older postings without repeated

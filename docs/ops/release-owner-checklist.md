@@ -35,6 +35,12 @@ hosted runner yet.
      promotion merge commit.
   5. **Code scanning and Scorecard:** available for this repository only once it is public, or with
      GitHub Advanced Security on the account (not verified; see G8).
+  6. **Wiki:** open the repository's Wiki tab and save a first page once (any placeholder text). GitHub
+     creates the wiki repository only then, and neither Actions nor the API can create it. Until it
+     exists the `Wiki` workflow fails with "The wiki repository does not exist yet" (its first run, after
+     the first promotion, did), and it runs again only when `docs/wiki/`, `scripts/ci/wiki_sync.py` or
+     `wiki.yml` changes on `main`. After saving the page, start the `Wiki` workflow from the Actions tab
+     (`workflow_dispatch`) so the pages in `docs/wiki/` are mirrored, replacing the placeholder.
 - **Failure:** a setting is missing. Do not publish a draft until 1 to 4 are in place.
 
 ## G3 Signing route decision
@@ -134,10 +140,32 @@ hosted runner yet.
 - **Expected:** `verify-draft` prints its single PASS line. The draft contains the installer, the
   Linux bundles, the macOS DMG and app archive (with their update signatures), `SHA256SUMS`, the SBOM and
   the notices.
+- **Dry run on the open promotion pull request:** the same workflow also runs while the promotion pull
+  request is open (when it is opened or reopened, and on every push to `development`). A pull request run
+  uses the workflow and the scripts of the pull request's merge ref, so a release fix that is on
+  `development` is exercised here before the promotion merges. The dry run builds that merge ref, signs
+  the updater artifacts with the real key (so it proves that the `TAURI_SIGNING_PRIVATE_KEY` secret
+  matches the public key in `tauri.release.conf.json`), builds the macOS leg ad-hoc (no Apple secret),
+  runs both clean-machine smokes, and assembles the asset set and `latest.json` into the workflow
+  artifact `dry-run-assets` (kept 3 days). It never creates or changes a release, a draft, a tag or an
+  attestation, and it skips `checks` and `e2e`, which run on the pull request as `ci.yml` and `e2e.yml`.
+  It costs about 25 to 35 minutes of runner time per push to the open promotion pull request (a newer
+  push cancels the older dry run). It is not a required check; add `Release` jobs to the `Protect main`
+  ruleset only if you want a red dry run to block the merge. Read it before you merge: a red dry run is
+  what the merge would have failed on.
+- **Expected (dry run):** `prepare`, the three `build` legs, `clean-machine`, `clean-machine-macos` and
+  `dry-run-assemble` are green; every other job shows as skipped. A real merge then runs the same
+  builds with the draft, the signing and notarization secrets, `attach`, `attest`, `verify-draft` and
+  `publish`.
 - **Failure:** any job red. A failed `clean-machine` leaves the draft in place; the next promotion
-  prunes the stale Windows assets and rebuilds it. Read the failed step's log before you re-run.
-- **Open:** whether `tauri-action` attaches to an existing draft by ID or commitish is to be confirmed
-  when the release workflow is first run.
+  prunes the stale Windows assets and rebuilds it. Read the failed step's log first. "Re-run" of a failed
+  `Release` run is only for transient failures (a runner or network error): a re-run replays the old merge
+  commit with the workflow file and scripts of that commit, so it cannot pick up a fix. A code or workflow
+  fix goes through `development` and a new promotion pull request, whose new merge commit makes the
+  next run prune the stale draft's assets and rebuild them. The build legs do not cancel each other, so
+  one run shows every failing leg, and the smoke jobs still run for the legs that built.
+- **Closed:** `tauri-action` attaches to the existing draft by release ID (draft 420976097 of the failed
+  run 39818216211 shows the installer, the AppImage, the deb and their signatures attached that way).
 
 ## G5 Clean-machine run on another machine
 
@@ -206,8 +234,10 @@ hosted runner yet.
   where you choose. The announcement text is yours.
 - **Expected:** the release is public, the installer digest matches `SHA256SUMS`, and the release notes
   include the SmartScreen guidance from the [README](../../README.md#install).
-- **Failure:** a job fails, so nothing is published. Read the log, fix, and re-run; a rerun reuses the
-  draft. A digest mismatch: start again from G4.
+- **Failure:** a job fails, so nothing is published. Read the log. For a transient runner or network
+  failure, "Re-run failed jobs" reuses the draft; for anything in the code or the workflow, fix it on
+  `development` and promote again (see G4: a re-run replays the old merge commit). A digest mismatch: start
+  again from G4.
 
 ## Open questions for the owner
 
