@@ -14,6 +14,10 @@ drafts take the body of their version section from this file.
 
 ### Changed
 
+- Dependencies: `clipboard-win` 5.4.1 (yanked upstream after an out-of-bounds read fix) is locked to
+  5.4.3, and `ctutils` 0.4.3 (RUSTSEC-2026-0385, non-constant-time mask generation, reached through
+  `hmac`) to 0.4.5, which the supply-chain check requires.
+
 - Releases: each merged promotion now gets the next patch version automatically, computed from the
   existing `v*` tags and stamped into the build checkout, so no version commit lands on `main` or
   `development`. `release.py bump` sets a floor for a minor, major or `-dev.N` release. The release
