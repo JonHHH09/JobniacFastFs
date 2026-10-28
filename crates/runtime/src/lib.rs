@@ -2,7 +2,8 @@
 //!
 //! [`process_environment`] takes the one immutable snapshot of the process environment. The
 //! loaders in [`arbeitnow`] and [`services`] are pure functions of a snapshot, so tests never
-//! touch the real environment. Opt-in features stay off unless their flag is exactly `1`.
+//! touch the real environment. Opt-in features stay off unless their flag is exactly `1`; only the
+//! desktop app overlays defaults that turn them on ([`desktop_features`]).
 #![forbid(unsafe_code)]
 
 pub mod app_settings;
@@ -11,6 +12,7 @@ pub mod artifacts;
 pub mod blocking;
 pub mod database;
 pub mod deletion;
+pub mod desktop_features;
 pub mod diagnostics;
 pub mod document_ports;
 pub mod generation;

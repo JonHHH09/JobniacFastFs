@@ -13,6 +13,7 @@ import { Spinner } from "../../ui/spinner";
 import { StatusMessage } from "../../ui/status-message";
 import { Switch } from "../../ui/switch";
 import { UpdatesCard } from "../updates/UpdatesCard";
+import { FeaturesCard } from "./FeaturesCard";
 import { useMcpServer } from "./useMcpServer";
 
 // The ranges are a convenience for the form only: Rust validates the port and its answer is final.
@@ -61,11 +62,12 @@ function statusHint(status: McpServerStatusDto): string | null {
   }
 }
 
-/** The settings screen: a card for the MCP server and one for updates. */
+/** The settings screen: a card for the MCP server, the optional features and updates. */
 export function SettingsPage() {
   return (
     <div className="grid gap-[18px]">
       <McpServerCard />
+      <FeaturesCard />
       <UpdatesCard />
     </div>
   );

@@ -37,7 +37,9 @@ The only network traffic the app makes on its own is the update check (see [Upda
 
 ## Opt-in features
 
-These features are off unless their variable is set to exactly `1`. `true`, `yes` and `01` are off. Set a variable in the environment that starts the app or the MCP client.
+In the desktop app these features are on by default, and **Settings > Optional features** has a switch for each (a change applies after you restart the app). A variable in the environment that starts the app overrides the switch: any value other than `1` (`0`, `true`, `yes`, `01`) turns the feature off, and the switch is then disabled. The `jobniac-cli` command line keeps every feature off unless its variable is set to exactly `1`.
+
+The first start with Arbeitnow on creates `feature-keys.json` in the app data folder, which holds the two signing keys the feature needs (only you can read it; it is not sent anywhere). The first start with generation on sets up the PDF output folder for you, so the one-time `setup-generated-root` is only for the command line.
 
 | Variable | Feature |
 |---|---|
@@ -45,12 +47,12 @@ These features are off unless their variable is set to exactly `1`. `true`, `yes
 | `JOBNIAC_ARBEITNOW_ENABLED` | Scan and import jobs from the Arbeitnow board. Also needs `JOBNIAC_ARBEITNOW_CANDIDATE_KEY` and a valid `JOBNIAC_CURSOR_HMAC_SECRET` (32 characters or more). |
 | `JOBNIAC_DELETION_ENABLED` | Delete profiles and jobs. |
 | `JOBNIAC_DOCUMENT_ARTIFACTS_ENABLED` | Document artifacts and PDF export. |
-| `JOBNIAC_GENERATED_ENABLED` | PDF generation and cleanup. Run `jobniac-cli setup-generated-root` once first. |
+| `JOBNIAC_GENERATED_ENABLED` | PDF generation and cleanup. The command line needs `jobniac-cli setup-generated-root` run once first. |
 | `JOBNIAC_LOG_FILE` | Write a `jobniac.log` file in the application log folder. |
 
 The HTTP listener is also opt-in. `jobniac-cli http` starts only when you set `JOBNIAC_HTTP_PORT` (1024 to 65535) and `JOBNIAC_HTTP_BEARER_TOKEN` (43 to 128 characters from `A-Z a-z 0-9 - _`), and every request needs the token. The desktop app can start the same loopback server from Settings, with a new access token each time it starts. See [MCP Server](MCP-Server.md).
 
-Importing PDFs also needs `JOBNIAC_DOCUMENT_IMPORT_ROOT`, an absolute folder that PDFs are read from. Nothing outside it is read.
+In the desktop app, importing a PDF reads only the file you pick in the file dialog. If you set `JOBNIAC_DOCUMENT_IMPORT_ROOT` (an absolute folder), the app reads only inside that folder. The command line and the MCP tools always need that variable, and read nothing outside it.
 
 Turn on only what you use. Deletion and link fetching change data or reach the network.
 

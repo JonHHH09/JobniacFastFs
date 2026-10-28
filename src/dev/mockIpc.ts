@@ -3,6 +3,7 @@ import { arbeitnowHandlers } from "./mocks/arbeitnow";
 import { artifactHandlers } from "./mocks/artifacts";
 import { deletionHandlers } from "./mocks/deletion";
 import { documentHandlers } from "./mocks/documents";
+import { featureHandlers } from "./mocks/features";
 import { generationHandlers } from "./mocks/generation";
 import { healthHandlers } from "./mocks/health";
 import { jobHandlers } from "./mocks/jobs";
@@ -33,6 +34,7 @@ export const handlers: HandlerMap = {
   ...deletionHandlers,
   ...shellHandlers,
   ...settingsHandlers,
+  ...featureHandlers,
   ...updateHandlers,
 };
 

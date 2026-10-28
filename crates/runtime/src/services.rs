@@ -39,7 +39,7 @@ use crate::blocking::BlockingHasher;
 use crate::database::{database_path, prepare};
 use crate::deletion::{DeletionServices, compose_deletion};
 use crate::document_ports::{
-    ImportRootReader, WorkerCancellation, WorkerPdfExtractor, WorkerPdfRenderer,
+    ImportRootReader, PickedFileGrant, WorkerCancellation, WorkerPdfExtractor, WorkerPdfRenderer,
 };
 use crate::generation::{GenerationServices, compose_generation};
 
@@ -102,6 +102,9 @@ pub struct DocumentServices {
     /// Desktop-only keyset listing of stored documents, signed with the cursor key of
     /// `JOBNIAC_CURSOR_HMAC_SECRET`, validated at startup like the other listings.
     pub list: Arc<DocumentListService<SqliteUnitOfWork, SqliteDocumentRepository>>,
+    /// The file picked in the desktop native dialog, readable without an import root. Only the
+    /// desktop selection state writes it; the CLI and the MCP tools never do.
+    pub picked_file: PickedFileGrant,
 }
 
 /// The matching and review use cases.
@@ -247,7 +250,11 @@ fn compose_documents(
     pdfium_dir: Option<PathBuf>,
 ) -> Result<DocumentServices, StartupError> {
     let list_key = CursorKey::from_environment(env).map_err(|_| StartupError)?;
-    let reader = ImportRootReader::new(env.get(DOCUMENT_IMPORT_ROOT_VARIABLE).map(str::to_owned));
+    let picked_file = PickedFileGrant::new();
+    let reader = ImportRootReader::with_picked(
+        env.get(DOCUMENT_IMPORT_ROOT_VARIABLE).map(str::to_owned),
+        picked_file.clone(),
+    );
     let supervisor = crate::diagnostics::current_process_supervisor();
     let cancellation = WorkerCancellation::new();
     let extractor =
@@ -271,6 +278,7 @@ fn compose_documents(
         ),
         cancellation,
         renderer,
+        picked_file,
         list: Arc::new(DocumentListService::new(
             uow.clone(),
             SqliteDocumentRepository,

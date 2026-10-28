@@ -28,9 +28,12 @@ use secrecy::{ExposeSecret, SecretSlice};
 
 use crate::worker_fetch::WorkerBoardTransport;
 
-const FLAG_KEY: &str = "JOBNIAC_ARBEITNOW_ENABLED";
-const CANDIDATE_KEY: &str = "JOBNIAC_ARBEITNOW_CANDIDATE_KEY";
-const CURSOR_SECRET_KEY: &str = "JOBNIAC_CURSOR_HMAC_SECRET";
+/// Opt-in flag of the Arbeitnow services: admitted only as exactly `1`.
+pub const FLAG_KEY: &str = "JOBNIAC_ARBEITNOW_ENABLED";
+/// The base64url candidate signing key.
+pub const CANDIDATE_KEY: &str = "JOBNIAC_ARBEITNOW_CANDIDATE_KEY";
+/// The cursor HMAC secret.
+pub const CURSOR_SECRET_KEY: &str = "JOBNIAC_CURSOR_HMAC_SECRET";
 /// Maximum number of base64url data characters, before the optional padding.
 const MAX_ENCODED_CHARS: usize = 1024;
 const MIN_SECRET_LEN: usize = 32;

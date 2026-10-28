@@ -1,13 +1,16 @@
 //! The persisted application settings: `settings.json` in the app config directory.
 //!
-//! The file holds `{ "mcp": { "enabled": false, "port": 8765 }, "updates": { "autoCheck": false } }` and
-//! nothing else. It never holds
+//! The file holds `{ "mcp": { "enabled": false, "port": 8765 }, "updates": { "autoCheck": false },
+//! "features": { "arbeitnow": true, "linkFetch": true, "deletion": true, "documentArtifacts": true,
+//! "generation": true } }` and nothing else. The `features` switches default to on (see
+//! [`crate::desktop_features`]); an older file without the section, or without a key, gives on. It
+//! never holds
 //! the bearer token: the token is generated per start and kept in memory only (see
 //! [`crate::mcp_server`]). The caller supplies the directory, so tests use a temporary one and the
 //! file path never crosses IPC.
 //!
 //! Loading never fails: a missing, unreadable, oversized or malformed file gives the defaults (the
-//! MCP server off, port 8765), because a broken settings file must not block startup. Saving is
+//! MCP server off, port 8765, every optional feature on), because a broken settings file must not block startup. Saving is
 //! atomic: the new text goes to a temporary file in the same directory, which then replaces the
 //! settings file.
 
@@ -66,6 +69,36 @@ pub struct UpdateSettings {
     pub auto_check: bool,
 }
 
+/// The switches of the optional features of the desktop app. Every switch is on by default; a
+/// process environment variable of the feature overrides the switch (see
+/// [`crate::desktop_features`]). A change applies at the next start.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct FeatureSettings {
+    /// Arbeitnow board scan and import.
+    pub arbeitnow: bool,
+    /// Job posting capture from a link.
+    pub link_fetch: bool,
+    /// Hard deletion of profiles and jobs.
+    pub deletion: bool,
+    /// Document artifacts and their export.
+    pub document_artifacts: bool,
+    /// Resume and cover-letter PDF generation.
+    pub generation: bool,
+}
+
+impl Default for FeatureSettings {
+    fn default() -> Self {
+        Self {
+            arbeitnow: true,
+            link_fetch: true,
+            deletion: true,
+            document_artifacts: true,
+            generation: true,
+        }
+    }
+}
+
 /// All application settings.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
@@ -74,6 +107,8 @@ pub struct AppSettings {
     pub mcp: McpSettings,
     /// The updater section.
     pub updates: UpdateSettings,
+    /// The optional feature switches.
+    pub features: FeatureSettings,
 }
 
 /// The settings could not be written. The text names no path and no cause.
@@ -165,6 +200,13 @@ mod tests {
                 port: 4321,
             },
             updates: UpdateSettings { auto_check: true },
+            features: FeatureSettings {
+                arbeitnow: false,
+                link_fetch: true,
+                deletion: false,
+                document_artifacts: true,
+                generation: false,
+            },
         };
         settings.save(dir.path())?;
         assert_eq!(AppSettings::load(dir.path()), settings);
@@ -184,7 +226,14 @@ mod tests {
             value,
             serde_json::json!({
                 "mcp": { "enabled": false, "port": 8765 },
-                "updates": { "autoCheck": false }
+                "updates": { "autoCheck": false },
+                "features": {
+                    "arbeitnow": true,
+                    "linkFetch": true,
+                    "deletion": true,
+                    "documentArtifacts": true,
+                    "generation": true
+                }
             })
         );
         Ok(())
@@ -202,6 +251,34 @@ mod tests {
         let settings = AppSettings::load(dir.path());
         assert!(settings.mcp.enabled);
         assert!(!settings.updates.auto_check);
+        Ok(())
+    }
+
+    #[test]
+    fn every_feature_is_on_by_default_and_for_an_older_file()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let all_on = FeatureSettings::default();
+        assert!(
+            all_on.arbeitnow
+                && all_on.link_fetch
+                && all_on.deletion
+                && all_on.document_artifacts
+                && all_on.generation
+        );
+        let dir = directory()?;
+        // A file from before the section existed, and one that names a single key.
+        fs::write(
+            dir.path().join(SETTINGS_FILE),
+            r#"{"mcp":{"enabled":true,"port":4000},"updates":{"autoCheck":true}}"#,
+        )?;
+        assert_eq!(AppSettings::load(dir.path()).features, all_on);
+        fs::write(
+            dir.path().join(SETTINGS_FILE),
+            r#"{"features":{"deletion":false}}"#,
+        )?;
+        let settings = AppSettings::load(dir.path());
+        assert!(!settings.features.deletion);
+        assert!(settings.features.arbeitnow && settings.features.generation);
         Ok(())
     }
 
@@ -291,6 +368,7 @@ mod tests {
                 port: 80,
             },
             updates: UpdateSettings::default(),
+            features: FeatureSettings::default(),
         };
         assert_eq!(settings.save(dir.path()), Err(SettingsSaveError));
         assert!(!dir.path().join(SETTINGS_FILE).exists());

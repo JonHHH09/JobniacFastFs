@@ -12,6 +12,7 @@ use jobniac_core::arbeitnow::scan::ScanRequest;
 use jobniac_core::artifacts::DocumentArtifact;
 use jobniac_runtime::app_settings::{AppSettings, SettingsSaveError};
 use jobniac_runtime::arbeitnow::ArbeitnowServices;
+use jobniac_runtime::desktop_features::FeatureStates;
 use jobniac_runtime::job_links::JobLinkUseCase;
 use jobniac_runtime::mcp_server::{McpSupervisor, ProcessSpawner};
 use jobniac_runtime::services::{Services, StartupError};
@@ -356,6 +357,8 @@ pub struct AppState {
     /// The app config directory that holds `settings.json`, or `None` when the platform gave none
     /// (a save then fails and the settings stay in memory only). The path never crosses IPC.
     settings_dir: Option<PathBuf>,
+    /// Which optional features the environment forces and which are composed in this run.
+    feature_states: FeatureStates,
     /// The supervisor of the `jobniac-cli http` child (the MCP server switch).
     mcp: Arc<McpSupervisor>,
 }
@@ -407,6 +410,7 @@ impl AppState {
             settings_in_flight: AtomicBool::new(false),
             settings: Mutex::new(AppSettings::default()),
             settings_dir: None,
+            feature_states: FeatureStates::new(),
             // No sidecar and no inherited environment: the composition root replaces it.
             mcp: Arc::new(McpSupervisor::new(
                 Arc::new(ProcessSpawner::with_sidecar(None)),
@@ -422,6 +426,19 @@ impl AppState {
         self.settings_dir = directory;
         self.settings = Mutex::new(settings);
         self
+    }
+
+    /// Attaches what each optional feature came to at startup. The composition root calls this once,
+    /// before the state is managed.
+    #[must_use]
+    pub fn with_feature_states(mut self, feature_states: FeatureStates) -> Self {
+        self.feature_states = feature_states;
+        self
+    }
+
+    /// What each optional feature came to at startup.
+    pub fn feature_states(&self) -> FeatureStates {
+        self.feature_states
     }
 
     /// Attaches the MCP server supervisor. The composition root calls this once, before the state is
@@ -569,8 +586,20 @@ impl AppState {
     }
 
     /// Replaces the held document selection (a choose has picked a file, or refused its shape).
+    ///
+    /// The picked path is also granted to the document reader (no import root needed for it); the
+    /// grant follows the selection and is the only way a path reaches the reader unrooted.
     pub fn stage_selection(&self, selection: PendingSelection) {
-        *lock(&self.selection) = Some(selection);
+        // The grant changes under the selection lock, so a racing release can never leave a grant
+        // without its selection (or the reverse).
+        let mut held = lock(&self.selection);
+        if let Ok(services) = &self.services {
+            match selection.path.to_str() {
+                Some(path) => services.documents.picked_file.grant(path),
+                None => services.documents.picked_file.revoke(),
+            }
+        }
+        *held = Some(selection);
     }
 
     /// The held document selection, cloned. The slot keeps it until it is replaced or cleared.
@@ -580,8 +609,14 @@ impl AppState {
     }
 
     /// Drops the held document selection.
+    ///
+    /// The grant is revoked under the same lock that guards the selection, so both change together.
     pub fn clear_selection(&self) {
-        *lock(&self.selection) = None;
+        let mut held = lock(&self.selection);
+        if let Ok(services) = &self.services {
+            services.documents.picked_file.revoke();
+        }
+        *held = None;
     }
 
     /// Issues the confirmation token of one delete request, replacing any earlier one. The token is a

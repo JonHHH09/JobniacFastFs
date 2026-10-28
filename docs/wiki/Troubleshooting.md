@@ -30,14 +30,14 @@ If you build from source, fetch PDFium first with `scripts/fetch-pdfium.sh` (see
 
 ## A screen says a feature is not configured or unavailable
 
-Several features are off until you set a variable to exactly `1`: `true`, `yes` and `01` do not count. See the table in [Data and Privacy](Data-and-Privacy.md). Quit the app and start it again after you change the environment.
+The desktop app turns these features on by default. Open **Settings > Optional features** to check the switch of the feature, and restart the app after you change one. A switch is disabled when an environment variable sets the feature; a value other than `1` turns it off, so remove the variable or set it to `1`. See the table in [Data and Privacy](Data-and-Privacy.md).
 
-- Generate: `JOBNIAC_GENERATED_ENABLED=1`, and run `jobniac-cli setup-generated-root` once.
-- Arbeitnow: `JOBNIAC_ARBEITNOW_ENABLED=1`, plus `JOBNIAC_ARBEITNOW_CANDIDATE_KEY` and a `JOBNIAC_CURSOR_HMAC_SECRET` of 32 characters or more.
-- Add from link: `JOBNIAC_LINK_FETCH_ENABLED=1`.
-- Delete: `JOBNIAC_DELETION_ENABLED=1`.
-- Save PDF (export): `JOBNIAC_DOCUMENT_ARTIFACTS_ENABLED=1`.
-- Import PDF: `JOBNIAC_DOCUMENT_IMPORT_ROOT` set to an absolute folder.
+- Generate: `JOBNIAC_GENERATED_ENABLED`, which the app sets up itself unless the variable is `0` or another value. If the output folder could not be set up, the log says so and generation stays off.
+- Arbeitnow: `JOBNIAC_ARBEITNOW_ENABLED`. The app creates the keys it needs; a `JOBNIAC_CURSOR_HMAC_SECRET` or `JOBNIAC_ARBEITNOW_CANDIDATE_KEY` that you set must be valid, or the feature stays off.
+- Add from link: `JOBNIAC_LINK_FETCH_ENABLED`.
+- Delete: `JOBNIAC_DELETION_ENABLED`.
+- Save PDF (export): `JOBNIAC_DOCUMENT_ARTIFACTS_ENABLED`.
+- Import PDF: in the desktop app nothing to set; with `JOBNIAC_DOCUMENT_IMPORT_ROOT` set, the file must be inside that folder.
 
 ## The app shows a startup message and exits, or Health reports DOWN
 

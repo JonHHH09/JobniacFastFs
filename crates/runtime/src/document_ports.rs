@@ -10,7 +10,7 @@
 
 use std::future::{Future, pending};
 use std::path::PathBuf;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex, PoisonError};
 
 use async_trait::async_trait;
 use jobniac_core::documents::{
@@ -18,7 +18,7 @@ use jobniac_core::documents::{
     PdfRenderer, PdfText, RENDER_FAILURE_MESSAGE, RenderedPdfPage,
 };
 use jobniac_core::errors::{AppError, ApplicationError, ErrorCode, validation_error};
-use jobniac_infra::files::import_root::{ImportRefusal, ImportRoot};
+use jobniac_infra::files::import_root::{ImportRefusal, ImportRoot, read_picked};
 use jobniac_infra::workers::WorkerSupervisor;
 use jobniac_infra::workers::pdf::{
     self, EXTRACT_FAILURE_MESSAGE, EXTRACTION_VALIDATION_MESSAGE, EXTRACTOR_VERSION,
@@ -26,18 +26,67 @@ use jobniac_infra::workers::pdf::{
 };
 use tokio::sync::watch;
 
+/// The one file the desktop user picked in the native file dialog and that may be read without an
+/// import root. Only Rust code that holds the picker result puts a path in it ([`Self::grant`]);
+/// no IPC string and no MCP argument ever does. It holds at most one path, and the desktop state
+/// revokes it when the selection is replaced, spent or reset.
+#[derive(Debug, Clone, Default)]
+pub struct PickedFileGrant {
+    path: Arc<Mutex<Option<String>>>,
+}
+
+impl PickedFileGrant {
+    /// A grant that admits nothing.
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Admits exactly `path` (a picker result), replacing any earlier grant.
+    pub fn grant(&self, path: &str) {
+        *self.path.lock().unwrap_or_else(PoisonError::into_inner) = Some(path.to_owned());
+    }
+
+    /// Admits nothing.
+    pub fn revoke(&self) {
+        *self.path.lock().unwrap_or_else(PoisonError::into_inner) = None;
+    }
+
+    fn admits(&self, path: &str) -> bool {
+        self.path
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .as_deref()
+            == Some(path)
+    }
+}
+
 /// Reads files from the configured document import root.
+///
+/// With no root configured, the reader also reads the file in its [`PickedFileGrant`] (the desktop
+/// app's native-dialog choice) through the same safe file layer, without the containment rule. With
+/// a root configured the root always applies, picked or not.
 #[derive(Debug, Clone)]
 pub struct ImportRootReader {
     root: ImportRoot,
+    root_configured: bool,
+    picked: PickedFileGrant,
 }
 
 impl ImportRootReader {
     /// A reader for `root`; `None` or an empty value refuses every read as not configured.
     #[must_use]
-    pub const fn new(root: Option<String>) -> Self {
+    pub fn new(root: Option<String>) -> Self {
+        Self::with_picked(root, PickedFileGrant::new())
+    }
+
+    /// A reader for `root` that also admits the file of `picked` while no root is configured.
+    #[must_use]
+    pub fn with_picked(root: Option<String>, picked: PickedFileGrant) -> Self {
         Self {
+            root_configured: root.as_deref().is_some_and(|text| !text.is_empty()),
             root: ImportRoot::new(root),
+            picked,
         }
     }
 }
@@ -48,15 +97,22 @@ impl DocumentFileReader for ImportRootReader {
         // The read is blocking file IO (up to the import limit): it runs on the blocking pool so
         // that no async worker thread waits on the disk.
         let root = self.root.clone();
+        let picked = !self.root_configured && self.picked.admits(path);
         let path = path.to_owned();
-        let outcome = tokio::task::spawn_blocking(move || root.read(&path))
-            .await
-            .map_err(|_| {
-                AppError::from(ApplicationError::with_message(
-                    ErrorCode::InternalError,
-                    "Document import failed",
-                ))
-            })?;
+        let outcome = tokio::task::spawn_blocking(move || {
+            if picked {
+                read_picked(&path)
+            } else {
+                root.read(&path)
+            }
+        })
+        .await
+        .map_err(|_| {
+            AppError::from(ApplicationError::with_message(
+                ErrorCode::InternalError,
+                "Document import failed",
+            ))
+        })?;
         match outcome {
             Ok(file) => Ok(FileSnapshot {
                 file_name: file.file_name,
