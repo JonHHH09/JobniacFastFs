@@ -28,7 +28,7 @@
     "github.com"
   ],
   "allowed_email_suffixes": [".example", ".test", ".invalid", ".localhost"],
-  "allowed_emails": ["git@github.com"],
+  "allowed_emails": ["git@github.com", "i@izs.me"],
   "generic_profile_names": [
     "public",
     "default",

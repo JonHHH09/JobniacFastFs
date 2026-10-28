@@ -22,7 +22,9 @@ drafts take the body of their version section from this file.
 
 - Dependencies: `clipboard-win` 5.4.1 (yanked upstream after an out-of-bounds read fix) is locked to
   5.4.3, and `ctutils` 0.4.3 (RUSTSEC-2026-0385, non-constant-time mask generation, reached through
-  `hmac`) to 0.4.5, which the supply-chain check requires.
+  `hmac`) to 0.4.5, which the supply-chain check requires. `webpki-root-certs` 1.0.9
+  (RUSTSEC-2026-0383, bundled roots still trusted distrusted emSign intermediates, reached through
+  `reqwest`'s `rustls-platform-verifier`) is locked to 1.0.10.
 
 - Releases: each merged promotion now gets the next patch version automatically, computed from the
   existing `v*` tags and stamped into the build checkout, so no version commit lands on `main` or

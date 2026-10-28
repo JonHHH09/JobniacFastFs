@@ -8,8 +8,8 @@ stays on your machine.
 
 ## Status
 
-No release has been published yet. The release is being prepared: the first release will be a draft
-on GitHub Releases that the owner publishes by hand.
+The first release will be a draft
+on GitHub Releases.
 
 ## Requirements
 
