@@ -38,12 +38,13 @@ pub fn normalize(text: Option<&str>) -> String {
 
 /// Lower-cases, decomposes and drops the marks of `text` with Unicode 16.0.0 data.
 ///
-/// The Rust standard library and `unicode-normalization` use Unicode 17.0, which gives the code
-/// points in [`UNICODE_17_ONLY_CASED`] a lowercase mapping and, for U+A7F1, a compatibility
-/// decomposition. Unicode 16.0.0 leaves all of them unchanged. The text is therefore processed in
-/// the segments between those code points, and they are copied as they are. Unicode 16.0.0 treats
-/// them as unassigned, which is neither cased nor case-ignorable, so final-sigma context does not
-/// cross them, and the segment boundaries give the same context.
+/// The Rust standard library uses Unicode 17.0, which gives the code points in
+/// [`UNICODE_17_ONLY_CASED`] a lowercase mapping. `unicode-normalization` uses a newer Unicode
+/// version that also gives the code points in [`NEWER_THAN_16_DECOMPOSED`] a compatibility
+/// decomposition (and U+A7F1 one). Unicode 16.0.0 leaves all of them unchanged. The text is
+/// therefore processed in the segments between those code points, and they are copied as they are.
+/// Unicode 16.0.0 treats them as unassigned, which is neither cased nor case-ignorable, so
+/// final-sigma context does not cross them, and the segment boundaries give the same context.
 fn fold_segments(text: &str) -> String {
     apply_segments(text, fold_segment)
 }
@@ -58,16 +59,13 @@ pub fn lower_text(text: &str) -> String {
     apply_segments(text, |segment| segment.to_lowercase())
 }
 
-/// Applies `step` to the segments of `text` between the [`UNICODE_17_ONLY_CASED`] code points,
-/// which are copied unchanged.
+/// Applies `step` to the segments of `text` between the code points that [`is_unassigned_in_16`]
+/// accepts, which are copied unchanged.
 fn apply_segments(text: &str, step: impl Fn(&str) -> String) -> String {
     let mut output = String::with_capacity(text.len());
     let mut segment_start = 0;
     for (index, character) in text.char_indices() {
-        if UNICODE_17_ONLY_CASED
-            .binary_search(&u32::from(character))
-            .is_ok()
-        {
+        if is_unassigned_in_16(character) {
             output.push_str(&step(&text[segment_start..index]));
             output.push(character);
             segment_start = index + character.len_utf8();
@@ -92,6 +90,30 @@ const UNICODE_17_ONLY_CASED: [u32; 29] = [
     0xA7CE, 0xA7D2, 0xA7D4, 0xA7F1, 0x16EA0, 0x16EA1, 0x16EA2, 0x16EA3, 0x16EA4, 0x16EA5, 0x16EA6,
     0x16EA7, 0x16EA8, 0x16EA9, 0x16EAA, 0x16EAB, 0x16EAC, 0x16EAD, 0x16EAE, 0x16EAF, 0x16EB0,
     0x16EB1, 0x16EB2, 0x16EB3, 0x16EB4, 0x16EB5, 0x16EB6, 0x16EB7, 0x16EB8,
+];
+
+/// Whether Unicode 16.0.0 reads `character` as unassigned although a newer data set the standard
+/// library or `unicode-normalization` uses gives it a case mapping or a decomposition.
+fn is_unassigned_in_16(character: char) -> bool {
+    let code_point = u32::from(character);
+    UNICODE_17_ONLY_CASED.binary_search(&code_point).is_ok()
+        || NEWER_THAN_16_DECOMPOSED
+            .iter()
+            .any(|&(first, last)| (first..=last).contains(&code_point))
+}
+
+/// Inclusive ranges of code points that `unicode-normalization` decomposes (NFKD) and Unicode
+/// 16.0.0 leaves unchanged: U+0558, U+058B to U+058C, U+209D to U+209F, U+107BB to U+107BF,
+/// U+1B123 to U+1B126, U+1D6A6, U+1DF95 and U+1DFCD to U+1DFFF.
+const NEWER_THAN_16_DECOMPOSED: [(u32, u32); 8] = [
+    (0x558, 0x558),
+    (0x58B, 0x58C),
+    (0x209D, 0x209F),
+    (0x107BB, 0x107BF),
+    (0x1B123, 0x1B126),
+    (0x1D6A6, 0x1D6A6),
+    (0x1DF95, 0x1DF95),
+    (0x1DFCD, 0x1DFFF),
 ];
 
 /// Returns the distinct search tokens of `text` in first-occurrence order.
