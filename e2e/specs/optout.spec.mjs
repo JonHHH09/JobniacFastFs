@@ -11,12 +11,15 @@ import { absent, click, fill, openSection, shown, WAIT } from "../support/ui.mjs
 
 /** Calls a Tauri command through the app's IPC and returns `{ value }` or `{ error }`. */
 async function invoke(browser, command) {
-  return browser.executeAsync((name, done) => {
-    window.__TAURI_INTERNALS__.invoke(name).then(
-      (value) => done({ value }),
-      (error) => done({ error: error?.message ?? JSON.stringify(error) }),
-    );
-  }, command);
+  // WebdriverIO 9+ has no executeAsync: execute awaits the promise the script returns.
+  return browser.execute(
+    (name) =>
+      window.__TAURI_INTERNALS__.invoke(name).then(
+        (value) => ({ value }),
+        (error) => ({ error: error?.message ?? JSON.stringify(error) }),
+      ),
+    command,
+  );
 }
 
 /** Waits until the capability command answers, and asserts that `field` is `false`. */
