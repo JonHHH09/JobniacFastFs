@@ -1276,7 +1276,7 @@ mod tests {
     #[test]
     fn the_pending_replacement_and_selection_debug_text_never_shows_the_token_or_path() {
         let replacement = PendingReplacement {
-            token: "secret-replacement-token".to_owned(),
+            token: "replacement-tok".to_owned(),
             document_id: Uuid::nil(),
             existing_profile_id: Uuid::nil(),
             expected_revision: 1,
@@ -1284,15 +1284,15 @@ mod tests {
         };
         let text = format!("{replacement:?}");
         assert!(text.contains("PendingReplacement") && text.contains("<redacted>"));
-        assert!(!text.contains("secret-replacement-token"));
+        assert!(!text.contains("replacement-tok"));
         let selection = PendingSelection {
-            token: "secret-selection-token".to_owned(),
+            token: "selection-tok".to_owned(),
             path: PathBuf::from("/private/place/cv.pdf"),
             display_name: "cv.pdf".to_owned(),
         };
         let text = format!("{selection:?}");
         assert!(text.contains("cv.pdf"));
-        assert!(!text.contains("secret-selection-token") && !text.contains("/private/place"));
+        assert!(!text.contains("selection-tok") && !text.contains("/private/place"));
     }
 
     #[test]

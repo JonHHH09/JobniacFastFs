@@ -2598,6 +2598,7 @@ dependencies = [
  "image",
  "jobniac-core",
  "jobniac-infra",
+ "jobniac-testkit",
  "pdfium-render",
  "secrecy",
  "serde",

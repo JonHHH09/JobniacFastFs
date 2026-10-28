@@ -31,7 +31,7 @@ use jobniac_core::german::generation::{GermanGenerationPorts, GermanGenerationSe
 use jobniac_core::german::translation::GermanResumeTranslator;
 use jobniac_core::health::CleanupHealthPort;
 use jobniac_infra::generated::asset_files::OwnedAssetFiles;
-use jobniac_infra::generated::root::ensure_private_directory;
+use jobniac_infra::generated::root::{ensure_private_directory, resolve_parent_links};
 use jobniac_infra::generated::setup::RootSetupFiles;
 use jobniac_infra::sqlite::cleanup::{
     OwnedFileAdapter, SqliteCleanupRepository, SqliteSetupRegistry,
@@ -69,6 +69,10 @@ pub struct GeneratedRootConfig {
     pub is_default: bool,
 }
 
+/// The app folder and the `generated` leaf of the default root, kept unresolved so a link in
+/// either place is still refused.
+const DEFAULT_ROOT_VERBATIM_COMPONENTS: usize = 2;
+
 /// A generated-root location: an admitted explicit or default path. The path is never printed.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GeneratedRootLocation {
@@ -91,8 +95,9 @@ pub const fn platform_name() -> &'static str {
 }
 
 /// Admits the generated-root location from one environment snapshot. An explicit root is used
-/// exactly; otherwise the per-user default is resolved from the same snapshot. Nothing is created
-/// or read.
+/// exactly; otherwise the per-user default is resolved from the same snapshot, with the links of
+/// its home-derived base directory resolved (opening the root never follows a link, so
+/// registration and every later lookup must name the real path). Nothing is created.
 #[must_use]
 pub fn load_generated_root_location(
     env: &Environment,
@@ -108,7 +113,7 @@ pub fn load_generated_root_location(
         EnvValue::Invalid => None,
         EnvValue::Missing => {
             resolve_default_generated_root(env, platform).map(|root| GeneratedRootLocation {
-                root,
+                root: resolve_parent_links(&root, DEFAULT_ROOT_VERBATIM_COMPONENTS),
                 is_default: true,
             })
         }
@@ -414,6 +419,9 @@ mod tests {
     use super::*;
 
     const ROOT_ID: &str = "6f1c2d3e-4a5b-4c6d-8e7f-900112233445";
+    /// A home that exists nowhere, so that resolving the links of the default root leaves it as
+    /// it is (`/home` itself is a link on some hosts).
+    const SYNTHETIC_HOME: &str = "/jobniac-synthetic/home";
 
     fn env(pairs: &[(&str, &str)]) -> Environment {
         Environment::from_pairs(pairs.iter().copied())
@@ -498,12 +506,12 @@ mod tests {
         let pairs = [
             (GENERATED_ENABLED_VARIABLE, "1"),
             (GENERATED_ROOT_ID_VARIABLE, ROOT_ID),
-            ("HOME", "/home/synthetic"),
+            ("HOME", SYNTHETIC_HOME),
         ];
         let config = load_generated_root_config(&env(&pairs), RootPlatform::Other, |_| None);
         assert_eq!(
             config.map(|config| config.root),
-            Some("/home/synthetic/.local/share/jobniac/generated".to_owned())
+            Some(format!("{SYNTHETIC_HOME}/.local/share/jobniac/generated"))
         );
     }
 
@@ -517,11 +525,11 @@ mod tests {
                 is_default: false,
             })
         );
-        let default = [("HOME", "/home/synthetic")];
+        let default = [("HOME", SYNTHETIC_HOME)];
         assert_eq!(
             load_generated_root_location(&env(&default), RootPlatform::Other),
             Some(GeneratedRootLocation {
-                root: "/home/synthetic/.local/share/jobniac/generated".to_owned(),
+                root: format!("{SYNTHETIC_HOME}/.local/share/jobniac/generated"),
                 is_default: true,
             })
         );

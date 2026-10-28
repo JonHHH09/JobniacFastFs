@@ -694,13 +694,13 @@ mod tests {
 
     #[test]
     fn the_environment_keys_win_and_the_missing_one_comes_from_the_file() {
-        let secret = "environment-secret-0123456789abcdefghij";
+        let from_environment = "environment-secret-0123456789abcdefghij";
         let result = run(
-            os(&[(CURSOR_SECRET_KEY, secret)]),
+            os(&[(CURSOR_SECRET_KEY, from_environment)]),
             &FeatureSettings::default(),
         );
         let env = effective(&result);
-        assert_eq!(env.get(CURSOR_SECRET_KEY), Some(secret));
+        assert_eq!(env.get(CURSOR_SECRET_KEY), Some(from_environment));
         assert_eq!(env.get(CANDIDATE_KEY), Some(CANDIDATE));
         assert!(on(&result, Feature::Arbeitnow));
     }
@@ -870,6 +870,41 @@ mod tests {
         .await;
         assert!(again.warnings.is_empty());
         let services = crate::services::compose(&again.environment())?;
+        assert!(services.generation.facade.is_available().await);
+        Ok(())
+    }
+
+    /// A home reached through a link (macOS `/var` temporary directories, a relocated home,
+    /// `/home` pointing at `/var/home`): opening the root never follows a link, so the default
+    /// root is registered, and found again, under the real location of the home.
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn a_home_behind_a_link_still_registers_the_default_root() -> TestResult {
+        let dir = tempfile::tempdir()?;
+        let real = std::fs::canonicalize(dir.path())?.join("real-home");
+        std::fs::create_dir(&real)?;
+        let link = std::fs::canonicalize(dir.path())?.join("linked-home");
+        std::os::unix::fs::symlink(&real, &link)?;
+        let keys = dir.path().join("keys");
+        let database = real.join("jobniac.sqlite3");
+        let linked = link.to_str().ok_or("temporary path is not Unicode")?;
+        let database = database.to_str().ok_or("temporary path is not Unicode")?;
+        let pairs = os(&[
+            ("JOBNIAC_DB_PATH", database),
+            ("LOCALAPPDATA", linked),
+            ("HOME", linked),
+            ("XDG_DATA_HOME", linked),
+        ]);
+        let prepared = prepare_environment(pairs, &FeatureSettings::default(), Some(&keys)).await;
+        assert!(prepared.warnings.is_empty(), "{:?}", prepared.warnings);
+        let location = load_generated_root_location(&prepared.environment(), platform())
+            .ok_or("the app must resolve the root")?;
+        assert!(
+            location
+                .root
+                .starts_with(real.to_str().ok_or("not Unicode")?)
+        );
+        let services = crate::services::compose(&prepared.environment())?;
         assert!(services.generation.facade.is_available().await);
         Ok(())
     }

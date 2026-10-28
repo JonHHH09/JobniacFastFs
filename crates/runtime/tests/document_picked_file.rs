@@ -7,6 +7,7 @@ use std::path::Path;
 
 use jobniac_core::documents::DocumentFileReader;
 use jobniac_runtime::document_ports::{ImportRootReader, PickedFileGrant};
+use jobniac_testkit::scratch::scratch_dir;
 
 type TestResult = Result<(), Box<dyn Error>>;
 
@@ -24,7 +25,7 @@ fn write_pdf(directory: &Path, name: &str) -> Result<String, Box<dyn Error>> {
 
 #[tokio::test]
 async fn a_granted_file_outside_any_root_is_read_when_no_root_is_set() -> TestResult {
-    let directory = tempfile::tempdir()?;
+    let directory = scratch_dir("jobniac-picked-")?;
     let path = write_pdf(directory.path(), "cv.pdf")?;
     let grant = PickedFileGrant::new();
     let reader = ImportRootReader::with_picked(None, grant.clone());
@@ -37,7 +38,7 @@ async fn a_granted_file_outside_any_root_is_read_when_no_root_is_set() -> TestRe
 
 #[tokio::test]
 async fn an_empty_root_counts_as_unset() -> TestResult {
-    let directory = tempfile::tempdir()?;
+    let directory = scratch_dir("jobniac-picked-")?;
     let path = write_pdf(directory.path(), "cv.pdf")?;
     let grant = PickedFileGrant::new();
     let reader = ImportRootReader::with_picked(Some(String::new()), grant.clone());
@@ -48,7 +49,7 @@ async fn an_empty_root_counts_as_unset() -> TestResult {
 
 #[tokio::test]
 async fn a_path_that_was_not_picked_is_refused_when_no_root_is_set() -> TestResult {
-    let directory = tempfile::tempdir()?;
+    let directory = scratch_dir("jobniac-picked-")?;
     let picked = write_pdf(directory.path(), "picked.pdf")?;
     let other = write_pdf(directory.path(), "other.pdf")?;
     let grant = PickedFileGrant::new();
@@ -65,8 +66,8 @@ async fn a_path_that_was_not_picked_is_refused_when_no_root_is_set() -> TestResu
 
 #[tokio::test]
 async fn a_picked_file_outside_a_configured_root_is_still_refused() -> TestResult {
-    let root = tempfile::tempdir()?;
-    let elsewhere = tempfile::tempdir()?;
+    let root = scratch_dir("jobniac-picked-")?;
+    let elsewhere = scratch_dir("jobniac-picked-")?;
     let outside = write_pdf(elsewhere.path(), "cv.pdf")?;
     let inside = write_pdf(root.path(), "cv.pdf")?;
     let grant = PickedFileGrant::new();
@@ -82,7 +83,7 @@ async fn a_picked_file_outside_a_configured_root_is_still_refused() -> TestResul
 
 #[tokio::test]
 async fn a_granted_traversal_or_relative_path_is_refused() -> TestResult {
-    let directory = tempfile::tempdir()?;
+    let directory = scratch_dir("jobniac-picked-")?;
     write_pdf(directory.path(), "cv.pdf")?;
     let grant = PickedFileGrant::new();
     let reader = ImportRootReader::with_picked(None, grant.clone());
