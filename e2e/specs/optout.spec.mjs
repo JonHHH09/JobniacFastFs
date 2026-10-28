@@ -7,7 +7,7 @@
 // capability query would otherwise pass `absent` before the query resolved.
 import assert from "node:assert/strict";
 import { captureFailure, closeSession, openSession } from "../support/session.mjs";
-import { absent, click, fill, openSection, shown, WAIT } from "../support/ui.mjs";
+import { absent, click, fill, openSection, shown, WAIT, waitForText } from "../support/ui.mjs";
 
 /** Calls a Tauri command through the app's IPC and returns `{ value }` or `{ error }`. */
 async function invoke(browser, command) {
@@ -90,6 +90,9 @@ describe("JobniacFast optional features (opt-out session)", function () {
     await absent(browser, "deleteProfileButton");
 
     await openSection(browser, "jobs");
+    // The saved list loads on Refresh, as in the default session.
+    await click(browser, "refreshJobsButton");
+    await waitForText(browser, "jobListPanel", "Senior Rust Engineer");
     await click(browser, "openJobButton");
     await shown(browser, "reloadJobButton");
     await absent(browser, "deleteJobButton");
