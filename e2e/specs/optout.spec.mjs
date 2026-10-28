@@ -93,7 +93,9 @@ describe("JobniacFast optional features (opt-out session)", function () {
     // The saved list loads on Refresh, as in the default session.
     await click(browser, "refreshJobsButton");
     await waitForText(browser, "jobListPanel", "Senior Rust Engineer");
-    await click(browser, "openJobButton");
+    // The default session saves more than one job; any of them opens the editor.
+    const [firstJob] = await browser.$$('[data-testid="openJobButton"]');
+    await firstJob.click();
     await shown(browser, "reloadJobButton");
     await absent(browser, "deleteJobButton");
   });
