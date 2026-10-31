@@ -26,6 +26,10 @@ drafts take the body of their version section from this file.
   (RUSTSEC-2026-0383, bundled roots still trusted distrusted emSign intermediates, reached through
   `reqwest`'s `rustls-platform-verifier`) is locked to 1.0.10.
 
+- Dependencies: `rusqlite`, the embedded SQLite binding of the storage layer, moves from 0.40.2 to
+  0.41.0 (still pinned exactly). The bundled SQLite engine changes with it: `libsqlite3-sys` goes
+  from 0.38.2, which bundles SQLite 3.53.2, to 0.39.1, which bundles SQLite 3.54.1.
+
 - Releases: each merged promotion now gets the next patch version automatically, computed from the
   existing `v*` tags and stamped into the build checkout, so no version commit lands on `main` or
   `development`. `release.py bump` sets a floor for a minor, major or `-dev.N` release. The release
