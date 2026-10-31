@@ -21,11 +21,14 @@ export function useMcpServer() {
     queryFn: () => runCommand(() => commands.settingsGet()),
     retry: false,
     refetchInterval: (state) => {
-      const status = state.state.data?.mcp.status;
-      if (status === "starting") {
+      const mcp = state.state.data?.mcp;
+      if (mcp?.status === "starting") {
         return STARTING_POLL_MS;
       }
-      return status === "running" ? RUNNING_POLL_MS : false;
+      // A stop that could not be confirmed is read again until the server is gone.
+      const watching =
+        mcp?.status === "running" || (mcp?.status === "failed" && mcp.stopIncomplete);
+      return watching ? RUNNING_POLL_MS : false;
     },
   });
 

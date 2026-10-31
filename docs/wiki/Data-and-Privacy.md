@@ -39,6 +39,16 @@ The only network traffic the app makes on its own is the update check (see [Upda
 
 In the desktop app these features are on by default, and **Settings > Optional features** has a switch for each (a change applies after you restart the app). A variable in the environment that starts the app overrides the switch: any value other than `1` (`0`, `true`, `yes`, `01`) turns the feature off, and the switch is then disabled. The `jobniac-cli` command line keeps every feature off unless its variable is set to exactly `1`.
 
+Three capabilities of the MCP server the app runs are off by default and need your explicit opt-in. Two reach the network and one deletes data:
+
+- **Let MCP clients scan Arbeitnow**: `scan_arbeitnow_jobs`, which contacts the Arbeitnow job board, and its pair `import_arbeitnow_job`.
+- **Let MCP clients add a job from a link**: `add_job_from_link`, which fetches the page.
+- **Let MCP clients delete profiles and jobs**: `delete_profile` and `delete_job`, which are permanent. MCP tools do not ask for confirmation.
+
+No other tool of the MCP catalog reaches the network. Turn these on in **Settings > Optional features** and restart the app. Turning one off again takes effect at once: if the MCP server is running, it is stopped and started again without that tool, so MCP clients must reconnect with the new access token, and the tool does not come back until you turn it on and restart the app. The app waits up to two seconds for the old server to exit. If it cannot confirm that the old server stopped, Settings says the server may still be running and no new server starts until it is gone; the switch stays off and the tool does not return, and closing and reopening the app is the way to be sure. If the settings cannot be saved, nothing changes: the switch stays on, the tool stays available and the running server is untouched. The Arbeitnow signing keys are passed to the MCP server only while **Let MCP clients scan Arbeitnow** is on. They are separate from the in-app switches **Arbeitnow job board**, **Add a job from a link** and **Delete profiles and jobs**, which stay on by default and never give MCP clients these tools.
+
+A variable set to exactly `1` in the environment that starts the app (`JOBNIAC_ARBEITNOW_ENABLED`, `JOBNIAC_LINK_FETCH_ENABLED`, `JOBNIAC_DELETION_ENABLED`) enables the feature in the app, as before, but it is a general choice and not an opt-in for MCP clients: the app does not pass it on to its MCP server, and the Settings switch stays off. A value other than `1` (`0`, `true`, an empty value) turns the feature off for the app and for MCP clients, and wins over the switch, which is then disabled. `jobniac-cli` reads these variables as it always did (each feature on only with exactly `1`).
+
 The first start with Arbeitnow on creates `feature-keys.json` in the app data folder, which holds the two signing keys the feature needs (only you can read it; it is not sent anywhere). The first start with generation on sets up the PDF output folder for you, so the one-time `setup-generated-root` is only for the command line.
 
 | Variable | Feature |

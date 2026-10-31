@@ -112,6 +112,8 @@ export const copy = {
     },
     startingHint: "Starting the server can take a few seconds.",
     failedHint: "The server did not start. Check the port, then turn it on again.",
+    stopIncompleteHint:
+      "The server could not be confirmed stopped, so it may still be running. No new server starts until it is gone. Close and reopen the app to be sure.",
     unavailableHint:
       "The server program is missing. Release builds include it; in a development build, run cargo build -p jobniac-cli first.",
     portLabel: "Port",
@@ -128,8 +130,15 @@ export const copy = {
   features: {
     title: "Optional features",
     intro:
-      "These features are on by default. Turn one off to remove it from the app and from the MCP server this app runs.",
-    restartNote: "Changes apply after you restart the app.",
+      "These features are on by default. Turn one off to remove it from the app. Arbeitnow, links and deleting have separate switches for MCP clients, below.",
+    mcpTitle: "MCP clients: network and deleting",
+    mcpIntro:
+      "These are off by default. An MCP client can use one of these tools only after you turn its switch on here. Setting an environment variable such as JOBNIAC_DELETION_ENABLED=1 does not turn them on for MCP clients. MCP tools do not ask for the confirmation the app asks for.",
+    stopIncompleteRow:
+      "The MCP server could not be confirmed stopped, so this tool may still be served until it is gone.",
+    mcpRevokeNote:
+      "Turning one of these off takes effect at once: if the MCP server is running, it restarts without that tool, and MCP clients must reconnect with the new access token. Turning one on applies after you restart the app.",
+    restartNote: "Changes apply after you restart the app, except turning off an MCP capability.",
     restartPending: "Applies after you restart the app.",
     startFailed: "Could not start; see the log.",
     forced: "An environment variable sets this one, so the switch has no effect.",
@@ -154,6 +163,18 @@ export const copy = {
       generation: {
         label: "Generate resume and cover-letter PDFs",
         hint: "Create PDF files in a private folder of this app.",
+      },
+      mcpArbeitnow: {
+        label: "Let MCP clients scan Arbeitnow",
+        hint: "Adds the scan_arbeitnow_jobs and import_arbeitnow_job tools to the MCP server. A scan contacts the Arbeitnow job board when a client asks.",
+      },
+      mcpLinkFetch: {
+        label: "Let MCP clients add a job from a link",
+        hint: "Adds the add_job_from_link tool to the MCP server. The page is fetched from the network when a client asks.",
+      },
+      mcpDeletion: {
+        label: "Let MCP clients delete profiles and jobs",
+        hint: "Adds the delete_profile and delete_job tools to the MCP server. A deletion is permanent, and the tools do not ask for confirmation.",
       },
     },
   },

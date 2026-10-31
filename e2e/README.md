@@ -63,7 +63,10 @@ test is printed to the console. The run root (`target/e2e-*`) is removed at the 
   redirected into the run root on Linux (`XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_CACHE_HOME`;
   `HOME` and `XDG_RUNTIME_DIR` are kept). **On Windows they are not redirected**: Tauri resolves them
   through Known Folder APIs that ignore `APPDATA` and `LOCALAPPDATA`, so the default session there
-  assumes the switches in the developer's real `settings.json` are at their defaults (on).
+  assumes the switches in the developer's real `settings.json` are at their defaults (on), and
+  the three MCP opt-ins (`mcpArbeitnow`, `mcpLinkFetch`, `mcpDeletion`) at theirs (off). The suite does not exercise the
+  MCP tools or turn those opt-ins on. Do not run it on a Windows machine whose real settings or data
+  you care about.
 - **The generated root is not in the user temporary folder.** On the Windows host,
   `setup-generated-root` refused a root under `%TEMP%`, under `C:\` and under `%LOCALAPPDATA%` with
   "could not be initialized", and accepted the same empty directory under the repository's `target/`

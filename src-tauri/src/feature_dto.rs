@@ -22,6 +22,12 @@ pub enum FeatureIdDto {
     DocumentArtifacts,
     /// Resume and cover-letter PDF generation.
     Generation,
+    /// MCP clients may scan the Arbeitnow board and import a candidate. Off until the user opts in.
+    McpArbeitnow,
+    /// MCP clients may add a job from a link. Off until the user opts in.
+    McpLinkFetch,
+    /// MCP clients may delete profiles and jobs. Off until the user opts in.
+    McpDeletion,
 }
 
 impl From<FeatureIdDto> for Feature {
@@ -32,6 +38,9 @@ impl From<FeatureIdDto> for Feature {
             FeatureIdDto::Deletion => Self::Deletion,
             FeatureIdDto::DocumentArtifacts => Self::DocumentArtifacts,
             FeatureIdDto::Generation => Self::Generation,
+            FeatureIdDto::McpArbeitnow => Self::McpArbeitnow,
+            FeatureIdDto::McpLinkFetch => Self::McpLinkFetch,
+            FeatureIdDto::McpDeletion => Self::McpDeletion,
         }
     }
 }
@@ -44,6 +53,9 @@ impl From<Feature> for FeatureIdDto {
             Feature::Deletion => Self::Deletion,
             Feature::DocumentArtifacts => Self::DocumentArtifacts,
             Feature::Generation => Self::Generation,
+            Feature::McpArbeitnow => Self::McpArbeitnow,
+            Feature::McpLinkFetch => Self::McpLinkFetch,
+            Feature::McpDeletion => Self::McpDeletion,
         }
     }
 }
@@ -71,13 +83,34 @@ pub struct FeatureDto {
 pub struct FeaturesDto {
     /// One entry per feature.
     pub features: Vec<FeatureDto>,
+    /// Whether an MCP server that was told to stop could not be confirmed stopped. A capability
+    /// that is off may then still be served by that server until it is gone, so the screen must not
+    /// show the capability as safely off.
+    pub stop_incomplete: bool,
+}
+
+/// Whether the saved switch of `feature` waits for a restart of the app.
+///
+/// An in-app feature waits when its switch differs from the one at startup. An MCP capability is
+/// revoked at once, so turning it off never waits; turning it on waits unless it is in force:
+/// it was off at startup, or it was granted at startup and has been revoked since (a grant never
+/// comes back in the same run).
+fn pending_restart(settings: &AppSettings, states: &FeatureStates, feature: Feature) -> bool {
+    let on = settings.features.is_on(feature);
+    if feature.is_mcp_capability() {
+        on && (!states.started_on(feature) || states.revoked(feature))
+    } else {
+        on != states.started_on(feature)
+    }
 }
 
 impl FeaturesDto {
-    /// The persisted `settings` together with what this run made of each feature.
+    /// The persisted `settings` together with what this run made of each feature, and whether the
+    /// MCP server could not be confirmed stopped.
     #[must_use]
-    pub fn new(settings: &AppSettings, states: &FeatureStates) -> Self {
+    pub fn new(settings: &AppSettings, states: &FeatureStates, stop_incomplete: bool) -> Self {
         Self {
+            stop_incomplete,
             features: Feature::ALL
                 .into_iter()
                 .map(|feature| FeatureDto {
@@ -85,7 +118,7 @@ impl FeaturesDto {
                     enabled: settings.features.is_on(feature),
                     effective: states.effective(feature),
                     forced_by_environment: states.forced(feature),
-                    pending_restart: settings.features.is_on(feature) != states.started_on(feature),
+                    pending_restart: pending_restart(settings, states, feature),
                 })
                 .collect(),
         }
@@ -101,8 +134,9 @@ mod tests {
         let states = FeatureStates::new()
             .with_effective(Feature::Arbeitnow, true)
             .with_forced(Feature::Deletion, true);
-        let dto = FeaturesDto::new(&AppSettings::default(), &states);
+        let dto = FeaturesDto::new(&AppSettings::default(), &states, false);
         let value = serde_json::to_value(&dto)?;
+        assert_eq!(value["stopIncomplete"], false);
         let ids: Vec<_> = value["features"]
             .as_array()
             .map(|features| features.iter().map(|f| f["id"].clone()).collect())
@@ -114,7 +148,10 @@ mod tests {
                 "linkFetch",
                 "deletion",
                 "documentArtifacts",
-                "generation"
+                "generation",
+                "mcpArbeitnow",
+                "mcpLinkFetch",
+                "mcpDeletion"
             ])
         );
         assert_eq!(
@@ -139,7 +176,7 @@ mod tests {
         // effective state. Started on and saved on but not effective (failed to start): not pending.
         let states = FeatureStates::new().with_started_on(Feature::LinkFetch, false);
         settings.features.set(Feature::LinkFetch, false);
-        let dto = FeaturesDto::new(&settings, &states);
+        let dto = FeaturesDto::new(&settings, &states, false);
         let pending: Vec<_> = dto
             .features
             .iter()
@@ -153,8 +190,50 @@ mod tests {
                 (FeatureIdDto::Deletion, true),
                 (FeatureIdDto::DocumentArtifacts, false),
                 (FeatureIdDto::Generation, false),
+                (FeatureIdDto::McpArbeitnow, false),
+                (FeatureIdDto::McpLinkFetch, false),
+                (FeatureIdDto::McpDeletion, false),
             ]
         );
+    }
+
+    #[test]
+    fn an_mcp_capability_waits_for_a_restart_only_when_turned_on_and_not_in_force() {
+        let pending = |on: bool, started_on: bool, revoked: bool| {
+            let mut settings = AppSettings::default();
+            settings.features.set(Feature::McpDeletion, on);
+            let states = FeatureStates::new()
+                .with_started_on(Feature::McpDeletion, started_on)
+                .with_revoked(Feature::McpDeletion, revoked);
+            FeaturesDto::new(&settings, &states, false)
+                .features
+                .iter()
+                .find(|feature| feature.id == FeatureIdDto::McpDeletion)
+                .map(|feature| feature.pending_restart)
+        };
+        // Turned on and not granted at startup: waits for the next start of the app.
+        assert_eq!(pending(true, false, false), Some(true));
+        // Granted at startup and still on: in force, nothing waits.
+        assert_eq!(pending(true, true, false), Some(false));
+        // Granted at startup, revoked, turned on again: a grant never comes back in the same run.
+        assert_eq!(pending(true, true, true), Some(true));
+        // Turning it off is applied at once, so it never waits, whatever the startup said.
+        assert_eq!(pending(false, true, false), Some(false));
+        assert_eq!(pending(false, true, true), Some(false));
+        assert_eq!(pending(false, false, false), Some(false));
+    }
+
+    #[test]
+    fn a_first_run_reports_the_mcp_capabilities_off_with_nothing_to_restart() {
+        let dto = FeaturesDto::new(&AppSettings::default(), &FeatureStates::new(), false);
+        for feature in &dto.features {
+            let mcp = matches!(
+                feature.id,
+                FeatureIdDto::McpArbeitnow | FeatureIdDto::McpLinkFetch | FeatureIdDto::McpDeletion
+            );
+            assert_eq!(feature.enabled, !mcp, "{:?}", feature.id);
+            assert!(!feature.pending_restart, "{:?}", feature.id);
+        }
     }
 
     #[test]
