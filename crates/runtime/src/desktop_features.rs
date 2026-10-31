@@ -1170,6 +1170,13 @@ mod tests {
 
     type Pairs = Vec<(OsString, OsString)>;
 
+    /// A home for a test that registers the default root. The generated root is refused when its
+    /// text differs from its final path, and on Windows `%TEMP%` can be an 8.3 alias that the final
+    /// path expands, so the home is built from the canonical temporary folder.
+    fn home_dir() -> std::io::Result<tempfile::TempDir> {
+        jobniac_testkit::scratch::scratch_dir("jobniac-home-")
+    }
+
     /// An environment with a database and a user directory for every platform's default root.
     fn home_environment(root: &Path) -> Result<Pairs, Box<dyn std::error::Error>> {
         let base = root.to_str().ok_or("temporary path is not Unicode")?;
@@ -1189,7 +1196,7 @@ mod tests {
 
     #[tokio::test]
     async fn generation_registers_the_default_root_so_that_composition_finds_it() -> TestResult {
-        let dir = tempfile::tempdir()?;
+        let dir = home_dir()?;
         let keys = dir.path().join("keys");
         let prepared = prepare_environment(
             home_environment(dir.path())?,
@@ -1312,7 +1319,7 @@ mod tests {
 
     #[tokio::test]
     async fn the_supervised_child_is_told_the_registered_root() -> TestResult {
-        let dir = tempfile::tempdir()?;
+        let dir = home_dir()?;
         let prepared = prepare_environment(
             home_environment(dir.path())?,
             &FeatureSettings::default(),
