@@ -15,6 +15,22 @@
 //!   data-directory variables do not cross, so the child could not find the per-user default
 //!   database: the app passes the database file it resolved and opened as `JOBNIAC_DB_PATH`
 //!   ([`McpSupervisor::with_database_path`]). The path travels only in the child's environment.
+//! - **Grants.** The capabilities that delete data or reach the network are not part of the source
+//!   environment. They are *grants*: variable pairs the supervisor holds and adds to the environment
+//!   of every child it spawns, read under the same lock as the spawn
+//!   ([`McpSupervisor::with_grants`]). Grants only ever shrink: [`McpSupervisor::retain_grants`]
+//!   drops the grants that are no longer allowed and, in the same critical section, kills a live
+//!   child that was started with them. A start that was still on its way to the lock spawns with the
+//!   narrowed grants, and a later start, port change or restart can never bring a revoked grant
+//!   back.
+//! - **Termination.** Killing a child is confirmed, not assumed: [`McpChild::terminate`] reports
+//!   whether the child is gone, and waits at most [`TERMINATE_WAIT`] for it (the lock is held
+//!   meanwhile, so the wait is bounded). A child that cannot be confirmed gone is kept as the
+//!   *survivor*, the status is `failed` with [`McpFailure::StopFailed`] (never `stopped`), a
+//!   revocation answers [`Revocation::StopFailed`], and no new child is spawned until the survivor is
+//!   confirmed gone (every start, stop and refresh tries again), so a second process never competes
+//!   for the port or starts beside it. Closing the stdin pipe also tells the child to exit by
+//!   itself, so a survivor normally disappears on its own.
 //! - **Lifetime.** The child's stdin is a pipe whose write end the supervisor holds. The OS closes
 //!   it when the app dies for any reason (SIGKILL, crash, force-close), the child sees EOF and shuts
 //!   down, so a hard-killed app leaves no listener behind. The std pipe is close-on-exec (Unix) or
@@ -109,6 +125,9 @@ pub enum McpFailure {
     NotReachable,
     /// Something already listens on the port (or it cannot be bound), so no child was spawned.
     PortInUse,
+    /// A child could not be confirmed gone after it was told to stop: it may still be running, so
+    /// no new child is started until it is confirmed gone.
+    StopFailed,
 }
 
 impl McpFailure {
@@ -122,6 +141,7 @@ impl McpFailure {
             Self::ExitedEarly => "exited_early",
             Self::NotReachable => "not_reachable",
             Self::PortInUse => "port_in_use",
+            Self::StopFailed => "stop_failed",
         }
     }
 }
@@ -167,13 +187,37 @@ pub enum SpawnError {
     Failed,
 }
 
+/// What a termination established about a child.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[must_use]
+pub enum Termination {
+    /// The child exited and was reaped.
+    Gone,
+    /// The child could not be confirmed gone: the kill failed or it did not exit within the bound.
+    MayBeAlive,
+}
+
+/// What a revocation of grants did to the running server.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[must_use]
+pub enum Revocation {
+    /// No child was involved: the grants were narrowed for the next start.
+    Unaffected,
+    /// A child that held a revoked grant was stopped and confirmed gone.
+    Stopped,
+    /// A child that may hold a revoked grant could not be confirmed gone. The grants are narrowed,
+    /// no new child starts until it is, and the status is `failed` (`stop_failed`).
+    StopFailed,
+}
+
 /// A started child process.
 pub trait McpChild: Send {
     /// Whether the child is still alive (it has not exited).
     fn is_running(&mut self) -> bool;
 
-    /// Kills the child and reaps it. Safe to call on a child that already exited.
-    fn terminate(&mut self);
+    /// Kills the child and waits for it, for a bounded time. Safe to call on a child that already
+    /// exited, and safe to call again after [`Termination::MayBeAlive`].
+    fn terminate(&mut self) -> Termination;
 }
 
 /// Starts the sidecar. The real implementation is [`ProcessSpawner`]; tests use a fake.
@@ -265,17 +309,60 @@ impl McpChild for ProcessChild {
         matches!(self.child.try_wait(), Ok(None))
     }
 
-    fn terminate(&mut self) {
+    fn terminate(&mut self) -> Termination {
+        // The pipe closing tells the child to exit by itself, even if the kill below fails.
         drop(self.parent_pipe.take());
-        // Errors mean the child already exited; the wait reaps it either way.
-        drop(self.child.kill());
-        drop(self.child.wait());
+        // An error from the kill is not fatal and carries nothing worth reporting (the text could
+        // name a path): whether the child is gone is decided by the bounded wait that follows.
+        if !matches!(self.child.try_wait(), Ok(Some(_))) {
+            drop(self.child.kill());
+        }
+        let child = &mut self.child;
+        wait_for_exit(
+            || {
+                child
+                    .try_wait()
+                    .map(|status| status.is_some())
+                    .map_err(|_| ())
+            },
+            TERMINATE_WAIT,
+            TERMINATE_POLL,
+        )
+    }
+}
+
+/// How long a termination waits for the child to be gone. The supervisor holds its lock meanwhile.
+pub const TERMINATE_WAIT: Duration = Duration::from_secs(2);
+
+/// Pause between two checks of a terminating child.
+const TERMINATE_POLL: Duration = Duration::from_millis(10);
+
+/// Polls `exited` until it reports `Ok(true)` ([`Termination::Gone`]), or `wait` has passed, or it
+/// fails ([`Termination::MayBeAlive`]). It never waits longer than `wait`.
+fn wait_for_exit(
+    mut exited: impl FnMut() -> Result<bool, ()>,
+    wait: Duration,
+    poll: Duration,
+) -> Termination {
+    let deadline = Instant::now() + wait;
+    loop {
+        match exited() {
+            Ok(true) => return Termination::Gone,
+            Ok(false) => {}
+            Err(()) => return Termination::MayBeAlive,
+        }
+        if Instant::now() >= deadline {
+            return Termination::MayBeAlive;
+        }
+        std::thread::sleep(poll);
     }
 }
 
 impl Drop for ProcessChild {
     fn drop(&mut self) {
-        self.terminate();
+        // The last attempt, bounded like every other: nobody is left to retry or to be told, and
+        // the closed stdin pipe has already asked the child to exit by itself.
+        let _ = self.terminate();
     }
 }
 
@@ -305,14 +392,14 @@ pub fn generate_token() -> Result<SecretString, TokenError> {
 /// value can replace them. With a `database` file, that file is the child's `JOBNIAC_DB_PATH`
 /// whatever the app inherited.
 #[must_use]
-pub fn child_environment(
-    source: &[(OsString, OsString)],
+pub fn child_environment<'a>(
+    source: impl IntoIterator<Item = &'a (OsString, OsString)>,
     port: u16,
     token: &SecretString,
     database: Option<&Path>,
 ) -> Vec<(OsString, OsString)> {
     let mut environment: Vec<(OsString, OsString)> = source
-        .iter()
+        .into_iter()
         .filter(|(name, _)| name.to_str().is_some_and(crosses_into_child))
         .filter(|(name, _)| {
             database.is_none()
@@ -369,22 +456,64 @@ struct Inner {
     /// Set by [`McpSupervisor::close`] (window close or app exit): no start spawns after it, so a
     /// start that was still on its way to the lock cannot leave a child behind the exit.
     closed: bool,
+    /// The capability variables every child is spawned with, on top of the source environment.
+    /// Only [`McpSupervisor::retain_grants`] changes them, and only by removing pairs.
+    grants: Vec<(OsString, OsString)>,
+    /// A child that was told to stop and could not be confirmed gone. While it is here no new child
+    /// is spawned (there is at most one, and then `child` is `None`).
+    survivor: Option<Box<dyn McpChild>>,
 }
 
 impl Inner {
-    /// Kills and reaps the child, drops the token and invalidates every waiting start.
-    fn shutdown(&mut self) {
-        if let Some(mut child) = self.child.take() {
-            child.terminate();
+    /// Tries again to confirm the survivor gone. `true` when there is none left.
+    fn reap_survivor(&mut self) -> bool {
+        let Some(mut survivor) = self.survivor.take() else {
+            return true;
+        };
+        if survivor.terminate() == Termination::Gone {
+            return true;
         }
+        self.survivor = Some(survivor);
+        false
+    }
+
+    /// Kills the child, drops the token and invalidates every waiting start. Returns `true` when no
+    /// child is left alive for all anyone can tell; `false` when one could not be confirmed gone
+    /// (it is then kept as the survivor and the caller must not report `stopped`).
+    fn shutdown(&mut self) -> bool {
         self.token = None;
         self.epoch += 1;
+        let mut gone = self.reap_survivor();
+        if let Some(mut child) = self.child.take()
+            && child.terminate() == Termination::MayBeAlive
+        {
+            // No start spawns while a survivor is kept, so there is no second one to replace.
+            self.survivor.get_or_insert(child);
+            gone = false;
+        }
+        gone
+    }
+
+    /// The state after a stop: `stopped`, or `failed` with `stop_failed` when a child may be alive.
+    fn settle_after_stop(&mut self, gone: bool) {
+        if gone {
+            self.failure = None;
+            self.status = McpServerStatus::Stopped;
+        } else {
+            self.failure = Some(McpFailure::StopFailed);
+            self.status = McpServerStatus::Failed;
+        }
     }
 
     fn fail(&mut self, failure: McpFailure) {
-        self.shutdown();
+        let gone = self.shutdown();
         self.status = McpServerStatus::Failed;
-        self.failure = Some(failure);
+        // A child that may still run is the fact that matters most.
+        self.failure = Some(if gone {
+            failure
+        } else {
+            McpFailure::StopFailed
+        });
     }
 }
 
@@ -424,8 +553,65 @@ impl McpSupervisor {
                 token: None,
                 epoch: 0,
                 closed: false,
+                grants: Vec::new(),
+                survivor: None,
             }),
         }
+    }
+
+    /// The capability variables the children are spawned with, on top of the source environment.
+    /// Called once, before the first start; later the grants can only be narrowed.
+    #[must_use]
+    pub fn with_grants(self, grants: Vec<(OsString, OsString)>) -> Self {
+        self.lock().grants = grants;
+        self
+    }
+
+    /// Keeps only the grants for which `keep` is true (a grant that is not held is never added), so
+    /// no secret value is copied to decide. When a grant was dropped and a child is alive or
+    /// starting, the child is killed in the same critical section and the status becomes `stopped`
+    /// ([`Revocation::Stopped`]). When that child cannot be confirmed gone the answer is
+    /// [`Revocation::StopFailed`] and the status is `failed`: the caller must not report success,
+    /// and no child starts until the survivor is confirmed gone. When a child was stopped the
+    /// caller restarts the server if it is meant to run, and the new child gets the narrowed grants.
+    ///
+    /// A survivor is checked on **every** call, whether or not this call narrowed anything: a call
+    /// that narrows nothing new (a capability that was never granted, or one an earlier call already
+    /// revoked) must not turn a child that may still serve the capability into a success. While the
+    /// survivor cannot be confirmed gone every call answers `StopFailed`; when it can, the call
+    /// answers `Stopped` once (so the caller restarts the server if it is meant to run).
+    ///
+    /// This blocks for up to [`TERMINATE_WAIT`] per child that must be stopped: async callers use a
+    /// blocking thread.
+    pub fn retain_grants(&self, keep: impl Fn(&(OsString, OsString)) -> bool) -> Revocation {
+        let mut inner = self.lock();
+        let before = inner.grants.len();
+        inner.grants.retain(|grant| keep(grant));
+        let narrowed = inner.grants.len() != before;
+        if inner.survivor.is_some() || (narrowed && inner.child.is_some()) {
+            let gone = inner.shutdown();
+            inner.settle_after_stop(gone);
+            return if gone {
+                Revocation::Stopped
+            } else {
+                Revocation::StopFailed
+            };
+        }
+        Revocation::Unaffected
+    }
+
+    /// [`retain_grants`](Self::retain_grants) with the grants that are in `allowed`.
+    pub fn restrict_grants(&self, allowed: &[(OsString, OsString)]) -> Revocation {
+        self.retain_grants(|grant| allowed.contains(grant))
+    }
+
+    /// Whether the supervisor currently grants `name=value` to the children it spawns.
+    #[must_use]
+    pub fn has_grant(&self, name: &str, value: &str) -> bool {
+        self.lock()
+            .grants
+            .iter()
+            .any(|(grant, grant_value)| grant == name && grant_value == value)
     }
 
     /// The database file the app opened; every child gets it as `JOBNIAC_DB_PATH`.
@@ -491,7 +677,12 @@ impl McpSupervisor {
                 // The app is exiting: spawn nothing.
                 return McpServerStatus::Stopped;
             }
-            inner.shutdown();
+            if !inner.shutdown() {
+                // A child that may still run (or an earlier survivor) could not be confirmed
+                // gone: spawn nothing beside it.
+                inner.settle_after_stop(false);
+                return inner.status;
+            }
             inner.failure = None;
             inner.port = port;
             if !is_valid_mcp_port(port) {
@@ -511,9 +702,11 @@ impl McpSupervisor {
                 inner.fail(McpFailure::TokenUnavailable);
                 return inner.status;
             };
+            // The grants are read here, under the lock of the spawn: a revocation either ran before
+            // (this child never gets the grant) or runs after (it kills this child).
             let request = SpawnRequest {
                 environment: child_environment(
-                    &self.source_environment,
+                    self.source_environment.iter().chain(inner.grants.iter()),
                     port,
                     &token,
                     self.database_path.as_deref(),
@@ -589,6 +782,13 @@ impl McpSupervisor {
     pub fn refresh(&self) -> McpServerStatus {
         {
             let mut inner = self.lock();
+            // A survivor that exited since is noticed here, so a failed stop heals by itself.
+            if inner.survivor.is_some()
+                && inner.reap_survivor()
+                && inner.failure == Some(McpFailure::StopFailed)
+            {
+                inner.settle_after_stop(true);
+            }
             if inner.status == McpServerStatus::Running
                 && !inner.child.as_mut().is_some_and(|child| child.is_running())
             {
@@ -600,11 +800,13 @@ impl McpSupervisor {
 
     /// Kills and reaps the child and returns to `stopped`. Idempotent: stopping a stopped (or
     /// failed, or unavailable-but-stopped) supervisor only clears the failure.
+    ///
+    /// When a child cannot be confirmed gone the status is `failed` (`stop_failed`), not `stopped`:
+    /// another stop, a start or a refresh tries again.
     pub fn stop(&self) {
         let mut inner = self.lock();
-        inner.shutdown();
-        inner.failure = None;
-        inner.status = McpServerStatus::Stopped;
+        let gone = inner.shutdown();
+        inner.settle_after_stop(gone);
     }
 
     /// Like [`stop`](Self::stop), and every later [`start`](Self::start) spawns nothing. For the
@@ -613,9 +815,8 @@ impl McpSupervisor {
     pub fn close(&self) {
         let mut inner = self.lock();
         inner.closed = true;
-        inner.shutdown();
-        inner.failure = None;
-        inner.status = McpServerStatus::Stopped;
+        let gone = inner.shutdown();
+        inner.settle_after_stop(gone);
     }
 }
 
@@ -645,6 +846,8 @@ mod tests {
     struct FakeChild {
         alive: Arc<AtomicBool>,
         terminated: Arc<AtomicUsize>,
+        /// While set, the child cannot be confirmed gone (the kill "fails"): it stays alive.
+        stubborn: Arc<AtomicBool>,
     }
 
     impl McpChild for FakeChild {
@@ -652,9 +855,13 @@ mod tests {
             self.alive.load(Ordering::SeqCst)
         }
 
-        fn terminate(&mut self) {
-            self.alive.store(false, Ordering::SeqCst);
+        fn terminate(&mut self) -> Termination {
             self.terminated.fetch_add(1, Ordering::SeqCst);
+            if self.stubborn.load(Ordering::SeqCst) {
+                return Termination::MayBeAlive;
+            }
+            self.alive.store(false, Ordering::SeqCst);
+            Termination::Gone
         }
     }
 
@@ -669,11 +876,13 @@ mod tests {
         child_alive: bool,
         requests: Mutex<Vec<Vec<(OsString, OsString)>>>,
         terminated: Arc<AtomicUsize>,
+        stubborn: Arc<AtomicBool>,
     }
 
     impl FakeSpawner {
         fn new() -> Self {
             Self {
+                stubborn: Arc::new(AtomicBool::new(false)),
                 available: true,
                 appeared: AtomicBool::new(false),
                 port_busy: false,
@@ -712,6 +921,7 @@ mod tests {
             Ok(Box::new(FakeChild {
                 alive: Arc::new(AtomicBool::new(self.child_alive)),
                 terminated: Arc::clone(&self.terminated),
+                stubborn: Arc::clone(&self.stubborn),
             }))
         }
     }
@@ -759,6 +969,642 @@ mod tests {
         let (listener, port) = open_port()?;
         drop(listener);
         Ok(port)
+    }
+
+    const GRANT_DELETE: &str = "JOBNIAC_DELETION_ENABLED";
+    const GRANT_LINK: &str = "JOBNIAC_LINK_FETCH_ENABLED";
+
+    fn grant(name: &str) -> (OsString, OsString) {
+        (OsString::from(name), OsString::from("1"))
+    }
+
+    fn supervisor_with_grants(spawner: &Arc<FakeSpawner>, grants: &[&str]) -> McpSupervisor {
+        supervisor(spawner).with_grants(grants.iter().map(|name| grant(name)).collect())
+    }
+
+    fn last_has(spawner: &FakeSpawner, name: &str) -> bool {
+        spawner.last_value(name).is_some()
+    }
+
+    #[test]
+    fn grants_reach_every_child_the_supervisor_spawns() -> Result<(), std::io::Error> {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        let supervisor = supervisor_with_grants(&spawner, &[GRANT_DELETE]);
+        assert!(supervisor.has_grant(GRANT_DELETE, "1"));
+        assert!(!supervisor.has_grant(GRANT_LINK, "1"));
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        assert_eq!(spawner.last_value(GRANT_DELETE).as_deref(), Some("1"));
+        assert!(!last_has(&spawner, GRANT_LINK));
+        // A stop and a start, and a start on another port, keep the grants that are still held.
+        supervisor.stop();
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        assert_eq!(spawner.last_value(GRANT_DELETE).as_deref(), Some("1"));
+        Ok(())
+    }
+
+    #[test]
+    fn no_grant_means_no_flag_in_the_child() -> Result<(), std::io::Error> {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        let supervisor = supervisor(&spawner);
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        assert!(!last_has(&spawner, GRANT_DELETE));
+        assert!(!last_has(&spawner, GRANT_LINK));
+        Ok(())
+    }
+
+    #[test]
+    fn revoking_a_grant_kills_the_live_child_and_no_later_start_brings_it_back()
+    -> Result<(), std::io::Error> {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        let supervisor = supervisor_with_grants(&spawner, &[GRANT_DELETE, GRANT_LINK]);
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        let old_token = supervisor
+            .connection()
+            .map(|c| c.token.expose_secret().to_owned());
+        assert_eq!(spawner.terminated.load(Ordering::SeqCst), 0);
+
+        assert_eq!(
+            supervisor.restrict_grants(&[grant(GRANT_LINK)]),
+            Revocation::Stopped,
+            "a live child held the revoked grant"
+        );
+        // The child holding the grant is gone before the call returns, and nothing runs now.
+        assert_eq!(spawner.terminated.load(Ordering::SeqCst), 1);
+        assert_eq!(supervisor.status(), McpServerStatus::Stopped);
+        assert!(supervisor.connection().is_none());
+        assert!(!supervisor.has_grant(GRANT_DELETE, "1"));
+        assert!(supervisor.has_grant(GRANT_LINK, "1"));
+
+        // Start, stop and start, and a port change: none of them reuses the revoked grant.
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        assert!(!last_has(&spawner, GRANT_DELETE));
+        assert_eq!(spawner.last_value(GRANT_LINK).as_deref(), Some("1"));
+        supervisor.stop();
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        assert!(!last_has(&spawner, GRANT_DELETE));
+        let (_other, other_port) = open_port()?;
+        assert_eq!(supervisor.start(other_port), McpServerStatus::Running);
+        assert!(!last_has(&spawner, GRANT_DELETE));
+        // The new child has a new token.
+        let new_token = supervisor
+            .connection()
+            .map(|c| c.token.expose_secret().to_owned());
+        assert_ne!(old_token, new_token);
+        Ok(())
+    }
+
+    #[test]
+    fn a_restriction_that_drops_nothing_leaves_the_child_alone() -> Result<(), std::io::Error> {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        let supervisor = supervisor_with_grants(&spawner, &[GRANT_DELETE]);
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        assert_eq!(
+            supervisor.restrict_grants(&[grant(GRANT_DELETE), grant(GRANT_LINK)]),
+            Revocation::Unaffected
+        );
+        assert_eq!(spawner.terminated.load(Ordering::SeqCst), 0);
+        assert_eq!(supervisor.status(), McpServerStatus::Running);
+        Ok(())
+    }
+
+    #[test]
+    fn a_restriction_can_never_add_a_grant() -> Result<(), std::io::Error> {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        let supervisor = supervisor_with_grants(&spawner, &[GRANT_DELETE]);
+        assert_eq!(
+            supervisor.restrict_grants(&[grant(GRANT_DELETE), grant(GRANT_LINK)]),
+            Revocation::Unaffected
+        );
+        assert!(!supervisor.has_grant(GRANT_LINK, "1"));
+        // Revoked once, not granted again by a wider allow list.
+        assert_eq!(supervisor.restrict_grants(&[]), Revocation::Unaffected);
+        assert_eq!(
+            supervisor.restrict_grants(&[grant(GRANT_DELETE)]),
+            Revocation::Unaffected
+        );
+        assert!(!supervisor.has_grant(GRANT_DELETE, "1"));
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        assert!(!last_has(&spawner, GRANT_DELETE));
+        assert!(!last_has(&spawner, GRANT_LINK));
+        Ok(())
+    }
+
+    #[test]
+    fn a_revocation_without_a_child_changes_the_next_start() -> Result<(), std::io::Error> {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        let supervisor = supervisor_with_grants(&spawner, &[GRANT_DELETE]);
+        assert_eq!(
+            supervisor.restrict_grants(&[]),
+            Revocation::Unaffected,
+            "no child was stopped"
+        );
+        assert_eq!(supervisor.status(), McpServerStatus::Stopped);
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        assert!(!last_has(&spawner, GRANT_DELETE));
+        Ok(())
+    }
+
+    #[test]
+    fn a_failed_server_start_does_not_keep_a_revoked_grant_for_the_retry()
+    -> Result<(), std::io::Error> {
+        let port = closed_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        let supervisor = supervisor_with_grants(&spawner, &[GRANT_DELETE]);
+        // Nothing listens: the start fails after the spawn. The child is already gone.
+        assert_eq!(supervisor.start(port), McpServerStatus::Failed);
+        assert_eq!(
+            supervisor.restrict_grants(&[]),
+            Revocation::Unaffected,
+            "the failed child is already dead"
+        );
+        assert_eq!(supervisor.start(port), McpServerStatus::Failed);
+        assert!(!last_has(&spawner, GRANT_DELETE));
+        Ok(())
+    }
+
+    /// A spawner that parks inside `spawn` until released, to hold a start in flight.
+    struct GatedSpawner {
+        inner: Arc<FakeSpawner>,
+        entered: Mutex<std::sync::mpsc::Sender<()>>,
+        release: Mutex<std::sync::mpsc::Receiver<()>>,
+    }
+
+    impl Spawner for GatedSpawner {
+        fn available(&self) -> bool {
+            true
+        }
+
+        fn port_free(&self, _port: u16) -> bool {
+            true
+        }
+
+        fn spawn(&self, request: SpawnRequest) -> Result<Box<dyn McpChild>, SpawnError> {
+            if let Ok(entered) = self.entered.lock() {
+                let _ = entered.send(());
+            }
+            if let Ok(release) = self.release.lock() {
+                let _ = release.recv_timeout(Duration::from_secs(5));
+            }
+            Spawner::spawn(&self.inner, request)
+        }
+    }
+
+    #[test]
+    fn a_revocation_racing_a_start_that_is_spawning_kills_that_child() -> Result<(), std::io::Error>
+    {
+        let (_listener, port) = open_port()?;
+        let inner = Arc::new(FakeSpawner::new());
+        let (entered_tx, entered_rx) = std::sync::mpsc::channel();
+        let (release_tx, release_rx) = std::sync::mpsc::channel();
+        let gated = GatedSpawner {
+            inner: Arc::clone(&inner),
+            entered: Mutex::new(entered_tx),
+            release: Mutex::new(release_rx),
+        };
+        let supervisor = Arc::new(
+            McpSupervisor::new(Arc::new(gated), Vec::new())
+                .with_ready_deadline(Duration::from_secs(5))
+                .with_grants(vec![grant(GRANT_DELETE)]),
+        );
+        let starter = {
+            let supervisor = Arc::clone(&supervisor);
+            std::thread::spawn(move || supervisor.start(port))
+        };
+        // The start holds the lock and has built its request with the grant.
+        entered_rx
+            .recv_timeout(Duration::from_secs(5))
+            .map_err(|_| std::io::Error::other("the start never reached the spawn"))?;
+        let revoker = {
+            let supervisor = Arc::clone(&supervisor);
+            std::thread::spawn(move || supervisor.restrict_grants(&[]))
+        };
+        // The revocation waits for the lock; releasing the spawn lets both finish.
+        release_tx
+            .send(())
+            .map_err(|_| std::io::Error::other("the spawner is gone"))?;
+        let stopped = revoker
+            .join()
+            .map_err(|_| std::io::Error::other("the revoker panicked"))?;
+        let status = starter
+            .join()
+            .map_err(|_| std::io::Error::other("the starter panicked"))?;
+        // That child was spawned with the grant, so the revocation stopped it: nothing runs, and
+        // the start does not report a server that holds the revoked grant.
+        assert_eq!(stopped, Revocation::Stopped);
+        assert_eq!(inner.terminated.load(Ordering::SeqCst), 1);
+        assert_ne!(status, McpServerStatus::Running);
+        assert_eq!(supervisor.status(), McpServerStatus::Stopped);
+        assert!(supervisor.connection().is_none());
+        assert_eq!(inner.last_value(GRANT_DELETE).as_deref(), Some("1"));
+        // The next start has no grant (the gate is released ahead of it).
+        release_tx
+            .send(())
+            .map_err(|_| std::io::Error::other("the spawner is gone"))?;
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        assert!(!last_has(&inner, GRANT_DELETE));
+        Ok(())
+    }
+
+    #[test]
+    fn a_revocation_that_wins_the_race_means_the_start_never_gets_the_grant()
+    -> Result<(), std::io::Error> {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        let supervisor = Arc::new(supervisor_with_grants(&spawner, &[GRANT_DELETE]));
+        let revoker = {
+            let supervisor = Arc::clone(&supervisor);
+            std::thread::spawn(move || supervisor.restrict_grants(&[]))
+        };
+        let revoked = revoker
+            .join()
+            .map_err(|_| std::io::Error::other("the revoker panicked"))?;
+        assert_eq!(revoked, Revocation::Unaffected);
+        let starter = {
+            let supervisor = Arc::clone(&supervisor);
+            std::thread::spawn(move || supervisor.start(port))
+        };
+        starter
+            .join()
+            .map_err(|_| std::io::Error::other("the starter panicked"))?;
+        assert!(!last_has(&spawner, GRANT_DELETE));
+        Ok(())
+    }
+
+    // ---- Termination that cannot be confirmed ------------------------------------------------
+
+    /// A supervisor whose children refuse to be confirmed gone while `stubborn` is set.
+    fn stubborn_supervisor(spawner: &Arc<FakeSpawner>, grants: &[&str]) -> McpSupervisor {
+        supervisor_with_grants(spawner, grants)
+    }
+
+    #[test]
+    fn a_child_that_cannot_be_confirmed_gone_is_a_failed_stop_never_a_stopped_server()
+    -> Result<(), std::io::Error> {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        let supervisor = stubborn_supervisor(&spawner, &[GRANT_DELETE]);
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        spawner.stubborn.store(true, Ordering::SeqCst);
+
+        supervisor.stop();
+        // The child may still run: the status says failed, with the fixed code, and no connection
+        // details of the old server are kept.
+        assert_eq!(supervisor.status(), McpServerStatus::Failed);
+        assert_eq!(supervisor.failure(), Some(McpFailure::StopFailed));
+        assert_eq!(
+            supervisor.failure().map(McpFailure::code),
+            Some("stop_failed")
+        );
+        assert!(supervisor.connection().is_none());
+
+        // No second child is spawned beside it, whatever the caller asks for.
+        let spawned = spawner.requests.lock().map_or(0, |requests| requests.len());
+        assert_eq!(supervisor.start(port), McpServerStatus::Failed);
+        assert_eq!(supervisor.failure(), Some(McpFailure::StopFailed));
+        let other = closed_port()?;
+        assert_eq!(supervisor.start(other), McpServerStatus::Failed);
+        assert_eq!(
+            spawner.requests.lock().map_or(0, |requests| requests.len()),
+            spawned
+        );
+
+        // Once the child can be confirmed gone, the next start retries it and then spawns.
+        spawner.stubborn.store(false, Ordering::SeqCst);
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        assert_eq!(
+            spawner.requests.lock().map_or(0, |requests| requests.len()),
+            spawned + 1
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn a_revocation_that_cannot_stop_the_child_says_so_and_no_start_restores_the_grant()
+    -> Result<(), std::io::Error> {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        let supervisor = stubborn_supervisor(&spawner, &[GRANT_DELETE, GRANT_LINK]);
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        spawner.stubborn.store(true, Ordering::SeqCst);
+
+        assert_eq!(
+            supervisor.restrict_grants(&[grant(GRANT_LINK)]),
+            Revocation::StopFailed
+        );
+        // The grant is gone for every later start; the status is not `stopped`.
+        assert!(!supervisor.has_grant(GRANT_DELETE, "1"));
+        assert_eq!(supervisor.status(), McpServerStatus::Failed);
+        assert_eq!(supervisor.failure(), Some(McpFailure::StopFailed));
+        let spawned = spawner.requests.lock().map_or(0, |requests| requests.len());
+        assert_eq!(supervisor.start(port), McpServerStatus::Failed);
+        assert_eq!(
+            spawner.requests.lock().map_or(0, |requests| requests.len()),
+            spawned
+        );
+
+        // A wider allow list adds nothing back and narrows nothing new, but the survivor may
+        // still be alive, so it is not a success: it keeps answering `StopFailed`.
+        assert_eq!(
+            supervisor.restrict_grants(&[grant(GRANT_DELETE), grant(GRANT_LINK)]),
+            Revocation::StopFailed
+        );
+        assert!(!supervisor.has_grant(GRANT_DELETE, "1"));
+
+        // The survivor is confirmed gone: the next child has no revoked grant.
+        spawner.stubborn.store(false, Ordering::SeqCst);
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        assert!(!last_has(&spawner, GRANT_DELETE));
+        assert_eq!(spawner.last_value(GRANT_LINK).as_deref(), Some("1"));
+        Ok(())
+    }
+
+    #[test]
+    fn a_second_revocation_retries_a_survivor_and_reports_the_result() -> Result<(), std::io::Error>
+    {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        let supervisor = stubborn_supervisor(&spawner, &[GRANT_DELETE, GRANT_LINK]);
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        spawner.stubborn.store(true, Ordering::SeqCst);
+        assert_eq!(
+            supervisor.restrict_grants(&[grant(GRANT_LINK)]),
+            Revocation::StopFailed
+        );
+        // Still stubborn: revoking the other grant also fails, honestly.
+        assert_eq!(supervisor.restrict_grants(&[]), Revocation::StopFailed);
+        // Released: the next call finds the survivor gone and says so, once.
+        spawner.stubborn.store(false, Ordering::SeqCst);
+        assert_eq!(supervisor.restrict_grants(&[]), Revocation::Stopped);
+        assert_eq!(supervisor.restrict_grants(&[]), Revocation::Unaffected);
+        assert_eq!(supervisor.refresh(), McpServerStatus::Stopped);
+        assert_eq!(supervisor.failure(), None);
+        Ok(())
+    }
+
+    #[test]
+    fn a_refresh_heals_a_failed_stop_once_the_survivor_is_gone() -> Result<(), std::io::Error> {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        let supervisor = stubborn_supervisor(&spawner, &[]);
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        spawner.stubborn.store(true, Ordering::SeqCst);
+        supervisor.stop();
+        assert_eq!(supervisor.refresh(), McpServerStatus::Failed);
+        assert_eq!(supervisor.failure(), Some(McpFailure::StopFailed));
+        spawner.stubborn.store(false, Ordering::SeqCst);
+        assert_eq!(supervisor.refresh(), McpServerStatus::Stopped);
+        assert_eq!(supervisor.failure(), None);
+        Ok(())
+    }
+
+    #[test]
+    fn an_early_exit_that_cannot_be_reaped_is_reported_as_a_failed_stop()
+    -> Result<(), std::io::Error> {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner {
+            child_alive: false,
+            ..FakeSpawner::new()
+        });
+        spawner.stubborn.store(true, Ordering::SeqCst);
+        let supervisor = supervisor(&spawner);
+        assert_eq!(supervisor.start(port), McpServerStatus::Failed);
+        assert_eq!(supervisor.failure(), Some(McpFailure::StopFailed));
+        Ok(())
+    }
+
+    #[test]
+    fn closing_with_a_stubborn_child_is_a_failed_stop_and_still_closes()
+    -> Result<(), std::io::Error> {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        let supervisor = supervisor(&spawner);
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        spawner.stubborn.store(true, Ordering::SeqCst);
+        supervisor.close();
+        assert_eq!(supervisor.status(), McpServerStatus::Failed);
+        assert_eq!(supervisor.failure(), Some(McpFailure::StopFailed));
+        // After a close nothing spawns, stubborn child or not.
+        spawner.stubborn.store(false, Ordering::SeqCst);
+        let spawned = spawner.requests.lock().map_or(0, |requests| requests.len());
+        assert_eq!(supervisor.start(port), McpServerStatus::Stopped);
+        assert_eq!(
+            spawner.requests.lock().map_or(0, |requests| requests.len()),
+            spawned
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn the_wait_for_a_terminating_child_is_bounded_and_honest() {
+        let quick = Duration::from_millis(1);
+        // Gone at once, and gone after a few checks.
+        assert_eq!(
+            wait_for_exit(|| Ok(true), Duration::from_secs(1), quick),
+            Termination::Gone
+        );
+        let mut checks = 0;
+        assert_eq!(
+            wait_for_exit(
+                || {
+                    checks += 1;
+                    Ok(checks >= 4)
+                },
+                Duration::from_secs(5),
+                quick,
+            ),
+            Termination::Gone
+        );
+        assert_eq!(checks, 4);
+        // Never gone: it gives up after the bound instead of waiting for ever.
+        let started = Instant::now();
+        assert_eq!(
+            wait_for_exit(|| Ok(false), Duration::from_millis(60), quick),
+            Termination::MayBeAlive
+        );
+        assert!(started.elapsed() < Duration::from_secs(2));
+        // A status check that fails cannot confirm anything.
+        assert_eq!(
+            wait_for_exit(|| Err(()), Duration::from_secs(1), quick),
+            Termination::MayBeAlive
+        );
+        // The real bound is short, so the supervisor lock is never held for long.
+        assert!(TERMINATE_WAIT <= Duration::from_secs(5));
+    }
+
+    #[test]
+    fn the_status_and_debug_text_of_a_failed_stop_show_no_secret() -> Result<(), std::io::Error> {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        let supervisor = stubborn_supervisor(&spawner, &[GRANT_DELETE]);
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        let token = supervisor
+            .connection()
+            .map(|connection| connection.token.expose_secret().to_owned())
+            .ok_or_else(|| std::io::Error::other("no token while running"))?;
+        spawner.stubborn.store(true, Ordering::SeqCst);
+        supervisor.stop();
+        let text = format!("{supervisor:?} {:?}", supervisor.failure());
+        assert!(!text.contains(&token), "{text}");
+        assert!(!text.contains("srv/jobniac-synthetic"), "{text}");
+        Ok(())
+    }
+
+    #[test]
+    fn every_revocation_retries_a_survivor_even_when_it_narrows_nothing()
+    -> Result<(), std::io::Error> {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        let supervisor = stubborn_supervisor(&spawner, &[GRANT_DELETE]);
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        spawner.stubborn.store(true, Ordering::SeqCst);
+        // The first revocation cannot stop the child.
+        assert_eq!(supervisor.restrict_grants(&[]), Revocation::StopFailed);
+        let spawned = spawner.requests.lock().map_or(0, |requests| requests.len());
+
+        // No grant is held any more, so nothing is newly narrowed. The survivor is still alive, so
+        // the answer must stay `StopFailed`, whatever is asked, however often.
+        for _ in 0..3 {
+            assert_eq!(supervisor.restrict_grants(&[]), Revocation::StopFailed);
+            assert_eq!(
+                supervisor.restrict_grants(&[grant(GRANT_DELETE), grant(GRANT_LINK)]),
+                Revocation::StopFailed
+            );
+            assert_eq!(supervisor.retain_grants(|_| true), Revocation::StopFailed);
+            assert_eq!(supervisor.status(), McpServerStatus::Failed);
+            assert_eq!(supervisor.failure(), Some(McpFailure::StopFailed));
+        }
+        // Each call tried the survivor again, and spawned nothing.
+        assert!(spawner.terminated.load(Ordering::SeqCst) >= 7);
+        assert_eq!(
+            spawner.requests.lock().map_or(0, |requests| requests.len()),
+            spawned
+        );
+
+        // Once the survivor is confirmed gone the next call says so, once: the server is stopped,
+        // and the caller restarts it if it is meant to run.
+        spawner.stubborn.store(false, Ordering::SeqCst);
+        assert_eq!(supervisor.restrict_grants(&[]), Revocation::Stopped);
+        assert_eq!(supervisor.status(), McpServerStatus::Stopped);
+        assert_eq!(supervisor.failure(), None);
+        assert_eq!(supervisor.restrict_grants(&[]), Revocation::Unaffected);
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        assert!(!last_has(&spawner, GRANT_DELETE));
+        Ok(())
+    }
+
+    #[test]
+    fn a_revocation_of_a_grant_that_was_never_held_still_reports_a_survivor()
+    -> Result<(), std::io::Error> {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        // Only deletion is granted; link capture never was.
+        let supervisor = stubborn_supervisor(&spawner, &[GRANT_DELETE]);
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        spawner.stubborn.store(true, Ordering::SeqCst);
+        assert_eq!(
+            supervisor.restrict_grants(&[grant(GRANT_LINK)]),
+            Revocation::StopFailed
+        );
+        // Revoking link capture, which was never granted, narrows nothing: not a success.
+        assert_eq!(
+            supervisor.restrict_grants(&[grant(GRANT_LINK)]),
+            Revocation::StopFailed
+        );
+        assert!(!supervisor.has_grant(GRANT_DELETE, "1"));
+        Ok(())
+    }
+
+    #[test]
+    fn a_survivor_left_by_a_plain_stop_is_reported_by_a_later_revocation()
+    -> Result<(), std::io::Error> {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        let supervisor = stubborn_supervisor(&spawner, &[GRANT_DELETE]);
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        spawner.stubborn.store(true, Ordering::SeqCst);
+        // The survivor did not come from a revocation at all (the server was toggled off).
+        supervisor.stop();
+        assert_eq!(supervisor.failure(), Some(McpFailure::StopFailed));
+        // A revocation that holds and narrows nothing new still reports it.
+        assert_eq!(
+            supervisor.restrict_grants(&[grant(GRANT_DELETE)]),
+            Revocation::StopFailed
+        );
+        assert!(supervisor.has_grant(GRANT_DELETE, "1"));
+        Ok(())
+    }
+
+    #[test]
+    fn a_survivor_is_also_reported_when_the_revocation_narrows_something_new()
+    -> Result<(), std::io::Error> {
+        let (_listener, port) = open_port()?;
+        let spawner = Arc::new(FakeSpawner::new());
+        let supervisor = stubborn_supervisor(&spawner, &[GRANT_DELETE, GRANT_LINK]);
+        assert_eq!(supervisor.start(port), McpServerStatus::Running);
+        spawner.stubborn.store(true, Ordering::SeqCst);
+        assert_eq!(
+            supervisor.restrict_grants(&[grant(GRANT_LINK)]),
+            Revocation::StopFailed
+        );
+        // A second grant is narrowed while the first survivor still lives.
+        assert_eq!(supervisor.restrict_grants(&[]), Revocation::StopFailed);
+        assert!(!supervisor.has_grant(GRANT_LINK, "1"));
+        Ok(())
+    }
+
+    // ---- A real process -----------------------------------------------------------------------
+
+    /// A synthetic long-lived process that touches nothing: it only waits.
+    fn waiting_process() -> Result<Child, std::io::Error> {
+        #[cfg(windows)]
+        let mut command = {
+            let mut command = Command::new("ping.exe");
+            command.args(["-n", "60", "127.0.0.1"]);
+            command
+        };
+        #[cfg(not(windows))]
+        let mut command = {
+            let mut command = Command::new("sleep");
+            command.arg("60");
+            command
+        };
+        command
+            .stdin(Stdio::piped())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+    }
+
+    #[test]
+    fn a_real_child_is_killed_and_confirmed_gone_within_the_bound() -> Result<(), std::io::Error> {
+        let mut child = waiting_process()?;
+        let parent_pipe = child.stdin.take();
+        let mut process = ProcessChild { child, parent_pipe };
+        assert!(process.is_running());
+        let started = Instant::now();
+        assert_eq!(process.terminate(), Termination::Gone);
+        assert!(started.elapsed() < TERMINATE_WAIT + Duration::from_secs(3));
+        assert!(!process.is_running());
+        // Terminating again, as every later start and stop does, is a no-op that still says gone.
+        assert_eq!(process.terminate(), Termination::Gone);
+        Ok(())
+    }
+
+    #[test]
+    fn a_real_child_that_already_exited_is_gone_at_once() -> Result<(), std::io::Error> {
+        let mut child = waiting_process()?;
+        let parent_pipe = child.stdin.take();
+        child.kill()?;
+        child.wait()?;
+        let mut process = ProcessChild { child, parent_pipe };
+        assert_eq!(process.terminate(), Termination::Gone);
+        Ok(())
     }
 
     #[test]
@@ -1197,7 +2043,7 @@ mod tests {
         assert_eq!(supervisor.refresh(), McpServerStatus::Running);
         // Kill the child behind the supervisor's back.
         if let Some(child) = supervisor.lock().child.as_mut() {
-            child.terminate();
+            assert_eq!(child.terminate(), Termination::Gone);
         }
         assert_eq!(supervisor.refresh(), McpServerStatus::Failed);
         assert_eq!(supervisor.failure(), Some(McpFailure::ExitedEarly));

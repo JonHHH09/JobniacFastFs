@@ -1,5 +1,6 @@
-//! The optional features of the desktop app: on by default, switchable in Settings, and still
-//! overridable by the process environment.
+//! The optional features of the desktop app: switchable in Settings, and still overridable by the
+//! process environment. Five are on by default (the in-app features); the three MCP capabilities
+//! are off until the user opts in.
 //!
 //! Every optional feature is gated on a flag variable that is exactly `1` (see the loaders of the
 //! feature modules), and a release app started from the Start menu or Finder has none set. The
@@ -8,6 +9,24 @@
 //! sets, whatever its value, wins (so `0` or any value other than `1` turns the feature off);
 //! otherwise the flag is `1` when the Settings switch of the feature is on. The CLI never calls this
 //! module: it keeps its environment-only, off-by-default behaviour.
+//!
+//! **MCP capabilities.** The tools of the `jobniac-cli http` child that the app supervises and that
+//! delete data or reach the network are `delete_profile`/`delete_job`, `add_job_from_link` and
+//! `scan_arbeitnow_jobs` with its pair `import_arbeitnow_job` (the other tools read and write the
+//! local database only). They are gated on the same flags as the in-app features
+//! (`JOBNIAC_DELETION_ENABLED`, `JOBNIAC_LINK_FETCH_ENABLED`, `JOBNIAC_ARBEITNOW_ENABLED`), but the
+//! child never inherits those flags: neither the in-app switches nor a flag of `1` in the process
+//! environment (a general choice to enable the feature in the app or the CLI) reaches it. The child
+//! gets such a flag only from its own Settings switch ([`Feature::McpDeletion`],
+//! [`Feature::McpLinkFetch`], [`Feature::McpArbeitnow`]), which is off by default. A flag the
+//! process sets to anything other than `1` stays an explicit refusal and wins over the switch
+//! ([`DesktopEnvironment::supervisor_base_pairs`]).
+//!
+//! The capabilities that are on at startup form the [`McpGrants`] the supervisor holds. Turning a
+//! switch off revokes its grant at once (the supervisor kills a child that holds it and every later
+//! start leaves it out); turning one on takes effect at the next start of the app, because a
+//! grant can be given only from the startup work (the keys of Arbeitnow, the refusals of the
+//! process environment). The Arbeitnow keys cross to the child only with the Arbeitnow grant.
 //!
 //! Arbeitnow also needs two signing keys. A key the process environment does not set comes from
 //! `feature-keys.json` in the per-user data directory, which is generated on first use from the OS
@@ -20,9 +39,11 @@
 //! startup.
 
 use std::ffi::OsString;
+use std::fmt;
 use std::fs;
 use std::io::{Read, Write};
 use std::path::Path;
+use std::sync::Arc;
 
 use jobniac_core::env::Environment;
 use jobniac_core::generated_root::RootPlatform;
@@ -38,6 +59,7 @@ use crate::generation::{
     compose_root_setup, load_generated_root_location, platform_name,
 };
 use crate::job_links::LINK_FETCH_ENABLED_VARIABLE;
+use crate::mcp_server::{McpSupervisor, Spawner};
 
 /// The file of the generated Arbeitnow keys, inside the per-user data directory.
 pub const KEYS_FILE: &str = "feature-keys.json";
@@ -68,16 +90,31 @@ pub enum Feature {
     DocumentArtifacts,
     /// Resume and cover-letter PDF generation.
     Generation,
+    /// MCP clients may scan the Arbeitnow board and import a candidate (`scan_arbeitnow_jobs`,
+    /// `import_arbeitnow_job`). The scan reaches the network. Off until the user opts in.
+    McpArbeitnow,
+    /// MCP clients may add a job from a link (`add_job_from_link`, which fetches the page). Off
+    /// until the user opts in.
+    McpLinkFetch,
+    /// MCP clients may delete profiles and jobs (`delete_profile`, `delete_job`). Off until the
+    /// user opts in.
+    McpDeletion,
 }
+
+/// The number of optional features.
+const FEATURE_COUNT: usize = 8;
 
 impl Feature {
     /// Every feature, in display order.
-    pub const ALL: [Self; 5] = [
+    pub const ALL: [Self; FEATURE_COUNT] = [
         Self::Arbeitnow,
         Self::LinkFetch,
         Self::Deletion,
         Self::DocumentArtifacts,
         Self::Generation,
+        Self::McpArbeitnow,
+        Self::McpLinkFetch,
+        Self::McpDeletion,
     ];
 
     /// The stable identifier shared with the settings file and the screen.
@@ -89,7 +126,20 @@ impl Feature {
             Self::Deletion => "deletion",
             Self::DocumentArtifacts => "documentArtifacts",
             Self::Generation => "generation",
+            Self::McpArbeitnow => "mcpArbeitnow",
+            Self::McpLinkFetch => "mcpLinkFetch",
+            Self::McpDeletion => "mcpDeletion",
         }
+    }
+
+    /// Whether the feature is a capability of the MCP server. Its switch never sets a flag in the
+    /// environment of the app itself, only in the environment of the supervised child.
+    #[must_use]
+    pub const fn is_mcp_capability(self) -> bool {
+        matches!(
+            self,
+            Self::McpArbeitnow | Self::McpLinkFetch | Self::McpDeletion
+        )
     }
 
     /// The feature of an identifier.
@@ -98,13 +148,14 @@ impl Feature {
         Self::ALL.into_iter().find(|feature| feature.id() == id)
     }
 
-    /// The flag variable that gates the feature.
+    /// The flag variable that gates the feature. An MCP capability shares the variable of the
+    /// in-app feature it exposes, because the child reads the same loaders.
     #[must_use]
     pub const fn variable(self) -> &'static str {
         match self {
-            Self::Arbeitnow => FLAG_KEY,
-            Self::LinkFetch => LINK_FETCH_ENABLED_VARIABLE,
-            Self::Deletion => DELETION_ENABLED_VARIABLE,
+            Self::Arbeitnow | Self::McpArbeitnow => FLAG_KEY,
+            Self::LinkFetch | Self::McpLinkFetch => LINK_FETCH_ENABLED_VARIABLE,
+            Self::Deletion | Self::McpDeletion => DELETION_ENABLED_VARIABLE,
             Self::DocumentArtifacts => DOCUMENT_ARTIFACTS_VARIABLE,
             Self::Generation => GENERATED_ENABLED_VARIABLE,
         }
@@ -117,6 +168,9 @@ impl Feature {
             Self::Deletion => 2,
             Self::DocumentArtifacts => 3,
             Self::Generation => 4,
+            Self::McpArbeitnow => 5,
+            Self::McpLinkFetch => 6,
+            Self::McpDeletion => 7,
         }
     }
 }
@@ -131,6 +185,9 @@ impl FeatureSettings {
             Feature::Deletion => self.deletion,
             Feature::DocumentArtifacts => self.document_artifacts,
             Feature::Generation => self.generation,
+            Feature::McpArbeitnow => self.mcp_arbeitnow,
+            Feature::McpLinkFetch => self.mcp_link_fetch,
+            Feature::McpDeletion => self.mcp_deletion,
         }
     }
 
@@ -142,36 +199,66 @@ impl FeatureSettings {
             Feature::Deletion => self.deletion = on,
             Feature::DocumentArtifacts => self.document_artifacts = on,
             Feature::Generation => self.generation = on,
+            Feature::McpArbeitnow => self.mcp_arbeitnow = on,
+            Feature::McpLinkFetch => self.mcp_link_fetch = on,
+            Feature::McpDeletion => self.mcp_deletion = on,
         }
     }
 }
 
-/// Whether the process environment sets the flag of `feature` (any value, even an empty or
-/// non-Unicode one). A set flag overrides the Settings switch.
+/// Whether the process environment forces `feature`, so that its Settings switch has no effect.
+///
+/// For an in-app feature this is a flag the environment sets (any value, even an empty or
+/// non-Unicode one): `1` turns it on and anything else off. For an MCP capability only a flag set
+/// to something other than exactly `1` forces it (off). A flag of `1` is a general-purpose choice
+/// to enable the feature in the app or the CLI, not an opt-in to hand the capability to an MCP
+/// client, so it forces nothing there and the switch stays the user's.
 #[must_use]
 pub fn forced_by_environment(process: &Environment, feature: Feature) -> bool {
-    process.contains(feature.variable())
+    if feature.is_mcp_capability() {
+        process.contains(feature.variable()) && !process.flag_enabled(feature.variable())
+    } else {
+        process.contains(feature.variable())
+    }
 }
 
 /// What the running app made of each feature: whether the environment forced it, and whether it is
 /// actually composed. Taken once at startup; a Settings change applies only after a restart.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct FeatureStates {
-    forced: [bool; 5],
-    effective: [bool; 5],
-    started_on: [bool; 5],
+    forced: [bool; FEATURE_COUNT],
+    effective: [bool; FEATURE_COUNT],
+    started_on: [bool; FEATURE_COUNT],
+    /// An MCP capability that was granted at startup and has been revoked since. Turning it on
+    /// again waits for the next start of the app: grants never come back in the same run.
+    revoked: [bool; FEATURE_COUNT],
 }
 
 impl FeatureStates {
-    /// The states with every feature unforced and not composed, and every Settings switch on at
-    /// startup (the default of a first run).
+    /// The states with every feature unforced and not composed, and every Settings switch at its
+    /// default at startup (the in-app features on, the MCP capabilities off: a first run).
     #[must_use]
     pub const fn new() -> Self {
         Self {
-            forced: [false; 5],
-            effective: [false; 5],
-            started_on: [true; 5],
+            forced: [false; FEATURE_COUNT],
+            effective: [false; FEATURE_COUNT],
+            // The order of `Feature::ALL`; a test pins it to `FeatureSettings::default()`.
+            started_on: [true, true, true, true, true, false, false, false],
+            revoked: [false; FEATURE_COUNT],
         }
+    }
+
+    /// Records whether the MCP capability `feature` was revoked after it was granted at startup.
+    #[must_use]
+    pub const fn with_revoked(mut self, feature: Feature, revoked: bool) -> Self {
+        self.revoked[feature.index()] = revoked;
+        self
+    }
+
+    /// Whether the MCP capability `feature` was granted at startup and revoked since.
+    #[must_use]
+    pub const fn revoked(&self, feature: Feature) -> bool {
+        self.revoked[feature.index()]
     }
 
     /// Records whether the environment forces `feature`.
@@ -388,12 +475,22 @@ fn write_private(path: &Path, bytes: &[u8]) -> std::io::Result<()> {
 }
 
 /// The result of [`overlay`]: the effective variable pairs and the features left off.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct Overlay {
     /// The process pairs followed by the defaults that were added.
     pub pairs: Vec<(OsString, OsString)>,
     /// The features that were left off.
     pub warnings: Vec<FeatureWarning>,
+}
+
+impl fmt::Debug for Overlay {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // The pairs hold the process environment and the generated keys: a count only.
+        f.debug_struct("Overlay")
+            .field("variables", &self.pairs.len())
+            .field("warnings", &self.warnings)
+            .finish()
+    }
 }
 
 /// Overlays the defaults on the process environment. Pure: `keys` is called at most once, only when
@@ -403,6 +500,11 @@ pub struct Overlay {
 /// is on, except Arbeitnow, which also needs a valid key pair: the environment's keys, completed
 /// from `keys`. Without a valid pair the flag is left unset (Arbeitnow off) and a warning says so,
 /// where an environment-set flag with unusable keys keeps failing startup as it always did.
+///
+/// The MCP capability switches add no flag here: this is the environment of the app, and the MCP
+/// flags belong to the child only ([`DesktopEnvironment::supervisor_base_pairs`]). The Arbeitnow keys
+/// are prepared when either the in-app feature or the MCP opt-in wants them, so that the child can
+/// use them without the in-app feature being on.
 pub fn overlay(
     process: Vec<(OsString, OsString)>,
     features: &FeatureSettings,
@@ -413,6 +515,7 @@ pub fn overlay(
     let mut warnings = Vec::new();
     for feature in Feature::ALL {
         if feature != Feature::Arbeitnow
+            && !feature.is_mcp_capability()
             && !forced_by_environment(&snapshot, feature)
             && features.is_on(feature)
         {
@@ -420,15 +523,18 @@ pub fn overlay(
         }
     }
     let forced = forced_by_environment(&snapshot, Feature::Arbeitnow);
-    let wanted = if forced {
+    let in_app = if forced {
         snapshot.flag_enabled(FLAG_KEY)
     } else {
         features.arbeitnow
     };
-    if wanted {
+    let for_mcp =
+        features.mcp_arbeitnow && !forced_by_environment(&snapshot, Feature::McpArbeitnow);
+    if in_app || for_mcp {
         let usable = complete_arbeitnow_keys(&snapshot, &mut pairs, &mut warnings, keys);
-        // A flag of the environment stays as it is; the default flag needs a usable key pair.
-        if !forced && usable {
+        // A flag of the environment stays as it is; the default flag needs a usable key pair, and
+        // only the in-app switch sets it.
+        if !forced && in_app && usable {
             pairs.push((FLAG_KEY.into(), "1".into()));
         }
     }
@@ -477,6 +583,24 @@ fn complete_arbeitnow_keys(
     valid
 }
 
+/// Whether `pairs` plus the Arbeitnow flag form a configuration `load_arbeitnow_config` accepts.
+/// The child fails to start on a flag with unusable keys, so it only gets the flag with a valid pair.
+fn arbeitnow_keys_are_valid(pairs: &[(OsString, OsString)]) -> bool {
+    let candidate = Environment::from_os_pairs(
+        pairs
+            .iter()
+            .filter(|(name, _)| {
+                !name
+                    .to_str()
+                    .is_some_and(|name| name.eq_ignore_ascii_case(FLAG_KEY))
+            })
+            .cloned()
+            .chain([(OsString::from(FLAG_KEY), OsString::from("1"))]),
+        cfg!(windows),
+    );
+    matches!(load_arbeitnow_config(&candidate), Ok(Some(_)))
+}
+
 /// What the root registration did.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RootRegistration {
@@ -516,13 +640,29 @@ pub async fn register_default_generated_root(env: &Environment) -> RootRegistrat
     }
 }
 
-/// The environment the desktop app composes from.
-#[derive(Debug, Clone)]
+/// The environment the desktop app composes from. Its `Debug` text shows counts only: the pairs
+/// hold the process environment and the generated Arbeitnow keys.
+#[derive(Clone)]
 pub struct DesktopEnvironment {
-    /// The effective variable pairs.
+    /// The effective variable pairs: the process pairs first, then what the defaults added.
     pub pairs: Vec<(OsString, OsString)>,
+    /// How many of the leading `pairs` come from the process environment.
+    pub process_count: usize,
+    /// The Settings switches the environment was built from.
+    pub features: FeatureSettings,
     /// The features that were left off, with a fixed warning each.
     pub warnings: Vec<FeatureWarning>,
+}
+
+impl fmt::Debug for DesktopEnvironment {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("DesktopEnvironment")
+            .field("variables", &self.pairs.len())
+            .field("process_count", &self.process_count)
+            .field("features", &self.features)
+            .field("warnings", &self.warnings)
+            .finish()
+    }
 }
 
 impl DesktopEnvironment {
@@ -532,13 +672,54 @@ impl DesktopEnvironment {
         Environment::from_os_pairs(self.pairs.iter().cloned(), cfg!(windows))
     }
 
-    /// The pairs the supervised `jobniac-cli http` child is built from. The child does not inherit
-    /// `HOME` or `LOCALAPPDATA`, so it could not find the per-user default generated root: with
-    /// generation on and no root set, the root the app registered is named explicitly.
+    /// The pairs the supervised `jobniac-cli http` child is built from, before any grant: the
+    /// process environment and what the defaults added, without the three MCP capabilities.
+    ///
+    /// The flags of the capabilities (`JOBNIAC_ARBEITNOW_ENABLED`, `JOBNIAC_LINK_FETCH_ENABLED`,
+    /// `JOBNIAC_DELETION_ENABLED`) are never inherited. Neither the app's own flags (on by default
+    /// for its screens) nor a flag of exactly `1` in the process environment reaches the child: such
+    /// a flag says the app or the CLI may use the feature, not that an MCP client may. A flag the
+    /// process sets to anything else (`0`, `true`, an empty value, a value that is not Unicode) is
+    /// passed on as the explicit refusal it is. The names match without regard to case, as the
+    /// Windows environment does. The capabilities come back only as grants ([`McpGrants`]).
+    ///
+    /// The Arbeitnow candidate key never crosses here, and neither does a cursor secret the app
+    /// generated: they cross only with the Arbeitnow grant. A cursor secret the process sets is kept
+    /// (it is the documented setting for stable list cursors).
+    ///
+    /// The child does not inherit `HOME` or `LOCALAPPDATA`, so it could not find the per-user
+    /// default generated root: with generation on and no root set, the root the app registered is
+    /// named explicitly.
     #[must_use]
-    pub fn supervisor_pairs(&self) -> Vec<(OsString, OsString)> {
+    pub fn supervisor_base_pairs(&self) -> Vec<(OsString, OsString)> {
         let env = self.environment();
-        let mut pairs = self.pairs.clone();
+        let named = |name: &OsString, variable: &str| {
+            name.to_str()
+                .is_some_and(|name| name.eq_ignore_ascii_case(variable))
+        };
+        let gated = |name: &OsString| {
+            Feature::ALL
+                .into_iter()
+                .filter(|feature| feature.is_mcp_capability())
+                .any(|feature| named(name, feature.variable()))
+        };
+        let mut pairs: Vec<(OsString, OsString)> = self
+            .pairs
+            .iter()
+            .enumerate()
+            .filter(|(index, (name, value))| {
+                let process = *index < self.process_count;
+                if named(name, CANDIDATE_KEY) {
+                    return false;
+                }
+                if named(name, CURSOR_SECRET_KEY) {
+                    return process;
+                }
+                // A gated flag crosses only as a refusal of the process environment.
+                !gated(name) || (process && value.to_str() != Some("1"))
+            })
+            .map(|(_, pair)| pair.clone())
+            .collect();
         if env.flag_enabled(GENERATED_ENABLED_VARIABLE)
             && !env.contains(GENERATED_ROOT_VARIABLE)
             && let Some(location) = load_generated_root_location(
@@ -549,6 +730,120 @@ impl DesktopEnvironment {
             pairs.push((GENERATED_ROOT_VARIABLE.into(), location.root.into()));
         }
         pairs
+    }
+
+    /// What the user has granted the MCP server at startup, from the Settings switches this
+    /// environment was built from: the capability flags that are on, not refused by the process
+    /// environment, and (for Arbeitnow) backed by a valid key pair, each with the pairs it needs.
+    /// The supervisor holds these and can only narrow them ([`McpGrants::pairs_for`]).
+    #[must_use]
+    pub fn mcp_grants(&self) -> McpGrants {
+        let env = self.environment();
+        let process = Environment::from_os_pairs(
+            self.pairs.iter().take(self.process_count).cloned(),
+            cfg!(windows),
+        );
+        let mut entries = Vec::new();
+        for feature in Feature::ALL {
+            if !feature.is_mcp_capability()
+                || forced_by_environment(&process, feature)
+                || !self.features.is_on(feature)
+            {
+                continue;
+            }
+            let mut grant = vec![(OsString::from(feature.variable()), OsString::from("1"))];
+            if feature == Feature::McpArbeitnow {
+                if !arbeitnow_keys_are_valid(&self.pairs) {
+                    continue;
+                }
+                let (Some(candidate), Some(secret)) =
+                    (env.get(CANDIDATE_KEY), env.get(CURSOR_SECRET_KEY))
+                else {
+                    continue;
+                };
+                grant.push((CANDIDATE_KEY.into(), candidate.into()));
+                // A secret of the process is already in the base pairs.
+                if !process.contains(CURSOR_SECRET_KEY) {
+                    grant.push((CURSOR_SECRET_KEY.into(), secret.into()));
+                }
+            }
+            entries.push((feature, grant));
+        }
+        McpGrants { entries }
+    }
+
+    /// The supervisor of the MCP server as the desktop shell builds it, with the grants it starts
+    /// with (also returned, as the most it can ever hold in this run). This is the one way to wire
+    /// the environment into a supervisor: the base pairs go to [`McpSupervisor::new`] and the
+    /// capabilities go in as grants, which a later revocation can take away. Passing the base and
+    /// the grants together as one source environment would make them impossible to revoke.
+    #[must_use]
+    pub fn supervisor(&self, spawner: Arc<dyn Spawner>) -> (McpSupervisor, McpGrants) {
+        let grants = self.mcp_grants();
+        let supervisor =
+            McpSupervisor::new(spawner, self.supervisor_base_pairs()).with_grants(grants.pairs());
+        (supervisor, grants)
+    }
+}
+
+/// The capabilities of the MCP server the user granted at startup, each with the variable pairs the
+/// child needs for it. This is the most the supervisor can ever hold in this run: a revocation
+/// removes a capability, and nothing adds one back before the next start of the app.
+///
+/// The pairs include the Arbeitnow signing keys, so `Debug` shows which capabilities were granted
+/// and never a variable value.
+#[derive(Clone, Default, PartialEq, Eq)]
+pub struct McpGrants {
+    entries: Vec<(Feature, Vec<(OsString, OsString)>)>,
+}
+
+impl fmt::Debug for McpGrants {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let granted: Vec<&str> = self
+            .entries
+            .iter()
+            .map(|(feature, _)| feature.id())
+            .collect();
+        f.debug_struct("McpGrants")
+            .field("granted", &granted)
+            .finish_non_exhaustive()
+    }
+}
+
+impl McpGrants {
+    /// Every pair of every grant, for the supervisor's startup grants.
+    #[must_use]
+    pub fn pairs(&self) -> Vec<(OsString, OsString)> {
+        self.entries
+            .iter()
+            .flat_map(|(_, pairs)| pairs.iter().cloned())
+            .collect()
+    }
+
+    /// The pairs of the grants whose Settings switch is still on in `features`. Passed to
+    /// `McpSupervisor::restrict_grants` after a switch was turned off.
+    #[must_use]
+    pub fn pairs_for(&self, features: &FeatureSettings) -> Vec<(OsString, OsString)> {
+        self.entries
+            .iter()
+            .filter(|(feature, _)| features.is_on(*feature))
+            .flat_map(|(_, pairs)| pairs.iter().cloned())
+            .collect()
+    }
+
+    /// Whether `pair` belongs to a grant whose Settings switch is still on in `features`. For
+    /// `McpSupervisor::retain_grants`: the decision copies no value.
+    #[must_use]
+    pub fn allows(&self, features: &FeatureSettings, pair: &(OsString, OsString)) -> bool {
+        self.entries
+            .iter()
+            .any(|(feature, pairs)| features.is_on(*feature) && pairs.contains(pair))
+    }
+
+    /// Whether `feature` was granted at startup.
+    #[must_use]
+    pub fn granted_at_startup(&self, feature: Feature) -> bool {
+        self.entries.iter().any(|(granted, _)| *granted == feature)
     }
 }
 
@@ -580,6 +875,8 @@ pub async fn prepare_environment(
     }
     DesktopEnvironment {
         pairs: result.pairs,
+        process_count,
+        features: *features,
         warnings: result.warnings,
     }
 }
@@ -619,13 +916,59 @@ mod tests {
         overlay(process, features, || Some(fixed_keys()))
     }
 
+    /// The features with a flag of their own in the environment of the app.
+    fn in_app_features() -> impl Iterator<Item = Feature> {
+        Feature::ALL
+            .into_iter()
+            .filter(|feature| !feature.is_mcp_capability())
+    }
+
     #[test]
-    fn an_empty_environment_turns_every_feature_on() {
+    fn an_empty_environment_turns_every_in_app_feature_on() {
         let result = run(Vec::new(), &FeatureSettings::default());
-        for feature in Feature::ALL {
+        for feature in in_app_features() {
             assert!(on(&result, feature), "{feature:?}");
         }
         assert!(result.warnings.is_empty());
+    }
+
+    #[test]
+    fn the_mcp_capabilities_are_off_by_default_and_are_not_features_of_the_app_environment() {
+        let defaults = FeatureSettings::default();
+        for feature in Feature::ALL {
+            assert_eq!(
+                defaults.is_on(feature),
+                !feature.is_mcp_capability(),
+                "{feature:?}"
+            );
+        }
+        // Even switched on, they add no flag to the environment of the app: the in-app switches of
+        // Arbeitnow, link capture and deletion alone decide its flags.
+        let mut features = FeatureSettings::default();
+        for feature in Feature::ALL {
+            features.set(feature, feature.is_mcp_capability());
+        }
+        let result = run(Vec::new(), &features);
+        let env = effective(&result);
+        assert!(!env.contains(DELETION_ENABLED_VARIABLE));
+        assert!(!env.contains(LINK_FETCH_ENABLED_VARIABLE));
+        assert!(!env.contains(FLAG_KEY));
+    }
+
+    #[test]
+    fn the_start_states_match_the_default_switches() {
+        let states = FeatureStates::new();
+        let defaults = FeatureSettings::default();
+        for feature in Feature::ALL {
+            assert_eq!(
+                states.started_on(feature),
+                defaults.is_on(feature),
+                "{feature:?}"
+            );
+        }
+        // A first run has nothing to restart for, whatever the default of a switch is.
+        assert!(!states.started_on(Feature::McpDeletion));
+        assert!(!states.started_on(Feature::McpLinkFetch));
     }
 
     #[test]
@@ -648,8 +991,7 @@ mod tests {
         for feature in Feature::ALL {
             features.set(feature, false);
         }
-        let process: Vec<_> = Feature::ALL
-            .iter()
+        let process: Vec<_> = in_app_features()
             .map(|feature| (feature.variable(), "1"))
             .collect();
         let result = run(os(&process), &features);
@@ -660,11 +1002,11 @@ mod tests {
 
     #[test]
     fn a_switch_that_is_off_leaves_its_flag_unset() {
-        for off in Feature::ALL {
+        for off in in_app_features() {
             let mut features = FeatureSettings::default();
             features.set(off, false);
             let result = run(Vec::new(), &features);
-            for feature in Feature::ALL {
+            for feature in in_app_features() {
                 assert_eq!(
                     on(&result, feature),
                     feature != off,
@@ -990,58 +1332,602 @@ mod tests {
                 (GENERATED_ENABLED_VARIABLE, "1"),
                 (GENERATED_ROOT_VARIABLE, "/srv/jobniac-synthetic/generated"),
             ]),
+            process_count: 2,
+            features: FeatureSettings::default(),
             warnings: Vec::new(),
         };
         assert_eq!(managed.supervisor_pairs(), managed.pairs);
         Ok(())
     }
 
-    /// The flag values the HTTP child is started with, built the way the supervisor builds them.
-    fn child_flags(process: Pairs, features: &FeatureSettings) -> Vec<(Feature, Option<String>)> {
+    impl DesktopEnvironment {
+        /// The whole environment of a child started with the startup grants: the base pairs and
+        /// every grant. Test-only: the app wires the two apart (`DesktopEnvironment::supervisor`),
+        /// so that a grant can be revoked.
+        fn supervisor_pairs(&self) -> Vec<(OsString, OsString)> {
+            let mut pairs = self.supervisor_base_pairs();
+            pairs.extend(self.mcp_grants().pairs());
+            pairs
+        }
+    }
+
+    /// The desktop environment built from `process` and `features`, as `prepare_environment`
+    /// builds it (without a database or a root).
+    fn desktop(process: Pairs, features: &FeatureSettings) -> DesktopEnvironment {
+        let process_count = process.len();
         let result = run(process, features);
-        let prepared = DesktopEnvironment {
+        DesktopEnvironment {
             pairs: result.pairs,
+            process_count,
+            features: *features,
             warnings: result.warnings,
-        };
+        }
+    }
+
+    /// The desktop environment built from `process` and `features` with no key source, as
+    /// `prepare_environment` builds it when the keys cannot be read (and without a database or a
+    /// root).
+    fn desktop_without_keys(process: Pairs, features: &FeatureSettings) -> DesktopEnvironment {
+        let process_count = process.len();
+        let result = overlay(process, features, || None);
+        DesktopEnvironment {
+            pairs: result.pairs,
+            process_count,
+            features: *features,
+            warnings: result.warnings,
+        }
+    }
+
+    /// The flag values the HTTP child is started with, built the way the supervisor builds them:
+    /// one entry per distinct flag variable.
+    fn child_flags_of(prepared: &DesktopEnvironment) -> Vec<(&'static str, Option<String>)> {
         let token = secrecy::SecretString::from("t".repeat(64));
         let child =
             crate::mcp_server::child_environment(&prepared.supervisor_pairs(), 8765, &token, None);
-        Feature::ALL
-            .iter()
+        in_app_features()
             .map(|feature| {
                 let value = child
                     .iter()
                     .find(|(name, _)| name.to_str() == Some(feature.variable()))
                     .map(|(_, value)| value.to_string_lossy().into_owned());
-                (*feature, value)
+                (feature.variable(), value)
             })
             .collect()
     }
 
-    #[test]
-    fn the_http_child_gets_the_same_feature_flags_as_the_app() {
-        // Default settings and an empty process environment: every flag is `1` in the child.
-        for (feature, value) in child_flags(Vec::new(), &FeatureSettings::default()) {
-            assert_eq!(value.as_deref(), Some("1"), "{feature:?}");
+    fn child_flags(
+        process: Pairs,
+        features: &FeatureSettings,
+    ) -> Vec<(&'static str, Option<String>)> {
+        child_flags_of(&desktop(process, features))
+    }
+
+    /// The flag of `variable` in the list of `child_flags`.
+    fn flag<'a>(flags: &'a [(&str, Option<String>)], variable: &str) -> Option<&'a str> {
+        flags
+            .iter()
+            .find(|(name, _)| *name == variable)
+            .and_then(|(_, value)| value.as_deref())
+    }
+
+    /// The variables of the three MCP capabilities.
+    const GATED: [&str; 3] = [
+        FLAG_KEY,
+        LINK_FETCH_ENABLED_VARIABLE,
+        DELETION_ENABLED_VARIABLE,
+    ];
+
+    fn only_gated(flags: &[(&str, Option<String>)], on: &[&str]) {
+        for variable in GATED {
+            let expected = on.contains(&variable).then_some("1");
+            assert_eq!(flag(flags, variable), expected, "{variable}");
         }
-        // A flag of the process environment wins and crosses as it is.
-        for (feature, value) in child_flags(
+    }
+
+    #[test]
+    fn the_http_child_gets_no_network_or_deletion_flag_by_default() {
+        // Default settings and an empty process environment: the in-app features are on, and the
+        // child still has neither the deletion tools, the link tool nor the Arbeitnow tools.
+        let flags = child_flags(Vec::new(), &FeatureSettings::default());
+        only_gated(&flags, &[]);
+        // The other features cross as before.
+        assert_eq!(flag(&flags, DOCUMENT_ARTIFACTS_VARIABLE), Some("1"));
+        assert_eq!(flag(&flags, GENERATED_ENABLED_VARIABLE), Some("1"));
+        // The app itself has the in-app features.
+        let app = desktop(Vec::new(), &FeatureSettings::default()).environment();
+        for variable in GATED {
+            assert!(app.flag_enabled(variable), "{variable}");
+        }
+    }
+
+    #[test]
+    fn each_mcp_opt_in_adds_only_its_own_flag_to_the_child() {
+        for (feature, variable) in [
+            (Feature::McpDeletion, DELETION_ENABLED_VARIABLE),
+            (Feature::McpLinkFetch, LINK_FETCH_ENABLED_VARIABLE),
+            (Feature::McpArbeitnow, FLAG_KEY),
+        ] {
+            let mut features = FeatureSettings::default();
+            features.set(feature, true);
+            let flags = child_flags(Vec::new(), &features);
+            only_gated(&flags, &[variable]);
+        }
+        let mut features = FeatureSettings::default();
+        for feature in Feature::ALL {
+            if feature.is_mcp_capability() {
+                features.set(feature, true);
+            }
+        }
+        only_gated(&child_flags(Vec::new(), &features), &GATED);
+    }
+
+    #[test]
+    fn the_mcp_opt_in_does_not_depend_on_the_in_app_switch() {
+        // The in-app switch off leaves the app without the feature and the child with it.
+        for (in_app, mcp) in [
+            (Feature::Deletion, Feature::McpDeletion),
+            (Feature::LinkFetch, Feature::McpLinkFetch),
+            (Feature::Arbeitnow, Feature::McpArbeitnow),
+        ] {
+            let mut features = FeatureSettings::default();
+            features.set(in_app, false);
+            features.set(mcp, true);
+            let prepared = desktop(Vec::new(), &features);
+            assert!(
+                !prepared.environment().flag_enabled(in_app.variable()),
+                "{in_app:?}"
+            );
+            let child = Environment::from_os_pairs(prepared.supervisor_pairs(), false);
+            assert!(child.flag_enabled(in_app.variable()), "{mcp:?}");
+            // And the other way round: the in-app switch on never reaches the child.
+            let mut features = FeatureSettings::default();
+            features.set(mcp, false);
+            let prepared = desktop(Vec::new(), &features);
+            assert!(prepared.environment().flag_enabled(in_app.variable()));
+            let child = Environment::from_os_pairs(prepared.supervisor_pairs(), false);
+            assert!(!child.contains(in_app.variable()), "{in_app:?}");
+        }
+    }
+
+    #[test]
+    fn a_general_flag_of_one_in_the_process_environment_is_no_mcp_opt_in() {
+        // `JOBNIAC_*_ENABLED=1` enables the feature for the app (and the CLI); it is not a consent
+        // to give an MCP client the capability, so the child does not inherit it.
+        for variable in GATED {
+            let flags = child_flags(os(&[(variable, "1")]), &FeatureSettings::default());
+            assert_eq!(flag(&flags, variable), None, "{variable}");
+            // The app still follows the variable.
+            let app = desktop(os(&[(variable, "1")]), &FeatureSettings::default()).environment();
+            assert!(app.flag_enabled(variable), "{variable}");
+        }
+        // Even with the in-app switches off the variable only enables the app's feature.
+        let mut off = FeatureSettings::default();
+        for feature in Feature::ALL {
+            off.set(feature, false);
+        }
+        let process: Vec<_> = GATED.iter().map(|variable| (*variable, "1")).collect();
+        let prepared = desktop(os(&process), &off);
+        only_gated(&child_flags_of(&prepared), &[]);
+        for variable in GATED {
+            assert!(prepared.environment().flag_enabled(variable), "{variable}");
+        }
+        // The same holds when other variables are set around it.
+        let flags = child_flags(
+            os(&[
+                (DELETION_ENABLED_VARIABLE, "1"),
+                (GENERATED_ENABLED_VARIABLE, "1"),
+            ]),
+            &FeatureSettings::default(),
+        );
+        assert_eq!(flag(&flags, DELETION_ENABLED_VARIABLE), None);
+        assert_eq!(flag(&flags, GENERATED_ENABLED_VARIABLE), Some("1"));
+    }
+
+    #[test]
+    fn a_general_flag_of_one_and_the_opt_in_together_give_one_flag_to_the_child() {
+        let mut features = FeatureSettings::default();
+        features.set(Feature::McpDeletion, true);
+        let prepared = desktop(os(&[(DELETION_ENABLED_VARIABLE, "1")]), &features);
+        let pairs = prepared.supervisor_pairs();
+        let flags: Vec<_> = pairs
+            .iter()
+            .filter(|(name, _)| name == DELETION_ENABLED_VARIABLE)
+            .collect();
+        assert_eq!(flags.len(), 1);
+        assert_eq!(flags[0].1, "1");
+    }
+
+    #[test]
+    fn a_process_flag_other_than_one_is_an_explicit_refusal_the_opt_in_cannot_override() {
+        for (variable, feature) in [
+            (DELETION_ENABLED_VARIABLE, Feature::McpDeletion),
+            (LINK_FETCH_ENABLED_VARIABLE, Feature::McpLinkFetch),
+            (FLAG_KEY, Feature::McpArbeitnow),
+        ] {
+            let mut on = FeatureSettings::default();
+            on.set(feature, true);
+            for value in ["0", "true", "yes", "01", " 1", "", "2", "ON"] {
+                let process = os(&[(variable, value)]);
+                let flags = child_flags(process.clone(), &on);
+                // Passed on as it is, so the child reads the refusal too.
+                assert_eq!(flag(&flags, variable), Some(value), "{variable}={value:?}");
+                assert!(
+                    forced_by_environment(&Environment::from_os_pairs(process, false), feature),
+                    "{variable}={value:?}"
+                );
+            }
+        }
+        // The unrelated flags are untouched by one refusal.
+        let flags = child_flags(
             os(&[(DELETION_ENABLED_VARIABLE, "0")]),
             &FeatureSettings::default(),
-        ) {
-            let expected = if feature == Feature::Deletion {
-                "0"
-            } else {
-                "1"
-            };
-            assert_eq!(value.as_deref(), Some(expected), "{feature:?}");
-        }
-        // A Settings switch that is off leaves its flag out of the child.
+        );
+        assert_eq!(flag(&flags, GENERATED_ENABLED_VARIABLE), Some("1"));
+        assert_eq!(flag(&flags, LINK_FETCH_ENABLED_VARIABLE), None);
+    }
+
+    #[test]
+    fn the_environment_forces_an_mcp_capability_only_when_it_refuses_it() {
+        let set = |value: &str| {
+            Environment::from_os_pairs(os(&[(DELETION_ENABLED_VARIABLE, value)]), false)
+        };
+        // An in-app feature is forced by any set value; an MCP capability only by a refusal.
+        assert!(forced_by_environment(&set("1"), Feature::Deletion));
+        assert!(!forced_by_environment(&set("1"), Feature::McpDeletion));
+        assert!(forced_by_environment(&set("0"), Feature::Deletion));
+        assert!(forced_by_environment(&set("0"), Feature::McpDeletion));
+        let unset = Environment::from_os_pairs(Vec::<(OsString, OsString)>::new(), false);
+        assert!(!forced_by_environment(&unset, Feature::Deletion));
+        assert!(!forced_by_environment(&unset, Feature::McpDeletion));
+    }
+
+    #[test]
+    fn a_switch_that_is_off_leaves_its_flag_out_of_the_child() {
         let mut features = FeatureSettings::default();
-        features.set(Feature::LinkFetch, false);
-        for (feature, value) in child_flags(Vec::new(), &features) {
-            let expected = (feature != Feature::LinkFetch).then_some("1");
-            assert_eq!(value.as_deref(), expected, "{feature:?}");
+        features.set(Feature::DocumentArtifacts, false);
+        features.set(Feature::McpLinkFetch, true);
+        let flags = child_flags(Vec::new(), &features);
+        assert_eq!(flag(&flags, DOCUMENT_ARTIFACTS_VARIABLE), None);
+        only_gated(&flags, &[LINK_FETCH_ENABLED_VARIABLE]);
+    }
+
+    #[test]
+    fn the_arbeitnow_opt_in_needs_valid_keys_and_leaves_the_app_flag_alone() {
+        // Without a key source the child gets no Arbeitnow flag (it would fail to start on it),
+        // with a warning, and the app has none either.
+        let mut features = FeatureSettings::default();
+        features.set(Feature::Arbeitnow, false);
+        features.set(Feature::McpArbeitnow, true);
+        let prepared = desktop_without_keys(Vec::new(), &features);
+        assert_eq!(prepared.warnings, vec![FeatureWarning::KeysUnavailable]);
+        only_gated(&child_flags_of(&prepared), &[]);
+        // With keys, the child gets the flag and the keys; the app has the keys and no flag.
+        let prepared = desktop(Vec::new(), &features);
+        assert!(prepared.warnings.is_empty());
+        let app = prepared.environment();
+        assert!(!app.flag_enabled(FLAG_KEY));
+        assert!(app.contains(CANDIDATE_KEY) && app.contains(CURSOR_SECRET_KEY));
+        let child = Environment::from_os_pairs(prepared.supervisor_pairs(), false);
+        assert!(child.flag_enabled(FLAG_KEY));
+        assert!(matches!(load_arbeitnow_config(&child), Ok(Some(_))));
+        // A stale key of the environment keeps the flag from a child that would not start.
+        let prepared = desktop(os(&[(CURSOR_SECRET_KEY, "   ")]), &features);
+        assert_eq!(prepared.warnings, vec![FeatureWarning::KeysInvalid]);
+        only_gated(&child_flags_of(&prepared), &[]);
+    }
+
+    #[test]
+    fn no_keys_are_made_for_arbeitnow_when_neither_the_app_nor_mcp_wants_it() {
+        let mut features = FeatureSettings::default();
+        features.set(Feature::Arbeitnow, false);
+        let result = overlay(Vec::new(), &features, || {
+            panic!("the keys must not be read while Arbeitnow is off for the app and for MCP")
+        });
+        assert!(!effective(&result).contains(CANDIDATE_KEY));
+        // An environment refusal of the flag also keeps the MCP opt-in from asking for keys.
+        features.set(Feature::McpArbeitnow, true);
+        let result = overlay(os(&[(FLAG_KEY, "0")]), &features, || {
+            panic!("the keys must not be read while the environment refuses Arbeitnow")
+        });
+        assert!(!effective(&result).contains(CANDIDATE_KEY));
+    }
+
+    #[test]
+    fn the_supervisor_pairs_keep_the_process_pairs_and_the_added_order() {
+        let process = os(&[("PATH", "/usr/bin"), ("JOBNIAC_DB_PATH", "/x")]);
+        let mut features = FeatureSettings::default();
+        features.set(Feature::McpDeletion, true);
+        let prepared = desktop(process.clone(), &features);
+        let pairs = prepared.supervisor_pairs();
+        assert_eq!(&pairs[..process.len()], process.as_slice());
+        assert!(pairs.contains(&(
+            OsString::from(DELETION_ENABLED_VARIABLE),
+            OsString::from("1")
+        )));
+        // The app's own copy of the in-app deletion flag is dropped, so the flag appears once.
+        let count = pairs
+            .iter()
+            .filter(|(name, _)| name == DELETION_ENABLED_VARIABLE)
+            .count();
+        assert_eq!(count, 1);
+    }
+
+    /// A value that starts with `1` and is not Unicode, where the platform can build one.
+    fn non_unicode_one() -> Option<OsString> {
+        #[cfg(unix)]
+        {
+            use std::os::unix::ffi::OsStringExt;
+            Some(OsString::from_vec(vec![0x31, 0xff]))
+        }
+        #[cfg(windows)]
+        {
+            use std::os::windows::ffi::OsStringExt;
+            // A lone surrogate is not valid UTF-16.
+            Some(OsString::from_wide(&[0x31, 0xD800]))
+        }
+        #[cfg(not(any(unix, windows)))]
+        {
+            None
+        }
+    }
+
+    fn every_mcp_switch_on() -> FeatureSettings {
+        let mut features = FeatureSettings::default();
+        for feature in Feature::ALL {
+            if feature.is_mcp_capability() {
+                features.set(feature, true);
+            }
+        }
+        features
+    }
+
+    fn has_pair(pairs: &[(OsString, OsString)], name: &str) -> bool {
+        pairs.iter().any(|(pair, _)| {
+            pair.to_str()
+                .is_some_and(|pair| pair.eq_ignore_ascii_case(name))
+        })
+    }
+
+    #[test]
+    fn the_base_pairs_carry_no_capability_flag_and_no_arbeitnow_key() {
+        // Everything is granted, and the process sets general flags of `1` too.
+        let process = os(&[
+            (DELETION_ENABLED_VARIABLE, "1"),
+            (LINK_FETCH_ENABLED_VARIABLE, "1"),
+            (FLAG_KEY, "1"),
+            (CANDIDATE_KEY, CANDIDATE),
+            (CURSOR_SECRET_KEY, SECRET),
+        ]);
+        let prepared = desktop(process, &every_mcp_switch_on());
+        let base = prepared.supervisor_base_pairs();
+        for name in GATED {
+            assert!(!has_pair(&base, name), "{name}");
+        }
+        // The candidate key of the process stays out; its cursor secret (a documented setting) stays.
+        assert!(!has_pair(&base, CANDIDATE_KEY));
+        assert!(base.contains(&(OsString::from(CURSOR_SECRET_KEY), OsString::from(SECRET))));
+        // The grants bring the flags and the candidate key back, exactly once each.
+        let grants = prepared.mcp_grants().pairs();
+        for name in GATED {
+            assert_eq!(
+                grants.iter().filter(|(pair, _)| pair == name).count(),
+                1,
+                "{name}"
+            );
+        }
+        assert!(grants.contains(&(OsString::from(CANDIDATE_KEY), OsString::from(CANDIDATE))));
+        // The secret of the process is not duplicated into the grant.
+        assert!(!has_pair(&grants, CURSOR_SECRET_KEY));
+    }
+
+    #[test]
+    fn a_generated_cursor_secret_and_the_candidate_key_cross_only_with_the_arbeitnow_grant() {
+        // The app generated the keys (the in-app Arbeitnow is on) but MCP Arbeitnow is off.
+        let prepared = desktop(Vec::new(), &FeatureSettings::default());
+        let app = prepared.environment();
+        assert!(app.contains(CANDIDATE_KEY) && app.contains(CURSOR_SECRET_KEY));
+        let child = prepared.supervisor_pairs();
+        assert!(!has_pair(&child, CANDIDATE_KEY));
+        assert!(!has_pair(&child, CURSOR_SECRET_KEY));
+        assert!(!has_pair(&child, FLAG_KEY));
+        // With the grant, the child gets both keys and the flag, and no more.
+        let mut on = FeatureSettings::default();
+        on.set(Feature::McpArbeitnow, true);
+        let prepared = desktop(Vec::new(), &on);
+        let grants = prepared.mcp_grants();
+        assert!(grants.granted_at_startup(Feature::McpArbeitnow));
+        let pairs = grants.pairs();
+        assert!(has_pair(&pairs, FLAG_KEY));
+        assert!(has_pair(&pairs, CANDIDATE_KEY));
+        assert!(has_pair(&pairs, CURSOR_SECRET_KEY));
+        // Narrowing the switch drops all three pairs from the allowed set.
+        assert!(grants.pairs_for(&FeatureSettings::default()).is_empty());
+    }
+
+    #[test]
+    fn the_grants_at_startup_follow_the_switches_and_the_refusals() {
+        assert_eq!(
+            desktop(Vec::new(), &FeatureSettings::default()).mcp_grants(),
+            McpGrants::default()
+        );
+        let prepared = desktop(Vec::new(), &every_mcp_switch_on());
+        let grants = prepared.mcp_grants();
+        for feature in Feature::ALL {
+            assert_eq!(
+                grants.granted_at_startup(feature),
+                feature.is_mcp_capability(),
+                "{feature:?}"
+            );
+        }
+        // A refusal of the process environment leaves the grant out.
+        let refused = desktop(
+            os(&[(DELETION_ENABLED_VARIABLE, "0")]),
+            &every_mcp_switch_on(),
+        );
+        let grants = refused.mcp_grants();
+        assert!(!grants.granted_at_startup(Feature::McpDeletion));
+        assert!(grants.granted_at_startup(Feature::McpLinkFetch));
+        // The allowed pairs follow the current switches, one feature at a time.
+        let all = prepared.mcp_grants();
+        let mut features = every_mcp_switch_on();
+        features.set(Feature::McpLinkFetch, false);
+        let allowed = all.pairs_for(&features);
+        assert!(has_pair(&allowed, DELETION_ENABLED_VARIABLE));
+        assert!(!has_pair(&allowed, LINK_FETCH_ENABLED_VARIABLE));
+        assert!(has_pair(&allowed, FLAG_KEY));
+        // Arbeitnow without a usable key pair is not granted.
+        let mut arbeitnow = FeatureSettings::default();
+        arbeitnow.set(Feature::McpArbeitnow, true);
+        let unusable = desktop_without_keys(Vec::new(), &arbeitnow);
+        assert!(
+            !unusable
+                .mcp_grants()
+                .granted_at_startup(Feature::McpArbeitnow)
+        );
+    }
+
+    #[test]
+    fn capability_flags_match_without_regard_to_case_in_the_base_pairs() {
+        // The Windows environment is case-insensitive, so `Jobniac_Deletion_Enabled=1` is the
+        // general flag. It never reaches the child, on any platform.
+        let process = os(&[
+            ("Jobniac_Deletion_Enabled", "1"),
+            ("jobniac_link_fetch_enabled", "1"),
+            ("JOBNIAC_arbeitnow_ENABLED", "1"),
+        ]);
+        let prepared = desktop(process, &FeatureSettings::default());
+        let base = prepared.supervisor_base_pairs();
+        for name in GATED {
+            assert!(!has_pair(&base, name), "{name}");
+        }
+        // With the opt-in the child gets the canonical flag, once.
+        let prepared = desktop(
+            os(&[("Jobniac_Deletion_Enabled", "1")]),
+            &every_mcp_switch_on(),
+        );
+        let pairs = prepared.supervisor_pairs();
+        assert_eq!(
+            pairs
+                .iter()
+                .filter(|(name, _)| {
+                    name.to_str()
+                        .is_some_and(|name| name.eq_ignore_ascii_case(DELETION_ENABLED_VARIABLE))
+                })
+                .count(),
+            1
+        );
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn a_mixed_case_refusal_wins_over_the_opt_in_on_windows() {
+        let process = os(&[
+            ("Jobniac_Deletion_Enabled", "0"),
+            ("jobniac_link_fetch_enabled", "false"),
+            ("JOBNIAC_Arbeitnow_Enabled", ""),
+        ]);
+        let prepared = desktop(process, &every_mcp_switch_on());
+        let grants = prepared.mcp_grants();
+        for feature in [
+            Feature::McpDeletion,
+            Feature::McpLinkFetch,
+            Feature::McpArbeitnow,
+        ] {
+            assert!(!grants.granted_at_startup(feature), "{feature:?}");
+        }
+        // The refusals cross as they are, under the case the process used.
+        let child = Environment::from_os_pairs(prepared.supervisor_pairs(), true);
+        for name in GATED {
+            assert!(!child.flag_enabled(name), "{name}");
+        }
+        assert!(child.contains(DELETION_ENABLED_VARIABLE));
+    }
+
+    #[test]
+    fn a_non_unicode_flag_value_is_a_refusal_and_never_a_grant() {
+        let Some(bad) = non_unicode_one() else {
+            return;
+        };
+        for variable in GATED {
+            let process = vec![(OsString::from(variable), bad.clone())];
+            let prepared = desktop(process, &every_mcp_switch_on());
+            let grants = prepared.mcp_grants();
+            let feature = Feature::ALL
+                .into_iter()
+                .find(|feature| feature.is_mcp_capability() && feature.variable() == variable);
+            assert!(
+                feature.is_some_and(|feature| !grants.granted_at_startup(feature)),
+                "{variable}"
+            );
+            // The value crosses as it is (a refusal), and the child cannot read it as `1`.
+            let child = Environment::from_os_pairs(prepared.supervisor_pairs(), cfg!(windows));
+            assert!(!child.flag_enabled(variable), "{variable}");
+        }
+    }
+
+    #[test]
+    fn the_debug_text_of_the_grants_and_the_environment_shows_no_secret_value() {
+        let process = os(&[
+            (CANDIDATE_KEY, CANDIDATE),
+            (CURSOR_SECRET_KEY, SECRET),
+            ("JOBNIAC_DB_PATH", "/srv/jobniac-synthetic/db"),
+        ]);
+        let prepared = desktop(process.clone(), &every_mcp_switch_on());
+        let grants = prepared.mcp_grants();
+        assert!(grants.granted_at_startup(Feature::McpArbeitnow));
+        let overlaid = run(process, &every_mcp_switch_on());
+        // The keys the app generated are the fixed pair of the test, so they are covered too.
+        let generated = desktop(Vec::new(), &every_mcp_switch_on());
+        for text in [
+            format!("{grants:?}"),
+            format!("{grants:#?}"),
+            format!("{prepared:?}"),
+            format!("{prepared:#?}"),
+            format!("{overlaid:?}"),
+            format!("{generated:?}"),
+            format!("{:?}", generated.mcp_grants()),
+        ] {
+            assert!(!text.contains(CANDIDATE), "{text}");
+            assert!(!text.contains(SECRET), "{text}");
+            assert!(!text.contains("srv/jobniac-synthetic"), "{text}");
+        }
+        // It still says what was granted, and for the environment how much it holds.
+        let text = format!("{grants:?}");
+        assert!(
+            text.contains("McpGrants") && text.contains("mcpArbeitnow"),
+            "{text}"
+        );
+        assert!(format!("{prepared:?}").contains("variables"));
+        // The default grants show nothing granted.
+        assert!(format!("{:?}", McpGrants::default()).contains("[]"));
+    }
+
+    #[test]
+    fn a_grant_is_allowed_only_while_its_own_switch_is_on() {
+        let prepared = desktop(Vec::new(), &every_mcp_switch_on());
+        let grants = prepared.mcp_grants();
+        let deletion = (
+            OsString::from(DELETION_ENABLED_VARIABLE),
+            OsString::from("1"),
+        );
+        let candidate = (OsString::from(CANDIDATE_KEY), OsString::from(CANDIDATE));
+        let unknown = (OsString::from("JOBNIAC_UNRELATED"), OsString::from("1"));
+        let on = every_mcp_switch_on();
+        assert!(grants.allows(&on, &deletion));
+        assert!(grants.allows(&on, &candidate));
+        assert!(!grants.allows(&on, &unknown));
+        let mut off = every_mcp_switch_on();
+        off.set(Feature::McpDeletion, false);
+        assert!(!grants.allows(&off, &deletion));
+        assert!(grants.allows(&off, &candidate));
+        off.set(Feature::McpArbeitnow, false);
+        assert!(!grants.allows(&off, &candidate));
+        // The decision agrees with the list the other API builds.
+        for pair in grants.pairs() {
+            assert_eq!(
+                grants.allows(&off, &pair),
+                grants.pairs_for(&off).contains(&pair)
+            );
         }
     }
 
@@ -1054,5 +1940,7 @@ mod tests {
         assert!(states.effective(Feature::Generation) && !states.effective(Feature::Deletion));
         let states = states.with_started_on(Feature::Deletion, false);
         assert!(!states.started_on(Feature::Deletion) && states.started_on(Feature::Arbeitnow));
+        let states = states.with_revoked(Feature::McpDeletion, true);
+        assert!(states.revoked(Feature::McpDeletion) && !states.revoked(Feature::McpLinkFetch));
     }
 }
