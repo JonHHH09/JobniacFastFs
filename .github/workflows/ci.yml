@@ -227,6 +227,57 @@ jobs:
         # runs the generic classes. The scan fails on any finding that is not in the reviewed allow-list.
         run: python3 -I scripts/ci/privacy_scan.py --mode all
 
+  # Smoke test of the pinned actions/cache action. `mark-passed` (which saves with it) is skipped on
+  # pull requests into development, so a bump of the action would otherwise first run on a push to
+  # development. This job saves and restores a synthetic file under a disposable key on every pull
+  # request, then checks the restored content. It is not part of the gate: it is not in the needs of
+  # `mark-passed`, not a required check, and it neither reads nor writes `ci-passed-*` or `e2e-passed-*`
+  # (the key prefix is `smoke-cache-`, the restore is an exact match with no `restore-keys`). It needs
+  # no checkout and no token permission (the cache service uses the runner's own credential). A pull
+  # request cache is scoped to its own ref, and the entry (a few bytes) expires by itself.
+  cache-smoke:
+    name: Cache action smoke test
+    if: ${{ github.event_name == 'pull_request' && !inputs.release-call }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    env:
+      SMOKE_KEY: smoke-cache-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - name: Write a synthetic file
+        run: |
+          set -euo pipefail
+          case "$SMOKE_KEY" in
+            ci-passed-* | e2e-passed-*) echo "::error::the smoke key must not look like a passed marker"; exit 1 ;;
+          esac
+          mkdir -p "$RUNNER_TEMP/cache-smoke"
+          printf 'cache smoke %s %s\n' "$SMOKE_KEY" "$(date -u +%s)" > "$RUNNER_TEMP/cache-smoke/payload.txt"
+          # The reference copy lives outside the cached directory.
+          cp "$RUNNER_TEMP/cache-smoke/payload.txt" "$RUNNER_TEMP/cache-smoke-expected.txt"
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/cache-smoke
+          key: ${{ env.SMOKE_KEY }}
+      - name: Remove the file, so that only a restore can bring it back
+        run: |
+          set -euo pipefail
+          rm -rf "$RUNNER_TEMP/cache-smoke"
+          test ! -e "$RUNNER_TEMP/cache-smoke/payload.txt"
+      - id: restore
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/cache-smoke
+          key: ${{ env.SMOKE_KEY }}
+          fail-on-cache-miss: true
+      - name: Assert the restored content
+        env:
+          CACHE_HIT: ${{ steps.restore.outputs.cache-hit }}
+        run: |
+          set -euo pipefail
+          test "$CACHE_HIT" = "true"
+          test -f "$RUNNER_TEMP/cache-smoke/payload.txt"
+          cmp "$RUNNER_TEMP/cache-smoke/payload.txt" "$RUNNER_TEMP/cache-smoke-expected.txt"
+          echo "Restored content matches: $(cat "$RUNNER_TEMP/cache-smoke/payload.txt")"
+
   # Records that this tree passed the whole workflow, so the same tree is not tested again on the way
   # to main (the promotion pull request and the release call look it up). Saved by pushes and
   # dispatches on development or main (the cache is then scoped to that branch) and by a promotion
@@ -257,7 +308,7 @@ jobs:
         env:
           TREE: ${{ needs.changes.outputs.tree }}
         run: echo "$TREE" > passed-marker
-      - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: passed-marker
           key: ci-passed-${{ needs.changes.outputs.tree }}
