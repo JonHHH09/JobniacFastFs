@@ -314,7 +314,7 @@ const SPECS: Spec[] = [
   },
 ];
 
-function describe(spec: Spec): string {
+function describeSpec(spec: Spec): string {
   const skills = spec.skills;
   if (spec.lang === "de") {
     return [
@@ -375,7 +375,7 @@ for (const [index, spec] of seed(SPECS).entries()) {
       title: spec.title,
       company: spec.company,
       location: spec.location,
-      description: describe(spec),
+      description: describeSpec(spec),
       sourceLabel: spec.source,
       employmentType: spec.type,
       seniority: spec.seniority,
