@@ -108,16 +108,6 @@ export function hasUnsavedChanges(state: EditorState): boolean {
   return profileChanged || personalChanged;
 }
 
-/** The profile draft is dirty against its baseline (used for the discard action). */
-export function isEditDirty(state: EditorState): boolean {
-  return (
-    state.mode === "edit" &&
-    state.draft !== null &&
-    state.baseline !== null &&
-    isProfileDirty(state.draft, state.baseline)
-  );
-}
-
 /** Loads a graph and its personal envelope, or reports a mismatch between the two (Rust rule). */
 export function loadedState(
   graph: ProfileGraphDto,

@@ -47,7 +47,7 @@ pdf-writer = "=0.15.0"
 # Embedded SQLite for the local database (jobniac-infra). `bundled` compiles SQLite in (no system
 # library, same engine on Windows and Linux). Pinned exactly: the bundled SQLite version is part of
 # the storage contract (STRICT tables, minimum-version check in the health probe).
-rusqlite = { version = "=0.40.2", default-features = false, features = ["bundled", "cache"] }
+rusqlite = { version = "=0.41.0", default-features = false, features = ["bundled", "cache"] }
 rmcp = { version = "=3.6.0", features = ["server", "transport-io", "transport-streamable-http-server", "macros", "schemars"] }
 # Loopback Streamable HTTP MCP: the guard and listener in jobniac-mcp. Exact pins match the
 # versions already in Cargo.lock.
