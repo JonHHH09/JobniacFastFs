@@ -405,14 +405,3 @@ export function projectPatchRequest(
   }
   return request;
 }
-
-/** True when a project row differs from the baseline in one of the project-only fields. */
-export function projectHasChanges(
-  draft: ProfileDraft | null,
-  baseline: ProfileDraft | null,
-  index: number,
-): boolean {
-  const current = draft?.collections.projects?.[index];
-  const saved = baselineProject(baseline, current);
-  return Boolean(current && saved && changedProjectFields(current, saved).length > 0);
-}

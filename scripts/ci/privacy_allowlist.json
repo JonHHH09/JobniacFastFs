@@ -885,6 +885,18 @@
       "reason": "Literal placeholder tokens inside #[cfg(test)] Debug-redaction tests; not secrets. Intermediate version from the history."
     },
     {
+      "sha256": "72b2958eaa1bf64a7abcaec320dd8586e07f2b072b835887cf96b5c7c1fdd124",
+      "classes": ["secret-token"],
+      "paths": ["crates/runtime/src/desktop_features.rs"],
+      "reason": "Synthetic unit-test literal: a demonstrative alphabet-and-number sequence used as the environment-key fixture in #[cfg(test)] the_environment_keys_win_and_the_missing_one_comes_from_the_file; not a secret. Intermediate version from the history."
+    },
+    {
+      "sha256": "bd9f9d73cf532969b23c97de9575698790cc5cab675f4bfcf2e571037a5e8d35",
+      "classes": ["secret-token"],
+      "paths": ["src-tauri/src/state.rs"],
+      "reason": "Synthetic unit-test literals: two purpose-labelled placeholder tokens used in the #[cfg(test)] Debug-redaction assertions; not secrets. Intermediate version from the history."
+    },
+    {
       "sha256": "af38457a3c945bd5a4ab39053692561e9805fe2dd180e145fd84d1e522894096",
       "classes": ["ip-address"],
       "paths": ["crates/cli/tests/fetch_worker.rs"],
