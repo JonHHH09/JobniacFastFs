@@ -47,7 +47,7 @@ tauri-plugin-clipboard-manager = "=2.5.0"
 # config), so a development build starts without a signing key. The default `zip` feature only
 # unpacks v1 `.zip`/`.tar.gz` bundles; the v2 artifacts (NSIS `.exe`, AppImage) need no archive
 # support, and the `zip` crate carries RUSTSEC-2026-0367/0368/0369.
-tauri-plugin-updater = { version = "=2.14.0", default-features = false, features = ["rustls-tls", "system-proxy"] }
+tauri-plugin-updater = { version = "=2.14.1", default-features = false, features = ["rustls-tls", "system-proxy"] }
 tauri-specta.workspace = true
 time.workspace = true
 tokio.workspace = true
