@@ -55,6 +55,8 @@ uuid.workspace = true
 
 [dev-dependencies]
 tempfile.workspace = true
+# The mock runtime of the run-isolation test (test_isolation.rs): the real path resolver, no window.
+tauri = { version = "2", features = ["test"] }
 
 [lints]
 workspace = true
