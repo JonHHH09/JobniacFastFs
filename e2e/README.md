@@ -59,11 +59,10 @@ test is printed to the console. The run root (`target/e2e-*`) is removed at the 
 - **The optional features are on in the default session.** The desktop app turns them on unless the
   process sets a flag; the opt-out session sets them to `0`. Every session names the run's generated
   root (`JOBNIAC_GENERATED_ROOT`), so the app never registers the machine's per-user root. The
-  per-user Settings file (`settings.json`) and the Arbeitnow keys file (`feature-keys.json`) are
-  redirected into the run root on Linux (`XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_CACHE_HOME`;
-  `HOME` and `XDG_RUNTIME_DIR` are kept). **On Windows they are not redirected**: Tauri resolves them
-  through Known Folder APIs that ignore `APPDATA` and `LOCALAPPDATA`, so the default session there
-  assumes the switches in the developer's real `settings.json` are at their defaults (on).
+  per-user Settings file (`settings.json`), the Arbeitnow keys file (`feature-keys.json`) and the
+  WebView2 profile are redirected into the run root on every platform by the run isolation of the
+  debug build (see "Run isolation" below); on Linux the XDG variables are redirected as well
+  (`XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_CACHE_HOME`; `HOME` and `XDG_RUNTIME_DIR` are kept).
 - **The generated root is not in the user temporary folder.** On the Windows host,
   `setup-generated-root` refused a root under `%TEMP%`, under `C:\` and under `%LOCALAPPDATA%` with
   "could not be initialized", and accepted the same empty directory under the repository's `target/`
@@ -89,6 +88,61 @@ test is printed to the console. The run root (`target/e2e-*`) is removed at the 
   so the save control must be disabled meanwhile. The lock is released (rolled back) after that.
   Reads are not blocked in WAL mode, so a search cannot be used for this check as it could with a
   table lock.
+
+## Run isolation
+
+On Windows, Tauri resolves the app config, data, local data, cache and log directories through the
+Known Folder APIs, which ignore `APPDATA` and `LOCALAPPDATA`, and the WebView2 profile (the browser
+session) defaults to the app local data directory. A test run therefore redirects them inside the
+process: the debug build reads `JOBNIAC_TEST_RUN_ROOT` and sets Tauri's `app.appDirectoriesOverride`
+to five folders under that root (`app-config`, `app-data`, `app-local-data`, `app-cache`,
+`app-log`) before the application is built (`src-tauri/src/test_isolation.rs`).
+
+- **Fail closed.** The variable only counts when it is present. A value that is not a clean absolute
+  path, a root without the marker file `.jobniac-test-run` (written by `createRunRoot`), a missing
+  `JOBNIAC_DB_PATH`, `JOBNIAC_GENERATED_ROOT` or temporary directory (`TMP` and `TEMP` on Windows,
+  `TMPDIR` elsewhere), any of those (or `JOBNIAC_DOCUMENT_IMPORT_ROOT`, `WEBVIEW2_USER_DATA_FOLDER`)
+  outside the root, a resolved directory that is not the planned one, a root that overlaps a real
+  per-user folder, or a link or junction that leaves the root ends the start with exit status 1 and
+  a fixed message, before any window exists. Nothing falls back to the real folders.
+- **Debug builds only.** The module and every use of it sit under `cfg(debug_assertions)`; a release
+  build has no code and no variable name for it and ignores `JOBNIAC_TEST_RUN_ROOT`
+  (`config_tests::the_run_isolation_is_compiled_out_of_release_builds`). So the runner accepts only a
+  binary in a `debug` folder and checks the application's own report afterwards.
+- **Proof before launch.** `proveBeforeLaunch` (`support/isolation.mjs`) runs before anything is
+  started and throws unless the root is a prepared folder under `target/` that overlaps no real
+  per-user base or application folder and every path the application will use is inside it.
+  `node e2e/native-smoke.mjs --prove-only` runs that proof alone. The Rust test
+  `the_real_path_resolver_follows_the_override_and_verify_accepts_it` checks the real Tauri path
+  resolver against the override without opening a window.
+- **Proof after the run.** The application writes `isolation-report.json` into the run root after it
+  verified the redirection; the runner requires it, compares it with the planned layout and shows
+  that the real application folders (`%APPDATA%\<identifier>`, `%LOCALAPPDATA%\<identifier>`) are
+  unchanged (names, sizes and modification times only; no file is opened).
+
+`node --test e2e/support/isolation.test.mjs` tests the proof functions without any application.
+
+## Native smoke
+
+`node e2e/native-smoke.mjs` launches the debug `jobniac` binary once, isolated as above, with the
+packaging smoke quit hook (`JOBNIAC_SMOKE_QUIT_AFTER_LOAD=1`) and `JOBNIAC_LOG_FILE=1`. It needs
+`cargo build -p jobniac-desktop -p jobniac-cli` and no WebDriver.
+
+What it covers: the Windows binary starts under the redirected directories, the native window and
+WebView2 open and the page loads, the health use case answers, the process exits 0; the settings
+load from an empty redirected config directory (defaults), the Arbeitnow keys file is generated
+in the redirected local data directory, the log file is written to the redirected log directory,
+the WebView2 profile lives in the redirected local data directory, the database is migrated and
+used under the run root, and the real application folders are unchanged.
+
+What it does not cover: any screen or workflow (use `pnpm e2e` for those), the MCP server and its
+child (off by default, not started), the updater (not configured in a debug build), the native file
+dialogs (an open or save dialog keeps its most-recently-used folder in the Windows registry, which
+this does not redirect and does not exercise), the release build, the installer and the sidecar,
+PDF import, rendering and generation through the real PDFium, and the `tauri-driver` path (`pnpm
+e2e` passes the same isolation variables, but that runner was not run for this change). Shared WebView2 and
+Edge state outside the user data folder (the WebView2 runtime itself, Windows Error Reporting) is
+not redirected.
 
 ## Environment and privacy
 

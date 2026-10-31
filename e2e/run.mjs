@@ -16,6 +16,7 @@ import {
   sessionEnvironment,
 } from "./support/config.mjs";
 import { runCli } from "./support/database.mjs";
+import { proveBeforeLaunch, snapshotRealFolders, verifyAfterRun } from "./support/isolation.mjs";
 
 // The flags of the optional features. The desktop app has them on unless the process sets one: any
 // value other than `1` (here `0`) turns the feature off and wins over the Settings switch.
@@ -56,7 +57,8 @@ function main() {
   }
 
   const run = createRunRoot();
-  const database = { JOBNIAC_DB_PATH: run.databaseFile };
+  // The console steps get the run's temporary directory too (SQLite temp files stay in the root).
+  const database = { JOBNIAC_DB_PATH: run.databaseFile, ...run.isolation };
   const pdfiumDirectory = join(
     repoRoot,
     "vendor",
@@ -72,6 +74,8 @@ function main() {
   const shared = {
     ...database,
     ...run.userDirectories,
+    // The debug build redirects every per-user directory into the run root (isolation.mjs).
+    ...run.isolation,
     JOBNIAC_DOCUMENT_IMPORT_ROOT: run.importRoot,
     JOBNIAC_E2E_GENERATED_ROOT: run.generatedRoot,
     // Generation is on by default, so every session names the run's root: the app never registers
@@ -82,6 +86,20 @@ function main() {
 
   let exitCode = 0;
   try {
+    // Nothing is started before the isolation is proven; the real folders are listed (metadata only)
+    // so that the end of the run can show them unchanged.
+    const realEnvironment = { ...process.env };
+    for (const fact of proveBeforeLaunch({
+      run,
+      appBinaryPath: appBinary,
+      // The effective session environment (inherited WEBVIEW2_* variables included), not just ours.
+      env: sessionEnvironment(process.env, shared),
+      realEnvironment,
+    })) {
+      console.log(`e2e: isolation ok: ${fact}`);
+    }
+    const realFoldersBefore = snapshotRealFolders(realEnvironment);
+
     const migrated = runCli(["migrate"], sessionEnvironment(process.env, database));
     if (migrated.status !== 0) {
       failInRun(`migrate failed with exit code ${migrated.status}: ${migrated.stderr.trim()}`);
@@ -121,6 +139,13 @@ function main() {
         exitCode = result.status ?? 1;
       }
     }
+    for (const fact of verifyAfterRun({ run, before: realFoldersBefore, realEnvironment })) {
+      console.log(`e2e: isolation verified: ${fact}`);
+    }
+  } catch (error) {
+    // A failed proof fails the run and is never ignored.
+    console.error(`e2e: ${error.message}`);
+    exitCode = 2;
   } finally {
     try {
       rmSync(run.root, { recursive: true, force: true });

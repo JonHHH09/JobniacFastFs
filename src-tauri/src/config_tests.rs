@@ -96,3 +96,36 @@ fn main_window_capability_grants_core_defaults_only() -> Result<(), serde_json::
     );
     Ok(())
 }
+
+/// The run isolation (`test_isolation.rs`) is a test-only gate: it must not exist in a release
+/// build. Every line of `lib.rs` that names it sits directly under `#[cfg(debug_assertions)]`, and
+/// the release profile never turns `debug_assertions` on.
+#[test]
+fn the_run_isolation_is_compiled_out_of_release_builds() {
+    let lines: Vec<&str> = include_str!("lib.rs").lines().map(str::trim).collect();
+    let mut seen = 0;
+    for (index, line) in lines.iter().enumerate() {
+        if line.starts_with("//") || !line.contains("isolation") {
+            continue;
+        }
+        seen += 1;
+        assert!(
+            index > 0 && lines[index - 1] == "#[cfg(debug_assertions)]",
+            "lib.rs line {} names the run isolation without a debug_assertions cfg: {line}",
+            index + 1
+        );
+    }
+    assert!(seen >= 3, "the isolation wiring is no longer in lib.rs");
+
+    let manifest = include_str!("../../Cargo.toml");
+    let release = manifest
+        .split("[profile.release]")
+        .nth(1)
+        .and_then(|rest| rest.split("\n[").next())
+        .unwrap_or_default();
+    assert!(!release.is_empty(), "the release profile was not found");
+    assert!(
+        !release.contains("debug-assertions"),
+        "the release profile must not enable debug assertions"
+    );
+}
