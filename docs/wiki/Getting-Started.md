@@ -21,7 +21,7 @@ A profile can also be built from a PDF resume. The desktop app has no separate s
 Save job postings, edit them and find them again.
 
 - Paste the text of a posting and choose **Save posting**.
-- Enter a public http or https link and choose **Add from link**. This fetches the page, so it needs `JOBNIAC_LINK_FETCH_ENABLED=1`.
+- Enter a public http or https link and choose **Add from link**. This fetches the page. You can turn it off in Settings.
 - Search saved jobs by title, company, location or skills, and open a job to edit it.
 
 ### Arbeitnow
@@ -42,7 +42,7 @@ Add an advisory review to the match report you opened, and see saved reviews and
 
 ### PDF documents
 
-Import a PDF from your configured import root (`JOBNIAC_DOCUMENT_IMPORT_ROOT`), preview its extracted text, or open a stored PDF to read its pages. The source file is left in place.
+Choose a PDF in the file dialog (or, if `JOBNIAC_DOCUMENT_IMPORT_ROOT` is set, one inside that folder), preview its extracted text, or open a stored PDF to read its pages. The source file is left in place.
 
 ### Generate
 
@@ -55,11 +55,11 @@ Choose a PDF type and generate it:
 - Germany resume (English and German)
 - German cover letter, which uses the exact Germany resume you select
 
-Generation needs `JOBNIAC_GENERATED_ENABLED=1` and a one-time `jobniac-cli setup-generated-root`. You can view the pages and a text preview of the result.
+Generation is on by default and sets up its output folder on first start; you can turn it off in Settings. You can view the pages and a text preview of the result.
 
 ### Stored PDFs
 
-Preview the PDFs the app has stored, page by page, and choose **Save PDF...** to export a copy to a new file. Export needs `JOBNIAC_DOCUMENT_ARTIFACTS_ENABLED=1`.
+Preview the PDFs the app has stored, page by page, and choose **Save PDF...** to export a copy to a new file. Export is on by default and can be turned off in Settings.
 
 ## System
 

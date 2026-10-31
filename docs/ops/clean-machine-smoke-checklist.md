@@ -110,13 +110,13 @@ repository, and do not write machine names, user names or local paths into any t
 ## 9. Import and preview a PDF
 
 18. Put a synthetic PDF (generated for the run or copied from the repository's test fixtures, never a
-    real document) in a folder outside the repository, for example `C:\smoke\import`. Set
-    `JOBNIAC_DOCUMENT_IMPORT_ROOT` to that absolute folder in the same environment as step 13.
-    Restart the app.
-19. Import the PDF from the document screen and open the preview. Expected: the import completes,
+    real document) in a folder outside the repository, for example `C:\smoke\import`. Leave
+    `JOBNIAC_DOCUMENT_IMPORT_ROOT` unset: the desktop app accepts the file picked in its dialog.
+19. Pick the PDF from the document screen, import it and open the preview. Expected: the import completes,
     and the preview shows the first page.
     Failure: "file is not readable or contains a symbolic link" for a path that is valid. Check the
-    path is absolute and under the import root, and that no component ends in a dot or a space.
+    path is absolute (and under the import root, when `JOBNIAC_DOCUMENT_IMPORT_ROOT` is set), and that
+    no component ends in a dot or a space.
 
 ## 10. Generate a PDF (optional, creates the generated root)
 

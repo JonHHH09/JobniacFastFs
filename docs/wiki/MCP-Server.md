@@ -51,6 +51,8 @@ A flag is on only when its value is exactly `1`. Pass it in the client's `env` b
 | `JOBNIAC_DOCUMENT_IMPORT_ROOT` | Not a flag. An absolute folder that `store_document_file` and `extract_pdf_text` read PDFs from. |
 | `JOBNIAC_CURSOR_HMAC_SECRET` | Not a flag. Keeps paging cursors valid across restarts. 32 characters or more. |
 
+The tables describe `jobniac-cli` started by an MCP client. The HTTP server the desktop app starts from Settings gets the same defaults as the app, so it lists all 40 tools unless you turned a feature off in Settings or set its variable to something other than `1`.
+
 In HTTP mode, every authenticated session gets the opt-in tools, so enable only the flags you need. See [Data and Privacy](Data-and-Privacy.md).
 
 ## Tools

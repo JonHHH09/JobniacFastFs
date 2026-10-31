@@ -7,11 +7,12 @@ application needs no test plugin.
 
 ## What it covers
 
-Two application sessions run in order on one temporary SQLite database file.
+Three application sessions run in order on one temporary SQLite database file.
 
 | Session | Spec | Steps |
 |---|---|---|
-| default (every opt-in flag unset) | `specs/app.spec.mjs` | 1 health UP; 2 create a profile with personal details and one experience, search it, edit and save (`Profile saved.`), unsaved-edit discard prompt; 3 paste a job posting and see it in the list; 4 analyze the pair and open the match report; 7 opt-in controls absent or disabled; 8 a busy save control stays disabled while the database write lock is held, no file path or token in the page |
+| default (no feature flag set: the desktop defaults, every optional feature on) | `specs/app.spec.mjs` | 1 health UP; 2 create a profile with personal details and one experience, search it, edit and save (`Profile saved.`), unsaved-edit discard prompt; 3 paste a job posting and see it in the list; 4 analyze the pair and open the match report; 7 the add-job-from-link, delete-profile and Arbeitnow scan controls are present; 8 a busy save control stays disabled while the database write lock is held, no file path or token in the page |
+| opt-out (the five `JOBNIAC_*_ENABLED` feature flags set to `0`) | `specs/optout.spec.mjs` | 7 the Arbeitnow, link and delete controls are absent (in the editors of the saved profile and job); the artifact and generation controls are disabled. Each check first waits for the matching `*_capabilities_get` command to report the feature unavailable |
 | generation (`JOBNIAC_GENERATED_ENABLED=1`, generated root in the run folder) | `specs/generation.spec.mjs` | 6 generate a standalone PDF and see the output rows |
 
 Step 5 (import a PDF through the Documents screen) is `it.skip`: see Deviations.
@@ -55,9 +56,14 @@ test is printed to the console. The run root (`target/e2e-*`) is removed at the 
 - **The window close gate is not exercised.** WebDriver's window close destroys the window without
   the `CloseRequested` event, so the Rust gate never refuses. The discard prompt is covered in the
   page (step 2, `UnsavedChangesDialog`), and the gate itself is covered by the Rust tests.
-- **Opt-in controls are disabled, not absent.** With the flags unset the artifact and generation
-  controls are rendered disabled. The default desktop is meant to show no optional UI. The
-  suite accepts absent or disabled and records the difference.
+- **The optional features are on in the default session.** The desktop app turns them on unless the
+  process sets a flag; the opt-out session sets them to `0`. Every session names the run's generated
+  root (`JOBNIAC_GENERATED_ROOT`), so the app never registers the machine's per-user root. The
+  per-user Settings file (`settings.json`) and the Arbeitnow keys file (`feature-keys.json`) are
+  redirected into the run root on Linux (`XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_CACHE_HOME`;
+  `HOME` and `XDG_RUNTIME_DIR` are kept). **On Windows they are not redirected**: Tauri resolves them
+  through Known Folder APIs that ignore `APPDATA` and `LOCALAPPDATA`, so the default session there
+  assumes the switches in the developer's real `settings.json` are at their defaults (on).
 - **The generated root is not in the user temporary folder.** On the Windows host,
   `setup-generated-root` refused a root under `%TEMP%`, under `C:\` and under `%LOCALAPPDATA%` with
   "could not be initialized", and accepted the same empty directory under the repository's `target/`

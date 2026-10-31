@@ -937,6 +937,18 @@
       "classes": ["personal-data"],
       "paths": ["src/dev/mocks/profiles.ts"],
       "reason": "Development-only mock fixture: phone numbers come from the London number block Ofcom reserves for drama and fiction; names and emails are synthetic (example.com). Re-reviewed after the fixture dates were made full ISO dates."
+    },
+    {
+      "sha256": "72b2958eaa1bf64a7abcaec320dd8586e07f2b072b835887cf96b5c7c1fdd124",
+      "classes": ["secret-token"],
+      "paths": ["crates/runtime/src/desktop_features.rs"],
+      "reason": "Synthetic test value in a #[cfg(test)] environment-overlay test; not a secret. Intermediate version from the history (blob 526aafc). The worktree file was reworded to a value under the secret-assignment length threshold."
+    },
+    {
+      "sha256": "bd9f9d73cf532969b23c97de9575698790cc5cab675f4bfcf2e571037a5e8d35",
+      "classes": ["secret-token"],
+      "paths": ["src-tauri/src/state.rs"],
+      "reason": "Literal placeholder tokens inside #[cfg(test)] Debug-redaction tests; not secrets. Intermediate version from the history (blob ce8028f). The worktree file was reworded to shorter placeholder tokens."
     }
   ]
 }
