@@ -271,16 +271,16 @@ impl Plan {
         self.verify_resolved(&resolved)?;
         // The real folders: the base directories are not touched by the override.
         let identifier = &app.config().identifier;
-        let bases: Vec<PathBuf> = [
+        let reported: Vec<PathBuf> = [
             path.config_dir(),
             path.data_dir(),
             path.local_data_dir(),
             path.cache_dir(),
-            path.home_dir(),
         ]
         .into_iter()
         .flatten()
         .collect();
+        let bases = self.real_bases(reported, path.home_dir().ok());
         self.verify_no_overlap(&bases, identifier)?;
         self.verify_confined(&resolved)?;
         self.write_report(&resolved)
@@ -306,6 +306,31 @@ impl Plan {
         } else {
             Err(IsolationError::DirectoryNotRedirected)
         }
+    }
+
+    /// The real per-user base folders to check the root against. On Linux Tauri resolves the base
+    /// folders from `XDG_CONFIG_HOME`, `XDG_DATA_HOME` and `XDG_CACHE_HOME`, which a test run points
+    /// into the run root: a reported base strictly inside the root is that redirection, not a real
+    /// folder, so it is left out, and the defaults under the home folder (`.config`, `.local/share`,
+    /// `.cache`) are checked instead. The home folder itself is always a base.
+    fn real_bases(&self, reported: Vec<PathBuf>, home: Option<PathBuf>) -> Vec<PathBuf> {
+        let root = folded(&self.root);
+        let mut bases: Vec<PathBuf> = reported
+            .into_iter()
+            .filter(|base| {
+                let base = folded(base);
+                base == root || !base.starts_with(&root)
+            })
+            .collect();
+        if let Some(home) = home {
+            if cfg!(all(unix, not(target_os = "macos"))) {
+                bases.push(home.join(".config"));
+                bases.push(home.join(".local").join("share"));
+                bases.push(home.join(".cache"));
+            }
+            bases.push(home);
+        }
+        bases
     }
 
     /// The root is not a real base folder or an ancestor of one, and is not a real app directory
@@ -631,6 +656,40 @@ mod tests {
                 "{root:?}"
             );
         }
+    }
+
+    /// A base the run redirected into its own root (the XDG variables on Linux) is not a real folder;
+    /// a base outside the root, the root itself and the home folder are kept.
+    #[test]
+    fn redirected_bases_inside_the_root_are_not_real_folders() {
+        let root = PathBuf::from(root_text("run"));
+        let plan = some_plan(&root);
+        let outside = PathBuf::from(root_text("real-base"));
+        let home = PathBuf::from(root_text("home"));
+        let bases = plan.real_bases(
+            vec![
+                root.join("xdg-config"),
+                root.join("xdg-data"),
+                outside.clone(),
+                root.clone(),
+            ],
+            Some(home.clone()),
+        );
+        assert!(!bases.contains(&root.join("xdg-config")));
+        assert!(!bases.contains(&root.join("xdg-data")));
+        assert!(bases.contains(&outside));
+        assert!(bases.contains(&root));
+        assert!(bases.contains(&home));
+        if cfg!(all(unix, not(target_os = "macos"))) {
+            assert!(bases.contains(&home.join(".config")));
+            assert!(bases.contains(&home.join(".local").join("share")));
+            assert!(bases.contains(&home.join(".cache")));
+        }
+        // The kept root still refuses the run.
+        assert_eq!(
+            plan.verify_no_overlap(&bases, "io.example.app"),
+            Err(IsolationError::RootOverlapsRealFolders)
+        );
     }
 
     /// Windows folds case: the same real folder spelled in other case is still that folder.
