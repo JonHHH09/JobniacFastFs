@@ -39,8 +39,6 @@ export const FACTS = [
 export const MAX_DETAIL_ROWS = 100;
 /** The most evidence concerns a review holds. */
 export const MAX_CONCERN_ROWS = 1000;
-/** The longest identifier the form accepts. */
-export const MAX_ID_LENGTH = 36;
 /** The longest label the form accepts. */
 export const MAX_LABEL_LENGTH = 80;
 /** The longest issue reference the form accepts. */
