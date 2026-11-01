@@ -251,6 +251,13 @@ export const commands = {
 	 *  never returned to the webview. Refused while the server is not running.
 	 */
 	mcpServerCopyConnection: () => typedError<null, CommandError>(__TAURI_INVOKE("mcp_server_copy_connection")),
+	/**  Reads the switches, what this run made of each feature, and whether the environment forces it. */
+	featuresGet: () => typedError<FeaturesDto, CommandError>(__TAURI_INVOKE("features_get")),
+	/**
+	 *  Saves the switch of one feature. It starts or stops nothing: the change applies at the next
+	 *  start. The answer is the full list, like the other settings commands.
+	 */
+	featureSetEnabled: (id: FeatureIdDto, enabled: boolean) => typedError<FeaturesDto, CommandError>(__TAURI_INVOKE("feature_set_enabled", { id, enabled })),
 	/**  Checks for a new version. A failed check is an error, not "no update". */
 	checkForUpdate: () => typedError<UpdateCheckDto, CommandError>(__TAURI_INVOKE("check_for_update")),
 	/**
@@ -558,6 +565,42 @@ export type ExperienceDto = {
 	endDate: string | null,
 	description: string | null,
 	displayOrder: number,
+};
+
+/**  One optional feature. */
+export type FeatureDto = {
+	/**  Which feature. */
+	id: FeatureIdDto,
+	/**  The persisted switch. A change applies after a restart. */
+	enabled: boolean,
+	/**  Whether the feature is composed and usable in this run. */
+	effective: boolean,
+	/**  Whether the process environment sets the feature's variable, so the switch has no effect. */
+	forcedByEnvironment: boolean,
+	/**
+	 *  Whether the saved switch differs from the switch at startup, so the change is waiting for a
+	 *  restart. A feature that is on but did not start has no restart pending.
+	 */
+	pendingRestart: boolean,
+};
+
+/**  The identifier of an optional feature, as in the settings file. */
+export type FeatureIdDto = 
+/**  Arbeitnow board scan and import. */
+"arbeitnow" | 
+/**  Job posting capture from a link. */
+"linkFetch" | 
+/**  Hard deletion of profiles and jobs. */
+"deletion" | 
+/**  Document artifacts and their export. */
+"documentArtifacts" | 
+/**  Resume and cover-letter PDF generation. */
+"generation";
+
+/**  The optional features, in display order. */
+export type FeaturesDto = {
+	/**  One entry per feature. */
+	features: FeatureDto[],
 };
 
 /**  Which generation services are composed and usable. */

@@ -53,12 +53,14 @@ export async function fill(browser, testId, value) {
 
 /** The visible text of the whole page. */
 export async function pageText(browser) {
+  // biome-ignore lint/performance/useDomNodeTextContent: innerText is the rendered, visible text.
   return browser.execute(() => document.body.innerText);
 }
 
 /** Every attribute value and text node of the page, joined: used to search for leaked values. */
 export async function pageSurface(browser) {
   return browser.execute(() => {
+    // biome-ignore lint/performance/useDomNodeTextContent: innerText is the rendered, visible text.
     const parts = [document.body.innerText];
     for (const element of document.querySelectorAll("*")) {
       for (const attribute of element.attributes) {

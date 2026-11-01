@@ -6,10 +6,19 @@ postings, matching them deterministically, and generating tailored resume and co
 TypeScript user interface on Tauri 2, and stores its data in an embedded SQLite file. Your data
 stays on your machine.
 
-## Status
+> [!WARNING]
+> JobniacFast is in beta. Features can change or break between releases, and it is not yet stable. Back up your database (see Data storage) before updating, and report problems in [GitHub Issues](https://github.com/JonHHH09/JobniacFastFs/issues).
 
-The first release will be a draft
-on GitHub Releases.
+## Releases
+
+| Version | Date | Notes |
+|---|---|---|
+| [v0.1.1](https://github.com/JonHHH09/JobniacFastFs/releases/tag/v0.1.1) | 2026-10-28 | Latest. Beta. |
+| [v0.1.0](https://github.com/JonHHH09/JobniacFastFs/releases/tag/v0.1.0) | 2026-10-23 | Beta. |
+
+Every release lists its changes in [CHANGELOG.md](CHANGELOG.md) and on the
+[releases page](https://github.com/JonHHH09/JobniacFastFs/releases). The app can check for updates
+itself (Settings > Updates; off until you turn it on).
 
 ## Requirements
 
@@ -19,7 +28,14 @@ on GitHub Releases.
 
 ## Install
 
-Releases are published on the [GitHub Releases page](https://github.com/JonHHH09/JobniacFast/releases).
+Releases are published on the [GitHub Releases page](https://github.com/JonHHH09/JobniacFastFs/releases).
+The latest release is at `https://github.com/JonHHH09/JobniacFastFs/releases/latest`.
+
+| System | File to download |
+|---|---|
+| Windows 11 (x64) | `JobniacFast_<version>_x64-setup.exe` |
+| Linux (x64) | `JobniacFast_<version>_amd64.AppImage` or `JobniacFast_<version>_amd64.deb` |
+| macOS 14 or later (Apple Silicon) | `JobniacFast_<version>_aarch64.dmg` |
 
 **Windows:**
 
@@ -37,8 +53,10 @@ Releases are published on the [GitHub Releases page](https://github.com/JonHHH09
 your PC". Click **More info**, then **Run anyway**, after you have checked the hash. The warning is
 expected for unsigned downloads.
 
-**Linux:** download the AppImage or the `.deb`, and check it against `SHA256SUMS` in the same way
-(`sha256sum -c SHA256SUMS --ignore-missing`).
+**Linux:** download the AppImage or the `.deb`, then:
+
+1. Check the file against `SHA256SUMS`: `sha256sum -c SHA256SUMS --ignore-missing`. Do not install a file that fails.
+2. Install the `.deb` with `sudo apt install ./JobniacFast_<version>_amd64.deb`, or make the AppImage executable with `chmod +x JobniacFast_<version>_amd64.AppImage` and run it.
 
 **macOS (Apple Silicon):** download `JobniacFast_<version>_aarch64.dmg` and `SHA256SUMS`, check the
 download (`shasum -a 256 -c SHA256SUMS --ignore-missing`), open the DMG and drag JobniacFast to
@@ -48,8 +66,23 @@ have checked the hash, open System Settings, Privacy & Security, and choose **Op
 JobniacFast (or run `xattr -dr com.apple.quarantine /Applications/JobniacFast.app`). The release notes
 say which kind of signature the release has.
 
+**Updating:** use Settings > Updates and check for updates, or download the new release and install it over
+the old one. Your data is kept.
+
 **Uninstall:** on Windows use Settings, Apps, JobniacFast, Uninstall, or the `uninstall.exe` in the install
-folder. On macOS drag JobniacFast from Applications to the Bin; your data stays (see below).
+folder. On macOS drag JobniacFast from Applications to the Bin. On Linux run `sudo apt remove jobniacfast`
+for the `.deb`, or delete the AppImage file. Your data stays in both cases (see below).
+
+## Getting started
+
+1. Launch JobniacFast.
+2. Create a profile.
+3. Add jobs: paste the text, add a job from a link, or scan Arbeitnow.
+4. Run a match.
+5. Generate a resume or a cover letter.
+
+The optional features (Arbeitnow, links, deleting, document export, and generation) are on by default in the
+desktop app. To turn one off, open Settings > Optional features; a change applies after you restart the app.
 
 ## Data storage
 
@@ -82,25 +115,28 @@ A new file prints `Applied migrations: ...`; a file that is already current prin
 ## Configuration
 
 All configuration comes from environment variables. There is no `.env` file, and secrets are never
-read from command-line arguments. An option marked **exact `1`** is on only when its value is exactly
+read from command-line arguments. The desktop app works without any configuration. The variables below
+override its defaults, and they are the way to configure `jobniac-cli`. An option marked **exact `1`** is on only when its value is exactly
 `1`; `true`, `yes` and `01` are off.
 
 | Variable | Default | Effect |
 |---|---|---|
 | `JOBNIAC_DB_PATH` | per-user default (see Data storage) | Absolute path of the SQLite database file. If the file cannot be opened, database features report `DOWN`. |
-| `JOBNIAC_DOCUMENT_IMPORT_ROOT` | none | Absolute folder that PDFs can be imported from. |
+| `JOBNIAC_DOCUMENT_IMPORT_ROOT` | none | Absolute folder that PDFs can be imported from. Required for `jobniac-cli`; when unset, the desktop app accepts the file you pick in its file dialog. When set, imports are limited to that folder. |
 | `JOBNIAC_GENERATED_ROOT` | `%LOCALAPPDATA%\Jobniac\generated` | Folder for generated PDFs. Set it only to choose another folder. |
-| `JOBNIAC_GENERATED_ENABLED` | off (**exact `1`**) | Allows PDF generation and cleanup. Run `jobniac-cli setup-generated-root` once first. |
-| `JOBNIAC_LINK_FETCH_ENABLED` | off (**exact `1`**) | Allows adding a job from a web link (fetches the page). |
-| `JOBNIAC_ARBEITNOW_ENABLED` | off (**exact `1`**) | Allows scanning and importing Arbeitnow jobs. Also needs `JOBNIAC_ARBEITNOW_CANDIDATE_KEY` and a cursor secret. |
-| `JOBNIAC_ARBEITNOW_CANDIDATE_KEY` | none | Signing key for Arbeitnow candidate tokens (required when the flag is `1`). |
-| `JOBNIAC_DELETION_ENABLED` | off (**exact `1`**) | Allows deleting profiles and jobs. |
-| `JOBNIAC_DOCUMENT_ARTIFACTS_ENABLED` | off (**exact `1`**) | Allows document artifacts and export. |
-| `JOBNIAC_CURSOR_HMAC_SECRET` | random per process | Keeps paging cursors valid across restarts. 32 characters or more. |
+| `JOBNIAC_GENERATED_ENABLED` | desktop: on; CLI: off (**exact `1`**) | Allows PDF generation and cleanup. In the CLI, run `jobniac-cli setup-generated-root` once first (the desktop app does this itself). |
+| `JOBNIAC_LINK_FETCH_ENABLED` | desktop: on; CLI: off (**exact `1`**) | Allows adding a job from a web link (fetches the page). |
+| `JOBNIAC_ARBEITNOW_ENABLED` | desktop: on; CLI: off (**exact `1`**) | Allows scanning and importing Arbeitnow jobs. Also needs `JOBNIAC_ARBEITNOW_CANDIDATE_KEY` and a cursor secret. |
+| `JOBNIAC_ARBEITNOW_CANDIDATE_KEY` | desktop: generated per user; CLI: none | Signing key for Arbeitnow candidate tokens (required when the flag is `1`). |
+| `JOBNIAC_DELETION_ENABLED` | desktop: on; CLI: off (**exact `1`**) | Allows deleting profiles and jobs. |
+| `JOBNIAC_DOCUMENT_ARTIFACTS_ENABLED` | desktop: on; CLI: off (**exact `1`**) | Allows document artifacts and export. |
+| `JOBNIAC_CURSOR_HMAC_SECRET` | desktop with Arbeitnow on: generated per user; otherwise random per process | Keeps paging cursors valid across restarts. 32 characters or more. |
 | `JOBNIAC_HTTP_PORT` | none | Port for the loopback HTTP MCP server (1024 to 65535). Used with `jobniac-cli http` only. |
 | `JOBNIAC_HTTP_BEARER_TOKEN` | none | Bearer token for the HTTP server: 43 to 128 characters, `A-Z a-z 0-9 - _`. |
 
-Opt-in features are off by default. Deletion and link fetching change data or reach the network, so
+In the desktop app the optional features are on by default. Turn them off in Settings > Optional features
+(restart the app to apply), or set the variable to `0`, which wins over the setting. In `jobniac-cli` they
+stay off unless the variable is exactly `1`. Deletion and link fetching change data or reach the network, so
 turn on only what you use.
 
 ## MCP client registration

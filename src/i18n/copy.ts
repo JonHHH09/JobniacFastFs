@@ -125,6 +125,38 @@ export const copy = {
     loadFailed: "Unable to load settings. Please try again.",
     retry: "Try again",
   },
+  features: {
+    title: "Optional features",
+    intro:
+      "These features are on by default. Turn one off to remove it from the app and from the MCP server this app runs.",
+    restartNote: "Changes apply after you restart the app.",
+    restartPending: "Applies after you restart the app.",
+    startFailed: "Could not start; see the log.",
+    forced: "An environment variable sets this one, so the switch has no effect.",
+    loadFailed: "Unable to load the optional features. Please try again.",
+    items: {
+      arbeitnow: {
+        label: "Arbeitnow job board",
+        hint: "Scan the Arbeitnow job board and import postings. It contacts the board when you scan.",
+      },
+      linkFetch: {
+        label: "Add a job from a link",
+        hint: "Capture a job posting from a web link. The page is fetched from the network.",
+      },
+      deletion: {
+        label: "Delete profiles and jobs",
+        hint: "Permanently delete a profile or a job, after a confirmation.",
+      },
+      documentArtifacts: {
+        label: "Document preview and export",
+        hint: "Preview generated documents and export them as files.",
+      },
+      generation: {
+        label: "Generate resume and cover-letter PDFs",
+        hint: "Create PDF files in a private folder of this app.",
+      },
+    },
+  },
   updates: {
     title: "Updates",
     intro:

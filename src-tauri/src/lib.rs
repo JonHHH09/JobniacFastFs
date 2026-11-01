@@ -15,6 +15,8 @@ mod document_commands;
 mod document_dto;
 mod dto;
 mod error;
+mod feature_commands;
+mod feature_dto;
 mod generation_commands;
 mod generation_dto;
 mod job_commands;
@@ -46,6 +48,9 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use jobniac_runtime::app_settings::AppSettings;
+use jobniac_runtime::desktop_features::{
+    self, Feature, FeatureStates, forced_by_environment, prepare_environment,
+};
 use jobniac_runtime::mcp_server::{McpSupervisor, ProcessSpawner};
 use jobniac_runtime::pdfium_location::resolve_pdfium_dir;
 use jobniac_runtime::services::compose_with_pdfium;
@@ -123,6 +128,8 @@ pub fn ipc_builder() -> Builder<tauri::Wry> {
         settings_commands::mcp_server_set_enabled,
         settings_commands::mcp_server_set_port,
         settings_commands::mcp_server_copy_connection,
+        feature_commands::features_get,
+        feature_commands::feature_set_enabled,
         update_commands::check_for_update,
         update_commands::install_update,
         update_commands::update_settings_get,
@@ -257,7 +264,36 @@ fn show_macos_alert(message: &str) {
         .status();
 }
 
-/// Start the desktop application. The environment is read once. The Tauri application is built
+/// What each optional feature came to in this run: forced by the process environment (`process`),
+/// and whether its services are actually composed and usable.
+fn feature_states(
+    process: &jobniac_core::env::Environment,
+    started_on: &jobniac_runtime::app_settings::FeatureSettings,
+    services: &jobniac_runtime::services::Services,
+    job_links: bool,
+    arbeitnow: bool,
+) -> FeatureStates {
+    let generation = tauri::async_runtime::block_on(services.generation.facade.is_available());
+    let deletion = services.deletion.profile.is_some() && services.deletion.job.is_some();
+    Feature::ALL
+        .into_iter()
+        .fold(FeatureStates::new(), |states, feature| {
+            let effective = match feature {
+                Feature::Arbeitnow => arbeitnow,
+                Feature::LinkFetch => job_links,
+                Feature::Deletion => deletion,
+                Feature::DocumentArtifacts => services.artifacts.is_some(),
+                Feature::Generation => generation,
+            };
+            states
+                .with_forced(feature, forced_by_environment(process, feature))
+                .with_started_on(feature, started_on.is_on(feature))
+                .with_effective(feature, effective)
+        })
+}
+
+/// Start the desktop application. The environment is read once and overlaid with the defaults of the
+/// optional features (see [`jobniac_runtime::desktop_features`]). The Tauri application is built
 /// first, because the PDFium library lives in its resource directory; the services are composed
 /// before any window is shown, so a failed composition exits with status 1 before a window exists
 /// (the CLI composes before `run_desktop` for the same reason). Windows are
@@ -354,41 +390,60 @@ pub fn run() {
         &bundle_roots,
         |path| path.is_file(),
     ));
-    let services = match compose_with_pdfium(&environment, pdfium_dir) {
-        Ok(services) => services,
-        // The message is the fixed startup text; it never names a setting or a value.
-        Err(error) => exit_startup_refused(app.handle(), &error.to_string()),
-    };
-    // The opt-in link capture: composed only with the exact flag and a database. A
-    // composition error stops startup like the services above.
-    let job_links = match jobniac_runtime::job_links::compose_job_links(
-        &environment,
-        services.database.as_ref(),
-    ) {
-        Ok(job_links) => job_links,
-        Err(error) => exit_startup_refused(app.handle(), &error.to_string()),
-    };
-    // The opt-in Arbeitnow services: composed only with the exact flag, valid keys and a database.
-    let arbeitnow = match jobniac_runtime::arbeitnow::compose_arbeitnow(
-        &environment,
-        services.database.as_ref(),
-    ) {
-        Ok(arbeitnow) => arbeitnow,
-        Err(error) => exit_startup_refused(app.handle(), &error.to_string()),
-    };
     // The settings file lives in the app config directory. A missing or broken file means the
-    // defaults (the MCP server off); it never blocks startup.
+    // defaults (the MCP server off, every optional feature on); it never blocks startup.
     let config_dir = app.path().app_config_dir().ok();
     let settings = config_dir
         .as_deref()
         .map(AppSettings::load)
         .unwrap_or_default();
+    // The effective environment: the process environment overlaid with the feature defaults. It
+    // generates the Arbeitnow keys file and registers the default generated root where needed,
+    // which must happen before the composition below so that it finds both. Nothing here blocks
+    // startup; a feature that cannot be made ready stays off with a fixed warning.
+    let keys_dir = app.path().app_local_data_dir().ok();
+    let desktop = tauri::async_runtime::block_on(prepare_environment(
+        std::env::vars_os().collect(),
+        &settings.features,
+        keys_dir.as_deref(),
+    ));
+    desktop_features::report_warnings(&desktop.warnings);
+    let effective_environment = desktop.environment();
+    let services = match compose_with_pdfium(&effective_environment, pdfium_dir) {
+        Ok(services) => services,
+        // The message is the fixed startup text; it never names a setting or a value.
+        Err(error) => exit_startup_refused(app.handle(), &error.to_string()),
+    };
+    // The link capture: composed only with the flag (on by default here) and a database. A
+    // composition error stops startup like the services above.
+    let job_links = match jobniac_runtime::job_links::compose_job_links(
+        &effective_environment,
+        services.database.as_ref(),
+    ) {
+        Ok(job_links) => job_links,
+        Err(error) => exit_startup_refused(app.handle(), &error.to_string()),
+    };
+    // The Arbeitnow services: composed only with the flag, valid keys and a database.
+    let arbeitnow = match jobniac_runtime::arbeitnow::compose_arbeitnow(
+        &effective_environment,
+        services.database.as_ref(),
+    ) {
+        Ok(arbeitnow) => arbeitnow,
+        Err(error) => exit_startup_refused(app.handle(), &error.to_string()),
+    };
+    let feature_states = feature_states(
+        &environment,
+        &settings.features,
+        &services,
+        job_links.is_some(),
+        arbeitnow.is_some(),
+    );
     // The sidecar `jobniac-cli` sits next to this executable; the child gets a filtered copy of the
     // app's environment (see `jobniac_runtime::mcp_server::child_environment`).
     let mcp = Arc::new(
         McpSupervisor::new(
             Arc::new(ProcessSpawner::beside_current_exe()),
-            std::env::vars_os().collect(),
+            desktop.supervisor_pairs(),
         )
         // The child does not inherit HOME or the data directory, so it gets the file this app opened.
         .with_database_path(
@@ -404,6 +459,7 @@ pub fn run() {
             .with_job_links(job_links)
             .with_arbeitnow(arbeitnow)
             .with_settings(config_dir, settings)
+            .with_feature_states(feature_states)
             .with_mcp_supervisor(Arc::clone(&mcp)),
     );
     if settings.mcp.enabled {
