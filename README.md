@@ -82,7 +82,17 @@ for the `.deb`, or delete the AppImage file. Your data stays in both cases (see 
 5. Generate a resume or a cover letter.
 
 The optional features (Arbeitnow, links, deleting, document export, and generation) are on by default in the
-desktop app. To turn one off, open Settings > Optional features; a change applies after you restart the app.
+desktop app. To turn one off, open Settings > Optional features; a change applies after you restart the app
+(turning off an MCP capability below is the exception: it applies at once).
+Three things are off by default and need your explicit opt-in there: **Let MCP clients scan Arbeitnow**,
+**Let MCP clients add a job from a link** and **Let MCP clients delete profiles and jobs**. They control the
+`scan_arbeitnow_jobs` (with `import_arbeitnow_job`), `add_job_from_link`, `delete_profile` and `delete_job`
+tools of the MCP server the app runs. The scan and the link tool reach the network, the delete tools are
+permanent, and MCP tools do not ask for confirmation. Turning one of the three off takes effect at once: a
+running MCP server restarts without that tool, and MCP clients reconnect with the new access token. If the old
+server cannot be confirmed stopped, Settings says it may still be running and no new server starts until it is
+gone; close and reopen the app to be sure. If the setting cannot be saved, nothing changes and the tool stays
+available. Turning one on applies after you restart the app.
 
 ## Data storage
 
@@ -125,10 +135,10 @@ override its defaults, and they are the way to configure `jobniac-cli`. An optio
 | `JOBNIAC_DOCUMENT_IMPORT_ROOT` | none | Absolute folder that PDFs can be imported from. Required for `jobniac-cli`; when unset, the desktop app accepts the file you pick in its file dialog. When set, imports are limited to that folder. |
 | `JOBNIAC_GENERATED_ROOT` | `%LOCALAPPDATA%\Jobniac\generated` | Folder for generated PDFs. Set it only to choose another folder. |
 | `JOBNIAC_GENERATED_ENABLED` | desktop: on; CLI: off (**exact `1`**) | Allows PDF generation and cleanup. In the CLI, run `jobniac-cli setup-generated-root` once first (the desktop app does this itself). |
-| `JOBNIAC_LINK_FETCH_ENABLED` | desktop: on; CLI: off (**exact `1`**) | Allows adding a job from a web link (fetches the page). |
+| `JOBNIAC_LINK_FETCH_ENABLED` | desktop: on in the app, off for MCP clients until you opt in in Settings; CLI: off (**exact `1`**) | Allows adding a job from a web link (fetches the page). In the desktop app a value of `1` does not turn on `add_job_from_link` for MCP clients; only the Settings switch does. |
 | `JOBNIAC_ARBEITNOW_ENABLED` | desktop: on; CLI: off (**exact `1`**) | Allows scanning and importing Arbeitnow jobs. Also needs `JOBNIAC_ARBEITNOW_CANDIDATE_KEY` and a cursor secret. |
 | `JOBNIAC_ARBEITNOW_CANDIDATE_KEY` | desktop: generated per user; CLI: none | Signing key for Arbeitnow candidate tokens (required when the flag is `1`). |
-| `JOBNIAC_DELETION_ENABLED` | desktop: on; CLI: off (**exact `1`**) | Allows deleting profiles and jobs. |
+| `JOBNIAC_DELETION_ENABLED` | desktop: on in the app, off for MCP clients until you opt in in Settings; CLI: off (**exact `1`**) | Allows deleting profiles and jobs. In the desktop app a value of `1` does not turn on `delete_profile` and `delete_job` for MCP clients; only the Settings switch does. |
 | `JOBNIAC_DOCUMENT_ARTIFACTS_ENABLED` | desktop: on; CLI: off (**exact `1`**) | Allows document artifacts and export. |
 | `JOBNIAC_CURSOR_HMAC_SECRET` | desktop with Arbeitnow on: generated per user; otherwise random per process | Keeps paging cursors valid across restarts. 32 characters or more. |
 | `JOBNIAC_HTTP_PORT` | none | Port for the loopback HTTP MCP server (1024 to 65535). Used with `jobniac-cli http` only. |
@@ -137,7 +147,12 @@ override its defaults, and they are the way to configure `jobniac-cli`. An optio
 In the desktop app the optional features are on by default. Turn them off in Settings > Optional features
 (restart the app to apply), or set the variable to `0`, which wins over the setting. In `jobniac-cli` they
 stay off unless the variable is exactly `1`. Deletion and link fetching change data or reach the network, so
-turn on only what you use.
+turn on only what you use. For MCP clients the Arbeitnow scan, link fetching and deletion are off until you
+turn on **Let MCP clients scan Arbeitnow**, **Let MCP clients add a job from a link** or **Let MCP clients
+delete profiles and jobs** in Settings (restart the app to apply). The in-app switches of the same features,
+and a variable set to `1` in the environment that starts the app, enable them for the app only and do not give
+MCP clients these tools. A variable set to anything other than `1` turns the feature off for the app and for
+MCP clients, and wins over the switch.
 
 ## MCP client registration
 

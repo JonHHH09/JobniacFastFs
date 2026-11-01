@@ -2,17 +2,20 @@
 //!
 //! The file holds `{ "mcp": { "enabled": false, "port": 8765 }, "updates": { "autoCheck": false },
 //! "features": { "arbeitnow": true, "linkFetch": true, "deletion": true, "documentArtifacts": true,
-//! "generation": true } }` and nothing else. The `features` switches default to on (see
-//! [`crate::desktop_features`]); an older file without the section, or without a key, gives on. It
-//! never holds
-//! the bearer token: the token is generated per start and kept in memory only (see
+//! "generation": true, "mcpArbeitnow": false, "mcpLinkFetch": false, "mcpDeletion": false } }` and
+//! nothing else. The five in-app `features` switches default to on (see
+//! [`crate::desktop_features`]); an older file without the section, or without a key, gives on. The
+//! three MCP capability switches (`mcpArbeitnow`, `mcpLinkFetch`, `mcpDeletion`) default to off and
+//! are only ever on after the user turned them on: an older file, a file without the keys, and the
+//! in-app `arbeitnow`, `linkFetch` and `deletion` values all give off. It never
+//! holds the bearer token: the token is generated per start and kept in memory only (see
 //! [`crate::mcp_server`]). The caller supplies the directory, so tests use a temporary one and the
 //! file path never crosses IPC.
 //!
 //! Loading never fails: a missing, unreadable, oversized or malformed file gives the defaults (the
-//! MCP server off, port 8765, every optional feature on), because a broken settings file must not block startup. Saving is
-//! atomic: the new text goes to a temporary file in the same directory, which then replaces the
-//! settings file.
+//! MCP server off, port 8765, the in-app features on, the MCP capabilities off), because a broken
+//! settings file must not block startup. Saving is atomic: the new text goes to a temporary file in
+//! the same directory, which then replaces the settings file.
 
 use std::fs;
 use std::io::{Read, Write};
@@ -69,22 +72,39 @@ pub struct UpdateSettings {
     pub auto_check: bool,
 }
 
-/// The switches of the optional features of the desktop app. Every switch is on by default; a
-/// process environment variable of the feature overrides the switch (see
+/// The switches of the optional features of the desktop app. The five in-app switches are on by
+/// default; the three MCP capability switches are off until the user turns them on. A process
+/// environment variable set to something other than `1` turns a feature off over its switch; a
+/// variable of `1` enables the in-app feature but never an MCP capability (see
 /// [`crate::desktop_features`]). A change applies at the next start.
+///
+/// The MCP switches have their own keys (`mcpArbeitnow`, `mcpLinkFetch`, `mcpDeletion`), separate
+/// from the in-app `arbeitnow`, `linkFetch` and `deletion`. A file written by a build that turned
+/// the in-app features on by default holds those values as `true` without any consent to expose
+/// them to MCP clients, so they must never switch the MCP capabilities on: only the MCP keys do.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct FeatureSettings {
     /// Arbeitnow board scan and import.
     pub arbeitnow: bool,
-    /// Job posting capture from a link.
+    /// Job posting capture from a link, in the app.
     pub link_fetch: bool,
-    /// Hard deletion of profiles and jobs.
+    /// Hard deletion of profiles and jobs, in the app.
     pub deletion: bool,
     /// Document artifacts and their export.
     pub document_artifacts: bool,
     /// Resume and cover-letter PDF generation.
     pub generation: bool,
+    /// Whether MCP clients may scan the Arbeitnow board and import a candidate
+    /// (`scan_arbeitnow_jobs`, which reaches the network, and `import_arbeitnow_job`). Off until
+    /// the user opts in.
+    pub mcp_arbeitnow: bool,
+    /// Whether MCP clients may add a job from a link (`add_job_from_link`, which fetches the page).
+    /// Off until the user opts in.
+    pub mcp_link_fetch: bool,
+    /// Whether MCP clients may delete profiles and jobs (`delete_profile`, `delete_job`). Off until
+    /// the user opts in.
+    pub mcp_deletion: bool,
 }
 
 impl Default for FeatureSettings {
@@ -95,6 +115,9 @@ impl Default for FeatureSettings {
             deletion: true,
             document_artifacts: true,
             generation: true,
+            mcp_arbeitnow: false,
+            mcp_link_fetch: false,
+            mcp_deletion: false,
         }
     }
 }
@@ -206,6 +229,9 @@ mod tests {
                 deletion: false,
                 document_artifacts: true,
                 generation: false,
+                mcp_arbeitnow: false,
+                mcp_link_fetch: true,
+                mcp_deletion: false,
             },
         };
         settings.save(dir.path())?;
@@ -232,7 +258,10 @@ mod tests {
                     "linkFetch": true,
                     "deletion": true,
                     "documentArtifacts": true,
-                    "generation": true
+                    "generation": true,
+                    "mcpArbeitnow": false,
+                    "mcpLinkFetch": false,
+                    "mcpDeletion": false
                 }
             })
         );
@@ -255,7 +284,7 @@ mod tests {
     }
 
     #[test]
-    fn every_feature_is_on_by_default_and_for_an_older_file()
+    fn every_in_app_feature_is_on_by_default_and_for_an_older_file()
     -> Result<(), Box<dyn std::error::Error>> {
         let all_on = FeatureSettings::default();
         assert!(
@@ -279,6 +308,124 @@ mod tests {
         let settings = AppSettings::load(dir.path());
         assert!(!settings.features.deletion);
         assert!(settings.features.arbeitnow && settings.features.generation);
+        Ok(())
+    }
+
+    #[test]
+    fn the_mcp_capabilities_are_off_by_default() {
+        let defaults = AppSettings::default();
+        assert!(!defaults.features.mcp_arbeitnow);
+        assert!(!defaults.features.mcp_link_fetch);
+        assert!(!defaults.features.mcp_deletion);
+        // The in-app features keep their defaults: the opt-in concerns the MCP exposure only.
+        assert!(
+            defaults.features.arbeitnow
+                && defaults.features.link_fetch
+                && defaults.features.deletion
+        );
+    }
+
+    #[test]
+    fn no_older_file_switches_an_mcp_capability_on() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = directory()?;
+        let files = [
+            // Before the features section existed.
+            r#"{"mcp":{"enabled":true,"port":4000},"updates":{"autoCheck":true}}"#,
+            // The section of a build without the MCP keys, with every in-app feature on.
+            r#"{"features":{"arbeitnow":true,"linkFetch":true,"deletion":true,"documentArtifacts":true,"generation":true}}"#,
+            // The MCP server on, which is no consent to expose deletion, link capture or Arbeitnow.
+            r#"{"mcp":{"enabled":true,"port":4000},"features":{"arbeitnow":true,"linkFetch":true,"deletion":true}}"#,
+            // Spellings of the MCP keys that are not the keys.
+            r#"{"features":{"mcp_deletion":true,"mcp_link_fetch":true,"mcp_arbeitnow":true}}"#,
+            r#"{"features":{"mcp":true,"MCPDELETION":true,"McpLinkFetch":true}}"#,
+            // An empty section and an empty file.
+            r#"{"features":{}}"#,
+            "{}",
+        ];
+        for text in files {
+            fs::write(dir.path().join(SETTINGS_FILE), text)?;
+            let features = AppSettings::load(dir.path()).features;
+            assert!(
+                !features.mcp_arbeitnow && !features.mcp_link_fetch && !features.mcp_deletion,
+                "{text}"
+            );
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn an_mcp_capability_is_on_only_for_its_own_explicit_key()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let dir = directory()?;
+        fs::write(
+            dir.path().join(SETTINGS_FILE),
+            r#"{"features":{"mcpDeletion":true}}"#,
+        )?;
+        let features = AppSettings::load(dir.path()).features;
+        assert!(features.mcp_deletion && !features.mcp_link_fetch && !features.mcp_arbeitnow);
+        fs::write(
+            dir.path().join(SETTINGS_FILE),
+            r#"{"features":{"mcpLinkFetch":true}}"#,
+        )?;
+        let features = AppSettings::load(dir.path()).features;
+        assert!(features.mcp_link_fetch && !features.mcp_deletion && !features.mcp_arbeitnow);
+        fs::write(
+            dir.path().join(SETTINGS_FILE),
+            r#"{"features":{"mcpArbeitnow":true}}"#,
+        )?;
+        let features = AppSettings::load(dir.path()).features;
+        assert!(features.mcp_arbeitnow && !features.mcp_deletion && !features.mcp_link_fetch);
+        // Another type than a boolean is not an opt-in: the file is broken and gives the defaults.
+        for broken in [
+            r#"{"features":{"mcpDeletion":"yes"}}"#,
+            r#"{"features":{"mcpLinkFetch":1}}"#,
+            r#"{"features":{"mcpDeletion":null}}"#,
+            r#"{"features":{"mcpArbeitnow":"true"}}"#,
+        ] {
+            fs::write(dir.path().join(SETTINGS_FILE), broken)?;
+            assert_eq!(AppSettings::load(dir.path()), AppSettings::default());
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn saving_after_an_older_file_does_not_turn_an_mcp_capability_on()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let dir = directory()?;
+        fs::write(
+            dir.path().join(SETTINGS_FILE),
+            r#"{"mcp":{"enabled":true,"port":4000},"features":{"arbeitnow":true,"linkFetch":true,"deletion":true}}"#,
+        )?;
+        // Any save (a port change, another switch) rewrites the whole file.
+        let mut settings = AppSettings::load(dir.path());
+        settings.mcp.port = 4001;
+        settings.features.generation = false;
+        settings.save(dir.path())?;
+        let reloaded = AppSettings::load(dir.path());
+        assert!(!reloaded.features.mcp_arbeitnow);
+        assert!(!reloaded.features.mcp_link_fetch && !reloaded.features.mcp_deletion);
+        assert!(
+            reloaded.features.arbeitnow
+                && reloaded.features.link_fetch
+                && reloaded.features.deletion
+        );
+        assert_eq!(reloaded, settings);
+        Ok(())
+    }
+
+    #[test]
+    fn an_mcp_opt_in_survives_a_save_and_a_reload() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = directory()?;
+        let mut settings = AppSettings::default();
+        settings.features.mcp_deletion = true;
+        settings.features.mcp_arbeitnow = true;
+        settings.save(dir.path())?;
+        assert_eq!(AppSettings::load(dir.path()), settings);
+        settings.features.mcp_deletion = false;
+        settings.features.mcp_arbeitnow = false;
+        settings.save(dir.path())?;
+        let reloaded = AppSettings::load(dir.path()).features;
+        assert!(!reloaded.mcp_deletion && !reloaded.mcp_arbeitnow);
         Ok(())
     }
 

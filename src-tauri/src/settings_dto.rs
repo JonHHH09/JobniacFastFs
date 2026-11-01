@@ -5,7 +5,7 @@
 //! file path never cross IPC; the token reaches the clipboard from Rust (`mcp_server_copy_connection`).
 
 use jobniac_runtime::app_settings::AppSettings;
-use jobniac_runtime::mcp_server::McpServerStatus;
+use jobniac_runtime::mcp_server::{McpFailure, McpServerStatus};
 use serde::Serialize;
 use specta::Type;
 
@@ -47,6 +47,9 @@ pub struct McpSettingsDto {
     pub port: u16,
     /// What the server is doing now.
     pub status: McpServerStatusDto,
+    /// Whether the last stop could not be confirmed: a server may still be running, and no new one
+    /// starts until it is confirmed gone. The status is `failed` meanwhile.
+    pub stop_incomplete: bool,
 }
 
 /// The application settings with the live status.
@@ -58,14 +61,21 @@ pub struct SettingsDto {
 }
 
 impl SettingsDto {
-    /// The persisted `settings` together with the current server `status`.
+    /// The persisted `settings` together with the current server `status` and, for a failed
+    /// status, why it failed.
     #[must_use]
-    pub fn new(settings: &AppSettings, status: McpServerStatus) -> Self {
+    pub fn new(
+        settings: &AppSettings,
+        status: McpServerStatus,
+        failure: Option<McpFailure>,
+    ) -> Self {
         Self {
             mcp: McpSettingsDto {
                 enabled: settings.mcp.enabled,
                 port: settings.mcp.port,
                 status: status.into(),
+                stop_incomplete: status == McpServerStatus::Failed
+                    && failure == Some(McpFailure::StopFailed),
             },
         }
     }
@@ -77,12 +87,34 @@ mod tests {
 
     #[test]
     fn the_dto_has_the_wire_shape_the_screen_reads() -> Result<(), serde_json::Error> {
-        let dto = SettingsDto::new(&AppSettings::default(), McpServerStatus::Stopped);
+        let dto = SettingsDto::new(&AppSettings::default(), McpServerStatus::Stopped, None);
         assert_eq!(
             serde_json::to_string(&dto)?,
-            r#"{"mcp":{"enabled":false,"port":8765,"status":"stopped"}}"#
+            r#"{"mcp":{"enabled":false,"port":8765,"status":"stopped","stopIncomplete":false}}"#
         );
         Ok(())
+    }
+
+    #[test]
+    fn only_a_failed_stop_is_reported_as_an_incomplete_stop() {
+        let settings = AppSettings::default();
+        let incomplete = |status, failure| {
+            SettingsDto::new(&settings, status, failure)
+                .mcp
+                .stop_incomplete
+        };
+        assert!(incomplete(
+            McpServerStatus::Failed,
+            Some(McpFailure::StopFailed)
+        ));
+        // Other failures, and a stop that was confirmed, are not.
+        assert!(!incomplete(
+            McpServerStatus::Failed,
+            Some(McpFailure::PortInUse)
+        ));
+        assert!(!incomplete(McpServerStatus::Failed, None));
+        assert!(!incomplete(McpServerStatus::Stopped, None));
+        assert!(!incomplete(McpServerStatus::Running, None));
     }
 
     #[test]
