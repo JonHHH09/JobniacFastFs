@@ -66,7 +66,7 @@ The pull request template asks you to confirm:
 - UI concerns live in TypeScript. Business logic, validation of record, persistence and all IO live in Rust.
 - Desktop commands and MCP tools call the same core use cases, never each other.
 - File paths, tokens and secrets never cross IPC. `i64` values cross as strings.
-- Opt-in features (network fetch, deletion, artifacts, the HTTP listener) stay off unless the exact value `1` is set.
+- Opt-in features (network fetch, deletion, artifacts, generation, the HTTP listener): the CLI keeps them off unless the exact value `1` is set. The desktop app turns the five feature flags on by default; a Settings switch, or an environment variable other than `1`, turns one off.
 
 More in [Architecture](Architecture.md).
 

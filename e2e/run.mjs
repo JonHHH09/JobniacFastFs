@@ -1,5 +1,5 @@
 // End-to-end runner: migrates a temporary SQLite database file, registers a temporary generated
-// root and runs the two application sessions in order:
+// root and runs the application sessions in order (default, opt-out, generation):
 //
 //   node e2e/run.mjs
 //
@@ -17,8 +17,19 @@ import {
 } from "./support/config.mjs";
 import { runCli } from "./support/database.mjs";
 
+// The flags of the optional features. The desktop app has them on unless the process sets one: any
+// value other than `1` (here `0`) turns the feature off and wins over the Settings switch.
+const FEATURE_FLAGS = [
+  "JOBNIAC_ARBEITNOW_ENABLED",
+  "JOBNIAC_LINK_FETCH_ENABLED",
+  "JOBNIAC_DELETION_ENABLED",
+  "JOBNIAC_DOCUMENT_ARTIFACTS_ENABLED",
+  "JOBNIAC_GENERATED_ENABLED",
+];
+
 const SESSIONS = [
   { name: "default", spec: "e2e/specs/app.spec.mjs" },
+  { name: "opt-out", spec: "e2e/specs/optout.spec.mjs" },
   { name: "generation", spec: "e2e/specs/generation.spec.mjs" },
 ];
 
@@ -60,8 +71,12 @@ function main() {
   );
   const shared = {
     ...database,
+    ...run.userDirectories,
     JOBNIAC_DOCUMENT_IMPORT_ROOT: run.importRoot,
     JOBNIAC_E2E_GENERATED_ROOT: run.generatedRoot,
+    // Generation is on by default, so every session names the run's root: the app never registers
+    // the per-user default root of the machine.
+    JOBNIAC_GENERATED_ROOT: run.generatedRoot,
     ...(existsSync(pdfiumDirectory) ? { JOBNIAC_PDFIUM_DIR: pdfiumDirectory } : {}),
   };
 
@@ -85,10 +100,12 @@ function main() {
 
     const mocha = join(repoRoot, "node_modules", "mocha", "bin", "mocha.js");
     for (const session of SESSIONS) {
-      const extra =
-        session.name === "generation"
-          ? { ...shared, JOBNIAC_GENERATED_ENABLED: "1", JOBNIAC_GENERATED_ROOT: run.generatedRoot }
-          : shared;
+      let extra = shared;
+      if (session.name === "opt-out") {
+        extra = { ...shared, ...Object.fromEntries(FEATURE_FLAGS.map((flag) => [flag, "0"])) };
+      } else if (session.name === "generation") {
+        extra = { ...shared, JOBNIAC_GENERATED_ENABLED: "1" };
+      }
       console.log(`e2e: running the ${session.name} session`);
       const result = spawnSync(
         process.execPath,

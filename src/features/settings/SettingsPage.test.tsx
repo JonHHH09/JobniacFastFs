@@ -3,12 +3,40 @@ import { mockIPC } from "@tauri-apps/api/mocks";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import type { McpServerStatusDto, SettingsDto } from "../../ipc/bindings";
+import type {
+  FeatureDto,
+  FeatureIdDto,
+  FeaturesDto,
+  McpServerStatusDto,
+  SettingsDto,
+} from "../../ipc/bindings";
 import { SettingsPage } from "./SettingsPage";
 import { RUNNING_POLL_MS } from "./useMcpServer";
 
 function settings(status: McpServerStatusDto, port = 8765, enabled = status !== "stopped") {
   return { mcp: { enabled, port, status } } satisfies SettingsDto;
+}
+
+const featureIds: FeatureIdDto[] = [
+  "arbeitnow",
+  "linkFetch",
+  "deletion",
+  "documentArtifacts",
+  "generation",
+];
+
+/** Every feature on and running, unless `over` changes it. */
+function features(over: Partial<Record<FeatureIdDto, Partial<FeatureDto>>> = {}): FeaturesDto {
+  return {
+    features: featureIds.map((id) => ({
+      id,
+      enabled: true,
+      effective: true,
+      forcedByEnvironment: false,
+      pendingRestart: false,
+      ...over[id],
+    })),
+  };
 }
 
 function renderPage() {
@@ -20,7 +48,7 @@ function renderPage() {
   );
 }
 
-/** Mocks the four commands; `extra` handles or overrides any of them. */
+/** Mocks the commands of the page; `extra` handles or overrides any of them. */
 function mockSettings(
   initial: SettingsDto,
   extra: Record<string, (args: Record<string, unknown>) => unknown> = {},
@@ -32,6 +60,9 @@ function mockSettings(
     }
     if (cmd === "settings_get") {
       return initial;
+    }
+    if (cmd === "features_get") {
+      return features();
     }
     throw new Error(`unexpected command ${cmd}`);
   });
@@ -297,5 +328,139 @@ describe("SettingsPage", () => {
     expect(await screen.findByText("Unable to load settings. Please try again.")).toBeVisible();
     await userEvent.click(screen.getByRole("button", { name: "Try again" }));
     expect(await screen.findByText("Stopped")).toBeInTheDocument();
+  });
+});
+
+describe("optional features", () => {
+  const label = (text: string) => screen.findByRole("switch", { name: text });
+
+  it("lists every feature with its switch on by default and a restart note", async () => {
+    mockSettings(settings("stopped"));
+    renderPage();
+    const card = await screen.findByTestId("featuresCard");
+    expect(card).toHaveTextContent("Optional features");
+    for (const name of [
+      "Arbeitnow job board",
+      "Add a job from a link",
+      "Delete profiles and jobs",
+      "Document preview and export",
+      "Generate resume and cover-letter PDFs",
+    ]) {
+      expect(await label(name)).toBeChecked();
+      expect(await label(name)).toBeEnabled();
+    }
+    expect(card).toHaveTextContent("Changes apply after you restart the app.");
+  });
+
+  it("saves one switch and shows the answer, noting that it applies after a restart", async () => {
+    const invoke = mockSettings(settings("stopped"), {
+      feature_set_enabled: (args) =>
+        features({
+          [args.id as FeatureIdDto]: { enabled: args.enabled === true, pendingRestart: true },
+        }),
+    });
+    renderPage();
+    await userEvent.click(await label("Delete profiles and jobs"));
+
+    await waitFor(() => expect(calls(invoke, "feature_set_enabled")).toHaveLength(1));
+    expect(calls(invoke, "feature_set_enabled")[0]?.[1]).toEqual({
+      id: "deletion",
+      enabled: false,
+    });
+    await waitFor(async () => expect(await label("Delete profiles and jobs")).not.toBeChecked());
+    expect(screen.getByTestId("feature-deletion")).toHaveTextContent(
+      "Applies after you restart the app.",
+    );
+    expect(await label("Arbeitnow job board")).toBeChecked();
+  });
+
+  it("disables a switch that an environment variable forces and says why", async () => {
+    const forced = features({
+      generation: {
+        enabled: true,
+        effective: false,
+        forcedByEnvironment: true,
+        pendingRestart: false,
+      },
+    });
+    mockSettings(settings("stopped"), { features_get: () => forced });
+    renderPage();
+    const toggle = await label("Generate resume and cover-letter PDFs");
+    expect(toggle).toBeDisabled();
+    expect(screen.getByTestId("feature-generation")).toHaveTextContent(
+      "An environment variable sets this one, so the switch has no effect.",
+    );
+    // A forced feature shows no restart note even though it differs from the switch.
+    expect(screen.getByTestId("feature-generation")).not.toHaveTextContent("Applies after");
+    expect(await label("Arbeitnow job board")).toBeEnabled();
+  });
+
+  it("shows a forced switch as what runs, not as the saved value", async () => {
+    mockSettings(settings("stopped"), {
+      features_get: () =>
+        features({
+          deletion: { enabled: true, effective: false, forcedByEnvironment: true },
+          linkFetch: { enabled: false, effective: true, forcedByEnvironment: true },
+        }),
+    });
+    renderPage();
+    const off = await label("Delete profiles and jobs");
+    expect(off).toBeDisabled();
+    expect(off).not.toBeChecked();
+    const on = await label("Add a job from a link");
+    expect(on).toBeDisabled();
+    expect(on).toBeChecked();
+  });
+
+  it("says a feature could not start only when it is on, not running and nothing is pending", async () => {
+    mockSettings(settings("stopped"), {
+      features_get: () =>
+        features({
+          arbeitnow: { effective: false },
+          deletion: { effective: false, pendingRestart: true },
+          generation: { effective: false, forcedByEnvironment: true },
+        }),
+    });
+    renderPage();
+    await label("Arbeitnow job board");
+    expect(screen.getByTestId("feature-arbeitnow")).toHaveTextContent(
+      "Could not start; see the log.",
+    );
+    expect(screen.getByTestId("feature-arbeitnow")).not.toHaveTextContent("Applies after");
+    expect(screen.getByTestId("feature-deletion")).toHaveTextContent("Applies after you restart");
+    expect(screen.getByTestId("feature-deletion")).not.toHaveTextContent("Could not start");
+    expect(screen.getByTestId("feature-generation")).not.toHaveTextContent("Could not start");
+    expect(screen.getByTestId("feature-linkFetch")).not.toHaveTextContent("Could not start");
+  });
+
+  it("shows the save failure copy and keeps the saved value", async () => {
+    mockSettings(settings("stopped"), {
+      feature_set_enabled: () => {
+        throw { code: "internal_error", messageId: "settings.saveFailed" };
+      },
+    });
+    renderPage();
+    await userEvent.click(await label("Arbeitnow job board"));
+    expect(await screen.findByText("Unable to save settings. Please try again.")).toBeVisible();
+    expect(await label("Arbeitnow job board")).toBeChecked();
+  });
+
+  it("shows a load error with a retry", async () => {
+    let attempts = 0;
+    mockSettings(settings("stopped"), {
+      features_get: () => {
+        attempts += 1;
+        if (attempts === 1) {
+          throw { code: "internal_error", messageId: "" };
+        }
+        return features();
+      },
+    });
+    renderPage();
+    expect(
+      await screen.findByText("Unable to load the optional features. Please try again."),
+    ).toBeVisible();
+    await userEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(await label("Arbeitnow job board")).toBeChecked();
   });
 });

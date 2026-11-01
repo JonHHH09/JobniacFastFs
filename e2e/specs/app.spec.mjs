@@ -1,4 +1,4 @@
-// The default application session: every opt-in flag is unset, the database is the temporary SQLite file of the run.
+// The default application session: no feature flag is set (the desktop defaults, every optional feature on), the database is the temporary SQLite file of the run.
 // The steps share one session and run in order; each step depends on the rows the previous ones saved.
 
 import assert from "node:assert/strict";
@@ -166,38 +166,23 @@ describe("JobniacFast desktop workflows (default session)", function () {
     // import root only sets the dialog's start folder. See e2e/README.md.
   });
 
-  it("7 the opt-in screens are absent when their flags are unset", async () => {
-    // A section mounts on its first visit, so each control is checked in the section that owns it.
-    const ownerSection = {
-      arbeitnowScanButton: "arbeitnow",
-      addJobFromLinkButton: "jobs",
-      deleteProfileButton: "profiles",
-      deleteJobButton: "jobs",
-      previewArtifactButton: "artifacts",
-      generatePdfButton: "generation",
-    };
-    for (const testId of [
-      "arbeitnowScanButton",
-      "addJobFromLinkButton",
-      "deleteProfileButton",
-      "deleteJobButton",
-    ]) {
-      await openSection(browser, ownerSection[testId]);
-      await absent(browser, testId);
+  it("7 the optional controls are present by default, with no flag set", async () => {
+    // The desktop app has every optional feature on unless the process sets its flag (the
+    // opt-out session covers that). A section mounts on its first visit, so each control is
+    // checked in the section that owns it.
+    await openSection(browser, "jobs");
+    // The link row sits in the paste panel, which is hidden until "Add posting" is pressed.
+    if (!(await byTestId(browser, "jobTextInput").isDisplayed())) {
+      await click(browser, "addPostingToggleButton");
     }
-    // The artifact and generation controls are rendered disabled when their flags are unset (see
-    // e2e/README.md): no opt-in control may be enabled.
-    for (const testId of ["previewArtifactButton", "generatePdfButton"]) {
-      await openSection(browser, ownerSection[testId]);
-      const control = byTestId(browser, testId);
-      if (await control.isExisting()) {
-        assert.equal(
-          await control.isEnabled(),
-          false,
-          `${testId} is enabled while its flag is unset`,
-        );
-      }
-    }
+    await shown(browser, "addJobFromLinkButton");
+    // The delete button renders for the profile that step 2 left open in the editor.
+    await openSection(browser, "profiles");
+    await shown(browser, "deleteProfileButton");
+    // Arbeitnow is composed on every platform the suite runs on (Linux and Windows); its page
+    // renders nothing until the capability query resolves, so `shown` waits for it.
+    await openSection(browser, "arbeitnow");
+    await shown(browser, "arbeitnowScanButton");
   });
 
   it("8 a busy save disables its control until the database releases the write lock", async () => {

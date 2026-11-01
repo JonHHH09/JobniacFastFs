@@ -8,11 +8,43 @@ drafts take the body of their version section from this file.
 
 ### Added
 
+- Settings: an **Optional features** card with one switch each for Arbeitnow, adding a job from a
+  link, deletion, document artifacts and PDF generation. A change is saved and applies after the app
+  restarts; a switch is disabled, with a note, when an environment variable sets the feature. The
+  settings file gets a `features` section (`arbeitnow`, `linkFetch`, `deletion`,
+  `documentArtifacts`, `generation`); an older file without it, or a missing key, means on. New
+  commands `features_get` and `feature_set_enabled` carry the switches and the effective state, never
+  a variable name or value.
+- Desktop: the Arbeitnow signing keys are generated on first use and kept in `feature-keys.json` in
+  the per-user data folder (written atomically, readable by you only on Unix, never logged or sent
+  over IPC; a broken file is regenerated). A key set in the environment is used as given. The default
+  generated root is registered automatically at startup when generation is on and no
+  `JOBNIAC_GENERATED_ROOT_ID` or `JOBNIAC_GENERATED_ROOT` is set, so `jobniac-cli setup-generated-root`
+  is no longer needed for the desktop app. A feature that cannot be made ready stays off with one
+  fixed warning in the log; startup is never blocked.
+- Desktop: a PDF chosen in the native file dialog can be previewed and imported without
+  `JOBNIAC_DOCUMENT_IMPORT_ROOT`. Only the file chosen in this run is admitted (the path stays in
+  Rust and is dropped when the selection is replaced, imported or reset), and it passes the same
+  safe-file checks as before; only the "inside the import root" rule is skipped for it. With the
+  variable set, the desktop app still reads only inside that folder. `jobniac-cli` and the MCP tools
+  (`store_document_file`, `extract_pdf_text`) are unchanged and still need the variable.
 - Project wiki: pages for users (installation, getting started, data and privacy, updates,
   troubleshooting), MCP clients and contributors live in `docs/wiki/`, and the `Wiki` workflow mirrors
   them to the GitHub wiki whenever `main` changes them.
 
 ### Changed
+
+- Desktop: the optional features (`JOBNIAC_ARBEITNOW_ENABLED`, `JOBNIAC_LINK_FETCH_ENABLED`,
+  `JOBNIAC_DELETION_ENABLED`, `JOBNIAC_DOCUMENT_ARTIFACTS_ENABLED`, `JOBNIAC_GENERATED_ENABLED`) are
+  now on by default in the desktop app, so a release started from the Start menu or Finder shows
+  them without any environment variable. A variable the process environment sets still wins: any
+  value other than `1` (such as `0`) turns the feature off. `jobniac-cli` is unchanged and keeps
+  every feature off unless its variable is exactly `1`. The HTTP MCP server the desktop app starts
+  from Settings inherits the same effective environment, so it now lists the opt-in tools
+  (`add_job_from_link`, `scan_arbeitnow_jobs`, `import_arbeitnow_job`, `delete_profile`,
+  `delete_job`, `get_document_artifact`) and its `generate_*` tools work, unless the feature is off
+  in Settings or forced off by the environment. The generated root is passed to that server
+  explicitly because it does not inherit the per-user folders.
 
 - Releases: the clean-machine smoke tests now keep the database under their work directory, so the
   Windows residue check no longer trips over the default per-user data folder. A failed installed-tree

@@ -34,8 +34,8 @@ const SUITE_KEYS = [
 const runArea = join(repoRoot, "target");
 
 /**
- * The environment of one application session. No opt-in flag is set unless the session asks for it:
- * the default session runs with every opt-in screen off.
+ * The environment of one application session. No feature flag is set unless the session asks for
+ * it: the default session runs with the desktop defaults, every optional feature on.
  */
 export function sessionEnvironment(base, extra = {}) {
   const env = {};
@@ -67,13 +67,35 @@ export function createRunRoot() {
   const generatedRoot = join(root, "generated");
   const databaseFile = join(root, "jobniac.sqlite3");
   mkdirSync(importRoot);
+  const userDirectories = createUserDirectories(root);
   // The generated root must be private, or setup-generated-root refuses it. Linux: owner-only mode
   // bits. Windows ignores the mode, so the folder gets a protected DACL instead.
   mkdirSync(generatedRoot, { mode: 0o700 });
   if (process.platform === "win32") {
     protectWindowsDirectory(generatedRoot);
   }
-  return { root, importRoot, generatedRoot, databaseFile };
+  return { root, importRoot, generatedRoot, databaseFile, userDirectories };
+}
+
+/**
+ * Redirects the per-user directories of the application (`settings.json` in the config directory,
+ * `feature-keys.json` in the local data directory) into the run root, so a run on Linux never
+ * reads or writes the developer's real settings. Tauri resolves them through the XDG variables on Linux;
+ * Windows uses Known Folder APIs that ignore APPDATA and LOCALAPPDATA, so there is nothing to
+ * redirect and the result is empty. XDG_RUNTIME_DIR and HOME stay as they are: WebKitGTK needs
+ * them.
+ */
+function createUserDirectories(root) {
+  if (process.platform !== "linux") {
+    return {};
+  }
+  const config = join(root, "xdg-config");
+  const data = join(root, "xdg-data");
+  const cache = join(root, "xdg-cache");
+  for (const directory of [config, data, cache]) {
+    mkdirSync(directory, { mode: 0o700 });
+  }
+  return { XDG_CONFIG_HOME: config, XDG_DATA_HOME: data, XDG_CACHE_HOME: cache };
 }
 
 /**

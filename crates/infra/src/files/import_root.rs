@@ -143,6 +143,39 @@ impl ImportRoot {
     }
 }
 
+/// Reads `path`, a file the user picked in the native file dialog, with every check of
+/// [`ImportRoot::read`] except the root containment: absolute path without traversal, pinned
+/// no-follow open of every component, regular file, single link, size cap and identity re-check.
+///
+/// The caller must have obtained `path` from the picker itself; this function does not know where
+/// a path came from.
+///
+/// # Errors
+///
+/// Returns the [`ImportRefusal`] for the first rule that fails, in check order.
+pub fn read_picked(path: &str) -> Result<ImportedFile, ImportRefusal> {
+    if !no_follow::available() {
+        return Err(ImportRefusal::PlatformUnavailable);
+    }
+    if jobniac_text::str_rules::strip_text(path).is_empty() || path.contains('\0') {
+        return Err(ImportRefusal::InvalidPath);
+    }
+    let source = Path::new(path);
+    if has_parent_component(source) {
+        return Err(ImportRefusal::PathTraversal);
+    }
+    if !source.is_absolute() {
+        return Err(ImportRefusal::PathNotAbsolute);
+    }
+    // The root is the filesystem root, so every component of the path is a pinned name below it.
+    let filesystem_root = source
+        .ancestors()
+        .last()
+        .map_or_else(|| source.to_path_buf(), Path::to_path_buf);
+    let relative = relative_names(&filesystem_root, source)?;
+    platform_read(&filesystem_root, source, &relative)
+}
+
 fn has_parent_component(path: &Path) -> bool {
     path.components()
         .any(|component| matches!(component, Component::ParentDir))
