@@ -568,17 +568,26 @@ class SmokeFailureText(unittest.TestCase):
 
 
 class SmokeEnvironment(unittest.TestCase):
-    """The smoke children get a database under the work directory and no other JOBNIAC_* variable."""
+    """The smoke children get a database and a generated root under the work directory and no other
+    JOBNIAC_* variable."""
 
-    def test_database_is_isolated_under_the_work_directory(self) -> None:
+    def test_database_and_generated_root_are_isolated_under_the_work_directory(self) -> None:
         import clean_machine_smoke as smoke
 
         with tempfile.TemporaryDirectory() as name:
             work = Path(name)
-            with mock.patch.dict("os.environ", {"JOBNIAC_DB_PATH": "elsewhere", "JOBNIAC_PDFIUM_DIR": "x", "KEEP_ME": "1"}):
+            inherited = {
+                "JOBNIAC_DB_PATH": "elsewhere",
+                "JOBNIAC_GENERATED_ROOT": "elsewhere",
+                "JOBNIAC_PDFIUM_DIR": "x",
+                "KEEP_ME": "1",
+            }
+            with mock.patch.dict("os.environ", inherited):
                 env = smoke.smoke_env(work, JOBNIAC_SMOKE_QUIT_AFTER_LOAD="1")
             self.assertEqual(env["JOBNIAC_DB_PATH"], str(work.resolve() / "data" / "smoke.sqlite3"))
-            self.assertTrue(Path(env["JOBNIAC_DB_PATH"]).is_absolute())
+            self.assertEqual(env["JOBNIAC_GENERATED_ROOT"], str(work.resolve() / "data" / "generated"))
+            for variable in ("JOBNIAC_DB_PATH", "JOBNIAC_GENERATED_ROOT"):
+                self.assertTrue(Path(env[variable]).is_absolute(), variable)
             self.assertEqual(env["JOBNIAC_SMOKE_QUIT_AFTER_LOAD"], "1")
             self.assertNotIn("JOBNIAC_PDFIUM_DIR", env)
             self.assertEqual(env["KEEP_ME"], "1")
