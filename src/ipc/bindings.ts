@@ -254,8 +254,10 @@ export const commands = {
 	/**  Reads the switches, what this run made of each feature, and whether the environment forces it. */
 	featuresGet: () => typedError<FeaturesDto, CommandError>(__TAURI_INVOKE("features_get")),
 	/**
-	 *  Saves the switch of one feature. It starts or stops nothing: the change applies at the next
-	 *  start. The answer is the full list, like the other settings commands.
+	 *  Saves the switch of one feature. An in-app feature and the turning on of an MCP capability apply
+	 *  at the next start of the app. Turning an MCP capability off applies at once: the MCP server
+	 *  stops exposing it (it restarts without it if it was running). The answer is the full list, like
+	 *  the other settings commands.
 	 */
 	featureSetEnabled: (id: FeatureIdDto, enabled: boolean) => typedError<FeaturesDto, CommandError>(__TAURI_INVOKE("feature_set_enabled", { id, enabled })),
 	/**  Checks for a new version. A failed check is an error, not "no update". */
@@ -595,12 +597,24 @@ export type FeatureIdDto =
 /**  Document artifacts and their export. */
 "documentArtifacts" | 
 /**  Resume and cover-letter PDF generation. */
-"generation";
+"generation" | 
+/**  MCP clients may scan the Arbeitnow board and import a candidate. Off until the user opts in. */
+"mcpArbeitnow" | 
+/**  MCP clients may add a job from a link. Off until the user opts in. */
+"mcpLinkFetch" | 
+/**  MCP clients may delete profiles and jobs. Off until the user opts in. */
+"mcpDeletion";
 
 /**  The optional features, in display order. */
 export type FeaturesDto = {
 	/**  One entry per feature. */
 	features: FeatureDto[],
+	/**
+	 *  Whether an MCP server that was told to stop could not be confirmed stopped. A capability
+	 *  that is off may then still be served by that server until it is gone, so the screen must not
+	 *  show the capability as safely off.
+	 */
+	stopIncomplete: boolean,
 };
 
 /**  Which generation services are composed and usable. */
@@ -1016,6 +1030,11 @@ export type McpSettingsDto = {
 	port: number,
 	/**  What the server is doing now. */
 	status: McpServerStatusDto,
+	/**
+	 *  Whether the last stop could not be confirmed: a server may still be running, and no new one
+	 *  starts until it is confirmed gone. The status is `failed` meanwhile.
+	 */
+	stopIncomplete: boolean,
 };
 
 /**

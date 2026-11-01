@@ -732,6 +732,8 @@ export const messages = {
   "settings.saveFailed": "Unable to save settings. Please try again.",
   "settings.mcp.failed": "The MCP server command could not run. Please try again.",
   "settings.mcp.notRunning": "The MCP server is not running.",
+  "settings.mcp.stopIncomplete":
+    "The setting was turned off, but the MCP server could not be confirmed stopped, so a copy of it may still be running. Close and reopen the app to be sure.",
   "settings.mcp.clipboardFailed": "Unable to copy to the clipboard.",
 
   "update.unavailable": "Updates are unavailable in this build.",

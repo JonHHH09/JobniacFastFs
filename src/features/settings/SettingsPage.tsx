@@ -49,7 +49,11 @@ function errorText(error: CommandError, fallback: MessageId): string | null {
   return formatMessage(isMessageId(error.messageId) ? error.messageId : fallback);
 }
 
-function statusHint(status: McpServerStatusDto): string | null {
+function statusHint(status: McpServerStatusDto, stopIncomplete: boolean): string | null {
+  // A failed stop is not a failed start: the old server may still run.
+  if (status === "failed" && stopIncomplete) {
+    return copy.settings.stopIncompleteHint;
+  }
   switch (status) {
     case "starting":
       return copy.settings.startingHint;
@@ -114,7 +118,7 @@ function McpServerCard() {
     );
   }
 
-  const { enabled, port, status } = settings.mcp;
+  const { enabled, port, status, stopIncomplete } = settings.mcp;
   const changing = setEnabled.isPending || setPort.isPending;
   const busy = changing || status === "starting";
   const checked = setEnabled.isPending ? setEnabled.variables === true : enabled;
@@ -123,7 +127,7 @@ function McpServerCard() {
   const parsed = parsePort(draft);
   const portInvalid = portDraft !== null && parsed === null;
   const portChanged = portDraft !== null && portDraft !== String(port);
-  const hint = statusHint(status);
+  const hint = statusHint(status, stopIncomplete);
 
   const failure =
     setEnabled.error && !setEnabled.isPending

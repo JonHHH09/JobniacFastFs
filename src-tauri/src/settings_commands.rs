@@ -35,6 +35,10 @@ pub const SETTINGS_SAVE_FAILED: &str = "settings.saveFailed";
 /// that ran and failed is the `failed` status instead.
 pub const SETTINGS_MCP_FAILED: &str = "settings.mcp.failed";
 
+/// Message id of a server that could not be confirmed stopped. The server may still be running; no
+/// new one is started until it is confirmed gone.
+pub const SETTINGS_MCP_STOP_INCOMPLETE: &str = "settings.mcp.stopIncomplete";
+
 /// Message id of a copy request while the server is not running.
 pub const SETTINGS_MCP_NOT_RUNNING: &str = "settings.mcp.notRunning";
 
@@ -51,8 +55,9 @@ fn mcp_failed() -> CommandError {
 
 /// The persisted settings with the live server status. A child that died is noticed here.
 fn snapshot(state: &AppState) -> SettingsDto {
-    let status = state.mcp_supervisor().refresh();
-    SettingsDto::new(&state.app_settings(), status)
+    let mcp = state.mcp_supervisor();
+    let status = mcp.refresh();
+    SettingsDto::new(&state.app_settings(), status, mcp.failure())
 }
 
 /// Reads the settings and the server status. It takes no slot, so the screen can poll the status
@@ -185,6 +190,7 @@ mod tests {
     use jobniac_runtime::app_settings::{AppSettings, SETTINGS_FILE};
     use jobniac_runtime::mcp_server::{
         HTTP_TOKEN_VARIABLE, McpChild, McpSupervisor, SpawnError, SpawnRequest, Spawner,
+        Termination,
     };
 
     use super::*;
@@ -196,8 +202,9 @@ mod tests {
             self.0.load(Ordering::SeqCst)
         }
 
-        fn terminate(&mut self) {
+        fn terminate(&mut self) -> Termination {
             self.0.store(false, Ordering::SeqCst);
+            Termination::Gone
         }
     }
 

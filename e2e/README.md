@@ -63,6 +63,8 @@ test is printed to the console. The run root (`target/e2e-*`) is removed at the 
   WebView2 profile are redirected into the run root on every platform by the run isolation of the
   debug build (see "Run isolation" below); on Linux the XDG variables are redirected as well
   (`XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_CACHE_HOME`; `HOME` and `XDG_RUNTIME_DIR` are kept).
+  The suite does not exercise the MCP tools or turn the three MCP opt-ins (`mcpArbeitnow`,
+  `mcpLinkFetch`, `mcpDeletion`) on.
 - **The generated root is not in the user temporary folder.** On the Windows host,
   `setup-generated-root` refused a root under `%TEMP%`, under `C:\` and under `%LOCALAPPDATA%` with
   "could not be initialized", and accepted the same empty directory under the repository's `target/`

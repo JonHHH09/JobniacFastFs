@@ -9,10 +9,15 @@ drafts take the body of their version section from this file.
 ### Added
 
 - Settings: an **Optional features** card with one switch each for Arbeitnow, adding a job from a
-  link, deletion, document artifacts and PDF generation. A change is saved and applies after the app
-  restarts; a switch is disabled, with a note, when an environment variable sets the feature. The
-  settings file gets a `features` section (`arbeitnow`, `linkFetch`, `deletion`,
-  `documentArtifacts`, `generation`); an older file without it, or a missing key, means on. New
+  link, deletion, document artifacts and PDF generation, and three more for MCP clients: **Let MCP
+  clients scan Arbeitnow**, **Let MCP clients add a job from a link** and **Let MCP clients delete
+  profiles and jobs**. A change is saved and applies after the app restarts; a switch is disabled,
+  with a note, when an environment variable sets the feature. Turning one of the three MCP
+  capabilities off applies at once (see below); every other change waits for a restart. The
+  settings file gets a `features`
+  section (`arbeitnow`, `linkFetch`, `deletion`, `documentArtifacts`, `generation`, `mcpArbeitnow`,
+  `mcpLinkFetch`, `mcpDeletion`); an older file without it, or a missing key, means on for the
+  first five and off for the three MCP keys. New
   commands `features_get` and `feature_set_enabled` carry the switches and the effective state, never
   a variable name or value.
 - Desktop: the Arbeitnow signing keys are generated on first use and kept in `feature-keys.json` in
@@ -40,11 +45,38 @@ drafts take the body of their version section from this file.
   them without any environment variable. A variable the process environment sets still wins: any
   value other than `1` (such as `0`) turns the feature off. `jobniac-cli` is unchanged and keeps
   every feature off unless its variable is exactly `1`. The HTTP MCP server the desktop app starts
-  from Settings inherits the same effective environment, so it now lists the opt-in tools
-  (`add_job_from_link`, `scan_arbeitnow_jobs`, `import_arbeitnow_job`, `delete_profile`,
-  `delete_job`, `get_document_artifact`) and its `generate_*` tools work, unless the feature is off
-  in Settings or forced off by the environment. The generated root is passed to that server
-  explicitly because it does not inherit the per-user folders.
+  from Settings inherits the same effective environment for document artifacts and generation, so
+  it lists `get_document_artifact` and its `generate_*` tools work, unless the feature is off in
+  Settings or forced off by the environment. The generated root is passed to that server explicitly
+  because it does not inherit the per-user folders.
+- Desktop: the MCP tools that reach the network or delete data stay off until you opt in. These are
+  `scan_arbeitnow_jobs` with its pair `import_arbeitnow_job` (the scan contacts the Arbeitnow job
+  board), `add_job_from_link` (fetches a page) and `delete_profile` with `delete_job`; no other tool
+  of the catalog reaches the network. The app's HTTP MCP server lists them only after you turn on
+  **Let MCP clients scan Arbeitnow**, **Let MCP clients add a job from a link** or **Let MCP clients
+  delete profiles and jobs** in Settings and restart the app. Turning one off again applies at
+  once: the app drops the grant and stops a running MCP server that was started with it, and, when
+  the server is set to run, starts it again without the tool (with a new access token, so MCP
+  clients reconnect). Every later start, stop and start, or port change keeps the tool out; turning
+  the switch back on waits for the next start of the app, so a revoked grant never returns in the
+  same run. The app waits up to two seconds for the old server to exit and does not report the
+  change as done unless it is confirmed gone. If it cannot be confirmed (the process could not be
+  killed, or it did not exit in time), Settings says so: the server status is Failed, the text says
+  the server may still be running and asks you to close and reopen the app, no new server starts
+  until the old one is gone, and the switch stays off with the tool already dropped for every later
+  start. The same warning is shown with the MCP capabilities, where a tool that is off is marked as possibly still served, and every later revocation (even one that changes nothing new) keeps reporting the unconfirmed server until it is gone. A failed save changes nothing: the switch stays on, the tool stays available, the running
+  server is untouched and an error is shown. The Arbeitnow signing keys are given to the MCP server
+  only together with the Arbeitnow grant. The in-app Arbeitnow, add-from-link
+  and deletion switches are separate: they keep their on-by-default setting and do not reach the MCP
+  server. A general `JOBNIAC_ARBEITNOW_ENABLED=1`, `JOBNIAC_LINK_FETCH_ENABLED=1` or
+  `JOBNIAC_DELETION_ENABLED=1` in the environment that starts the app enables the feature in the
+  app, as before, but is not an opt-in for MCP clients and is not passed to the MCP server; a value
+  other than `1` (such as `0`) still turns the feature off everywhere and wins over the switch.
+  An existing settings file never turns an MCP switch on: only the new `mcpArbeitnow`,
+  `mcpLinkFetch` and `mcpDeletion` keys do, so a file that holds `arbeitnow`, `linkFetch` or
+  `deletion` as `true` still leaves these tools off. `jobniac-cli` is unchanged: it still enables
+  each feature from its own variable set to exactly `1`. MCP tools do not ask for the confirmation
+  the app asks for. With the defaults the app's HTTP server lists 35 tools instead of 40.
 
 - Releases: the clean-machine smoke tests now keep the database under their work directory, so the
   Windows residue check no longer trips over the default per-user data folder. A failed installed-tree
