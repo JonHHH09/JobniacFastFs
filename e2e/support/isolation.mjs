@@ -7,7 +7,14 @@
 // log; on Windows the Known Folder APIs ignore APPDATA and LOCALAPPDATA, and the WebView2 profile
 // lives in the local data directory) and refuses to start when anything is not confined. A release
 // build ignores the variable, so the runner only accepts a debug binary (see `proveBeforeLaunch`).
-import { existsSync, lstatSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  lstatSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { homedir } from "node:os";
 import { isAbsolute, join, relative, resolve } from "node:path";
 import { isInsideRunArea, repoRoot } from "./config.mjs";
@@ -38,6 +45,21 @@ export function writeMarker(root) {
 export function isolationEnvironment(root, tmp) {
   const temporary = process.platform === "win32" ? { TMP: tmp, TEMP: tmp } : { TMPDIR: tmp };
   return { [ROOT_VARIABLE]: root, ...temporary };
+}
+
+/**
+ * A new WebView2 profile folder under the run root for one WebDriver session on Windows, or
+ * `undefined` elsewhere or without a run root. msedgedriver starts the application with
+ * `WEBVIEW2_USER_DATA_FOLDER` set to the profile of the session; unless `webviewOptions` names one,
+ * it creates a temporary profile outside the run root, and the debug build refuses to start with
+ * it (`test_isolation.rs`). Each session gets its own folder, as msedgedriver would give it.
+ */
+export function webviewUserDataFolder(env, platform = process.platform) {
+  const root = env[ROOT_VARIABLE];
+  if (platform !== "win32" || !root) {
+    return undefined;
+  }
+  return mkdtempSync(join(root, "webview2-"));
 }
 
 /** Whether `child` is `parent` or inside it, by lexical resolution (case-insensitive on Windows). */
