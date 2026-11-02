@@ -2,8 +2,8 @@
 //
 //   node --test e2e/support/isolation.test.mjs
 import assert from "node:assert/strict";
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
 import { after, describe, it } from "node:test";
 import { createRunRoot, repoRoot } from "./config.mjs";
 import {
@@ -13,6 +13,7 @@ import {
   REPORT_FILE,
   snapshotRealFolders,
   verifyAfterRun,
+  webviewUserDataFolder,
 } from "./isolation.mjs";
 
 const windows = process.platform === "win32";
@@ -179,6 +180,26 @@ describe("proveBeforeLaunch", () => {
         }),
       /inside a real application folder/,
     );
+  });
+});
+
+describe("webviewUserDataFolder", () => {
+  it("gives each Windows session a new profile folder directly under the run root", () => {
+    const { run, env } = newRun();
+    const first = webviewUserDataFolder(env, "win32");
+    const second = webviewUserDataFolder(env, "win32");
+    assert.notEqual(first, second);
+    for (const folder of [first, second]) {
+      assert.ok(statSync(folder).isDirectory());
+      assert.equal(dirname(folder), run.root);
+      assert.match(relative(run.root, folder), /^webview2-/);
+    }
+  });
+
+  it("names no folder off Windows or without a run root", () => {
+    const { env } = newRun();
+    assert.equal(webviewUserDataFolder(env, "linux"), undefined);
+    assert.equal(webviewUserDataFolder({}, "win32"), undefined);
   });
 });
 

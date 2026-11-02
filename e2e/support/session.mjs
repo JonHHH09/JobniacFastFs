@@ -5,6 +5,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { remote } from "webdriverio";
 import { appBinary, artifactsDir } from "./config.mjs";
+import { webviewUserDataFolder } from "./isolation.mjs";
 
 const DRIVER_HOST = "127.0.0.1";
 const DRIVER_PORT = 4444;
@@ -24,6 +25,8 @@ function tauriDriverCommand() {
  * application binary. The returned object is closed with `closeSession`.
  */
 export async function openSession(env) {
+  // The WebView2 profile msedgedriver hands the application, kept inside the run root.
+  const userDataFolder = webviewUserDataFolder(env);
   const stderr = [];
   // Its own process group on POSIX, so closing the session ends the application as well.
   const driver = spawn(tauriDriverCommand(), [], {
@@ -60,8 +63,12 @@ export async function openSession(env) {
         // `webviewOptions` (tauri-driver 2.1 passes it to msedgedriver on Windows, Linux ignores it)
         // marks the binary as a WebView2 application. Without it msedgedriver starts the binary as
         // a browser, waits for a DevToolsActivePort file the application never writes and fails
-        // with "session not created: DevToolsActivePort file doesn't exist".
-        "tauri:options": { application: appBinary, webviewOptions: {} },
+        // with "session not created: DevToolsActivePort file doesn't exist". `userDataFolder`
+        // keeps the WebView2 profile in the run root (see `webviewUserDataFolder`).
+        "tauri:options": {
+          application: appBinary,
+          webviewOptions: userDataFolder ? { userDataFolder } : {},
+        },
         // WebdriverIO 10 asks for a BiDi session (`webSocketUrl`), which WebKitWebDriver and
         // msedgedriver behind tauri-driver do not support; stay on the classic protocol.
         "wdio:enforceWebDriverClassic": true,
