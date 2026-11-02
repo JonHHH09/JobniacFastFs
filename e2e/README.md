@@ -107,6 +107,11 @@ to five folders under that root (`app-config`, `app-data`, `app-local-data`, `ap
   outside the root, a resolved directory that is not the planned one, a root that overlaps a real
   per-user folder, or a link or junction that leaves the root ends the start with exit status 1 and
   a fixed message, before any window exists. Nothing falls back to the real folders.
+- **WebView2 profile.** On Windows msedgedriver starts the application with
+  `WEBVIEW2_USER_DATA_FOLDER` set to the profile of the session, and without `userDataFolder` in
+  `webviewOptions` it makes a temporary one outside the run root, which the check above refuses
+  ("Microsoft Edge failed to start: was killed"). Each WebDriver session therefore names a new
+  `webview2-*` folder under the root (`webviewUserDataFolder` in `support/isolation.mjs`).
 - **Debug builds only.** The module and every use of it sit under `cfg(debug_assertions)`; a release
   build has no code and no variable name for it and ignores `JOBNIAC_TEST_RUN_ROOT`
   (`config_tests::the_run_isolation_is_compiled_out_of_release_builds`). So the runner accepts only a
