@@ -12,7 +12,7 @@ use jobniac_core::arbeitnow::scan::ScanRequest;
 use jobniac_core::artifacts::DocumentArtifact;
 use jobniac_runtime::app_settings::{AppSettings, SettingsSaveError};
 use jobniac_runtime::arbeitnow::ArbeitnowServices;
-use jobniac_runtime::desktop_features::FeatureStates;
+use jobniac_runtime::desktop_features::{FeatureStates, McpGrants};
 use jobniac_runtime::job_links::JobLinkUseCase;
 use jobniac_runtime::mcp_server::{McpSupervisor, ProcessSpawner};
 use jobniac_runtime::services::{Services, StartupError};
@@ -359,6 +359,9 @@ pub struct AppState {
     settings_dir: Option<PathBuf>,
     /// Which optional features the environment forces and which are composed in this run.
     feature_states: FeatureStates,
+    /// The MCP capabilities granted at startup. The supervisor holds the live grants and can only
+    /// narrow them; this is the most it can ever hold in this run.
+    mcp_grants: Arc<McpGrants>,
     /// The supervisor of the `jobniac-cli http` child (the MCP server switch).
     mcp: Arc<McpSupervisor>,
 }
@@ -411,6 +414,7 @@ impl AppState {
             settings: Mutex::new(AppSettings::default()),
             settings_dir: None,
             feature_states: FeatureStates::new(),
+            mcp_grants: Arc::new(McpGrants::default()),
             // No sidecar and no inherited environment: the composition root replaces it.
             mcp: Arc::new(McpSupervisor::new(
                 Arc::new(ProcessSpawner::with_sidecar(None)),
@@ -439,6 +443,20 @@ impl AppState {
     /// What each optional feature came to at startup.
     pub fn feature_states(&self) -> FeatureStates {
         self.feature_states
+    }
+
+    /// Attaches the MCP capabilities granted at startup. The composition root calls this once,
+    /// before the state is managed, with the same grants it gave the supervisor.
+    #[must_use]
+    pub fn with_mcp_grants(mut self, mcp_grants: McpGrants) -> Self {
+        self.mcp_grants = Arc::new(mcp_grants);
+        self
+    }
+
+    /// The MCP capabilities granted at startup. A shared handle: the grants hold secret values,
+    /// which are not copied for a read, and a blocking thread can hold the handle.
+    pub fn mcp_grants(&self) -> Arc<McpGrants> {
+        Arc::clone(&self.mcp_grants)
     }
 
     /// Attaches the MCP server supervisor. The composition root calls this once, before the state is

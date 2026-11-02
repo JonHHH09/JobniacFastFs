@@ -35,6 +35,9 @@ mod settings_dto;
 mod shell_close_commands;
 mod shell_close_dto;
 mod state;
+// Debug-only run isolation (see the module). A release build has no code and no variable for it.
+#[cfg(debug_assertions)]
+mod test_isolation;
 mod update_commands;
 mod update_dto;
 
@@ -49,9 +52,9 @@ use std::sync::Arc;
 
 use jobniac_runtime::app_settings::AppSettings;
 use jobniac_runtime::desktop_features::{
-    self, Feature, FeatureStates, forced_by_environment, prepare_environment,
+    self, Feature, FeatureStates, McpGrants, forced_by_environment, prepare_environment,
 };
-use jobniac_runtime::mcp_server::{McpSupervisor, ProcessSpawner};
+use jobniac_runtime::mcp_server::ProcessSpawner;
 use jobniac_runtime::pdfium_location::resolve_pdfium_dir;
 use jobniac_runtime::services::compose_with_pdfium;
 use jobniac_runtime::smoke::{self, SMOKE_TIMEOUT, SmokeHook, SmokeOutcome};
@@ -265,9 +268,12 @@ fn show_macos_alert(message: &str) {
 }
 
 /// What each optional feature came to in this run: forced by the process environment (`process`),
-/// and whether its services are actually composed and usable.
+/// and whether its services are actually composed and usable. An MCP capability is usable when it
+/// was granted at startup (`grants`) and a database is open; a later revocation is applied on top
+/// of this snapshot by the feature commands.
 fn feature_states(
     process: &jobniac_core::env::Environment,
+    grants: &McpGrants,
     started_on: &jobniac_runtime::app_settings::FeatureSettings,
     services: &jobniac_runtime::services::Services,
     job_links: bool,
@@ -275,6 +281,8 @@ fn feature_states(
 ) -> FeatureStates {
     let generation = tauri::async_runtime::block_on(services.generation.facade.is_available());
     let deletion = services.deletion.profile.is_some() && services.deletion.job.is_some();
+    let mcp_granted =
+        |feature: Feature| grants.granted_at_startup(feature) && services.database.is_some();
     Feature::ALL
         .into_iter()
         .fold(FeatureStates::new(), |states, feature| {
@@ -284,6 +292,9 @@ fn feature_states(
                 Feature::Deletion => deletion,
                 Feature::DocumentArtifacts => services.artifacts.is_some(),
                 Feature::Generation => generation,
+                Feature::McpArbeitnow | Feature::McpLinkFetch | Feature::McpDeletion => {
+                    mcp_granted(feature)
+                }
             };
             states
                 .with_forced(feature, forced_by_environment(process, feature))
@@ -305,7 +316,23 @@ pub fn run() {
     // The packaging smoke quit hook: on only for the exact value `1`.
     let smoke = smoke::enabled(&environment).then(|| Arc::new(SmokeHook::new()));
     let builder = ipc_builder();
-    let context = tauri::generate_context!();
+    // Debug builds only: a test run names a prepared run root and every per-user directory of the
+    // app is redirected into it before the application is built. A named but unusable root ends
+    // the start; nothing falls back to the real folders.
+    #[cfg(debug_assertions)]
+    let isolation = match test_isolation::plan(&environment) {
+        Ok(plan) => plan,
+        Err(error) => {
+            eprintln!("{}", error.message());
+            std::process::exit(1);
+        }
+    };
+    #[cfg_attr(not(debug_assertions), allow(unused_mut))]
+    let mut context = tauri::generate_context!();
+    #[cfg(debug_assertions)]
+    if let Some(plan) = &isolation {
+        plan.apply(context.config_mut());
+    }
     // The updater plugin needs its endpoint and public key, which only the release configuration
     // carries. A build without them (`pnpm tauri dev`) skips the plugin and reports updates as
     // unavailable instead of failing to start.
@@ -369,6 +396,17 @@ pub fn run() {
         .build(context)
         .expect("error while building tauri application");
 
+    // The isolation is proven on the built application, before any window exists, any directory is
+    // used or any file is read: a resolved directory that is not the planned one ends the start.
+    #[cfg(debug_assertions)]
+    if let Some(plan) = &isolation
+        && let Err(error) = plan.verify(app.handle())
+    {
+        // No message box: a test run is unattended and a modal dialog would hang it.
+        eprintln!("{}", error.message());
+        std::process::exit(1);
+    }
+
     // Diagnostics first, so the startup warnings below are not dropped: stderr, plus the per-user log
     // file when `JOBNIAC_LOG_FILE` is exactly `1`. The panic hook leaves one fixed line, because a
     // release build aborts on panic under the Windows GUI subsystem.
@@ -391,7 +429,8 @@ pub fn run() {
         |path| path.is_file(),
     ));
     // The settings file lives in the app config directory. A missing or broken file means the
-    // defaults (the MCP server off, every optional feature on); it never blocks startup.
+    // defaults (the MCP server off, the in-app features on, the MCP deletion and link capture off);
+    // it never blocks startup.
     let config_dir = app.path().app_config_dir().ok();
     let settings = config_dir
         .as_deref()
@@ -431,8 +470,15 @@ pub fn run() {
         Ok(arbeitnow) => arbeitnow,
         Err(error) => exit_startup_refused(app.handle(), &error.to_string()),
     };
+    // The supervisor of the MCP child. The environment it is built from has none of the
+    // capabilities that reach the network or delete data: they are grants the user gave in
+    // Settings, held by the supervisor, which only narrows them (see
+    // `DesktopEnvironment::supervisor` and `McpGrants`).
+    let (supervisor, mcp_grants) =
+        desktop.supervisor(Arc::new(ProcessSpawner::beside_current_exe()));
     let feature_states = feature_states(
         &environment,
+        &mcp_grants,
         &settings.features,
         &services,
         job_links.is_some(),
@@ -441,17 +487,14 @@ pub fn run() {
     // The sidecar `jobniac-cli` sits next to this executable; the child gets a filtered copy of the
     // app's environment (see `jobniac_runtime::mcp_server::child_environment`).
     let mcp = Arc::new(
-        McpSupervisor::new(
-            Arc::new(ProcessSpawner::beside_current_exe()),
-            desktop.supervisor_pairs(),
-        )
-        // The child does not inherit HOME or the data directory, so it gets the file this app opened.
-        .with_database_path(
-            services
-                .database
-                .as_ref()
-                .and_then(|pool| pool.path().map(std::path::Path::to_path_buf)),
-        ),
+        supervisor
+            // The child does not inherit HOME or the data directory, so it gets the file this app opened.
+            .with_database_path(
+                services
+                    .database
+                    .as_ref()
+                    .and_then(|pool| pool.path().map(std::path::Path::to_path_buf)),
+            ),
     );
     app.manage(update_commands::UpdateNotice::default());
     app.manage(
@@ -460,6 +503,7 @@ pub fn run() {
             .with_arbeitnow(arbeitnow)
             .with_settings(config_dir, settings)
             .with_feature_states(feature_states)
+            .with_mcp_grants(mcp_grants)
             .with_mcp_supervisor(Arc::clone(&mcp)),
     );
     if settings.mcp.enabled {

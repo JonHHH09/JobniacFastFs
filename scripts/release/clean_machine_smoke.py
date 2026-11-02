@@ -67,13 +67,19 @@ def clean_env() -> dict[str, str]:
 
 
 def smoke_env(work: Path, **extra: str) -> dict[str, str]:
-    """clean_env() plus a database under `work/data`, so a run never writes the per-user default.
+    """clean_env() plus a database and a generated root under `work/data`, so a run never writes
+    the per-user defaults.
 
-    The database stays outside the install directory (the uninstall waits for that directory to be
-    empty) and the path is absolute, as JOBNIAC_DB_PATH requires.
+    The desktop app turns generation on by default and registers the per-user default root
+    (`%LOCALAPPDATA%\\Jobniac\\generated`) at startup; the uninstall keeps it as user data. An
+    explicit root that is not set up only leaves generation off. Both paths stay outside the install
+    directory (the uninstall waits for that directory to be empty) and are absolute, as the
+    variables require.
     """
     env = clean_env()
-    env["JOBNIAC_DB_PATH"] = str(work.resolve() / "data" / "smoke.sqlite3")
+    data = work.resolve() / "data"
+    env["JOBNIAC_DB_PATH"] = str(data / "smoke.sqlite3")
+    env["JOBNIAC_GENERATED_ROOT"] = str(data / "generated")
     env.update(extra)
     return env
 

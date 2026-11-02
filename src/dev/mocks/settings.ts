@@ -11,7 +11,9 @@ const NO_SIDECAR = 9998;
 const state = { enabled: false, port: 8765, status: "stopped" as McpServerStatusDto };
 
 function snapshot(): SettingsDto {
-  return { mcp: { enabled: state.enabled, port: state.port, status: state.status } };
+  return {
+    mcp: { enabled: state.enabled, port: state.port, status: state.status, stopIncomplete: false },
+  };
 }
 
 function start(): void {

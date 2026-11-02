@@ -21,7 +21,9 @@ fn pairs(entries: &[(&str, &str)]) -> Vec<(OsString, OsString)> {
 
 #[tokio::test]
 async fn a_first_run_without_variables_composes_arbeitnow() -> TestResult {
-    let dir = tempfile::tempdir()?;
+    // The home is in canonical form: the default generated root is refused when its text differs
+    // from its final path, which an 8.3 `%TEMP%` on Windows would cause.
+    let dir = jobniac_testkit::scratch::scratch_dir("jobniac-home-")?;
     let database = dir.path().join("jobniac.sqlite3");
     let keys = dir.path().join("data");
     let database_text = database.to_str().ok_or("temporary path is not Unicode")?;
