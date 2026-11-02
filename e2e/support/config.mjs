@@ -3,6 +3,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { isolationEnvironment, writeMarker } from "./isolation.mjs";
 
 export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -68,22 +69,34 @@ export function createRunRoot() {
   const databaseFile = join(root, "jobniac.sqlite3");
   mkdirSync(importRoot);
   const userDirectories = createUserDirectories(root);
+  // The run isolation of the debug build (isolation.mjs): the marker that makes the root valid, and
+  // a temporary directory inside it, so no per-user folder is used on any platform.
+  const tmp = join(root, "tmp");
+  mkdirSync(tmp);
+  writeMarker(root);
   // The generated root must be private, or setup-generated-root refuses it. Linux: owner-only mode
   // bits. Windows ignores the mode, so the folder gets a protected DACL instead.
   mkdirSync(generatedRoot, { mode: 0o700 });
   if (process.platform === "win32") {
     protectWindowsDirectory(generatedRoot);
   }
-  return { root, importRoot, generatedRoot, databaseFile, userDirectories };
+  return {
+    root,
+    importRoot,
+    generatedRoot,
+    databaseFile,
+    userDirectories,
+    isolation: isolationEnvironment(root, tmp),
+  };
 }
 
 /**
  * Redirects the per-user directories of the application (`settings.json` in the config directory,
- * `feature-keys.json` in the local data directory) into the run root, so a run on Linux never
- * reads or writes the developer's real settings. Tauri resolves them through the XDG variables on Linux;
- * Windows uses Known Folder APIs that ignore APPDATA and LOCALAPPDATA, so there is nothing to
- * redirect and the result is empty. XDG_RUNTIME_DIR and HOME stay as they are: WebKitGTK needs
- * them.
+ * `feature-keys.json` in the local data directory) into the run root through the XDG variables on
+ * Linux. Windows has no such variables (Tauri uses Known Folder APIs that ignore APPDATA and
+ * LOCALAPPDATA), so the result is empty there; the debug build redirects the directories itself on
+ * every platform (JOBNIAC_TEST_RUN_ROOT, see isolation.mjs). XDG_RUNTIME_DIR and HOME stay as
+ * they are: WebKitGTK needs them.
  */
 function createUserDirectories(root) {
   if (process.platform !== "linux") {

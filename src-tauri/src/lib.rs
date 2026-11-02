@@ -35,6 +35,9 @@ mod settings_dto;
 mod shell_close_commands;
 mod shell_close_dto;
 mod state;
+// Debug-only run isolation (see the module). A release build has no code and no variable for it.
+#[cfg(debug_assertions)]
+mod test_isolation;
 mod update_commands;
 mod update_dto;
 
@@ -313,7 +316,23 @@ pub fn run() {
     // The packaging smoke quit hook: on only for the exact value `1`.
     let smoke = smoke::enabled(&environment).then(|| Arc::new(SmokeHook::new()));
     let builder = ipc_builder();
-    let context = tauri::generate_context!();
+    // Debug builds only: a test run names a prepared run root and every per-user directory of the
+    // app is redirected into it before the application is built. A named but unusable root ends
+    // the start; nothing falls back to the real folders.
+    #[cfg(debug_assertions)]
+    let isolation = match test_isolation::plan(&environment) {
+        Ok(plan) => plan,
+        Err(error) => {
+            eprintln!("{}", error.message());
+            std::process::exit(1);
+        }
+    };
+    #[cfg_attr(not(debug_assertions), allow(unused_mut))]
+    let mut context = tauri::generate_context!();
+    #[cfg(debug_assertions)]
+    if let Some(plan) = &isolation {
+        plan.apply(context.config_mut());
+    }
     // The updater plugin needs its endpoint and public key, which only the release configuration
     // carries. A build without them (`pnpm tauri dev`) skips the plugin and reports updates as
     // unavailable instead of failing to start.
@@ -376,6 +395,17 @@ pub fn run() {
         })
         .build(context)
         .expect("error while building tauri application");
+
+    // The isolation is proven on the built application, before any window exists, any directory is
+    // used or any file is read: a resolved directory that is not the planned one ends the start.
+    #[cfg(debug_assertions)]
+    if let Some(plan) = &isolation
+        && let Err(error) = plan.verify(app.handle())
+    {
+        // No message box: a test run is unattended and a modal dialog would hang it.
+        eprintln!("{}", error.message());
+        std::process::exit(1);
+    }
 
     // Diagnostics first, so the startup warnings below are not dropped: stderr, plus the per-user log
     // file when `JOBNIAC_LOG_FILE` is exactly `1`. The panic hook leaves one fixed line, because a

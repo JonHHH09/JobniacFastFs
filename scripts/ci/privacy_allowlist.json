@@ -955,6 +955,12 @@
       "classes": ["local-path"],
       "paths": ["src-tauri/src/test_isolation.rs"],
       "reason": "Synthetic Windows and Unix profile paths of a made-up user named 'someone' in a #[cfg(test)] test that checks a path outside the isolation root is refused; no real user or machine. Version from the history (blob d2e2608)."
+    },
+    {
+      "sha256": "4646d808f457c2cc1a6a51a652624657b07525bd7b35fba0ba5573ff1a7a9d73",
+      "classes": ["local-path"],
+      "paths": ["src-tauri/src/test_isolation.rs"],
+      "reason": "Synthetic Windows and Unix profile paths of a made-up user named 'someone' in a #[cfg(test)] test that checks a path outside the isolation root is refused; no real user or machine. Version after the overlap check stopped treating redirected XDG bases as real folders (blob c06f955)."
     }
   ]
 }
