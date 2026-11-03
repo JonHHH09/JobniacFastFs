@@ -1,23 +1,32 @@
-//! The parent side of the PDF worker operations: text extraction and page rendering.
+//! The parent side of the PDF worker operations: text extraction, page rendering and inspection.
 //!
-//! The operations run in the CLI binary re-executed as `__worker pdf-extract` or `__worker
-//! pdf-render`. This module owns everything that does not need PDFium: the request and response
+//! The operations run in the CLI binary re-executed as `__worker pdf-extract`, `__worker
+//! pdf-render` or `__worker pdf-inspect`. This module owns everything that does not need PDFium: the request and response
 //! codecs, the validation order and messages, the text normalization, the canonical view and the
 //! PNG response check. The child side (PDFium) lives in the CLI crate.
 //!
-//! Request body (both operations): one operation byte (`1` extract, `2` render), a big-endian `u16`
-//! length and the absolute PDFium directory in UTF-8, a big-endian `u32` page index (render only),
-//! then the PDF bytes. The PDFium directory is supplied by the caller (the composition root reads
+//! Request body (all operations): one operation byte (`1` extract, `2` render, `3` inspect), a
+//! big-endian `u16` length and the absolute PDFium directory in UTF-8, a big-endian `u32` page
+//! index (render only), then the PDF bytes. The PDFium directory is supplied by the caller (the composition root reads
 //! `JOBNIAC_PDFIUM_DIR`); the child never searches the working directory.
 //!
 //! Extraction response body: the canonical view as JSON (`{"result": {...}}`),
 //! or `{"error": "page_limit"}` when the document has more pages than the limit. Render response
-//! body: three big-endian `u32` (page count, width, height) followed by a PNG.
+//! body: three big-endian `u32` (page count, width, height) followed by a PNG. Inspection response
+//! body: `{"result": {...}}` with `pageCount`, `pages` (`[widthCentipoints, heightCentipoints]`
+//! pairs), `title`, `producer`, `creator` (string or null), `attachments` (objects with `name`,
+//! `byteSize` and `content` as lowercase hexadecimal or null) and `attachmentsTruncated`, or
+//! `{"error": "page_limit"}`.
 
 use std::fmt;
 use std::future::Future;
 use std::path::Path;
 
+use jobniac_core::documents::model::{
+    MAX_ATTACHMENT_BYTES, MAX_ATTACHMENT_TOTAL_BYTES, MAX_INSPECT_ATTACHMENT_NAME_CHARS,
+    MAX_INSPECT_ATTACHMENT_NAMES, MAX_INSPECT_ATTACHMENTS, MAX_INSPECT_METADATA_CHARS,
+    PdfAttachmentInfo, PdfInspection, PdfPageBox,
+};
 use jobniac_text::java::{truncate_utf16, utf16_length};
 use jobniac_text::str_rules::{is_text_whitespace, split_lines, strip_text};
 use serde_json::{Map, Value, json};
@@ -60,6 +69,9 @@ pub const OPERATION_EXTRACT: u8 = 1;
 /// Operation byte of the render request.
 pub const OPERATION_RENDER: u8 = 2;
 
+/// Operation byte of the inspect request.
+pub const OPERATION_INSPECT: u8 = 3;
+
 /// Largest accepted PDFium directory path, in bytes.
 pub const MAX_PDFIUM_DIR_BYTES: usize = 1024;
 
@@ -71,6 +83,10 @@ pub const EXTRACT_FAILURE_MESSAGE: &str = "PDF text could not be extracted";
 
 /// Fixed message of every render failure.
 pub const RENDER_FAILURE_MESSAGE: &str = "Unable to preview this PDF safely.";
+
+/// Fixed message of every inspection failure.
+pub const INSPECT_FAILURE_MESSAGE: &str =
+    jobniac_core::documents::model::INSPECTION_FAILURE_MESSAGE;
 
 /// The PNG signature.
 const PNG_SIGNATURE: [u8; 8] = [0x89, b'P', b'N', b'G', b'\r', b'\n', 0x1A, b'\n'];
@@ -97,6 +113,8 @@ pub enum PdfError {
     Extraction,
     /// Page rendering failed for any reason.
     Render,
+    /// Inspection failed for any reason after validation.
+    Inspection,
     /// The caller cancelled the operation; the worker tree was killed. The operation tells which
     /// fixed message applies.
     Cancelled {
@@ -119,6 +137,10 @@ impl PdfError {
             | Self::Cancelled {
                 operation: PdfOperation::Render,
             } => RENDER_FAILURE_MESSAGE,
+            Self::Inspection
+            | Self::Cancelled {
+                operation: PdfOperation::Inspect,
+            } => INSPECT_FAILURE_MESSAGE,
         }
     }
 }
@@ -138,6 +160,8 @@ pub enum PdfOperation {
     Extract,
     /// Page rendering to PNG.
     Render,
+    /// Page sizes, document info and attachments.
+    Inspect,
 }
 
 /// The validated options of a text extraction.
@@ -434,6 +458,7 @@ pub fn encode_request(
     body.push(match operation {
         PdfOperation::Extract => OPERATION_EXTRACT,
         PdfOperation::Render => OPERATION_RENDER,
+        PdfOperation::Inspect => OPERATION_INSPECT,
     });
     let dir_length = u16::try_from(dir.len()).map_err(|_| PdfError::Render)?;
     body.extend_from_slice(&dir_length.to_be_bytes());
@@ -465,6 +490,7 @@ pub fn decode_request(body: &[u8]) -> Option<DecodedRequest<'_>> {
     let operation = match operation_byte {
         OPERATION_EXTRACT => PdfOperation::Extract,
         OPERATION_RENDER => PdfOperation::Render,
+        OPERATION_INSPECT => PdfOperation::Inspect,
         _ => return None,
     };
     let (length_bytes, rest) = rest.split_at_checked(2)?;
@@ -478,7 +504,7 @@ pub fn decode_request(body: &[u8]) -> Option<DecodedRequest<'_>> {
         return None;
     }
     let (page, content) = match operation {
-        PdfOperation::Extract => (0, rest),
+        PdfOperation::Extract | PdfOperation::Inspect => (0, rest),
         PdfOperation::Render => {
             let (page_bytes, content) = rest.split_at_checked(4)?;
             (
@@ -588,6 +614,273 @@ fn string_field(object: &Map<String, Value>, key: &str) -> Result<String, PdfErr
         .and_then(Value::as_str)
         .map(str::to_owned)
         .ok_or(PdfError::Extraction)
+}
+
+/// The first `limit` characters of `text`.
+fn cap_characters(text: &str, limit: usize) -> String {
+    text.chars().take(limit).collect()
+}
+
+/// Normalizes one document-info string (title, producer, creator): whitespace-normalized like page
+/// text, cut to [`MAX_INSPECT_METADATA_CHARS`] characters, and `None` when nothing is left.
+#[must_use]
+pub fn normalize_metadata_text(raw: &str) -> Option<String> {
+    let capped = cap_characters(&normalize_page_text(raw), MAX_INSPECT_METADATA_CHARS);
+    let text = strip_text(&capped);
+    (!text.is_empty()).then(|| text.to_owned())
+}
+
+/// Sanitizes an attachment name: control characters removed, cut to
+/// [`MAX_INSPECT_ATTACHMENT_NAME_CHARS`] characters.
+#[must_use]
+pub fn sanitize_attachment_name(raw: &str) -> String {
+    raw.chars()
+        .filter(|character| !character.is_control())
+        .take(MAX_INSPECT_ATTACHMENT_NAME_CHARS)
+        .collect()
+}
+
+/// The size of a page in centipoints (points times 100, rounded half away from zero), or `None`
+/// for a width or height that is not finite and positive after rounding. A larger size saturates.
+#[must_use]
+pub fn page_box(width_points: f32, height_points: f32) -> Option<PdfPageBox> {
+    fn centipoints(points: f32) -> Option<u32> {
+        let scaled = (f64::from(points) * 100.0).round();
+        if !(scaled.is_finite() && scaled >= 1.0) {
+            return None;
+        }
+        // The float-to-integer cast saturates at `u32::MAX`.
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+        let value = scaled as u32;
+        Some(value)
+    }
+    Some(PdfPageBox {
+        width_centipoints: centipoints(width_points)?,
+        height_centipoints: centipoints(height_points)?,
+    })
+}
+
+/// How many of `total` attachments are listed, and whether the rest is cut off.
+#[must_use]
+pub fn listed_attachments(total: usize) -> (usize, bool) {
+    (
+        total.min(MAX_INSPECT_ATTACHMENTS),
+        total > MAX_INSPECT_ATTACHMENTS,
+    )
+}
+
+/// Chooses which attachments to list. `total` is the reported attachment count and `names` the
+/// names of the first `min(total, MAX_INSPECT_ATTACHMENT_NAMES)` of them, in document order.
+///
+/// The result is the indexes to list, at most [`MAX_INSPECT_ATTACHMENTS`]: names ending in `.xml`
+/// (case-insensitive, after control characters are removed) first, then the rest, each group in
+/// document order; and whether more attachments existed than are listed. Content is then given in
+/// this order within the budgets, so an early large attachment cannot starve a later XML one.
+#[must_use]
+pub fn select_attachments<S: AsRef<str>>(total: usize, names: &[S]) -> (Vec<usize>, bool) {
+    let is_xml = |name: &S| {
+        sanitize_attachment_name(name.as_ref())
+            .to_ascii_lowercase()
+            .ends_with(".xml")
+    };
+    let considered = names.len().min(MAX_INSPECT_ATTACHMENT_NAMES);
+    let (xml, other): (Vec<usize>, Vec<usize>) =
+        (0..considered).partition(|&index| is_xml(&names[index]));
+    let selected = xml
+        .into_iter()
+        .chain(other)
+        .take(MAX_INSPECT_ATTACHMENTS)
+        .collect();
+    (selected, total > MAX_INSPECT_ATTACHMENTS)
+}
+
+/// Builds the entry of one attachment. `returned_total` is the running size of the content returned
+/// so far; `load` reads the bytes and runs only when the attachment may be returned: it is at most
+/// [`MAX_ATTACHMENT_BYTES`] and the running total stays within [`MAX_ATTACHMENT_TOTAL_BYTES`].
+/// A load that fails or returns another size leaves the content out.
+pub fn attachment_entry(
+    raw_name: &str,
+    byte_size: u64,
+    returned_total: &mut u64,
+    load: impl FnOnce() -> Option<Vec<u8>>,
+) -> PdfAttachmentInfo {
+    let allowed = byte_size <= MAX_ATTACHMENT_BYTES
+        && returned_total.saturating_add(byte_size) <= MAX_ATTACHMENT_TOTAL_BYTES;
+    let content = if allowed {
+        load().filter(|bytes| u64::try_from(bytes.len()).ok() == Some(byte_size))
+    } else {
+        None
+    };
+    if content.is_some() {
+        *returned_total += byte_size;
+    }
+    PdfAttachmentInfo {
+        name: sanitize_attachment_name(raw_name),
+        byte_size,
+        content,
+    }
+}
+
+/// Encodes an inspection as the child's response body.
+#[must_use]
+pub fn encode_inspect_response(inspection: &PdfInspection) -> Vec<u8> {
+    let pages: Vec<Value> = inspection
+        .pages
+        .iter()
+        .map(|page| json!([page.width_centipoints, page.height_centipoints]))
+        .collect();
+    let attachments: Vec<Value> = inspection
+        .attachments
+        .iter()
+        .map(|attachment| {
+            json!({
+                "name": attachment.name,
+                "byteSize": attachment.byte_size,
+                "content": attachment.content.as_deref().map(hex::encode),
+            })
+        })
+        .collect();
+    json!({"result": {
+        "pageCount": inspection.page_count,
+        "pages": pages,
+        "title": inspection.title,
+        "producer": inspection.producer,
+        "creator": inspection.creator,
+        "attachments": attachments,
+        "attachmentsTruncated": inspection.attachments_truncated,
+    }})
+    .to_string()
+    .into_bytes()
+}
+
+/// A normalized document-info string of a response, or `None` for null. Anything the child's own
+/// normalization would have changed is refused.
+fn metadata_field(result: &Map<String, Value>, key: &str) -> Result<Option<String>, PdfError> {
+    match result.get(key) {
+        Some(Value::Null) => Ok(None),
+        Some(Value::String(text)) if normalize_metadata_text(text).as_deref() == Some(text) => {
+            Ok(Some(text.clone()))
+        }
+        _ => Err(PdfError::Inspection),
+    }
+}
+
+/// One attachment of a response, checked against every limit.
+fn decode_attachment(value: &Value) -> Result<PdfAttachmentInfo, PdfError> {
+    let object = value.as_object().ok_or(PdfError::Inspection)?;
+    let name = object
+        .get("name")
+        .and_then(Value::as_str)
+        .filter(|name| sanitize_attachment_name(name) == *name)
+        .ok_or(PdfError::Inspection)?;
+    let byte_size = object
+        .get("byteSize")
+        .and_then(Value::as_u64)
+        .ok_or(PdfError::Inspection)?;
+    let content = match object.get("content") {
+        Some(Value::Null) => None,
+        Some(Value::String(text)) => {
+            if byte_size > MAX_ATTACHMENT_BYTES {
+                return Err(PdfError::Inspection);
+            }
+            let bytes = hex::decode(text).map_err(|_| PdfError::Inspection)?;
+            if u64::try_from(bytes.len()).ok() != Some(byte_size) {
+                return Err(PdfError::Inspection);
+            }
+            Some(bytes)
+        }
+        _ => return Err(PdfError::Inspection),
+    };
+    Ok(PdfAttachmentInfo {
+        name: name.to_owned(),
+        byte_size,
+        content,
+    })
+}
+
+/// Decodes and validates the child's inspection response body. The child is untrusted: every
+/// field and limit is checked here.
+///
+/// # Errors
+///
+/// Returns [`PdfError::PageLimit`] for the page-limit response, and [`PdfError::Inspection`] for a
+/// malformed body, a page list that disagrees with the page count, a page size that is zero, more
+/// than [`MAX_INSPECT_ATTACHMENTS`] attachments, a truncation flag that disagrees with the list,
+/// an over-long or non-normalized string, or content over a size limit.
+pub fn decode_inspect_response(body: &[u8]) -> Result<PdfInspection, PdfError> {
+    let value: Value = serde_json::from_slice(body).map_err(|_| PdfError::Inspection)?;
+    if value.get("error").and_then(Value::as_str) == Some("page_limit") {
+        return Err(PdfError::PageLimit);
+    }
+    let result = value
+        .get("result")
+        .and_then(Value::as_object)
+        .ok_or(PdfError::Inspection)?;
+    let page_count = result
+        .get("pageCount")
+        .and_then(Value::as_u64)
+        .and_then(|value| u32::try_from(value).ok())
+        .filter(|count| (1..=MAX_PAGE_COUNT).contains(count))
+        .ok_or(PdfError::Inspection)?;
+    let pages = result
+        .get("pages")
+        .and_then(Value::as_array)
+        .ok_or(PdfError::Inspection)?
+        .iter()
+        .map(|page| {
+            let pair = page
+                .as_array()
+                .filter(|pair| pair.len() == 2)
+                .ok_or(PdfError::Inspection)?;
+            let side = |index: usize| {
+                pair[index]
+                    .as_u64()
+                    .and_then(|value| u32::try_from(value).ok())
+                    .filter(|value| *value > 0)
+                    .ok_or(PdfError::Inspection)
+            };
+            Ok(PdfPageBox {
+                width_centipoints: side(0)?,
+                height_centipoints: side(1)?,
+            })
+        })
+        .collect::<Result<Vec<_>, PdfError>>()?;
+    if u32::try_from(pages.len()).ok() != Some(page_count) {
+        return Err(PdfError::Inspection);
+    }
+    let listed = result
+        .get("attachments")
+        .and_then(Value::as_array)
+        .filter(|listed| listed.len() <= MAX_INSPECT_ATTACHMENTS)
+        .ok_or(PdfError::Inspection)?;
+    let attachments = listed
+        .iter()
+        .map(decode_attachment)
+        .collect::<Result<Vec<_>, PdfError>>()?;
+    let returned: u64 = attachments
+        .iter()
+        .filter_map(|attachment| attachment.content.as_ref())
+        .map(|content| u64::try_from(content.len()).unwrap_or(u64::MAX))
+        .fold(0, u64::saturating_add);
+    if returned > MAX_ATTACHMENT_TOTAL_BYTES {
+        return Err(PdfError::Inspection);
+    }
+    let attachments_truncated = result
+        .get("attachmentsTruncated")
+        .and_then(Value::as_bool)
+        .ok_or(PdfError::Inspection)?;
+    if attachments_truncated && attachments.len() != MAX_INSPECT_ATTACHMENTS {
+        return Err(PdfError::Inspection);
+    }
+    Ok(PdfInspection {
+        page_count,
+        pages,
+        title: metadata_field(result, "title")?,
+        producer: metadata_field(result, "producer")?,
+        creator: metadata_field(result, "creator")?,
+        attachments,
+        attachments_truncated,
+    })
 }
 
 /// Checks a render response body and splits it into its parts.
@@ -700,6 +993,30 @@ pub async fn render_page<C: Future<Output = ()>>(
         return Err(PdfError::Render);
     }
     Ok(rendered)
+}
+
+/// Inspects a PDF through the `pdf-inspect` worker: page sizes, document info and attachments.
+///
+/// The content is checked against the import limit and the `%PDF-` header first. Any worker failure
+/// is the fixed inspection failure; a document over the page limit is [`PdfError::PageLimit`].
+///
+/// # Errors
+///
+/// Returns a [`PdfError`] for validation, page-limit, inspection and cancellation outcomes.
+pub async fn inspect_pdf<C: Future<Output = ()>>(
+    supervisor: &WorkerSupervisor,
+    pdfium_dir: &Path,
+    content: &[u8],
+    cancel: C,
+) -> Result<PdfInspection, PdfError> {
+    validate_pdf_content(content, MAX_FILE_BYTES)?;
+    let body = encode_request(PdfOperation::Inspect, pdfium_dir, 0, content)
+        .map_err(|_| PdfError::Inspection)?;
+    let response = supervisor
+        .run(WorkerKind::PdfInspect, &body, cancel)
+        .await
+        .map_err(|error| map_worker_error(error, PdfOperation::Inspect, PdfError::Inspection))?;
+    decode_inspect_response(&response)
 }
 
 #[cfg(test)]

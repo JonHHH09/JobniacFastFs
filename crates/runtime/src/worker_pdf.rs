@@ -1,10 +1,11 @@
 //! The child side of the PDF worker operations.
 //!
-//! Runs inside the `__worker pdf-extract` and `__worker pdf-render` children only. PDFium is bound
+//! Runs inside the `__worker pdf-extract`, `__worker pdf-render` and `__worker pdf-inspect`
+//! children only. PDFium is bound
 //! from the absolute directory named in the request, never from the working directory. Every
 //! failure returns a [`WorkerFault`], which the child turns into exit status 1 without diagnostics.
 //!
-//! Both operations (text extraction and page rendering) use PDFium.
+//! All operations (text extraction, page rendering and inspection) use PDFium.
 
 use std::io::Write;
 use std::path::Path;
@@ -12,13 +13,15 @@ use std::path::Path;
 use image::ExtendedColorType;
 use image::ImageEncoder;
 use image::codecs::png::{CompressionType, FilterType, PngEncoder};
+use jobniac_core::documents::model::{MAX_INSPECT_ATTACHMENT_NAMES, PdfInspection, PdfPageBox};
 use jobniac_infra::workers::WorkerFault;
 use jobniac_infra::workers::child::write_response;
 use jobniac_infra::workers::pdf::{
     DecodedRequest, MAX_CHARACTERS_LIMIT, MAX_FILE_BYTES, MAX_PAGE_COUNT, MAX_PREVIEW_PDF_BYTES,
-    PdfOperation, canonical_extraction, decode_render_response, decode_request,
-    encode_extract_response, encode_page_limit_response, extraction_view, has_strict_structure,
-    normalize_page_text, render_size, validate_pdf_content,
+    PdfOperation, attachment_entry, canonical_extraction, decode_inspect_response,
+    decode_render_response, decode_request, encode_extract_response, encode_inspect_response,
+    encode_page_limit_response, extraction_view, has_strict_structure, normalize_metadata_text,
+    normalize_page_text, page_box, render_size, select_attachments, validate_pdf_content,
 };
 use jobniac_infra::workers::sandbox::{self, SandboxProfile};
 use pdfium_render::prelude::*;
@@ -89,6 +92,85 @@ pub fn extract(request: &[u8], output: &mut dyn Write) -> Result<(), WorkerFault
     let canonical = canonical_extraction(texts);
     let view = extraction_view(&canonical, MAX_CHARACTERS_LIMIT, true);
     write_response(output, &encode_extract_response(&view))
+}
+
+/// Inspection operation (`pdf-inspect`): writes the page sizes, the document-info strings and the
+/// attachments as the response.
+///
+/// It runs the same checks as [`extract`] under the same confinement. Attachment bytes are read
+/// only for the attachments that may be returned. PDFium decodes an attachment's whole stream to
+/// size it (`PdfAttachment::len`), so a decompression-bomb attachment exhausts the worker limits
+/// and the whole inspection fails closed; the binding exposes no cheaper declared size. A document with more than 200 pages gets the
+/// page-limit response.
+///
+/// # Errors
+///
+/// Returns [`WorkerFault`] for a malformed request, a page with a degenerate size, a PDFium failure
+/// or a failed write.
+pub fn inspect(request: &[u8], output: &mut dyn Write) -> Result<(), WorkerFault> {
+    let decoded = parse(request, PdfOperation::Inspect)?;
+    // Confine first: only the framing and the header decode ran before this point.
+    let pdfium = bind(decoded.pdfium_dir, SandboxProfile::PdfExtract)?;
+    validate_pdf_content(decoded.content, MAX_FILE_BYTES).map_err(|_| WorkerFault)?;
+    if !has_strict_structure(decoded.content) {
+        return Err(WorkerFault);
+    }
+    let document = pdfium
+        .load_pdf_from_byte_slice(decoded.content, None)
+        .map_err(|_| WorkerFault)?;
+    refuse_encrypted(&document)?;
+    let pages = document.pages();
+    if pages.len() > MAX_PAGE_COUNT as i32 {
+        return write_response(output, &encode_page_limit_response());
+    }
+    let mut boxes: Vec<PdfPageBox> = Vec::new();
+    for page in pages.iter() {
+        boxes.push(page_box(page.width().value, page.height().value).ok_or(WorkerFault)?);
+    }
+    let metadata = document.metadata();
+    let info = |tag| {
+        metadata
+            .get(tag)
+            .and_then(|entry| normalize_metadata_text(entry.value()))
+    };
+    let attachments = document.attachments();
+    // Names first: reading a name does not decode the stream. The count is the binding's 16-bit
+    // value, so 65,536 or more attachments may wrap it (the binding exposes no raw count).
+    let total = usize::from(attachments.len());
+    let mut names = Vec::new();
+    for index in 0..total.min(MAX_INSPECT_ATTACHMENT_NAMES) {
+        let handle = attachments
+            .get(u16::try_from(index).map_err(|_| WorkerFault)?)
+            .map_err(|_| WorkerFault)?;
+        names.push(handle.name());
+    }
+    let (order, attachments_truncated) = select_attachments(total, &names);
+    let mut returned_total = 0_u64;
+    let mut entries = Vec::new();
+    for index in order {
+        let attachment = attachments
+            .get(u16::try_from(index).map_err(|_| WorkerFault)?)
+            .map_err(|_| WorkerFault)?;
+        let byte_size = u64::try_from(attachment.len()).map_err(|_| WorkerFault)?;
+        entries.push(attachment_entry(
+            &attachment.name(),
+            byte_size,
+            &mut returned_total,
+            || attachment.save_to_bytes().ok(),
+        ));
+    }
+    let inspection = PdfInspection {
+        page_count: u32::try_from(boxes.len()).map_err(|_| WorkerFault)?,
+        pages: boxes,
+        title: info(PdfDocumentMetadataTagType::Title),
+        producer: info(PdfDocumentMetadataTagType::Producer),
+        creator: info(PdfDocumentMetadataTagType::Creator),
+        attachments: entries,
+        attachments_truncated,
+    };
+    let body = encode_inspect_response(&inspection);
+    decode_inspect_response(&body).map_err(|_| WorkerFault)?;
+    write_response(output, &body)
 }
 
 /// Page rendering operation (`pdf-render`): writes the 12-byte header and the PNG.

@@ -31,6 +31,21 @@ pub const PAGE_VALIDATION_MESSAGE: &str = "Invalid PDF page request";
 /// The fixed message of a page render that fails for any reason.
 pub const RENDER_FAILURE_MESSAGE: &str = "Unable to preview this PDF safely.";
 
+/// The fixed message of an inspection that fails for any reason.
+pub const INSPECTION_FAILURE_MESSAGE: &str = "PDF could not be inspected";
+/// The most attachments an inspection lists; more are flagged as truncated.
+pub const MAX_INSPECT_ATTACHMENTS: usize = 16;
+/// The most attachment names an inspection reads to choose which attachments to list.
+pub const MAX_INSPECT_ATTACHMENT_NAMES: usize = 256;
+/// The largest attachment whose bytes an inspection returns, in bytes (1 MiB).
+pub const MAX_ATTACHMENT_BYTES: u64 = 1024 * 1024;
+/// The most attachment bytes one inspection returns in total, in bytes (4 MiB).
+pub const MAX_ATTACHMENT_TOTAL_BYTES: u64 = 4 * 1024 * 1024;
+/// The longest document-info string an inspection returns, in characters.
+pub const MAX_INSPECT_METADATA_CHARS: usize = 512;
+/// The longest attachment name an inspection returns, in characters.
+pub const MAX_INSPECT_ATTACHMENT_NAME_CHARS: usize = 255;
+
 /// Immutable bytes read from one securely opened local source.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FileSnapshot {
@@ -84,6 +99,48 @@ pub struct PdfText {
     pub text: String,
     /// The per-page text in page order, bounded by the budget when pages are included.
     pub pages: Vec<PageText>,
+}
+
+/// The size of one page: points times 100, rounded half away from zero, so that the value is an
+/// exact integer on every platform.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PdfPageBox {
+    /// The page width in hundredths of a point.
+    pub width_centipoints: u32,
+    /// The page height in hundredths of a point.
+    pub height_centipoints: u32,
+}
+
+/// One embedded file (attachment) of a PDF.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PdfAttachmentInfo {
+    /// The attachment name, without control characters, at most
+    /// [`MAX_INSPECT_ATTACHMENT_NAME_CHARS`] characters.
+    pub name: String,
+    /// The size of the attachment in bytes.
+    pub byte_size: u64,
+    /// The bytes, only when the attachment is at most [`MAX_ATTACHMENT_BYTES`] and the running total
+    /// stays within [`MAX_ATTACHMENT_TOTAL_BYTES`].
+    pub content: Option<Vec<u8>>,
+}
+
+/// The read-only inspection of a PDF: page sizes, document-info strings and attachments.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PdfInspection {
+    /// The number of pages of the document.
+    pub page_count: u32,
+    /// The size of every page, in document order.
+    pub pages: Vec<PdfPageBox>,
+    /// The document title, normalized, when present.
+    pub title: Option<String>,
+    /// The producer, normalized, when present.
+    pub producer: Option<String>,
+    /// The creator, normalized, when present.
+    pub creator: Option<String>,
+    /// The first [`MAX_INSPECT_ATTACHMENTS`] attachments in PDFium enumeration order.
+    pub attachments: Vec<PdfAttachmentInfo>,
+    /// Whether the document has more attachments than were listed.
+    pub attachments_truncated: bool,
 }
 
 /// The durable canonical extraction of a stored document.
