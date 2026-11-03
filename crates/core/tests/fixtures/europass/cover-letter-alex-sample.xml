@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SkillsPassport locale="en" xsi:schemaLocation="http://europass.cedefop.europa.eu/Europass http://europass.cedefop.europa.eu/xml/v3.4.0/EuropassSchema.xsd" xmlns="http://europass.cedefop.europa.eu/Europass" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <DocumentInfo>
+        <DocumentType>ECL</DocumentType>
+        <CreationDate>2026-11-03T17:00:00.000Z</CreationDate>
+        <LastUpdateDate>2026-11-03T17:00:00.000Z</LastUpdateDate>
+        <XSDVersion>V3.4</XSDVersion>
+        <Generator>EUROPASS2</Generator>
+    </DocumentInfo>
+    <LearnerInfo>
+        <Identification>
+            <PersonName>
+                <FirstName>Alex</FirstName>
+                <Surname>Sample</Surname>
+            </PersonName>
+            <ContactInfo>
+                <Address>
+                    <Contact>
+                        <AddressLine>42 Example Street</AddressLine>
+                        <AddressLine2>Apartment 3B</AddressLine2>
+                        <PostalCode>10001</PostalCode>
+                        <Municipality>Testville</Municipality>
+                        <Country>
+                            <Code>US</Code>
+                            <Label>United States</Label>
+                        </Country>
+                    </Contact>
+                </Address>
+                <Email>
+                    <Contact>alex.sample@example.com</Contact>
+                </Email>
+                <TelephoneList>
+                    <Telephone>
+                        <Contact>+12025550147</Contact>
+                        <Use>
+                            <Code>mobile</Code>
+                        </Use>
+                    </Telephone>
+                </TelephoneList>
+            </ContactInfo>
+        </Identification>
+    </LearnerInfo>
+    <CoverLetter>
+        <Addressee>
+            <PersonName>
+                <FirstName>Morgan</FirstName>
+                <Surname>Example</Surname>
+            </PersonName>
+            <Organisation xsi:type="EmployerType">
+                <Name>Demo Systems Ltd (fictional)</Name>
+                <ContactInfo>
+                    <Address>
+                        <Contact>
+                            <AddressLine>99 Mock Avenue</AddressLine>
+                            <AddressLine2></AddressLine2>
+                            <PostalCode>10002</PostalCode>
+                            <Municipality>Testville</Municipality>
+                            <Country>
+                                <Code>US</Code>
+                                <Label>United States</Label>
+                            </Country>
+                        </Contact>
+                    </Address>
+                </ContactInfo>
+            </Organisation>
+        </Addressee>
+        <Letter>
+            <Localisation>
+                <Date day="---03" month="--11" year="2026"/>
+                <Place>
+                    <Municipality>Testville</Municipality>
+                </Place>
+            </Localisation>
+            <SubjectLine>TEST SAMPLE - Software QA Engineer (QA-TEST-001)</SubjectLine>
+            <OpeningSalutation>
+                <Salutation>
+                    <Label>Dear</Label>
+                </Salutation>
+                <PersonName>
+                    <Surname>Morgan Example</Surname>
+                </PersonName>
+            </OpeningSalutation>
+            <Body>
+                <MainBody>&lt;p&gt;TEST SAMPLE — FICTIONAL DATA. This document was created solely for JobniacFastFS field-recognition testing. All people, employers, education details and application circumstances are invented. This is not a real job application.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;I am applying for the sample Software QA Engineer position, reference QA-TEST-001, at Demo Systems Ltd. My fictional background combines automated web testing, API validation and structured defect reporting.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;At Example Software Laboratory, I develop Playwright regression tests, validate REST endpoints and check SQL data consistency using synthetic records. Previously, as a Junior Software Tester at Sandbox Applications Studio, I executed manual test cases and maintained reproducible test fixtures.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;I hold a sample Bachelor of Science in Computer Science from Fictional Technical University. My technical skills include Python, SQL, Playwright and Git. I would bring a careful, systematic approach to testing and clear documentation of expected and actual results.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Thank you for reviewing this test specimen. The accompanying mock Europass CV contains matching sample identity, contact, education and employment fields for automated comparison.&lt;/p&gt;</MainBody>
+            </Body>
+            <ClosingSalutation>
+                <Label>Kind regards</Label>
+            </ClosingSalutation>
+        </Letter>
+        <Design>
+            <Template>Template1</Template>
+            <Color>Default</Color>
+            <FontSize>Medium</FontSize>
+            <PageNumbers>true</PageNumbers>
+        </Design>
+    </CoverLetter>
+</SkillsPassport>

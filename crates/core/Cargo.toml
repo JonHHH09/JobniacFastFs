@@ -19,6 +19,7 @@ jobniac-pdf.workspace = true
 jobniac-text.workspace = true
 md-5.workspace = true
 regex = "1.13.1"
+roxmltree.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 sha2.workspace = true

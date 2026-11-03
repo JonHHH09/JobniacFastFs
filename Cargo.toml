@@ -44,6 +44,9 @@ rustix = { version = "=1.1.5", features = ["fs", "process"] }
 lopdf = "=0.46.0"
 # Deterministic PDF writer for generated resumes and cover letters.
 pdf-writer = "=0.15.0"
+# Safe XML tree parser for the Europass attachments of imported PDFs (jobniac-core). Pinned exactly:
+# DTDs stay disallowed and the node limit is part of the untrusted-input contract.
+roxmltree = "=0.21.2"
 # Embedded SQLite for the local database (jobniac-infra). `bundled` compiles SQLite in (no system
 # library, same engine on Windows and Linux). Pinned exactly: the bundled SQLite version is part of
 # the storage contract (STRICT tables, minimum-version check in the health probe).
