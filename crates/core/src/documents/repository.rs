@@ -6,6 +6,7 @@
 //! * [`DocumentFileReader`]: reads one file from the configured import root. Refusals come back as
 //!   validation errors whose `reason` detail is the caller-visible text.
 //! * [`PdfExtractor`]: the canonical extraction of PDF bytes. The PDF worker client implements it.
+//! * [`PdfInspector`]: the page sizes, document info and attachments of PDF bytes.
 
 use async_trait::async_trait;
 use uuid::Uuid;
@@ -14,7 +15,7 @@ use crate::errors::AppError;
 use crate::pagination::{Page, PageRequest};
 
 use super::list::DocumentSummary;
-use super::model::{DocumentMetadata, ExtractionRecord, FileSnapshot, PdfText};
+use super::model::{DocumentMetadata, ExtractionRecord, FileSnapshot, PdfInspection, PdfText};
 
 /// Persistence port of stored documents and extraction records.
 #[async_trait]
@@ -101,6 +102,27 @@ pub trait PdfExtractor: Send + Sync + std::fmt::Debug {
     ///
     /// A validation error for an invalid or over-long document, or an extraction failure.
     async fn extract(&self, content: &[u8], file_name: &str) -> Result<PdfText, AppError>;
+}
+
+/// Inspects PDF bytes: page sizes, document-info strings and embedded files (the `pdf-inspect`
+/// operation of the PDF worker). Nothing is persisted.
+#[async_trait]
+pub trait PdfInspector: Send + Sync + std::fmt::Debug {
+    /// Inspects `content`, which the caller has already checked for size and the PDF header.
+    ///
+    /// Attachments are listed with `.xml` names first, then in document order. PDFium decodes an
+    /// attachment's whole stream to size it and again to read it, and the pdfium-render binding
+    /// exposes no cheaper declared size. A decompression-bomb attachment therefore exhausts the
+    /// worker limits (memory, CPU, wall time) and the whole inspection fails closed with the fixed
+    /// inspection failure; no partial result is returned. The attachment count is reported through
+    /// a 16-bit value by the binding, so a document with 65,536 or more attachments may report a
+    /// wrapped count.
+    ///
+    /// # Errors
+    ///
+    /// A validation error for an invalid, encrypted or over-long document, or the fixed inspection
+    /// failure for any other outcome (including cancellation).
+    async fn inspect(&self, content: &[u8]) -> Result<PdfInspection, AppError>;
 }
 
 /// One page rendered to PNG by the PDF worker.

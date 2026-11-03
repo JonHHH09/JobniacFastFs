@@ -67,6 +67,8 @@ pub enum WorkerKind {
     PdfExtract,
     /// PDF page rendering to PNG: 1 GiB address space, 10 CPU seconds, 15 s wall, 1600 px pages.
     PdfRender,
+    /// PDF inspection (page sizes, document info, attachments): the limits of text extraction.
+    PdfInspect,
     /// Test-only probe whose operations deliberately exceed each limit. It is compiled in but
     /// refused unless the internal marker is set.
     Probe,
@@ -78,9 +80,10 @@ pub enum WorkerKind {
 
 impl WorkerKind {
     /// Every worker kind.
-    pub const ALL: [Self; 5] = [
+    pub const ALL: [Self; 6] = [
         Self::PdfExtract,
         Self::PdfRender,
+        Self::PdfInspect,
         Self::Probe,
         Self::FetchLink,
         Self::FetchArbeitnow,
@@ -92,6 +95,7 @@ impl WorkerKind {
         match self {
             Self::PdfExtract => "pdf-extract",
             Self::PdfRender => "pdf-render",
+            Self::PdfInspect => "pdf-inspect",
             Self::Probe => "probe",
             Self::FetchLink => "fetch-link",
             Self::FetchArbeitnow => "fetch-arbeitnow",
@@ -108,7 +112,7 @@ impl WorkerKind {
     #[must_use]
     pub const fn limits(self) -> WorkerLimits {
         match self {
-            Self::PdfExtract => WorkerLimits {
+            Self::PdfExtract | Self::PdfInspect => WorkerLimits {
                 memory_bytes: 512 * MIB,
                 cpu_seconds: 10,
                 wall: Duration::from_secs(15),
@@ -156,7 +160,7 @@ impl WorkerKind {
     #[must_use]
     pub const fn request_limit(self) -> usize {
         match self {
-            Self::PdfExtract => EXTRACT_REQUEST_BYTES,
+            Self::PdfExtract | Self::PdfInspect => EXTRACT_REQUEST_BYTES,
             Self::PdfRender => 2 * 1024 * 1024,
             Self::Probe => 64 * 1024,
             // The URL (8192 bytes at most) and the link fetch request has no other fields.
@@ -173,7 +177,8 @@ impl WorkerKind {
     #[must_use]
     pub const fn sandbox_profile(self) -> Option<SandboxProfile> {
         match self {
-            Self::PdfExtract => Some(SandboxProfile::PdfExtract),
+            // Inspection reads the same untrusted document as extraction and needs nothing more.
+            Self::PdfExtract | Self::PdfInspect => Some(SandboxProfile::PdfExtract),
             Self::PdfRender => Some(SandboxProfile::PdfRender),
             Self::FetchLink | Self::FetchArbeitnow => Some(SandboxProfile::Fetch),
             Self::Probe => None,
@@ -186,6 +191,7 @@ impl WorkerKind {
         match self {
             Self::PdfExtract
             | Self::PdfRender
+            | Self::PdfInspect
             | Self::Probe
             | Self::FetchLink
             | Self::FetchArbeitnow => 2,
@@ -205,7 +211,7 @@ impl WorkerKind {
             Self::Probe => Some(probe::handle),
             Self::FetchLink => Some(fetch::link::handle),
             Self::FetchArbeitnow => Some(fetch::board::handle),
-            Self::PdfExtract | Self::PdfRender => None,
+            Self::PdfExtract | Self::PdfRender | Self::PdfInspect => None,
         }
     }
 }

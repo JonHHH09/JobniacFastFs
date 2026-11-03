@@ -16,15 +16,16 @@ use crate::errors::{AppError, ApplicationError, ErrorCode, not_found, validation
 use crate::profiles::repository::{READ_ONLY, READ_WRITE, UnitOfWork};
 
 use super::model::{
-    DocumentMetadata, ExtractionRecord, INTEGRITY_MESSAGE, MISSING_DOCUMENT_MESSAGE,
-    PDF_MEDIA_TYPE, PdfText, StoredExtraction,
+    DocumentMetadata, ExtractionRecord, INSPECTION_FAILURE_MESSAGE, INTEGRITY_MESSAGE,
+    MISSING_DOCUMENT_MESSAGE, PDF_MEDIA_TYPE, PdfInspection, PdfText, StoredExtraction,
 };
 use super::model::{
     EXTRACTION_VALIDATION_MESSAGE, MAX_PAGE_COUNT, PAGE_VALIDATION_MESSAGE, RENDER_FAILURE_MESSAGE,
     STORAGE_VALIDATION_MESSAGE,
 };
 use super::repository::{
-    DocumentFileReader, DocumentRepository, PdfExtractor, PdfRenderer, RenderedPdfPage,
+    DocumentFileReader, DocumentRepository, PdfExtractor, PdfInspector, PdfRenderer,
+    RenderedPdfPage,
 };
 use super::view::{
     document_id_text, document_id_value, document_validation, extraction_options, extraction_view,
@@ -63,6 +64,7 @@ pub struct DocumentService<U, R> {
     reader: Arc<dyn DocumentFileReader>,
     extractor: Arc<dyn PdfExtractor>,
     renderer: Option<Arc<dyn PdfRenderer>>,
+    inspector: Option<Arc<dyn PdfInspector>>,
     clock: Arc<dyn Clock>,
     hasher: Arc<dyn ContentHasher>,
 }
@@ -87,6 +89,7 @@ where
             reader,
             extractor,
             renderer: None,
+            inspector: None,
             clock,
             hasher: Arc::new(InlineHasher),
         }
@@ -105,6 +108,14 @@ where
     #[must_use]
     pub fn with_renderer(mut self, renderer: Arc<dyn PdfRenderer>) -> Self {
         self.renderer = Some(renderer);
+        self
+    }
+
+    /// Adds the PDF inspector that [`Self::inspect_stored_pdf`] uses. Without one, every inspection
+    /// is an inspection failure.
+    #[must_use]
+    pub fn with_inspector(mut self, inspector: Arc<dyn PdfInspector>) -> Self {
+        self.inspector = Some(inspector);
         self
     }
 
@@ -315,6 +326,45 @@ where
         })
     }
 
+    /// Inspects a stored document: page sizes, document-info strings and attachments. Nothing is
+    /// persisted.
+    ///
+    /// The bytes are verified against their declared size and SHA-256 and checked as for text
+    /// extraction before the inspector sees them.
+    ///
+    /// # Errors
+    ///
+    /// Storage validation errors, `not_found`, the internal integrity error, or the inspector's
+    /// failure (also when no inspector is set).
+    pub async fn inspect_stored_pdf(&self, document_id: &str) -> Result<PdfInspection, AppError> {
+        let document_id = document_id_text(document_id)?;
+        let inspector = self.inspector.as_ref().ok_or_else(inspection_failure)?;
+        let found = self
+            .uow
+            .transaction(READ_ONLY, async |tx| {
+                self.repo.find_content(tx, document_id).await
+            })
+            .await?;
+        let (metadata, content) = found.ok_or_else(|| missing(document_id))?;
+        let metadata = safe_metadata(metadata);
+        if metadata.media_type != PDF_MEDIA_TYPE {
+            return Err(document_validation(
+                STORAGE_VALIDATION_MESSAGE,
+                "documentId",
+                "stored document must have media type application/pdf",
+            ));
+        }
+        let size_matches = i64::try_from(content.len()).ok() == Some(metadata.byte_size);
+        if !size_matches || self.hasher.sha256_hex(&content) != metadata.sha256 {
+            return Err(AppError::from(ApplicationError::with_message(
+                ErrorCode::InternalError,
+                INTEGRITY_MESSAGE,
+            )));
+        }
+        validate_pdf_content(&content, false)?;
+        inspector.inspect(&content).await
+    }
+
     /// Renders one page of a stored PDF to PNG (page-image viewer).
     ///
     /// The index is refused before the document is read when it is not below [`MAX_PAGE_COUNT`].
@@ -439,6 +489,15 @@ fn stored_base_name(file_name: &str) -> String {
         base if base == "." || base == ".." => safe_basename(""),
         base => base,
     }
+}
+
+/// The failure of an inspection that cannot run (the fixed message, on the `documentId` field).
+fn inspection_failure() -> AppError {
+    AppError::from(validation_error(
+        INSPECTION_FAILURE_MESSAGE,
+        Some("documentId"),
+        Some(INSPECTION_FAILURE_MESSAGE),
+    ))
 }
 
 /// The render failure of a page that cannot be shown (the fixed preview message).
