@@ -1,10 +1,10 @@
 # AGENTS.md
 
-This file provides guidance to Codex (claude.ai/code) when working with code in this repository.
+This file provides guidance to Codex when working with code in this repository.
 
 ## Project
 
-JobniacFast is a Tauri 2 desktop app (Rust core + React 19 / TypeScript / Vite UI) and MCP server over PostgreSQL 18, for managing candidate profiles and job postings, matching them, and generating resume and cover-letter PDFs. Correctness is proven by golden vectors, MCP wire snapshots and PostgreSQL integration tests, never by unit tests alone. MIT-licensed open source: no personal data, secrets, local paths or machine names in tracked files; fixtures are synthetic.
+JobniacFast is a Tauri 2 desktop app (Rust core + React 19 / TypeScript / Vite UI) and MCP server over an embedded SQLite database, for managing candidate profiles and job postings, matching them, and generating resume and cover-letter PDFs. Correctness is proven by golden vectors, MCP wire snapshots and SQLite integration tests, never by unit tests alone. MIT-licensed open source: no personal data, secrets, local paths or machine names in tracked files; fixtures are synthetic.
 
 ## Project rules
 
@@ -34,9 +34,9 @@ Layout (the Cargo workspace members are under `crates/`):
 - `src-tauri/tauri.conf.json`: window config, dev/build hooks, `frontendDist` is `../dist`. CSP is currently `null`.
 - `src-tauri/capabilities/default.json`: Tauri permission set; any new plugin or core API the frontend uses must be granted here.
 
-## Tauri docs plugin
+## Tauri docs skills
 
-`.Codex/skills/tauri-dev/` is a project plugin (loads as `tauri-dev@skills-dir` once the workspace is trusted) with 8 skills: `tauri-architecture`, `tauri-ipc`, `tauri-security`, `tauri-develop`, `tauri-testing`, `tauri-plugin-development`, `tauri-official-plugins`, `tauri-distribute`. Each skill's `references/` holds local Markdown copies of the official v2.tauri.app docs pages (plus each official plugin's generated permission table). Base Tauri work on those references rather than on memory.
+When present, `.agents/skills/tauri-dev/skills/` holds 8 local skills: `tauri-architecture`, `tauri-ipc`, `tauri-security`, `tauri-develop`, `tauri-testing`, `tauri-plugin-development`, `tauri-official-plugins`, `tauri-distribute`. Each skill's `references/` holds local Markdown copies of the official v2.tauri.app docs pages (plus each official plugin's generated permission table). Base Tauri work on those references rather than on memory.
 
-- Refresh the references: `py -I .Codex/skills/tauri-dev/scripts/sync_docs.py` (clones tauri-docs and plugins-workspace, rewrites every `references/`, leaves `SKILL.md` alone). Review the `references/` diff afterwards and update affected `SKILL.md` rules by hand.
-- Don't hand-edit files in `references/`; the next sync overwrites them.
+- The skills are kept per machine and are not part of the repository (`.agents/` is ignored).
+- Don't hand-edit files in `references/`; they are regenerated from the official docs.
