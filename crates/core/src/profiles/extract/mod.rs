@@ -6,9 +6,12 @@
 //!
 //! The regular expressions and the string
 //! rules are in [`pattern`] and [`text`]; the section split is in [`sections`]; the link,
-//! phrase and entry builders are in [`entries`].
+//! phrase and entry builders are in [`entries`]. The line model, reading order, locale rules,
+//! line features and synthetic corpus that a later line-role classifier will use are in [`lines`];
+//! nothing here calls them yet.
 
 mod entries;
+pub mod lines;
 mod pattern;
 mod sections;
 mod text;

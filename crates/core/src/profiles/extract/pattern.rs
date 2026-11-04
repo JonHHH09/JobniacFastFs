@@ -69,7 +69,7 @@ fn ws() -> String {
 
 /// Compiles a fixed pattern. The patterns are constants that the unit tests compile, so a failure
 /// is a programming error reported with the pattern name.
-fn compile(name: &str, source: &str) -> Regex {
+pub(super) fn compile(name: &str, source: &str) -> Regex {
     Regex::new(source).unwrap_or_else(|error| panic!("profile extraction pattern {name}: {error}"))
 }
 
