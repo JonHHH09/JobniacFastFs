@@ -10,8 +10,6 @@ use std::time::Instant;
 
 use jobniac_core::deletion::{JobDeletionService, ProfileDeletionService};
 use jobniac_core::errors::{AppError, ErrorCode, error_envelope};
-use jobniac_core::ids::admit_uuid;
-use jobniac_text::str_rules::strip_text;
 use serde_json::Value;
 use tauri::State;
 use uuid::Uuid;
@@ -20,7 +18,7 @@ use crate::delete_dto::{
     DeleteConfirmationDto, DeletionCapabilitiesDto, JobDeleteResultDto, ProfileDeleteResultDto,
 };
 use crate::error::CommandError;
-use crate::profile_commands::NOT_CONFIGURED;
+use crate::request::NOT_CONFIGURED;
 use crate::state::{AppState, DeleteKind};
 
 /// Fixed copy of a profile delete that failed and cannot be shown as a specific case.
@@ -206,8 +204,7 @@ async fn run_delete_job(
 /// Admits an entity identifier: trimmed, lowercased, then a canonical UUID. A malformed one is
 /// a validation error with the fixed failure copy, before any use case runs.
 fn admit_id(text: &str, kind: DeleteKind) -> Result<Uuid, CommandError> {
-    admit_uuid(&strip_text(text).to_ascii_lowercase())
-        .map_err(|_| CommandError::new(VALIDATION, failed_message(kind)))
+    crate::request::admit_id(text, failed_message(kind))
 }
 
 /// Consumes the pending confirmation. A missing, reused, expired, mismatched or foreign token is the
