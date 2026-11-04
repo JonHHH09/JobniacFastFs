@@ -9,6 +9,7 @@
 //! phrase and entry builders are in [`entries`].
 
 mod entries;
+mod europass;
 mod pattern;
 mod sections;
 mod text;
@@ -20,6 +21,7 @@ use serde_json::{Value, json};
 
 use crate::errors::{AppError, validation_error};
 
+pub use self::europass::profile_write_from_europass_cv;
 use self::pattern::{EMAIL, PHONE, guarded_find};
 use self::text::{local_part_words, title_case};
 
