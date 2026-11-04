@@ -226,6 +226,13 @@ struct FontStyles {
 }
 
 impl FontStyles {
+    /// Forgets the styles remembered by text-object bounds: two objects on different pages can
+    /// share bounds and font name but use different font programs. The per-font knowledge and the
+    /// font-data budget are kept for the whole document.
+    fn start_page(&mut self) {
+        self.by_object.clear();
+    }
+
     /// The declared style of the font of the text object that holds `character`, or the default
     /// (nothing declared) when it cannot be read.
     fn style_of(&mut self, character: &PdfPageTextChar<'_>) -> FontStyle {
@@ -431,6 +438,9 @@ pub fn layout(request: &[u8], output: &mut dyn Write) -> Result<(), WorkerFault>
     let mut fonts = FontStyles::default();
     let mut laid_out = Vec::new();
     for (index, page) in pages.iter().enumerate() {
+        // Text-object bounds are page coordinates, so a remembered object style holds for one
+        // page only; the font identities and the font-data budget stay document-wide.
+        fonts.start_page();
         let size = page_box(page.width().value, page.height().value).ok_or(WorkerFault)?;
         let width = i32::try_from(size.width_centipoints).map_err(|_| WorkerFault)?;
         let height = i32::try_from(size.height_centipoints).map_err(|_| WorkerFault)?;
