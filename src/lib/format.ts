@@ -234,3 +234,22 @@ export function formatBytes(bytes: number | string | null | undefined, locale?: 
   }).format(size);
   return `${text} ${units[unit]}`;
 }
+
+/** The share of the available points a component earned, as a whole number from 0 to 100. */
+export function percentOf(earned: number, available: number): number {
+  return available > 0 ? Math.round((earned / available) * 100) : 0;
+}
+
+/** The badge look of a component or evidence status. Colour only supports the label. */
+export function statusVariant(status: string): "success" | "warning" | "destructive" | "neutral" {
+  if (status === "MATCH") {
+    return "success";
+  }
+  if (status === "PARTIAL") {
+    return "warning";
+  }
+  if (status === "MISMATCH") {
+    return "destructive";
+  }
+  return "neutral";
+}
