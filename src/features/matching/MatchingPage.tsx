@@ -7,7 +7,7 @@ import type {
   MatchReportViewDto,
 } from "../../ipc/bindings";
 import { isCommandError, unknownFailure } from "../../ipc/commands";
-import { formatInstant, humanizeEnum } from "../../lib/format";
+import { formatInstant, humanizeEnum, percentOf, statusVariant } from "../../lib/format";
 import { cn } from "../../lib/utils";
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
@@ -53,20 +53,6 @@ function failureMessage(messageId: string): MessageId {
 
 /** The Rust single-flight refusal of this workspace. */
 const MATCH_BUSY = "matching.busy";
-
-/** The badge look of a component or evidence status. Colour only supports the label. */
-function statusVariant(status: string): "success" | "warning" | "destructive" | "neutral" {
-  if (status === "MATCH") {
-    return "success";
-  }
-  if (status === "PARTIAL") {
-    return "warning";
-  }
-  if (status === "MISMATCH") {
-    return "destructive";
-  }
-  return "neutral";
-}
 
 /**
  * The Matching screen: compare one pair, compare one jobs page, load the
@@ -580,11 +566,6 @@ function BatchSection({
       {children}
     </section>
   );
-}
-
-/** The share of the available points a component earned, as a whole number from 0 to 100. */
-function percentOf(earned: number, available: number): number {
-  return available > 0 ? Math.round((earned / available) * 100) : 0;
 }
 
 /** A hairline between two parts of a meta line. Decorative. */
