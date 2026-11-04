@@ -18,9 +18,7 @@ use std::sync::Arc;
 
 use jobniac_core::documents::{DEFAULT_MAX_CHARACTERS, MAX_PAGE_COUNT, safe_basename};
 use jobniac_core::errors::{AppError, error_envelope};
-use jobniac_core::ids::admit_uuid;
 use jobniac_runtime::services::DOCUMENT_IMPORT_ROOT_VARIABLE;
-use jobniac_text::str_rules::strip_text;
 use serde_json::{Value, json};
 use tauri::{AppHandle, State};
 use tauri_plugin_dialog::DialogExt;
@@ -31,8 +29,8 @@ use crate::document_dto::{
     StoredPreviewDto, TextPreviewDto, stored_document, stored_preview, text_preview,
 };
 use crate::error::CommandError;
-use crate::match_commands::{parse_request, require_database, text_field};
 use crate::page_image::{PageImageRefDto, PageViewer, page_image_ref};
+use crate::request::{parse_object_request, require_database, text_field};
 use crate::state::{AppState, PendingSelection};
 
 /// Message id of a selection refused for its shape: not absolute, a UNC, device or drive-relative
@@ -136,7 +134,7 @@ async fn run_render_page(
     request_json: &str,
 ) -> Result<PageImageRefDto, CommandError> {
     let services = state.services()?;
-    let request = parse_request(request_json, DOCUMENT_INPUT)?;
+    let request = parse_object_request(request_json, DOCUMENT_INPUT)?;
     let document_id = document_id_field(&request)?;
     let page_index = page_index_field(&request)?;
     zoom_field(&request)?;
@@ -327,7 +325,7 @@ async fn run_import_selected(
     request_json: &str,
 ) -> Result<StoredDocumentDto, CommandError> {
     let services = state.services()?;
-    let request = parse_request(request_json, DOCUMENT_SELECTION_INVALID)?;
+    let request = parse_object_request(request_json, DOCUMENT_SELECTION_INVALID)?;
     let token = selection_token_field(&request)?;
     require_database(services, DOCUMENT_UNCONFIGURED)?;
     let _guard = state.begin_document()?;
@@ -358,7 +356,7 @@ async fn run_preview_selected(
     request_json: &str,
 ) -> Result<TextPreviewDto, CommandError> {
     let services = state.services()?;
-    let request = parse_request(request_json, DOCUMENT_SELECTION_INVALID)?;
+    let request = parse_object_request(request_json, DOCUMENT_SELECTION_INVALID)?;
     let token = selection_token_field(&request)?;
     let _guard = state.begin_document()?;
     let selection = held_selection_for(state, token)?;
@@ -399,12 +397,7 @@ fn held_selection_for(state: &AppState, token: &str) -> Result<PendingSelection,
 
 /// The zero-based page index of a render request: a JSON integer below the page limit.
 fn page_index_field(request: &Value) -> Result<u32, CommandError> {
-    request
-        .get("pageIndex")
-        .and_then(Value::as_u64)
-        .and_then(|index| u32::try_from(index).ok())
-        .filter(|index| *index < MAX_PAGE_COUNT)
-        .ok_or_else(|| CommandError::new("validation_error", DOCUMENT_INPUT))
+    crate::request::page_index_field(request, Some(MAX_PAGE_COUNT), DOCUMENT_INPUT)
 }
 
 /// The zoom of a render request: a finite JSON number above zero and at most [`ZOOM_MAX`]. The
@@ -432,7 +425,7 @@ async fn run_load_metadata(
     request_json: &str,
 ) -> Result<StoredDocumentDto, CommandError> {
     let services = state.services()?;
-    let request = parse_request(request_json, DOCUMENT_INPUT)?;
+    let request = parse_object_request(request_json, DOCUMENT_INPUT)?;
     let document_id = document_id_field(&request)?;
     require_database(services, DOCUMENT_UNCONFIGURED)?;
     let _guard = state.begin_document()?;
@@ -460,7 +453,7 @@ async fn run_preview_stored(
     request_json: &str,
 ) -> Result<StoredPreviewDto, CommandError> {
     let services = state.services()?;
-    let request = parse_request(request_json, DOCUMENT_INPUT)?;
+    let request = parse_object_request(request_json, DOCUMENT_INPUT)?;
     let document_id = document_id_field(&request)?;
     let persist = persist_field(&request)?;
     require_database(services, DOCUMENT_UNCONFIGURED)?;
@@ -482,8 +475,7 @@ async fn run_preview_stored(
 /// The stored document ID of a request: required, text, and a UUID after normalization
 /// (surrounding white space removed, lowercase).
 fn document_id_field(request: &Value) -> Result<Uuid, CommandError> {
-    let text = text_field(request, "documentId", DOCUMENT_INPUT)?;
-    parse_document_id(text)
+    crate::request::document_id_field(request, DOCUMENT_INPUT)
 }
 
 /// Parses one stored document ID with the input copy on refusal.
@@ -491,9 +483,9 @@ fn document_id_field(request: &Value) -> Result<Uuid, CommandError> {
 /// # Errors
 ///
 /// A `validation_error` with the input copy for any text that is not a canonical UUID.
+#[cfg(test)]
 pub fn parse_document_id(text: &str) -> Result<Uuid, CommandError> {
-    admit_uuid(&strip_text(text).to_ascii_lowercase())
-        .map_err(|_| CommandError::new("validation_error", DOCUMENT_INPUT))
+    crate::request::admit_id(text, DOCUMENT_INPUT)
 }
 
 /// The optional `persist` flag: absent or null is false, any other non-boolean is refused.

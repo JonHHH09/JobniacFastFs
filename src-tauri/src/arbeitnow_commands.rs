@@ -23,7 +23,7 @@ use crate::arbeitnow_dto::{
     ArbeitnowRowDto, ArbeitnowRowStatusDto, ArbeitnowScanRequestDto,
 };
 use crate::error::CommandError;
-use crate::job_commands::NOT_CONFIGURED;
+use crate::request::NOT_CONFIGURED;
 use crate::state::{AppState, HeldRow};
 
 /// Message id of a call to an Arbeitnow command while the services are not composed. The page is then
