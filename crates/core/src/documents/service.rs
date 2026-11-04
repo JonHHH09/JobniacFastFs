@@ -17,15 +17,16 @@ use crate::profiles::repository::{READ_ONLY, READ_WRITE, UnitOfWork};
 
 use super::model::{
     DocumentMetadata, ExtractionRecord, INSPECTION_FAILURE_MESSAGE, INTEGRITY_MESSAGE,
-    MISSING_DOCUMENT_MESSAGE, PDF_MEDIA_TYPE, PdfInspection, PdfText, StoredExtraction,
+    LAYOUT_FAILURE_MESSAGE, MISSING_DOCUMENT_MESSAGE, PDF_MEDIA_TYPE, PdfInspection, PdfLayout,
+    PdfText, StoredExtraction,
 };
 use super::model::{
     EXTRACTION_VALIDATION_MESSAGE, MAX_PAGE_COUNT, PAGE_VALIDATION_MESSAGE, RENDER_FAILURE_MESSAGE,
     STORAGE_VALIDATION_MESSAGE,
 };
 use super::repository::{
-    DocumentFileReader, DocumentRepository, PdfExtractor, PdfInspector, PdfRenderer,
-    RenderedPdfPage,
+    DocumentFileReader, DocumentRepository, PdfExtractor, PdfInspector, PdfLayoutReader,
+    PdfRenderer, RenderedPdfPage,
 };
 use super::view::{
     document_id_text, document_id_value, document_validation, extraction_options, extraction_view,
@@ -65,6 +66,7 @@ pub struct DocumentService<U, R> {
     extractor: Arc<dyn PdfExtractor>,
     renderer: Option<Arc<dyn PdfRenderer>>,
     inspector: Option<Arc<dyn PdfInspector>>,
+    layout_reader: Option<Arc<dyn PdfLayoutReader>>,
     clock: Arc<dyn Clock>,
     hasher: Arc<dyn ContentHasher>,
 }
@@ -90,6 +92,7 @@ where
             extractor,
             renderer: None,
             inspector: None,
+            layout_reader: None,
             clock,
             hasher: Arc::new(InlineHasher),
         }
@@ -116,6 +119,14 @@ where
     #[must_use]
     pub fn with_inspector(mut self, inspector: Arc<dyn PdfInspector>) -> Self {
         self.inspector = Some(inspector);
+        self
+    }
+
+    /// Adds the PDF layout reader that [`Self::layout_stored_pdf`] uses. Without one, every layout
+    /// read is a layout failure.
+    #[must_use]
+    pub fn with_layout_reader(mut self, reader: Arc<dyn PdfLayoutReader>) -> Self {
+        self.layout_reader = Some(reader);
         self
     }
 
@@ -365,6 +376,45 @@ where
         inspector.inspect(&content).await
     }
 
+    /// Reads the layout of a stored document: positioned line fragments with font information.
+    /// Nothing is persisted.
+    ///
+    /// The bytes are verified against their declared size and SHA-256 and checked as for text
+    /// extraction before the layout reader sees them.
+    ///
+    /// # Errors
+    ///
+    /// Storage validation errors, `not_found`, the internal integrity error, or the layout
+    /// reader's failure (also when no reader is set).
+    pub async fn layout_stored_pdf(&self, document_id: &str) -> Result<PdfLayout, AppError> {
+        let document_id = document_id_text(document_id)?;
+        let reader = self.layout_reader.as_ref().ok_or_else(layout_failure)?;
+        let found = self
+            .uow
+            .transaction(READ_ONLY, async |tx| {
+                self.repo.find_content(tx, document_id).await
+            })
+            .await?;
+        let (metadata, content) = found.ok_or_else(|| missing(document_id))?;
+        let metadata = safe_metadata(metadata);
+        if metadata.media_type != PDF_MEDIA_TYPE {
+            return Err(document_validation(
+                STORAGE_VALIDATION_MESSAGE,
+                "documentId",
+                "stored document must have media type application/pdf",
+            ));
+        }
+        let size_matches = i64::try_from(content.len()).ok() == Some(metadata.byte_size);
+        if !size_matches || self.hasher.sha256_hex(&content) != metadata.sha256 {
+            return Err(AppError::from(ApplicationError::with_message(
+                ErrorCode::InternalError,
+                INTEGRITY_MESSAGE,
+            )));
+        }
+        validate_pdf_content(&content, false)?;
+        reader.read_layout(&content).await
+    }
+
     /// Renders one page of a stored PDF to PNG (page-image viewer).
     ///
     /// The index is refused before the document is read when it is not below [`MAX_PAGE_COUNT`].
@@ -497,6 +547,15 @@ fn inspection_failure() -> AppError {
         INSPECTION_FAILURE_MESSAGE,
         Some("documentId"),
         Some(INSPECTION_FAILURE_MESSAGE),
+    ))
+}
+
+/// The failure of a layout read that cannot run (the fixed message, on the `documentId` field).
+fn layout_failure() -> AppError {
+    AppError::from(validation_error(
+        LAYOUT_FAILURE_MESSAGE,
+        Some("documentId"),
+        Some(LAYOUT_FAILURE_MESSAGE),
     ))
 }
 
