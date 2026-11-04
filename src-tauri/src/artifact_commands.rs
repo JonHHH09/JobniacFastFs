@@ -21,11 +21,8 @@ use jobniac_core::artifacts::{
 };
 use jobniac_core::documents::RenderedPdfPage;
 use jobniac_core::errors::{AppError, error_envelope};
-use jobniac_core::ids::admit_uuid;
 use jobniac_runtime::artifacts::ArtifactServices;
 use jobniac_runtime::services::Services;
-use jobniac_text::str_rules::strip_text;
-use serde_json::Value;
 use tauri::{AppHandle, State};
 use tauri_plugin_dialog::DialogExt;
 use uuid::Uuid;
@@ -35,9 +32,8 @@ use crate::artifact_dto::{
 };
 use crate::document_commands::is_local_absolute;
 use crate::error::CommandError;
-use crate::job_commands::NOT_CONFIGURED;
-use crate::match_commands::{parse_request, text_field};
 use crate::page_image::{PageImageRefDto, PageViewer, page_image_ref};
+use crate::request::{NOT_CONFIGURED, document_id_field, page_index_field, parse_object_request};
 use crate::state::{AppState, ArtifactSession};
 
 /// Message id of a request whose stored document ID is malformed, or a request without one.
@@ -216,8 +212,8 @@ pub(crate) async fn run_preview<P: ArtifactPorts>(
     ports: Option<&P>,
     request_json: &str,
 ) -> Result<ArtifactPreviewStateDto, CommandError> {
-    let request = parse_request(request_json, ARTIFACT_INPUT)?;
-    let document_id = document_id_field(&request)?;
+    let request = parse_object_request(request_json, ARTIFACT_INPUT)?;
+    let document_id = document_id_field(&request, ARTIFACT_INPUT)?;
     let ports = ports.ok_or_else(not_configured)?;
     let _guard = state.begin_artifact()?;
     // A new preview clears the viewer before it loads, so a failed load never leaves a stale page.
@@ -236,11 +232,11 @@ pub(crate) async fn run_show_page<P: ArtifactPorts>(
     ports: Option<&P>,
     request_json: &str,
 ) -> Result<PageImageRefDto, CommandError> {
-    let request = parse_request(request_json, ARTIFACT_PREVIEW_FAILED)?;
-    let page_index = page_index_field(&request)?;
+    let request = parse_object_request(request_json, ARTIFACT_PREVIEW_FAILED)?;
+    let page_index = page_index_field(&request, None, ARTIFACT_PREVIEW_FAILED)?;
     // The session is global but two viewers (the Artifacts screen and the generation preview) can
     // hold different documents: a page turn names the document it was made for.
-    let document_id = document_id_field(&request)
+    let document_id = document_id_field(&request, ARTIFACT_INPUT)
         .map_err(|_| CommandError::new("validation_error", ARTIFACT_PREVIEW_FAILED))?;
     let ports = ports.ok_or_else(not_configured)?;
     let _guard = state.begin_artifact()?;
@@ -276,8 +272,8 @@ pub(crate) async fn run_export<P: ArtifactPorts>(
     request_json: &str,
     picker: Arc<dyn PdfSavePicker>,
 ) -> Result<Option<ArtifactExportDto>, CommandError> {
-    let request = parse_request(request_json, ARTIFACT_INPUT)?;
-    let document_id = document_id_field(&request)?;
+    let request = parse_object_request(request_json, ARTIFACT_INPUT)?;
+    let document_id = document_id_field(&request, ARTIFACT_INPUT)?;
     let ports = ports.ok_or_else(not_configured)?;
     let _guard = state.begin_artifact()?;
     // The artifact is verified before the dialog opens, so a refused document never prompts.
@@ -391,22 +387,6 @@ fn install(
         page_count,
         &raster,
     ))
-}
-
-/// The stored document ID of a request: required text, trimmed, lowercased, a canonical UUID.
-fn document_id_field(request: &Value) -> Result<Uuid, CommandError> {
-    let text = text_field(request, "documentId", ARTIFACT_INPUT)?;
-    admit_uuid(&strip_text(text).to_ascii_lowercase())
-        .map_err(|_| CommandError::new("validation_error", ARTIFACT_INPUT))
-}
-
-/// The zero-based page index of a request: a JSON integer that fits in `u32`.
-fn page_index_field(request: &Value) -> Result<u32, CommandError> {
-    request
-        .get("pageIndex")
-        .and_then(Value::as_u64)
-        .and_then(|index| u32::try_from(index).ok())
-        .ok_or_else(|| CommandError::new("validation_error", ARTIFACT_PREVIEW_FAILED))
 }
 
 /// The copy of a read or render failure of the viewer. `not_found` keeps its code; every other

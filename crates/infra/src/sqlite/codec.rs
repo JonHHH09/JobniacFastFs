@@ -15,6 +15,7 @@
 //! same forms through `ToSql` and `FromSql`.
 
 use jobniac_core::clock::{parse_instant, truncate_to_micros};
+use jobniac_core::errors::AppError;
 use rusqlite::Row;
 use rusqlite::types::{FromSql, FromSqlError, FromSqlResult, ToSql, ToSqlOutput, Value, ValueRef};
 use serde_json::Value as Json;
@@ -73,6 +74,11 @@ pub fn json_text(value: &Json) -> String {
 #[must_use]
 pub fn uuid_array_text(ids: &[Uuid]) -> String {
     Json::Array(ids.iter().map(|id| Json::String(uuid_text(*id))).collect()).to_string()
+}
+
+/// A count as an integer bind.
+pub(crate) fn count_bind(value: usize) -> Result<i64, AppError> {
+    i64::try_from(value).map_err(|_| AppError::Internal)
 }
 
 /// Parses a stored instant. Text that is not an instant is corrupted data.

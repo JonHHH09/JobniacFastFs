@@ -1,8 +1,13 @@
 # Europass fixtures
 
-Two PDFs exported from the official Europass editor for the fictional person "Alex Sample". They
-hold no real personal data and are used only as test fixtures for PDF inspection (page size,
-document info and the embedded `attachment.xml`). They are unmodified byte copies.
+Two synthetic PDFs for the fictional person "Alex Sample" that mirror a Europass CV and cover
+letter export: the Europass page layout plus an embedded `attachment.xml` in the Europass schemas.
+They were generated with pdf-lib, not exported from the Europass editor: the document info names
+pdf-lib as producer, and each file carries the generator's C2PA content-credentials manifest as a
+second attachment. A real Europass export can differ in fonts, text order and attachments, so check
+new parsing rules against one before relying on them. The files hold no real personal data and are
+used only as test fixtures for PDF inspection (page size, document info and the embedded
+`attachment.xml`). They are unmodified byte copies.
 
 | File | Bytes | SHA-256 |
 |---|---|---|

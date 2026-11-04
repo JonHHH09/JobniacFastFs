@@ -3,7 +3,7 @@ import { type ReactNode, useEffect, useRef, useState } from "react";
 import { formatMessage, isMessageId, type MessageId } from "../../i18n/messages";
 import type { DisagreementViewDto, MatchReportViewDto, ReviewViewDto } from "../../ipc/bindings";
 import { isCommandError, unknownFailure } from "../../ipc/commands";
-import { formatInstant, humanizeEnum } from "../../lib/format";
+import { formatInstant, humanizeEnum, percentOf, statusVariant } from "../../lib/format";
 import { cn } from "../../lib/utils";
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
@@ -980,22 +980,6 @@ function Panel({
       {footer}
     </section>
   );
-}
-
-/** The badge look of a component status. Colour only supports the label. */
-function statusVariant(status: string): "success" | "warning" | "destructive" | "neutral" {
-  if (status === "MATCH") {
-    return "success";
-  }
-  if (status === "PARTIAL") {
-    return "warning";
-  }
-  return status === "MISMATCH" ? "destructive" : "neutral";
-}
-
-/** The share of the available points a component earned, as a whole number from 0 to 100. */
-function percentOf(earned: number, available: number): number {
-  return available > 0 ? Math.round((earned / available) * 100) : 0;
 }
 
 /** The saved advisory review: its heading, model and outcome, the summary, components and evidence. */

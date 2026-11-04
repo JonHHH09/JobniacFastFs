@@ -13,10 +13,9 @@ use crate::error::CommandError;
 use crate::profile_dto::{
     PersonalDetailsEnvelopeDto, ProfileGraphDto, ProfilePageDto, ProfileSearchDto, ProjectPatchDto,
 };
+use crate::request::{self, NOT_CONFIGURED};
 use crate::state::AppState;
 
-/// Wire code of a service that is not composed.
-pub const NOT_CONFIGURED: &str = "not_configured";
 /// Message id when the profile list has no cursor key (the service is not configured).
 pub const PROFILES_UNCONFIGURED: &str = "profiles.unconfigured";
 /// Message id of a failed profile list, and of any other list failure without a listed code.
@@ -53,20 +52,16 @@ pub fn profile_error(error: &AppError, fallback_message_id: &str) -> CommandErro
 /// Parses the request text the UI sends. The request crosses as its JSON text because
 /// specta cannot describe the recursive JSON value type: the use cases then see exactly the keys
 /// that were sent (absent and null stay distinct), and the text is parsed here.
-fn parse_request(text: &str) -> Result<Value, CommandError> {
-    serde_json::from_str(text)
-        .map_err(|_| CommandError::new("validation_error", PROFILE_VALIDATION))
+fn parse_profile_request(text: &str) -> Result<Value, CommandError> {
+    request::parse_request(text, PROFILE_VALIDATION)
 }
 
 /// Parses the `expectedRevision` string (an `i64` crosses IPC as decimal text) into
 /// the integer the use cases check. Like the job command, the text must be a non-empty run of ASCII
 /// digits: a sign, a space or any other character is refused (`"+7"` is not the revision 7, which
 /// `i64::from_str` alone would accept). The range checks stay in the core.
-fn parse_revision(text: &str) -> Result<Value, CommandError> {
-    let digits = !text.is_empty() && text.bytes().all(|byte| byte.is_ascii_digit());
-    digits
-        .then(|| text.parse::<i64>().ok())
-        .flatten()
+fn profile_revision(text: &str) -> Result<Value, CommandError> {
+    request::parse_revision(text)
         .map(|revision| json!(revision))
         .ok_or_else(|| CommandError::new("validation_error", PROFILE_VALIDATION))
 }
@@ -80,7 +75,7 @@ fn with_parsed_revision(request: &Value) -> Result<Value, CommandError> {
     };
     let mut request = request.clone();
     if let (Some(text), Some(object)) = (text, request.as_object_mut()) {
-        object.insert("expectedRevision".to_owned(), parse_revision(&text)?);
+        object.insert("expectedRevision".to_owned(), profile_revision(&text)?);
     }
     Ok(request)
 }
@@ -150,7 +145,7 @@ pub async fn create_profile(
     state: State<'_, AppState>,
     request_json: String,
 ) -> Result<ProfileGraphDto, CommandError> {
-    let request = parse_request(&request_json)?;
+    let request = parse_profile_request(&request_json)?;
     run_create_profile(&state, &request).await
 }
 
@@ -178,7 +173,7 @@ pub async fn update_profile(
     expected_revision: String,
     request_json: String,
 ) -> Result<ProfileGraphDto, CommandError> {
-    let request = parse_request(&request_json)?;
+    let request = parse_profile_request(&request_json)?;
     run_update_profile(&state, &profile_id, &expected_revision, &request).await
 }
 
@@ -190,7 +185,7 @@ async fn run_update_profile(
 ) -> Result<ProfileGraphDto, CommandError> {
     let services = state.services()?;
     let _slot = state.begin_profile()?;
-    let revision = parse_revision(expected_revision)?;
+    let revision = profile_revision(expected_revision)?;
     let graph = services
         .profiles
         .details
@@ -208,7 +203,7 @@ pub async fn update_project(
     state: State<'_, AppState>,
     request_json: String,
 ) -> Result<ProjectPatchDto, CommandError> {
-    let request = parse_request(&request_json)?;
+    let request = parse_profile_request(&request_json)?;
     run_update_project(&state, &request).await
 }
 
@@ -288,7 +283,7 @@ pub async fn update_personal_details(
     expected_revision: String,
     request_json: String,
 ) -> Result<PersonalDetailsEnvelopeDto, CommandError> {
-    let request = parse_request(&request_json)?;
+    let request = parse_profile_request(&request_json)?;
     run_update_personal_details(&state, &profile_id, &expected_revision, &request).await
 }
 
@@ -300,7 +295,7 @@ async fn run_update_personal_details(
 ) -> Result<PersonalDetailsEnvelopeDto, CommandError> {
     let services = state.services()?;
     let _slot = state.begin_profile()?;
-    let revision = parse_revision(expected_revision)?;
+    let revision = profile_revision(expected_revision)?;
     let envelope = services
         .profiles
         .personal_details
@@ -465,10 +460,10 @@ mod tests {
 
     #[test]
     fn the_revision_text_is_ascii_digits_only_like_the_job_command() {
-        assert_eq!(parse_revision("7").ok(), Some(json!(7)));
+        assert_eq!(profile_revision("7").ok(), Some(json!(7)));
         for refused in ["+7", " 7", "7 ", "-7", "", "7.0", "99999999999999999999"] {
             assert_eq!(
-                parse_revision(refused).err(),
+                profile_revision(refused).err(),
                 Some(CommandError::new("validation_error", PROFILE_VALIDATION)),
                 "{refused:?}"
             );
@@ -527,15 +522,15 @@ mod tests {
         // A lone surrogate escape is not valid JSON text: the boundary refuses it.
         let lone_surrogate = r#"{"fullName":"\ud800"}"#;
         assert_eq!(
-            parse_request(lone_surrogate).err(),
+            parse_profile_request(lone_surrogate).err(),
             Some(CommandError::new(
                 "validation_error",
                 "profile.error.validation"
             ))
         );
-        assert!(parse_request("{").is_err());
+        assert!(parse_profile_request("{").is_err());
         assert_eq!(
-            parse_request(r#"{"fullName":"x"}"#).ok(),
+            parse_profile_request(r#"{"fullName":"x"}"#).ok(),
             Some(json!({"fullName": "x"}))
         );
     }

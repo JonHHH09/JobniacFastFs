@@ -632,7 +632,7 @@ async fn the_pdf_children_return_only_when_confined() -> TestResult {
     Ok(())
 }
 
-/// The two fictional Europass editor exports and what PDFium reports for them.
+/// The two synthetic Europass-style fixtures and what PDFium reports for them.
 #[tokio::test]
 async fn europass_samples_are_inspected_with_pages_info_and_attachments() -> TestResult {
     let Some(directory) = pdfium_dir() else {
