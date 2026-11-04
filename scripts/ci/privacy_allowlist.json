@@ -336,13 +336,13 @@
       "sha256": "f01b32c0f03ac5e4d10cb9897255f191dbc0ab00112590d771fe8109bde92645",
       "classes": ["binary-document"],
       "paths": ["crates/infra/tests/fixtures/pdf/europass/europass-cv-alex-sample.pdf"],
-      "reason": "Europass editor CV export filled with a fictional person (Alex Sample, example.com, 555 number); embedded attachment.xml is the same fictional data (reviewed)."
+      "reason": "Synthetic Europass-style CV (generated with pdf-lib, not an editor export) filled with a fictional person (Alex Sample, example.com, 555 number); embedded attachment.xml is the same fictional data (reviewed)."
     },
     {
       "sha256": "9d00496f4e2a0fca017e3ded26ce19f3ac882aeee32c7c887cdac35e9b2d1a49",
       "classes": ["binary-document"],
       "paths": ["crates/infra/tests/fixtures/pdf/europass/europass-cover-letter-alex-sample.pdf"],
-      "reason": "Europass editor cover-letter export filled with fictional people (Alex Sample, Morgan Example, example.com); embedded attachment.xml is the same fictional data (reviewed)."
+      "reason": "Synthetic Europass-style cover letter (generated with pdf-lib, not an editor export) filled with fictional people (Alex Sample, Morgan Example, example.com); embedded attachment.xml is the same fictional data (reviewed)."
     },
     {
       "sha256": "20b14015b4eabae0df0b85d299730c3d9267e1d8e6329f7c6ba3e931186dfe81",

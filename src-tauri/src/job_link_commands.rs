@@ -16,9 +16,10 @@ use serde_json::{Value, json};
 use tauri::State;
 
 use crate::error::CommandError;
-use crate::job_commands::{JOB_UNCONFIGURED, NOT_CONFIGURED};
+use crate::job_commands::JOB_UNCONFIGURED;
 use crate::job_dto::JobCaptureDto;
 use crate::job_link_dto::JobLinkCapabilitiesDto;
+use crate::request::NOT_CONFIGURED;
 use crate::state::AppState;
 
 /// Message id of a blank link (the form's validation copy; no request is sent for it).

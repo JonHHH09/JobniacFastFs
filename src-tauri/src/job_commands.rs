@@ -7,17 +7,15 @@
 //! never chooses them.
 
 use jobniac_core::errors::{AppError, ErrorCode, error_envelope};
-use jobniac_runtime::services::Services;
 use jobniac_text::str_rules::{split_lines, strip_text};
 use serde_json::{Map, Value};
 use tauri::State;
 
 use crate::error::CommandError;
 use crate::job_dto::{JobCaptureDto, JobDetailDto, JobPageDto, JobSearchDto};
+use crate::request::{parse_request, parse_revision, require_database};
 use crate::state::AppState;
 
-/// Wire code of a request made while the job service has no local database configured.
-pub const NOT_CONFIGURED: &str = "not_configured";
 /// Message id of a job request while no local database is configured.
 pub const JOB_UNCONFIGURED: &str = "jobs.unconfigured";
 /// Message id of a blank posting text (the paste form's validation copy).
@@ -44,16 +42,6 @@ pub const JOB_CONFLICT: &str = "job.error.conflict";
 pub const JOB_LIST_LIMIT: i64 = 20;
 /// The fixed limit of the job search.
 pub const JOB_SEARCH_LIMIT: i64 = 20;
-
-/// Refuses a job request before any use case runs while no local database is configured. The
-/// composition root keeps the job service without a database, so the check is
-/// made here, and the UI shows `jobs.unconfigured` and disables the controls.
-fn require_database(services: &Services) -> Result<(), CommandError> {
-    match services.database {
-        Some(_) => Ok(()),
-        None => Err(CommandError::new(NOT_CONFIGURED, JOB_UNCONFIGURED)),
-    }
-}
 
 /// Maps a core failure to the typed command error. The wire code is kept. A validation refusal of
 /// a named field has the copy of that field; every other
@@ -88,12 +76,6 @@ fn update_error(error: &AppError) -> CommandError {
     }
 }
 
-/// Parses the request text the UI sends. A lone surrogate escape is not valid JSON
-/// text, so it is refused here with the operation's validation copy.
-fn parse_request(text: &str, message_id: &str) -> Result<Value, CommandError> {
-    serde_json::from_str(text).map_err(|_| CommandError::new("validation_error", message_id))
-}
-
 /// Maps the editor's `skillsText` (raw text, one skill per line) to the `skills` list the core reads.
 /// Lines are split on line breaks, stripped and empty lines dropped, so an empty text
 /// clears the skills. An absent or null `skillsText` leaves the `skills` key alone (the stored skills
@@ -116,15 +98,6 @@ fn map_skills_text(object: &mut Map<String, Value>) -> Result<(), CommandError> 
         }
         _ => Err(CommandError::new("validation_error", JOB_UPDATE_ERROR)),
     }
-}
-
-/// Parses the revision text: a non-empty run of ASCII digits, as a decimal integer. A sign, a space
-/// or any other character is refused (`"+7"` is not the revision 7).
-fn parse_revision(text: &str) -> Option<i64> {
-    if text.is_empty() || !text.bytes().all(|byte| byte.is_ascii_digit()) {
-        return None;
-    }
-    text.parse::<i64>().ok()
 }
 
 /// The update request the core reads: the changed fields, the job id from the path, the revision as
@@ -166,7 +139,7 @@ async fn run_add_job_from_text(
 ) -> Result<JobCaptureDto, CommandError> {
     let services = state.services()?;
     let _slot = state.begin_job()?;
-    require_database(services)?;
+    require_database(services, JOB_UNCONFIGURED)?;
     let result = services
         .jobs
         .service
@@ -189,7 +162,7 @@ pub async fn list_jobs(
 async fn run_list_jobs(state: &AppState, cursor: Option<&str>) -> Result<JobPageDto, CommandError> {
     let services = state.services()?;
     let _slot = state.begin_job()?;
-    require_database(services)?;
+    require_database(services, JOB_UNCONFIGURED)?;
     let page = services
         .jobs
         .service
@@ -212,7 +185,7 @@ pub async fn get_job(
 async fn run_get_job(state: &AppState, job_id: &str) -> Result<JobDetailDto, CommandError> {
     let services = state.services()?;
     let _slot = state.begin_job()?;
-    require_database(services)?;
+    require_database(services, JOB_UNCONFIGURED)?;
     let job = services
         .jobs
         .service
@@ -239,7 +212,7 @@ async fn run_search_jobs(
 ) -> Result<JobSearchDto, CommandError> {
     let services = state.services()?;
     let _slot = state.begin_job()?;
-    require_database(services)?;
+    require_database(services, JOB_UNCONFIGURED)?;
     if let Some(object) = request.as_object_mut() {
         object.insert("limit".to_owned(), Value::Number(JOB_SEARCH_LIMIT.into()));
     }
@@ -274,7 +247,7 @@ async fn run_update_job(
 ) -> Result<JobDetailDto, CommandError> {
     let services = state.services()?;
     let _slot = state.begin_job()?;
-    require_database(services)?;
+    require_database(services, JOB_UNCONFIGURED)?;
     let request = update_request(job_id, expected_revision, request)?;
     let job = services
         .jobs
@@ -288,6 +261,7 @@ async fn run_update_job(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::request::NOT_CONFIGURED;
     use crate::state::JOB_BUSY;
     use jobniac_core::env::Environment;
     use jobniac_core::errors::{ApplicationError, validation_error};

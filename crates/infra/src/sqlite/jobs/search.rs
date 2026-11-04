@@ -25,7 +25,7 @@ use super::graph::{
     JOB_SELECT_BATCH_SQL, RawJob, RawSkill, SKILLS_BATCH_SQL, read_job, read_skill,
 };
 use super::{db, run, unavailable};
-use crate::sqlite::codec::{parse_uuid, uuid_array_text};
+use crate::sqlite::codec::{count_bind, parse_uuid, uuid_array_text};
 use crate::sqlite::unit_of_work::SqliteTransaction;
 
 #[cfg(feature = "test-hooks")]
@@ -253,9 +253,4 @@ fn hydrate(connection: &Connection, ids: &[Uuid]) -> Result<Vec<JobAggregate>, A
         });
     }
     Ok(aggregates)
-}
-
-/// A count as an integer bind (or a bounded length as the `matchedCount`).
-fn count_bind(value: usize) -> Result<i64, AppError> {
-    i64::try_from(value).map_err(|_| AppError::Internal)
 }

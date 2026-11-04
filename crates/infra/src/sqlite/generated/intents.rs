@@ -17,11 +17,12 @@ use time::OffsetDateTime;
 use uuid::Uuid;
 
 use super::IntentError;
-use super::bindings::{ASSET_COLUMNS, AssetRow, verify_pdf_binding};
+use super::bindings::{AssetRow, verify_pdf_binding};
 use super::guards::{
     check_abandoned_retirement, generated_asset_referenced, guard_intent_insert,
     guard_intent_update,
 };
+use super::repository::find_asset_in;
 use super::run_with;
 use crate::sqlite::codec::{
     get_id, get_opt_id, get_opt_ts, get_ts, instant_text, optional_instant_text, uuid_text,
@@ -78,16 +79,6 @@ pub(crate) fn find_intent_in(
     conn.query_row(&sql, [uuid_text(asset_id)], |row| Ok(intent_from_row(row)))
         .optional()?
         .transpose()
-}
-
-/// Reads one asset row on `conn`.
-fn find_asset_in(conn: &Connection, asset_id: Uuid) -> Result<Option<AssetRow>, IntentError> {
-    let sql = format!("SELECT {ASSET_COLUMNS} FROM jobniac_generated_assets WHERE asset_id = ?1");
-    conn.query_row(&sql, [uuid_text(asset_id)], |row| {
-        Ok(AssetRow::from_row(row))
-    })
-    .optional()?
-    .transpose()
 }
 
 /// Reads the intent of one asset. With `for_update` (the owner read) an asset
