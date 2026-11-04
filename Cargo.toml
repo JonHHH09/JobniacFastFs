@@ -15,6 +15,7 @@ publish = false
 # Internal crates
 jobniac-core = { path = "crates/core" }
 jobniac-text = { path = "crates/text" }
+jobniac-cart = { path = "crates/cart" }
 jobniac-pdf = { path = "crates/pdf" }
 jobniac-infra = { path = "crates/infra" }
 jobniac-mcp = { path = "crates/mcp" }
