@@ -173,6 +173,24 @@ fn select_alpha_prefers_the_simpler_tree_on_equal_scores() {
 }
 
 #[test]
+fn select_alpha_survives_score_numerators_that_overflow_u128() {
+    // 20 folds of 80 rows: the common denominator 80^20 fits in u128, but the scaled hit counts
+    // (up to 80 * 80^19 per fold, summed over 20 folds) do not. The comparison must fall back to
+    // the float means instead of overflowing.
+    let rows: Vec<(f64, usize)> = (0..1600)
+        .map(|i| (f64::from(i % 2), (i % 2) as usize))
+        .collect();
+    let data = one_feature(&rows, 2);
+    let first = select_alpha(&data, &TrainConfig::default(), 20, 0).unwrap();
+    let again = select_alpha(&data, &TrainConfig::default(), 20, 0).unwrap();
+    assert_eq!(first.best_index, again.best_index);
+    assert_eq!(first.best_alpha.to_bits(), again.best_alpha.to_bits());
+    // The data is separable by the single split, so the unpruned tree is perfect on every fold.
+    assert_eq!(first.scores[0].mean_accuracy, 1.0);
+    assert_eq!(first.best_index, 0);
+}
+
+#[test]
 fn select_alpha_rejects_bad_arguments() {
     let data = common::synthetic(1, 10);
     let cfg = TrainConfig::default();

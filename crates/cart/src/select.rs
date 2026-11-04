@@ -109,30 +109,37 @@ pub fn select_alpha(
 /// True when candidate `a` has a strictly lower mean accuracy than `b`.
 ///
 /// Means over folds are `sum_f a_f / n_f`; they are compared with exact rational arithmetic
-/// (cross-multiplied in `u128`), so ties are exact and independent of float rounding.
+/// (cross-multiplied in `u128`), so ties are exact and independent of float rounding. When the
+/// common denominator or either scaled numerator does not fit in `u128`, the float sums are
+/// compared instead (still deterministic). Empty folds contribute nothing.
 fn worse(a: &[usize], b: &[usize], folds: &[Vec<usize>]) -> bool {
-    // Compare sum(a_f / n_f) < sum(b_f / n_f) using the common denominator prod(n_f) when it
-    // fits, otherwise fall back to the float sums (still deterministic).
-    let mut den: u128 = 1;
-    for fold in folds {
-        match den.checked_mul(fold.len() as u128) {
-            Some(d) => den = d,
-            None => {
-                let mean = |h: &[usize]| -> f64 {
-                    h.iter()
-                        .zip(folds)
-                        .map(|(&x, f)| x as f64 / f.len() as f64)
-                        .sum()
-                };
-                return mean(a) < mean(b);
-            }
-        }
+    match (exact_numerator(a, folds), exact_numerator(b, folds)) {
+        (Some(left), Some(right)) => left < right,
+        _ => float_mean(a, folds) < float_mean(b, folds),
     }
-    let numerator = |h: &[usize]| -> u128 {
-        h.iter()
-            .zip(folds)
-            .map(|(&x, f)| x as u128 * (den / f.len() as u128))
-            .sum()
-    };
-    numerator(a) < numerator(b)
+}
+
+/// `sum_f hits_f * (prod(n) / n_f)` over the non-empty folds, or `None` when the common
+/// denominator `prod(n)` or any partial sum overflows `u128`.
+fn exact_numerator(hits: &[usize], folds: &[Vec<usize>]) -> Option<u128> {
+    let den = folds
+        .iter()
+        .filter(|fold| !fold.is_empty())
+        .try_fold(1u128, |den, fold| den.checked_mul(fold.len() as u128))?;
+    hits.iter()
+        .zip(folds)
+        .filter(|(_, fold)| !fold.is_empty())
+        .try_fold(0u128, |sum, (&x, fold)| {
+            let scaled = (x as u128).checked_mul(den / fold.len() as u128)?;
+            sum.checked_add(scaled)
+        })
+}
+
+/// `sum_f hits_f / n_f` over the non-empty folds, in fold order.
+fn float_mean(hits: &[usize], folds: &[Vec<usize>]) -> f64 {
+    hits.iter()
+        .zip(folds)
+        .filter(|(_, fold)| !fold.is_empty())
+        .map(|(&x, fold)| x as f64 / fold.len() as f64)
+        .sum()
 }
