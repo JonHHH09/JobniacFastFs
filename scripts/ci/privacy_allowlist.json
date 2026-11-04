@@ -336,13 +336,13 @@
       "sha256": "f01b32c0f03ac5e4d10cb9897255f191dbc0ab00112590d771fe8109bde92645",
       "classes": ["binary-document"],
       "paths": ["crates/infra/tests/fixtures/pdf/europass/europass-cv-alex-sample.pdf"],
-      "reason": "Europass editor CV export filled with a fictional person (Alex Sample, example.com, 555 number); embedded attachment.xml is the same fictional data (reviewed)."
+      "reason": "Synthetic Europass-style CV (generated with pdf-lib, not an editor export) filled with a fictional person (Alex Sample, example.com, 555 number); embedded attachment.xml is the same fictional data (reviewed)."
     },
     {
       "sha256": "9d00496f4e2a0fca017e3ded26ce19f3ac882aeee32c7c887cdac35e9b2d1a49",
       "classes": ["binary-document"],
       "paths": ["crates/infra/tests/fixtures/pdf/europass/europass-cover-letter-alex-sample.pdf"],
-      "reason": "Europass editor cover-letter export filled with fictional people (Alex Sample, Morgan Example, example.com); embedded attachment.xml is the same fictional data (reviewed)."
+      "reason": "Synthetic Europass-style cover letter (generated with pdf-lib, not an editor export) filled with fictional people (Alex Sample, Morgan Example, example.com); embedded attachment.xml is the same fictional data (reviewed)."
     },
     {
       "sha256": "20b14015b4eabae0df0b85d299730c3d9267e1d8e6329f7c6ba3e931186dfe81",
@@ -973,6 +973,42 @@
       "classes": ["local-path"],
       "paths": ["src-tauri/src/test_isolation.rs"],
       "reason": "Synthetic Windows and Unix profile paths of a made-up user named 'someone' in a #[cfg(test)] test that checks a path outside the isolation root is refused; no real user or machine. Version after the overlap check stopped treating redirected XDG bases as real folders (blob c06f955)."
+    },
+    {
+      "sha256": "d5570fcef4d36145354620b1c0cb920cd3bf29bcce00f81193a4cd9683913066",
+      "classes": ["personal-data"],
+      "paths": ["crates/core/src/profiles/extract/lines/corpus/mod.rs"],
+      "reason": "Doc comment naming the fictional phone ranges of the synthetic corpus (555-01xx test numbers, the ranges reserved for fiction in Germany and France, and obviously invalid all-zero placeholder numbers for Albania); not real numbers (reviewed)."
+    },
+    {
+      "sha256": "47c7db85801a95cf9c02a636602f12c1310eab3ed5737b39963b05ca0d3a3223",
+      "classes": ["personal-data"],
+      "paths": ["crates/core/src/profiles/extract/lines/corpus/resume.rs"],
+      "reason": "Format strings of fictional phone numbers (555-01xx test numbers, reserved fictional ranges of Germany and France, obviously invalid all-zero placeholder numbers for Albania) in the synthetic corpus generator; not real numbers (reviewed)."
+    },
+    {
+      "sha256": "26c080098e2ad3f47e564b873d45821f33f21105d92e87b2a54252b6bba71031",
+      "classes": ["personal-data"],
+      "paths": ["crates/core/src/profiles/extract/lines/locale.rs"],
+      "reason": "Phone-shaped examples in doc comments of the phone forms (documentation placeholders); not real numbers (reviewed)."
+    },
+    {
+      "sha256": "32a2c088d3d03498a377ba52ae621322338eacbab9b0436365f648b7961d9d90",
+      "classes": ["personal-data", "street-address"],
+      "paths": ["crates/core/tests/line_locale.rs"],
+      "reason": "Phone-shaped test inputs of the locale rule tests (555-01xx and placeholder numbers) and a house-number negative case for the postal-code rule; not real numbers or addresses (reviewed)."
+    },
+    {
+      "sha256": "0d11a15b67afbf304604d94c282e7e45f624d844b0f9055dbdf3b4c9041d4ede",
+      "classes": ["personal-data"],
+      "paths": ["crates/core/src/profiles/extract/lines/locale.rs"],
+      "reason": "Phone-shaped examples in doc comments of the phone forms (documentation placeholders), unchanged by the linear postal-code scan; not real numbers (reviewed)."
+    },
+    {
+      "sha256": "2ddfcd6131f13ba51d429c95b848f4a7afe8a32f238529e0288531975de1d700",
+      "classes": ["personal-data", "street-address"],
+      "paths": ["crates/core/tests/line_locale.rs"],
+      "reason": "Phone-shaped test inputs of the locale rule tests (555-01xx and placeholder numbers) and a house-number negative case for the postal-code rule, unchanged by the postal-code document tests; not real numbers or addresses (reviewed)."
     }
   ]
 }
