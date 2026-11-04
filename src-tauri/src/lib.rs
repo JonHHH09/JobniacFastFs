@@ -30,6 +30,7 @@ mod profile_commands;
 mod profile_dto;
 mod profile_pdf_commands;
 mod profile_pdf_dto;
+mod request;
 mod settings_commands;
 mod settings_dto;
 mod shell_close_commands;

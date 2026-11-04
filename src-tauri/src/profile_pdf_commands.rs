@@ -7,18 +7,17 @@
 //! parsed here, so an out-of-range value is refused rather than clamped.
 
 use jobniac_core::errors::{AppError, error_envelope};
-use jobniac_core::ids::admit_uuid;
 use jobniac_text::str_rules::strip_text;
 use serde_json::{Value, json};
 use tauri::State;
 use uuid::Uuid;
 
 use crate::error::CommandError;
-use crate::match_commands::{parse_request, require_database, text_field};
 use crate::profile_pdf_dto::{
     CancelReplacementDto, IngestResultDto, IngestStepDto, ProfilePdfCapabilitiesDto, RestoredState,
     SourceViewDto, ingest_result, source_view,
 };
+use crate::request::{parse_object_request, require_database, text_field, uuid_text};
 use crate::state::{AppState, PROFILE_PDF_CONFIRM_REQUIRED, PendingReplacement};
 
 /// Message id of a request while no local database is configured.
@@ -105,11 +104,6 @@ impl IngestInput {
     }
 }
 
-/// Parses a stored or profile UUID after normalization (white space removed, lowercase).
-fn uuid_text(text: &str) -> Option<Uuid> {
-    admit_uuid(&strip_text(text).to_ascii_lowercase()).ok()
-}
-
 /// The decimal integer of a request text, after stripping: `Ok(None)`
 /// for a blank text, `Ok(Some(number))` for ASCII digits of at most 19 characters within the
 /// signed 64-bit range, and `Err(())` for anything else (a sign, a fraction, a longer text).
@@ -189,7 +183,7 @@ pub async fn profile_pdf_ingest(
 
 async fn run_ingest(state: &AppState, request_json: &str) -> Result<IngestStepDto, CommandError> {
     let services = state.services()?;
-    let request = parse_request(request_json, PROFILE_PDF_IDS)?;
+    let request = parse_object_request(request_json, PROFILE_PDF_IDS)?;
     let input = IngestInput::parse(&request)?;
     require_database(services, PROFILE_PDF_UNCONFIGURED)?;
     let _guard = state.begin_profile_pdf()?;
@@ -248,7 +242,7 @@ async fn run_confirm(
     request_json: &str,
 ) -> Result<IngestResultDto, CommandError> {
     let services = state.services()?;
-    let request = parse_request(request_json, PROFILE_PDF_ERROR)?;
+    let request = parse_object_request(request_json, PROFILE_PDF_ERROR)?;
     let token = text_field(&request, "token", PROFILE_PDF_ERROR)?;
     require_database(services, PROFILE_PDF_UNCONFIGURED)?;
     let _guard = state.begin_profile_pdf()?;
@@ -280,7 +274,7 @@ pub async fn profile_pdf_cancel_replacement(
     state: State<'_, AppState>,
     request_json: String,
 ) -> Result<CancelReplacementDto, CommandError> {
-    let request = parse_request(&request_json, PROFILE_PDF_ERROR)?;
+    let request = parse_object_request(&request_json, PROFILE_PDF_ERROR)?;
     let token = text_field(&request, "token", PROFILE_PDF_ERROR)?;
     let _ = state.take_replacement(token);
     let restored_state = if state.profile_pdf_ready() {
@@ -303,7 +297,7 @@ pub async fn profile_pdf_lookup_source(
 
 async fn run_lookup(state: &AppState, request_json: &str) -> Result<SourceViewDto, CommandError> {
     let services = state.services()?;
-    let request = parse_request(request_json, PROFILE_PDF_LOOKUP)?;
+    let request = parse_object_request(request_json, PROFILE_PDF_LOOKUP)?;
     let profile_id = uuid_text(text_field(&request, "profileId", PROFILE_PDF_LOOKUP)?)
         .ok_or_else(|| CommandError::new("validation_error", PROFILE_PDF_LOOKUP))?;
     require_database(services, PROFILE_PDF_UNCONFIGURED)?;
