@@ -997,6 +997,18 @@
       "classes": ["personal-data", "street-address"],
       "paths": ["crates/core/tests/line_locale.rs"],
       "reason": "Phone-shaped test inputs of the locale rule tests (555-01xx and placeholder numbers) and a house-number negative case for the postal-code rule; not real numbers or addresses (reviewed)."
+    },
+    {
+      "sha256": "0d11a15b67afbf304604d94c282e7e45f624d844b0f9055dbdf3b4c9041d4ede",
+      "classes": ["personal-data"],
+      "paths": ["crates/core/src/profiles/extract/lines/locale.rs"],
+      "reason": "Phone-shaped examples in doc comments of the phone forms (documentation placeholders), unchanged by the linear postal-code scan; not real numbers (reviewed)."
+    },
+    {
+      "sha256": "2ddfcd6131f13ba51d429c95b848f4a7afe8a32f238529e0288531975de1d700",
+      "classes": ["personal-data", "street-address"],
+      "paths": ["crates/core/tests/line_locale.rs"],
+      "reason": "Phone-shaped test inputs of the locale rule tests (555-01xx and placeholder numbers) and a house-number negative case for the postal-code rule, unchanged by the postal-code document tests; not real numbers or addresses (reviewed)."
     }
   ]
 }

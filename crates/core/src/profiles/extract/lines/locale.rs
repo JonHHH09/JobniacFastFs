@@ -344,11 +344,18 @@ static EU_POSTAL: LazyLock<Regex> = LazyLock::new(|| {
 /// known EU place on the line ([`EU_PLACES`]), or a comma before it with only the city (one to
 /// three words) after it. A four-digit number from 1900 to 2100 needs the prefix or the comma, so
 /// `2020 Software Engineer` is not a postal code.
+///
+/// The address context is the line of the code, also when `text` holds many lines (a whole
+/// document): the place, the comma and the city are looked for on that line, and the street word
+/// among the [`STREET_CONTEXT_WORDS`] words after the code. Each line is read once, so the time is
+/// linear in the length of the text.
 #[must_use]
 pub fn find_postal_codes(text: &str) -> Vec<PostalMatch> {
     let mut found: Vec<PostalMatch> = Vec::new();
+    // `found` holds non-overlapping matches sorted by start (so by end too) whenever this is called.
     let overlaps = |found: &[PostalMatch], start: usize, end: usize| {
-        found.iter().any(|m| start < m.end && m.start < end)
+        let first_ending_after = found.partition_point(|m| m.end <= start);
+        found.get(first_ending_after).is_some_and(|m| m.start < end)
     };
     for m in CA_POSTAL.find_iter(text) {
         found.push(PostalMatch {
@@ -366,10 +373,14 @@ pub fn find_postal_codes(text: &str) -> Vec<PostalMatch> {
             end: m.end(),
         });
     }
+    // A Canadian code and a ZIP+4 cannot overlap (one starts with a letter, the other is digits
+    // and a hyphen between word boundaries), so the two passes give non-overlapping matches.
+    found.sort_by_key(|m| m.start);
+    let before_zip = found.len();
     for captures in US_ZIP.captures_iter(text) {
         if let (Some(code), Some(zip)) = (captures.get(1), captures.get(2))
             && lookup_code(code.as_str()).is_some_and(|r| r.country == Country::Us)
-            && !overlaps(&found, zip.start(), zip.end())
+            && !overlaps(&found[..before_zip], zip.start(), zip.end())
         {
             found.push(PostalMatch {
                 kind: PostalKind::UsZip,
@@ -379,6 +390,9 @@ pub fn find_postal_codes(text: &str) -> Vec<PostalMatch> {
             });
         }
     }
+    found.sort_by_key(|m| m.start);
+    let before_eu = found.len();
+    let mut line: Option<LineContext> = None;
     for captures in EU_POSTAL.captures_iter(text) {
         let Some(digits) = captures.get(2) else {
             continue;
@@ -386,17 +400,20 @@ pub fn find_postal_codes(text: &str) -> Vec<PostalMatch> {
         let prefix = captures.get(1);
         let start = prefix.map_or(digits.start(), |p| p.start());
         let end = digits.end();
-        if overlaps(&found, start, end) {
+        if overlaps(&found[..before_eu], start, end) {
             continue;
         }
-        let before = text[..start].trim_end();
-        let rest = &text[end..];
+        let context = LineContext::of(text, start, &mut line);
+        let before = text[context.start..start].trim_end();
+        let line_rest = &text[end..context.end];
+        let rest = first_words(line_rest, STREET_CONTEXT_WORDS);
         let year_like = digits.as_str().len() == 4
             && digits
                 .as_str()
                 .parse::<i32>()
                 .is_ok_and(|n| (1900..=2100).contains(&n));
-        let city_words: Vec<&str> = rest.split_whitespace().collect();
+        // Four words are enough to tell one to three city words from more.
+        let city_words: Vec<&str> = line_rest.split_whitespace().take(4).collect();
         let comma_city_end = before.ends_with(',')
             && (1..=3).contains(&city_words.len())
             && city_words.iter().all(|word| {
@@ -412,8 +429,8 @@ pub fn find_postal_codes(text: &str) -> Vec<PostalMatch> {
                 .all(|word| word.chars().next().is_some_and(char::is_alphabetic));
         let accepted = !has_street_word(rest)
             && (prefix.is_some()
-                || (!year_like && has_eu_place(text))
-                || (year_like && line_is_code_and_city && has_eu_place(text))
+                || (!year_like && context.has_eu_place(text))
+                || (year_like && line_is_code_and_city && context.has_eu_place(text))
                 || comma_city_end);
         if accepted {
             found.push(PostalMatch {
@@ -426,6 +443,55 @@ pub fn find_postal_codes(text: &str) -> Vec<PostalMatch> {
     }
     found.sort_by_key(|m| m.start);
     found
+}
+
+/// How many words after a European postal code are searched for a street word (`1200 North
+/// Market Street` has it third).
+pub const STREET_CONTEXT_WORDS: usize = 6;
+
+/// The line of a text that a postal code is on: its byte range, and whether it names a known EU
+/// place (read once per line, when first asked).
+#[derive(Debug, Clone, Copy)]
+struct LineContext {
+    start: usize,
+    end: usize,
+    eu_place: Option<bool>,
+}
+
+impl LineContext {
+    /// The line around byte offset `at`, reusing `current` when `at` is on it. Called with
+    /// increasing offsets, every byte of the text is scanned at most twice in total.
+    fn of<'a>(text: &str, at: usize, current: &'a mut Option<Self>) -> &'a mut Self {
+        let line = match *current {
+            Some(line) if line.start <= at && at <= line.end => line,
+            _ => Self {
+                start: text[..at].rfind('\n').map_or(0, |index| index + 1),
+                end: text[at..].find('\n').map_or(text.len(), |index| at + index),
+                eu_place: None,
+            },
+        };
+        current.insert(line)
+    }
+
+    /// Whether the line names a known EU place ([`has_eu_place`]).
+    fn has_eu_place(&mut self, text: &str) -> bool {
+        let (start, end) = (self.start, self.end);
+        *self
+            .eu_place
+            .get_or_insert_with(|| has_eu_place(&text[start..end]))
+    }
+}
+
+/// The start of `text` up to the end of its `count`-th whitespace-separated word.
+fn first_words(text: &str, count: usize) -> &str {
+    let end = text
+        .split_whitespace()
+        .take(count)
+        .last()
+        .map_or(0, |word| {
+            word.as_ptr() as usize - text.as_ptr() as usize + word.len()
+        });
+    &text[..end]
 }
 
 /// The shape of a phone number.

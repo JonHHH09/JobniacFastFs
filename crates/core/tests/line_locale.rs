@@ -373,6 +373,58 @@ fn postal_codes() {
 }
 
 #[test]
+fn postal_codes_of_a_document_are_those_of_its_lines() {
+    // The address context of a code is its own line, so a street word or a city on another line
+    // of a whole document changes nothing.
+    let lines = [
+        "Alex Sample",
+        "Musterweg 29, 20095 Hamburg",
+        "1200 Market Street",
+        "10115 Berlin",
+        "2020 Software Engineer",
+        "Springfield, IL 62701",
+        "Rruga Shembulli 12, 2001 Durrës",
+    ];
+    let document = lines.join("\n");
+    let mut expected = Vec::new();
+    let mut offset = 0;
+    for line in lines {
+        for mut found in find_postal_codes(line) {
+            found.start += offset;
+            found.end += offset;
+            expected.push(found);
+        }
+        offset += line.len() + 1;
+    }
+    assert_eq!(find_postal_codes(&document), expected);
+    assert_eq!(
+        postal(&document)
+            .into_iter()
+            .map(|(_, code)| code)
+            .collect::<Vec<_>>(),
+        ["20095", "10115", "62701", "2001"]
+    );
+}
+
+#[test]
+fn postal_codes_of_a_long_document_take_linear_time() {
+    // One address per line, thousands of lines (a text-heavy PDF): every line is read once.
+    // Without a street word to stop at, reading the rest of the document for every code took
+    // minutes here.
+    let document = "Alex Sample, 10115 Berlin\n".repeat(5_000);
+    let started = std::time::Instant::now();
+    let found = find_postal_codes(&document);
+    assert_eq!(found.len(), 5_000);
+    let one_line = "Alex Sample, 10115 Berlin ".repeat(2_000);
+    assert!(find_postal_codes(&one_line).len() <= 2_000);
+    assert!(
+        started.elapsed() < std::time::Duration::from_secs(10),
+        "{:?}",
+        started.elapsed()
+    );
+}
+
+#[test]
 fn regions() {
     let table: &[(&str, Option<(Country, &str)>)] = &[
         ("Springfield, IL", Some((Country::Us, "IL"))),
