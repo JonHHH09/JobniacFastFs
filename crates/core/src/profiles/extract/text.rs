@@ -78,9 +78,14 @@ pub(super) fn url_matches(text: &str) -> impl Iterator<Item = &str> {
 /// its output: a bare year is January of that year, a month name and year is the first of that
 /// month, and `Jan2020` reads as `Jan 2020`.
 pub(super) fn parse_date(value: &str) -> Option<String> {
+    // Unicode decimal digits read as ASCII digits, and any Unicode whitespace (the range pattern
+    // accepts a no-break space) as an ASCII space.
     let ascii: String = value
         .chars()
         .map(|character| {
+            if character.is_whitespace() {
+                return ' ';
+            }
             decimal_value(character)
                 .and_then(|digit| char::from_digit(digit, 10))
                 .unwrap_or(character)
@@ -88,13 +93,15 @@ pub(super) fn parse_date(value: &str) -> Option<String> {
         .collect();
     // The month table of the section split knows ASCII letters only: a month word with another
     // letter (`ſep`, long s) is an unknown month, which reads as January. The line reader folds
-    // such letters (`ſ` to `s`), so keep only the year for them.
+    // such letters (`ſ` to `s`), so keep only the year for them. Only the letters are checked,
+    // so punctuation or spacing around the month never discards it.
     let lowered = lower_text(&ascii);
-    let word: String = lowered
+    let month_letters_are_ascii = lowered
         .chars()
         .take_while(|character| !character.is_ascii_digit())
-        .collect();
-    let ascii = if word.is_ascii() {
+        .filter(|character| character.is_alphabetic())
+        .all(|character| character.is_ascii());
+    let ascii = if month_letters_are_ascii {
         ascii
     } else {
         lowered.chars().filter(char::is_ascii_digit).collect()
@@ -140,6 +147,18 @@ mod tests {
         // A long s is not an ASCII month letter: an unknown month, January.
         assert_eq!(parse_date("\u{17f}ep 2020").as_deref(), Some("2020-01-01"));
         assert_eq!(parse_date("present"), None);
+    }
+
+    #[test]
+    fn unicode_whitespace_between_month_and_year_keeps_the_month() {
+        // The range pattern accepts any whitespace, so a no-break or narrow space can reach here.
+        assert_eq!(parse_date("Sep\u{a0}2020").as_deref(), Some("2020-09-01"));
+        assert_eq!(parse_date("Sep\u{202f}2020").as_deref(), Some("2020-09-01"));
+        assert_eq!(
+            parse_date("March\u{2009}2021").as_deref(),
+            Some("2021-03-01")
+        );
+        assert_eq!(parse_date("\u{a0}2019").as_deref(), Some("2019-01-01"));
     }
 
     #[test]
