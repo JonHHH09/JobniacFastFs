@@ -736,6 +736,11 @@ export type IngestResultDto = {
 	sourceLinkId: string | null,
 	/**  The candidate, for the two candidate statuses only. */
 	candidate: CandidateDto | null,
+	/**
+	 *  The reader that built the profile; `None` when the result was answered from an existing
+	 *  source and no profile was read.
+	 */
+	profileSource: ProfileSourceDto | null,
 };
 
 /**  The five ingestion statuses. The UI copy is chosen by this enum; any other core status is refused. */
@@ -1156,6 +1161,13 @@ export type ProfileSearchMatchDto = {
 	matchedFields: string[],
 	score: string,
 };
+
+/**  The reader that built the profile of an ingestion. */
+export type ProfileSourceDto = 
+/**  The Europass CV XML attached to the PDF. */
+"europassCv" | 
+/**  The deterministic reader of the PDF text. */
+"pdfText";
 
 /**
  *  A project with its technologies. Write keys: `id`, `name`, `url`, `description`,

@@ -115,6 +115,32 @@ impl IngestStatus {
     }
 }
 
+/// The reader that built the profile of an ingestion.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Type)]
+pub enum ProfileSourceDto {
+    /// The Europass CV XML attached to the PDF.
+    #[serde(rename = "europassCv")]
+    EuropassCv,
+    /// The deterministic reader of the PDF text.
+    #[serde(rename = "pdfText")]
+    PdfText,
+}
+
+impl ProfileSourceDto {
+    /// Maps the wire value of the core result.
+    ///
+    /// # Errors
+    ///
+    /// [`OutOfRange`] for any other value.
+    pub fn from_wire(text: &str) -> Result<Self, OutOfRange> {
+        match text {
+            "EUROPASS_CV" => Ok(Self::EuropassCv),
+            "PDF_TEXT" => Ok(Self::PdfText),
+            _ => Err(OutOfRange),
+        }
+    }
+}
+
 /// A candidate profile that was not written (`duplicateProfileCandidate` or
 /// `ambiguousProfileCandidates`).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Type)]
@@ -144,6 +170,9 @@ pub struct IngestResultDto {
     pub source_link_id: Option<String>,
     /// The candidate, for the two candidate statuses only.
     pub candidate: Option<CandidateDto>,
+    /// The reader that built the profile; `None` when the result was answered from an existing
+    /// source and no profile was read.
+    pub profile_source: Option<ProfileSourceDto>,
 }
 
 /// One step of the ingestion: the result, or the replacement that must be confirmed first. A
@@ -300,6 +329,9 @@ pub fn ingest_result(value: &Value) -> Result<IngestResultDto, OutOfRange> {
             Some(uuid_text(value, "sourceLinkId")?.to_owned()),
         )
     };
+    let profile_source = optional_text(value, "profileSource")?
+        .map(ProfileSourceDto::from_wire)
+        .transpose()?;
     Ok(IngestResultDto {
         status,
         document_id,
@@ -307,6 +339,7 @@ pub fn ingest_result(value: &Value) -> Result<IngestResultDto, OutOfRange> {
         extraction_id: Some(extraction_id),
         source_link_id,
         candidate,
+        profile_source,
     })
 }
 
@@ -394,6 +427,32 @@ mod tests {
         assert_eq!(result.status, IngestStatus::CreatedProfile);
         assert!(result.candidate.is_none());
         assert!(result.source_link_id.is_some());
+        Ok(())
+    }
+
+    #[test]
+    fn the_profile_source_maps_and_an_unknown_one_is_refused() -> Result<(), OutOfRange> {
+        let mut value = json!({
+            "status": "CREATED_PROFILE",
+            "documentId": "00000000-0000-4000-8000-000000000001",
+            "profileId": "00000000-0000-4000-8000-000000000004",
+            "pdfExtractionId": "00000000-0000-4000-8000-000000000002",
+            "sourceLinkId": "00000000-0000-4000-8000-000000000005",
+            "profileSource": "EUROPASS_CV",
+        });
+        assert_eq!(
+            ingest_result(&value)?.profile_source,
+            Some(ProfileSourceDto::EuropassCv)
+        );
+        value["profileSource"] = json!("PDF_TEXT");
+        assert_eq!(
+            ingest_result(&value)?.profile_source,
+            Some(ProfileSourceDto::PdfText)
+        );
+        value["profileSource"] = Value::Null;
+        assert_eq!(ingest_result(&value)?.profile_source, None);
+        value["profileSource"] = json!("OCR");
+        assert_eq!(ingest_result(&value), Err(OutOfRange));
         Ok(())
     }
 
