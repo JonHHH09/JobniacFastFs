@@ -10,8 +10,9 @@ use async_trait::async_trait;
 use jobniac_core::clock::FixedClock;
 use jobniac_core::documents::{
     DocumentFileReader, DocumentMetadata, DocumentRepository, DocumentService, ExtractionRecord,
-    FileSnapshot, MAX_PAGE_COUNT, PdfExtractor, PdfRenderer, PdfText, RENDER_FAILURE_MESSAGE,
-    RenderedPdfPage, sha256_hex,
+    FileSnapshot, INSPECTION_FAILURE_MESSAGE, LAYOUT_FAILURE_MESSAGE, MAX_PAGE_COUNT, PdfExtractor,
+    PdfInspection, PdfInspector, PdfLayout, PdfLayoutReader, PdfPageBox, PdfRenderer, PdfText,
+    RENDER_FAILURE_MESSAGE, RenderedPdfPage, sha256_hex,
 };
 use jobniac_core::errors::{AppError, ErrorCode, error_envelope};
 use jobniac_core::profiles::repository::UnitOfWork;
@@ -353,4 +354,195 @@ async fn a_file_over_the_preview_limit_is_refused_before_its_content_is_read() {
     );
     assert_eq!(repo.content_reads.load(Ordering::SeqCst), 0);
     assert_eq!(worker.requested.lock().map(|v| v.len()).unwrap_or(1), 0);
+}
+
+/// An inspector that records the bytes it was given and returns a fixed inspection.
+#[derive(Debug, Default)]
+struct RecordingInspector {
+    seen: Mutex<Vec<Vec<u8>>>,
+}
+
+#[async_trait]
+impl PdfInspector for RecordingInspector {
+    async fn inspect(&self, content: &[u8]) -> Result<PdfInspection, AppError> {
+        if let Ok(mut seen) = self.seen.lock() {
+            seen.push(content.to_vec());
+        }
+        Ok(PdfInspection {
+            page_count: 1,
+            pages: vec![PdfPageBox {
+                width_centipoints: 59_500,
+                height_centipoints: 84_200,
+            }],
+            title: None,
+            producer: None,
+            creator: None,
+            attachments: Vec::new(),
+            attachments_truncated: false,
+        })
+    }
+}
+
+fn inspecting_service(repo: &MemRepo, inspector: Option<Arc<RecordingInspector>>) -> Service {
+    let base = service(repo, None);
+    match inspector {
+        Some(inspector) => base.with_inspector(inspector),
+        None => base,
+    }
+}
+
+#[tokio::test]
+async fn a_stored_document_is_inspected_after_the_bytes_are_verified() -> Result<(), AppError> {
+    let repo = MemRepo::default();
+    let content = pdf_bytes();
+    let id = store(&repo, &content, "application/pdf");
+    let inspector = Arc::new(RecordingInspector::default());
+    let inspection = inspecting_service(&repo, Some(Arc::clone(&inspector)))
+        .inspect_stored_pdf(&id.to_string())
+        .await?;
+    assert_eq!(inspection.page_count, 1);
+    assert_eq!(
+        inspector
+            .seen
+            .lock()
+            .map(|seen| seen.clone())
+            .unwrap_or_default(),
+        vec![content]
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn inspection_refuses_bad_identifiers_missing_wrong_type_and_tampered_documents() {
+    let repo = MemRepo::default();
+    let inspector = Arc::new(RecordingInspector::default());
+    let svc = inspecting_service(&repo, Some(Arc::clone(&inspector)));
+    let code = |error: Option<AppError>| error.as_ref().map(|value| envelope_of(value).code);
+    assert_eq!(
+        code(svc.inspect_stored_pdf("not-a-uuid").await.err()),
+        Some(ErrorCode::ValidationError)
+    );
+    assert_eq!(
+        code(
+            svc.inspect_stored_pdf(&Uuid::new_v4().to_string())
+                .await
+                .err()
+        ),
+        Some(ErrorCode::NotFound)
+    );
+    let text = store(&repo, &pdf_bytes(), "text/plain");
+    assert_eq!(
+        code(svc.inspect_stored_pdf(&text.to_string()).await.err()),
+        Some(ErrorCode::ValidationError)
+    );
+    let tampered = store(&repo, &pdf_bytes(), "application/pdf");
+    tamper(&repo, tampered);
+    assert_eq!(
+        code(svc.inspect_stored_pdf(&tampered.to_string()).await.err()),
+        Some(ErrorCode::InternalError)
+    );
+    assert_eq!(inspector.seen.lock().map(|seen| seen.len()).unwrap_or(1), 0);
+}
+
+#[tokio::test]
+async fn inspection_without_an_inspector_is_the_fixed_failure() {
+    let repo = MemRepo::default();
+    let id = store(&repo, &pdf_bytes(), "application/pdf");
+    let error = inspecting_service(&repo, None)
+        .inspect_stored_pdf(&id.to_string())
+        .await
+        .err();
+    assert_eq!(
+        error.as_ref().map(|value| envelope_of(value).message),
+        Some(INSPECTION_FAILURE_MESSAGE.to_owned())
+    );
+}
+
+/// A layout reader that records the bytes it was given and returns a fixed layout.
+#[derive(Debug, Default)]
+struct RecordingLayoutReader {
+    seen: Mutex<Vec<Vec<u8>>>,
+}
+
+#[async_trait]
+impl PdfLayoutReader for RecordingLayoutReader {
+    async fn read_layout(&self, content: &[u8]) -> Result<PdfLayout, AppError> {
+        if let Ok(mut seen) = self.seen.lock() {
+            seen.push(content.to_vec());
+        }
+        Ok(PdfLayout {
+            page_count: 0,
+            pages: Vec::new(),
+            truncated: false,
+        })
+    }
+}
+
+#[tokio::test]
+async fn a_stored_document_layout_is_read_after_the_bytes_are_verified() -> Result<(), AppError> {
+    let repo = MemRepo::default();
+    let content = pdf_bytes();
+    let id = store(&repo, &content, "application/pdf");
+    let reader = Arc::new(RecordingLayoutReader::default());
+    let layout = service(&repo, None)
+        .with_layout_reader(Arc::clone(&reader) as Arc<dyn PdfLayoutReader>)
+        .layout_stored_pdf(&id.to_string())
+        .await?;
+    assert!(!layout.truncated);
+    assert_eq!(
+        reader
+            .seen
+            .lock()
+            .map(|seen| seen.clone())
+            .unwrap_or_default(),
+        vec![content]
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn layout_refuses_bad_identifiers_missing_wrong_type_and_tampered_documents() {
+    let repo = MemRepo::default();
+    let reader = Arc::new(RecordingLayoutReader::default());
+    let svc =
+        service(&repo, None).with_layout_reader(Arc::clone(&reader) as Arc<dyn PdfLayoutReader>);
+    let code = |error: Option<AppError>| error.as_ref().map(|value| envelope_of(value).code);
+    assert_eq!(
+        code(svc.layout_stored_pdf("not-a-uuid").await.err()),
+        Some(ErrorCode::ValidationError)
+    );
+    assert_eq!(
+        code(
+            svc.layout_stored_pdf(&Uuid::new_v4().to_string())
+                .await
+                .err()
+        ),
+        Some(ErrorCode::NotFound)
+    );
+    let text = store(&repo, &pdf_bytes(), "text/plain");
+    assert_eq!(
+        code(svc.layout_stored_pdf(&text.to_string()).await.err()),
+        Some(ErrorCode::ValidationError)
+    );
+    let tampered = store(&repo, &pdf_bytes(), "application/pdf");
+    tamper(&repo, tampered);
+    assert_eq!(
+        code(svc.layout_stored_pdf(&tampered.to_string()).await.err()),
+        Some(ErrorCode::InternalError)
+    );
+    assert_eq!(reader.seen.lock().map(|seen| seen.len()).unwrap_or(1), 0);
+}
+
+#[tokio::test]
+async fn layout_without_a_reader_is_the_fixed_failure() {
+    let repo = MemRepo::default();
+    let id = store(&repo, &pdf_bytes(), "application/pdf");
+    let error = service(&repo, None)
+        .layout_stored_pdf(&id.to_string())
+        .await
+        .err();
+    assert_eq!(
+        error.as_ref().map(|value| envelope_of(value).message),
+        Some(LAYOUT_FAILURE_MESSAGE.to_owned())
+    );
 }

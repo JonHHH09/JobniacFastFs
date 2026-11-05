@@ -1,0 +1,186 @@
+{
+  "type": "cv",
+  "document": {
+    "schemaVersion": "4.0",
+    "languageCode": "en",
+    "person": {
+      "givenName": "Alex",
+      "familyName": "Sample",
+      "emails": [
+        "alex.sample@example.com"
+      ],
+      "websites": [
+        "https://example.com/alex-sample"
+      ],
+      "phones": [
+        {
+          "useCode": "mobile",
+          "countryDialing": "1",
+          "number": "2025550147",
+          "countryCode": "us"
+        }
+      ],
+      "addresses": [
+        {
+          "kind": "home",
+          "lines": [
+            "42 Example Street",
+            "Apartment 3B"
+          ],
+          "city": "Testville",
+          "postalCode": "10001",
+          "countryCode": "us",
+          "countryLabel": null
+        }
+      ],
+      "birthDate": "1998-05-14",
+      "primaryLanguage": "English"
+    },
+    "summary": {
+      "markup": "<p>TEST SAMPLE — FICTIONAL DATA. Created solely for JobniacFastFS field-recognition testing; not a real candidate or application.</p><p>Software QA engineer with sample experience in automated testing, REST API validation and structured defect reporting.</p>",
+      "blocks": [
+        {
+          "kind": "paragraph",
+          "text": "TEST SAMPLE — FICTIONAL DATA. Created solely for JobniacFastFS field-recognition testing; not a real candidate or application."
+        },
+        {
+          "kind": "paragraph",
+          "text": "Software QA engineer with sample experience in automated testing, REST API validation and structured defect reporting."
+        }
+      ]
+    },
+    "employment": [
+      {
+        "employer": "Example Software Laboratory (fictional)",
+        "employerCity": "Testville",
+        "employerCountryCode": "us",
+        "position": "Software QA Engineer",
+        "period": {
+          "start": "2023-03-15",
+          "end": null,
+          "current": true
+        },
+        "description": {
+          "markup": "<p>Developed Playwright regression tests for a fictional customer portal.</p><p>Validated REST endpoints and SQL data consistency using synthetic records.</p><p>Recorded reproducible defects and reviewed release checklists.</p>",
+          "blocks": [
+            {
+              "kind": "paragraph",
+              "text": "Developed Playwright regression tests for a fictional customer portal."
+            },
+            {
+              "kind": "paragraph",
+              "text": "Validated REST endpoints and SQL data consistency using synthetic records."
+            },
+            {
+              "kind": "paragraph",
+              "text": "Recorded reproducible defects and reviewed release checklists."
+            }
+          ]
+        },
+        "city": "Testville",
+        "countryCode": "us"
+      },
+      {
+        "employer": "Sandbox Applications Studio (fictional)",
+        "employerCity": "Demo City",
+        "employerCountryCode": "us",
+        "position": "Junior Software Tester",
+        "period": {
+          "start": "2021-07-01",
+          "end": "2023-02-28",
+          "current": false
+        },
+        "description": {
+          "markup": "<p>Executed manual test cases for sample web and mobile applications.</p><p>Maintained test fixtures and documented expected versus actual results.</p>",
+          "blocks": [
+            {
+              "kind": "paragraph",
+              "text": "Executed manual test cases for sample web and mobile applications."
+            },
+            {
+              "kind": "paragraph",
+              "text": "Maintained test fixtures and documented expected versus actual results."
+            }
+          ]
+        },
+        "city": "Demo City",
+        "countryCode": "us"
+      }
+    ],
+    "education": [
+      {
+        "organization": "Fictional Technical University",
+        "city": "Demo City",
+        "countryCode": "us",
+        "period": {
+          "start": "2017-09-01",
+          "end": "2021-06-30",
+          "current": false
+        },
+        "degree": "Bachelor of Science in Computer Science",
+        "description": {
+          "markup": "<p>Sample coursework: software engineering, databases, computer networks and software testing.</p><p>Fictional capstone: automated validation of structured PDF documents.</p>",
+          "blocks": [
+            {
+              "kind": "paragraph",
+              "text": "Sample coursework: software engineering, databases, computer networks and software testing."
+            },
+            {
+              "kind": "paragraph",
+              "text": "Fictional capstone: automated validation of structured PDF documents."
+            }
+          ]
+        }
+      }
+    ],
+    "languages": [
+      {
+        "name": "Spanish",
+        "scheme": "FREE_TEXT",
+        "listening": "B1",
+        "reading": "B1",
+        "spokenInteraction": "B1",
+        "spokenProduction": "B1",
+        "writing": "B1"
+      }
+    ],
+    "skills": [
+      {
+        "taxonomy": "Digital_Skill",
+        "name": "Python"
+      },
+      {
+        "taxonomy": "Digital_Skill",
+        "name": "SQL"
+      },
+      {
+        "taxonomy": "Digital_Skill",
+        "name": "Playwright"
+      },
+      {
+        "taxonomy": "Digital_Skill",
+        "name": "Git"
+      },
+      {
+        "taxonomy": "Digital_Skill",
+        "name": "REST API testing"
+      }
+    ],
+    "design": {
+      "template": "Template2",
+      "color": "Default",
+      "fontSize": "Medium",
+      "logo": "FirstPage",
+      "pageNumbers": true,
+      "sectionsOrder": [
+        "education-training",
+        "work-experience",
+        "profile-skills",
+        "language"
+      ]
+    },
+    "unsupportedSections": [],
+    "truncatedFields": [],
+    "invalidFields": []
+  }
+}

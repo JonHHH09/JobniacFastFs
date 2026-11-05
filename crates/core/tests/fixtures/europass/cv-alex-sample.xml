@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Candidate xsi:schemaLocation="http://www.europass.eu/1.0 Candidate.xsd" xmlns="http://www.europass.eu/1.0" xmlns:oa="http://www.openapplications.org/oagis/9" xmlns:eures="http://www.europass_eures.eu/1.0" xmlns:hr="http://www.hr-xml.org/3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <hr:DocumentID schemeID="Test-0001" schemeName="DocumentIdentifier" schemeAgencyName="EUROPASS" schemeVersionID="4.0"/>
+    <CandidateSupplier>
+        <hr:PartyID schemeID="Test-0001" schemeName="PartyID" schemeAgencyName="EUROPASS" schemeVersionID="1.0"/>
+        <hr:PartyName>Owner</hr:PartyName>
+        <PersonContact>
+            <PersonName>
+                <oa:GivenName>Alex</oa:GivenName>
+                <hr:FamilyName>Sample</hr:FamilyName>
+            </PersonName>
+            <Communication>
+                <ChannelCode>Email</ChannelCode>
+                <oa:URI>alex.sample@example.com</oa:URI>
+            </Communication>
+        </PersonContact>
+        <hr:PrecedenceCode>1</hr:PrecedenceCode>
+    </CandidateSupplier>
+    <CandidatePerson>
+        <PersonName>
+            <oa:GivenName>Alex</oa:GivenName>
+            <hr:FamilyName>Sample</hr:FamilyName>
+        </PersonName>
+        <Communication>
+            <ChannelCode>Email</ChannelCode>
+            <oa:URI>alex.sample@example.com</oa:URI>
+        </Communication>
+        <Communication>
+            <ChannelCode>Web</ChannelCode>
+            <oa:URI>https://example.com/alex-sample</oa:URI>
+        </Communication>
+        <Communication>
+            <ChannelCode>Telephone</ChannelCode>
+            <UseCode>mobile</UseCode>
+            <CountryDialing>1</CountryDialing>
+            <oa:DialNumber>2025550147</oa:DialNumber>
+            <CountryCode>us</CountryCode>
+        </Communication>
+        <Communication>
+            <UseCode>home</UseCode>
+            <Address type="home">
+                <oa:AddressLine>42 Example Street</oa:AddressLine>
+                <oa:AddressLine>Apartment 3B</oa:AddressLine>
+                <oa:CityName>Testville</oa:CityName>
+                <CountryCode>us</CountryCode>
+                <oa:PostalCode>10001</oa:PostalCode>
+            </Address>
+        </Communication>
+        <hr:BirthDate>1998-05-14</hr:BirthDate>
+        <PrimaryLanguageCode name="FREE_TEXT">English</PrimaryLanguageCode>
+    </CandidatePerson>
+    <CandidateProfile languageCode="en">
+        <hr:ID schemeID="Test-0001" schemeName="CandidateProfileID" schemeAgencyName="EUROPASS" schemeVersionID="1.0"/>
+        <hr:ExecutiveSummary>&lt;p&gt;TEST SAMPLE — FICTIONAL DATA. Created solely for JobniacFastFS field-recognition testing; not a real candidate or application.&lt;/p&gt;&lt;p&gt;Software QA engineer with sample experience in automated testing, REST API validation and structured defect reporting.&lt;/p&gt;</hr:ExecutiveSummary>
+        <EmploymentHistory>
+            <EmployerHistory>
+                <hr:OrganizationName>Example Software Laboratory (fictional)</hr:OrganizationName>
+                <OrganizationContact>
+                    <Communication>
+                        <Address>
+                            <oa:CityName>Testville</oa:CityName>
+                            <CountryCode>us</CountryCode>
+                        </Address>
+                    </Communication>
+                </OrganizationContact>
+                <PositionHistory>
+                    <PositionTitle typeCode="FREETEXT">Software QA Engineer</PositionTitle>
+                    <eures:EmploymentPeriod>
+                        <eures:StartDate>
+                            <hr:FormattedDateTime>2023-03-15</hr:FormattedDateTime>
+                        </eures:StartDate>
+                        <hr:CurrentIndicator>true</hr:CurrentIndicator>
+                    </eures:EmploymentPeriod>
+                    <oa:Description>&lt;p&gt;Developed Playwright regression tests for a fictional customer portal.&lt;/p&gt;&lt;p&gt;Validated REST endpoints and SQL data consistency using synthetic records.&lt;/p&gt;&lt;p&gt;Recorded reproducible defects and reviewed release checklists.&lt;/p&gt;</oa:Description>
+                    <City>Testville</City>
+                    <Country>us</Country>
+                </PositionHistory>
+            </EmployerHistory>
+            <EmployerHistory>
+                <hr:OrganizationName>Sandbox Applications Studio (fictional)</hr:OrganizationName>
+                <OrganizationContact>
+                    <Communication>
+                        <Address>
+                            <oa:CityName>Demo City</oa:CityName>
+                            <CountryCode>us</CountryCode>
+                        </Address>
+                    </Communication>
+                </OrganizationContact>
+                <PositionHistory>
+                    <PositionTitle typeCode="FREETEXT">Junior Software Tester</PositionTitle>
+                    <eures:EmploymentPeriod>
+                        <eures:StartDate>
+                            <hr:FormattedDateTime>2021-07-01</hr:FormattedDateTime>
+                        </eures:StartDate>
+                        <eures:EndDate>
+                            <hr:FormattedDateTime>2023-02-28</hr:FormattedDateTime>
+                        </eures:EndDate>
+                        <hr:CurrentIndicator>false</hr:CurrentIndicator>
+                    </eures:EmploymentPeriod>
+                    <oa:Description>&lt;p&gt;Executed manual test cases for sample web and mobile applications.&lt;/p&gt;&lt;p&gt;Maintained test fixtures and documented expected versus actual results.&lt;/p&gt;</oa:Description>
+                    <City>Demo City</City>
+                    <Country>us</Country>
+                </PositionHistory>
+            </EmployerHistory>
+        </EmploymentHistory>
+        <EducationHistory>
+            <EducationOrganizationAttendance>
+                <hr:OrganizationName>Fictional Technical University</hr:OrganizationName>
+                <OrganizationContact>
+                    <Communication>
+                        <Address>
+                            <oa:CityName>Demo City</oa:CityName>
+                            <CountryCode>us</CountryCode>
+                        </Address>
+                    </Communication>
+                </OrganizationContact>
+                <AttendancePeriod>
+                    <StartDate>
+                        <hr:FormattedDateTime>2017-09-01</hr:FormattedDateTime>
+                    </StartDate>
+                    <EndDate>
+                        <hr:FormattedDateTime>2021-06-30</hr:FormattedDateTime>
+                    </EndDate>
+                    <Ongoing>false</Ongoing>
+                </AttendancePeriod>
+                <EducationDegree>
+                    <hr:DegreeName>Bachelor of Science in Computer Science</hr:DegreeName>
+                    <OccupationalSkillsCovered>&lt;p&gt;Sample coursework: software engineering, databases, computer networks and software testing.&lt;/p&gt;&lt;p&gt;Fictional capstone: automated validation of structured PDF documents.&lt;/p&gt;</OccupationalSkillsCovered>
+                </EducationDegree>
+            </EducationOrganizationAttendance>
+        </EducationHistory>
+        <eures:Licenses/>
+        <Certifications/>
+        <PublicationHistory/>
+        <PersonQualifications>
+            <PersonCompetency>
+                <CompetencyID schemeName="FREE_TEXT">Spanish</CompetencyID>
+                <hr:TaxonomyID>language</hr:TaxonomyID>
+                <eures:CompetencyDimension>
+                    <hr:CompetencyDimensionTypeCode>CEF-Understanding-Listening</hr:CompetencyDimensionTypeCode>
+                    <eures:Score>
+                        <hr:ScoreText>B1</hr:ScoreText>
+                    </eures:Score>
+                </eures:CompetencyDimension>
+                <eures:CompetencyDimension>
+                    <hr:CompetencyDimensionTypeCode>CEF-Understanding-Reading</hr:CompetencyDimensionTypeCode>
+                    <eures:Score>
+                        <hr:ScoreText>B1</hr:ScoreText>
+                    </eures:Score>
+                </eures:CompetencyDimension>
+                <eures:CompetencyDimension>
+                    <hr:CompetencyDimensionTypeCode>CEF-Speaking-Interaction</hr:CompetencyDimensionTypeCode>
+                    <eures:Score>
+                        <hr:ScoreText>B1</hr:ScoreText>
+                    </eures:Score>
+                </eures:CompetencyDimension>
+                <eures:CompetencyDimension>
+                    <hr:CompetencyDimensionTypeCode>CEF-Speaking-Production</hr:CompetencyDimensionTypeCode>
+                    <eures:Score>
+                        <hr:ScoreText>B1</hr:ScoreText>
+                    </eures:Score>
+                </eures:CompetencyDimension>
+                <eures:CompetencyDimension>
+                    <hr:CompetencyDimensionTypeCode>CEF-Writing-Production</hr:CompetencyDimensionTypeCode>
+                    <eures:Score>
+                        <hr:ScoreText>B1</hr:ScoreText>
+                    </eures:Score>
+                </eures:CompetencyDimension>
+            </PersonCompetency>
+        </PersonQualifications>
+        <EmploymentReferences/>
+        <CreativeWorks/>
+        <Projects/>
+        <SocialAndPoliticalActivities/>
+        <Skills>
+            <PersonCompetency>
+                <hr:TaxonomyID>Digital_Skill</hr:TaxonomyID>
+                <hr:CompetencyName>Python</hr:CompetencyName>
+            </PersonCompetency>
+            <PersonCompetency>
+                <hr:TaxonomyID>Digital_Skill</hr:TaxonomyID>
+                <hr:CompetencyName>SQL</hr:CompetencyName>
+            </PersonCompetency>
+            <PersonCompetency>
+                <hr:TaxonomyID>Digital_Skill</hr:TaxonomyID>
+                <hr:CompetencyName>Playwright</hr:CompetencyName>
+            </PersonCompetency>
+            <PersonCompetency>
+                <hr:TaxonomyID>Digital_Skill</hr:TaxonomyID>
+                <hr:CompetencyName>Git</hr:CompetencyName>
+            </PersonCompetency>
+            <PersonCompetency>
+                <hr:TaxonomyID>Digital_Skill</hr:TaxonomyID>
+                <hr:CompetencyName>REST API testing</hr:CompetencyName>
+            </PersonCompetency>
+        </Skills>
+        <NetworksAndMemberships/>
+        <ConferencesAndSeminars/>
+        <VoluntaryWorks/>
+        <CourseCertifications/>
+    </CandidateProfile>
+    <RenderingInformation>
+        <Design>
+            <Template>Template2</Template>
+            <Color>Default</Color>
+            <FontSize>Medium</FontSize>
+            <Logo>FirstPage</Logo>
+            <PageNumbers>true</PageNumbers>
+            <SectionsOrder>
+                <Section>
+                    <Title>education-training</Title>
+                </Section>
+                <Section>
+                    <Title>work-experience</Title>
+                </Section>
+                <Section>
+                    <Title>profile-skills</Title>
+                </Section>
+                <Section>
+                    <Title>language</Title>
+                </Section>
+            </SectionsOrder>
+        </Design>
+    </RenderingInformation>
+</Candidate>

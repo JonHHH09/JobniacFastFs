@@ -43,6 +43,10 @@ CLAUDE.md
 CLAUDE.local.md
 .mcp.json
 
+# Codex local configuration, hooks and skills (kept per machine, never committed); AGENTS.md is tracked
+/.codex/
+/.agents/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -36,9 +36,21 @@ drafts take the body of their version section from this file.
 - Project wiki: pages for users (installation, getting started, data and privacy, updates,
   troubleshooting), MCP clients and contributors live in `docs/wiki/`, and the `Wiki` workflow mirrors
   them to the GitHub wiki whenever `main` changes them.
+- Profile from PDF: when a stored PDF carries a Europass CV (an `.xml` attachment), the profile is
+  built from that exact data instead of from the text of the PDF: name, email, phone, website,
+  summary, skills, languages with their CEFR level, education and work experience. A PDF without
+  such an attachment, or with an unusable one (a cover letter, malformed XML, a CV without an email
+  address, or a failed inspection), is read from its text exactly as before. Birth date and postal
+  address are not imported. The result of `ingest_profile_from_stored_pdf` (and the desktop
+  `profile_pdf_ingest` result) gains one field, `profileSource`: `EUROPASS_CV` or `PDF_TEXT` on the
+  MCP tool, `europassCv` or `pdfText` over desktop IPC, and `null` when an existing source was reused
+  and no profile was read. Existing fields, statuses and errors are unchanged.
 
 ### Changed
 
+- Profile from PDF: a stored PDF with a Europass CV attachment is now read from that attachment
+  instead of from the text heuristics, so the profile may differ from what an earlier version built
+  from the same file. A PDF without a usable Europass CV is read as before.
 - Desktop: the optional features (`JOBNIAC_ARBEITNOW_ENABLED`, `JOBNIAC_LINK_FETCH_ENABLED`,
   `JOBNIAC_DELETION_ENABLED`, `JOBNIAC_DOCUMENT_ARTIFACTS_ENABLED`, `JOBNIAC_GENERATED_ENABLED`) are
   now on by default in the desktop app, so a release started from the Start menu or Finder shows

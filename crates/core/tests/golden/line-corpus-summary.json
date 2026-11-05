@@ -1,0 +1,126 @@
+{
+  "seed": 20260101,
+  "documents": 39,
+  "styles": {
+    "canada_english": {
+      "documents": 3,
+      "lines": 136,
+      "pipeline_lines": 136
+    },
+    "canada_french": {
+      "documents": 3,
+      "lines": 101,
+      "pipeline_lines": 101
+    },
+    "europass_albanian": {
+      "documents": 3,
+      "lines": 181,
+      "pipeline_lines": 180
+    },
+    "europass_english": {
+      "documents": 3,
+      "lines": 150,
+      "pipeline_lines": 148
+    },
+    "europass_french": {
+      "documents": 3,
+      "lines": 182,
+      "pipeline_lines": 180
+    },
+    "europass_german": {
+      "documents": 3,
+      "lines": 177,
+      "pipeline_lines": 175
+    },
+    "german_lebenslauf": {
+      "documents": 3,
+      "lines": 137,
+      "pipeline_lines": 135
+    },
+    "letter_albanian": {
+      "documents": 3,
+      "lines": 66,
+      "pipeline_lines": 65
+    },
+    "letter_canada_french": {
+      "documents": 3,
+      "lines": 69,
+      "pipeline_lines": 69
+    },
+    "letter_europass": {
+      "documents": 3,
+      "lines": 63,
+      "pipeline_lines": 62
+    },
+    "letter_german_din": {
+      "documents": 3,
+      "lines": 68,
+      "pipeline_lines": 65
+    },
+    "letter_us": {
+      "documents": 3,
+      "lines": 68,
+      "pipeline_lines": 67
+    },
+    "us_chronological": {
+      "documents": 3,
+      "lines": 123,
+      "pipeline_lines": 123
+    }
+  },
+  "labels": {
+    "letter": 334,
+    "letter.body": 110,
+    "letter.closing": 15,
+    "letter.date": 15,
+    "letter.other": 13,
+    "letter.recipient": 61,
+    "letter.salutation": 15,
+    "letter.sender_contact": 61,
+    "letter.sender_name": 15,
+    "letter.signature": 22,
+    "letter.subject": 7,
+    "resume": 1187,
+    "resume.body": 201,
+    "resume.bullet": 245,
+    "resume.contact": 89,
+    "resume.date_range": 128,
+    "resume.location": 30,
+    "resume.name": 24,
+    "resume.organization": 128,
+    "resume.other": 51,
+    "resume.section_heading": 138,
+    "resume.title": 153
+  },
+  "lexicon_flags": {
+    "closing.is_closing": {
+      "lines": 15,
+      "flagged": 9
+    },
+    "organization.has_company_suffix": {
+      "lines": 128,
+      "flagged": 44
+    },
+    "salutation.is_salutation": {
+      "lines": 15,
+      "flagged": 9
+    },
+    "section_heading.heading_any": {
+      "lines": 138,
+      "flagged": 102
+    },
+    "subject.is_subject": {
+      "lines": 7,
+      "flagged": 6
+    },
+    "title.has_degree": {
+      "lines": 153,
+      "flagged": 34
+    },
+    "title.has_title_keyword": {
+      "lines": 153,
+      "flagged": 45
+    }
+  },
+  "sha256": "2b2384f3f888837203fde5a48d69e14525d5d8213bf3b7a18f8d135b048aed3f"
+}

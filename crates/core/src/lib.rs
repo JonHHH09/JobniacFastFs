@@ -13,6 +13,7 @@ pub mod deletion;
 pub mod documents;
 pub mod env;
 pub mod errors;
+pub mod europass;
 pub mod generated_assets;
 pub mod generated_root;
 pub mod generated_root_setup;

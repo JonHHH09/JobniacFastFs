@@ -7,8 +7,6 @@
 //! Rust.
 
 use jobniac_core::errors::ApplicationError;
-use jobniac_core::ids::admit_uuid;
-use jobniac_text::str_rules::strip_text;
 use serde_json::{Value, json};
 use tauri::State;
 use uuid::Uuid;
@@ -174,8 +172,7 @@ async fn run_capabilities(state: &AppState) -> Result<GenerationCapabilitiesDto,
 /// Admits a request identifier: trimmed, lowercased, then a canonical UUID. The copy is the
 /// generic one, because the screen shows one failure copy for generation.
 fn admit_id(text: &str) -> Result<Uuid, CommandError> {
-    admit_uuid(&strip_text(text).to_ascii_lowercase())
-        .map_err(|_| CommandError::new(VALIDATION, GENERATION_ERROR))
+    crate::request::admit_id(text, GENERATION_ERROR)
 }
 
 /// The facade request of a profile resume operation.

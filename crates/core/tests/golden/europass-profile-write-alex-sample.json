@@ -1,0 +1,115 @@
+{
+  "fullName": "Alex Sample",
+  "email": "alex.sample@example.com",
+  "summary": "TEST SAMPLE — FICTIONAL DATA. Created solely for JobniacFastFS field-recognition testing; not a real candidate or application.\nSoftware QA engineer with sample experience in automated testing, REST API validation and structured defect reporting.",
+  "contacts": [
+    {
+      "id": null,
+      "contactType": "email",
+      "contactValue": "alex.sample@example.com",
+      "label": "Europass email"
+    },
+    {
+      "id": null,
+      "contactType": "phone",
+      "contactValue": "+1 2025550147",
+      "label": "Europass phone"
+    }
+  ],
+  "links": [
+    {
+      "id": null,
+      "linkType": "website",
+      "url": "https://example.com/alex-sample",
+      "label": "Website"
+    }
+  ],
+  "skills": [
+    {
+      "id": null,
+      "skill": "Python",
+      "normalizedSkill": "python",
+      "category": "Digital_Skill",
+      "displayOrder": 0
+    },
+    {
+      "id": null,
+      "skill": "SQL",
+      "normalizedSkill": "sql",
+      "category": "Digital_Skill",
+      "displayOrder": 1
+    },
+    {
+      "id": null,
+      "skill": "Playwright",
+      "normalizedSkill": "playwright",
+      "category": "Digital_Skill",
+      "displayOrder": 2
+    },
+    {
+      "id": null,
+      "skill": "Git",
+      "normalizedSkill": "git",
+      "category": "Digital_Skill",
+      "displayOrder": 3
+    },
+    {
+      "id": null,
+      "skill": "REST API testing",
+      "normalizedSkill": "rest api testing",
+      "category": "Digital_Skill",
+      "displayOrder": 4
+    }
+  ],
+  "languages": [
+    {
+      "id": null,
+      "language": "English",
+      "normalizedLanguage": "english",
+      "proficiency": "native",
+      "displayOrder": 0
+    },
+    {
+      "id": null,
+      "language": "Spanish",
+      "normalizedLanguage": "spanish",
+      "proficiency": "B1",
+      "displayOrder": 1
+    }
+  ],
+  "education": [
+    {
+      "id": null,
+      "institution": "Fictional Technical University",
+      "degree": "Bachelor of Science in Computer Science",
+      "field": null,
+      "location": "Demo City, US",
+      "startDate": "2017-09-01",
+      "endDate": "2021-06-30",
+      "relevantFocus": "Sample coursework: software engineering, databases, computer networks and software testing.\nFictional capstone: automated validation of structured PDF documents."
+    }
+  ],
+  "experiences": [
+    {
+      "id": null,
+      "company": "Example Software Laboratory (fictional)",
+      "title": "Software QA Engineer",
+      "location": "Testville, US",
+      "startDate": "2023-03-15",
+      "endDate": null,
+      "description": "Developed Playwright regression tests for a fictional customer portal.\nValidated REST endpoints and SQL data consistency using synthetic records.\nRecorded reproducible defects and reviewed release checklists.",
+      "displayOrder": 0
+    },
+    {
+      "id": null,
+      "company": "Sandbox Applications Studio (fictional)",
+      "title": "Junior Software Tester",
+      "location": "Demo City, US",
+      "startDate": "2021-07-01",
+      "endDate": "2023-02-28",
+      "description": "Executed manual test cases for sample web and mobile applications.\nMaintained test fixtures and documented expected versus actual results.",
+      "displayOrder": 1
+    }
+  ],
+  "projects": []
+}

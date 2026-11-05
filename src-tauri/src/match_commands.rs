@@ -14,18 +14,17 @@
 //! names of these commands.
 
 use jobniac_core::errors::{AppError, ErrorCode, error_envelope};
-use jobniac_runtime::services::Services;
 use jobniac_text::str_rules::strip_text;
 use serde_json::{Value, json};
 use tauri::State;
 
 use crate::error::CommandError;
-use crate::job_commands::NOT_CONFIGURED;
 use crate::match_dto::{
     DisagreementPageDto, DisagreementViewDto, MatchBatchPageDto, MatchCapabilitiesDto,
     MatchHistoryPageDto, MatchReportViewDto, OutOfRange, ReviewPageDto, ReviewSubmitResultDto,
     ReviewViewDto,
 };
+use crate::request::{parse_object_request, require_database, text_field};
 use crate::state::AppState;
 
 /// Message id of a matching request while no local database is configured (the copy is the
@@ -45,19 +44,6 @@ pub const REVIEW_ERROR: &str = "reviews.error.generic";
 pub const MATCH_PAGE_LIMIT: i64 = 20;
 /// The fixed page size of the review and disagreement lists (`limit: 20`).
 pub const REVIEW_PAGE_LIMIT: i64 = 20;
-
-/// Refuses a request before any use case runs while no local database is configured. The
-/// composition root keeps the services without a database, so the check is made
-/// here, as the job commands do.
-pub(crate) fn require_database(
-    services: &Services,
-    unconfigured: &str,
-) -> Result<(), CommandError> {
-    match services.database {
-        Some(_) => Ok(()),
-        None => Err(CommandError::new(NOT_CONFIGURED, unconfigured)),
-    }
-}
 
 /// Maps a matching failure to the typed command error. The wire code is kept. Only a `not_found`
 /// code has its own copy; every other failure has the generic copy
@@ -84,27 +70,6 @@ fn operation_error(error: &AppError, not_found: &str, generic: &str) -> CommandE
 /// generic copy. The whole response is refused; no partial page is shown.
 fn projection<T>(result: Result<T, OutOfRange>, generic: &str) -> Result<T, CommandError> {
     result.map_err(|_| CommandError::new("internal_error", generic))
-}
-
-/// Parses the request object of a command. Malformed JSON, a lone surrogate escape or a value
-/// that is not an object is refused with the operation's generic copy.
-pub(crate) fn parse_request(request_json: &str, generic: &str) -> Result<Value, CommandError> {
-    match serde_json::from_str::<Value>(request_json) {
-        Ok(value) if value.is_object() => Ok(value),
-        _ => Err(CommandError::new("validation_error", generic)),
-    }
-}
-
-/// A required text field of the request. A missing field or a value that is not text is refused.
-pub(crate) fn text_field<'a>(
-    request: &'a Value,
-    key: &str,
-    generic: &str,
-) -> Result<&'a str, CommandError> {
-    request
-        .get(key)
-        .and_then(Value::as_str)
-        .ok_or_else(|| CommandError::new("validation_error", generic))
 }
 
 /// An optional text field: absent or null is `None`, a text value is kept, any other type is refused.
@@ -224,7 +189,7 @@ async fn run_analyze_pair(
     request_json: &str,
 ) -> Result<MatchReportViewDto, CommandError> {
     let services = state.services()?;
-    let request = parse_request(request_json, MATCH_ERROR)?;
+    let request = parse_object_request(request_json, MATCH_ERROR)?;
     let profile_id = text_field(&request, "profileId", MATCH_ERROR)?;
     let job_id = text_field(&request, "jobId", MATCH_ERROR)?;
     let _slot = state.begin_matching()?;
@@ -255,7 +220,7 @@ async fn run_analyze_page(
     request_json: &str,
 ) -> Result<MatchBatchPageDto, CommandError> {
     let services = state.services()?;
-    let request = parse_request(request_json, MATCH_ERROR)?;
+    let request = parse_object_request(request_json, MATCH_ERROR)?;
     let profile_id = text_field(&request, "profileId", MATCH_ERROR)?;
     let cursor = optional_text_field(&request, "cursor", MATCH_ERROR)?;
     let _slot = state.begin_matching()?;
@@ -285,7 +250,7 @@ async fn run_list_reports(
     request_json: &str,
 ) -> Result<MatchHistoryPageDto, CommandError> {
     let services = state.services()?;
-    let request = parse_request(request_json, MATCH_ERROR)?;
+    let request = parse_object_request(request_json, MATCH_ERROR)?;
     let profile_id = optional_text_field(&request, "profileId", MATCH_ERROR)?;
     let job_id = optional_text_field(&request, "jobId", MATCH_ERROR)?;
     let cursor = optional_text_field(&request, "cursor", MATCH_ERROR)?;
@@ -316,7 +281,7 @@ async fn run_get_report(
     request_json: &str,
 ) -> Result<MatchReportViewDto, CommandError> {
     let services = state.services()?;
-    let request = parse_request(request_json, MATCH_ERROR)?;
+    let request = parse_object_request(request_json, MATCH_ERROR)?;
     let id = text_field(&request, "id", MATCH_ERROR)?;
     let _slot = state.begin_matching()?;
     require_database(services, MATCH_UNCONFIGURED)?;
@@ -373,7 +338,7 @@ async fn run_get_review(
     request_json: &str,
 ) -> Result<ReviewViewDto, CommandError> {
     let services = state.services()?;
-    let request = parse_request(request_json, REVIEW_ERROR)?;
+    let request = parse_object_request(request_json, REVIEW_ERROR)?;
     let id = text_field(&request, "id", REVIEW_ERROR)?;
     let _slot = state.begin_review()?;
     require_database(services, REVIEW_UNCONFIGURED)?;
@@ -402,7 +367,7 @@ async fn run_list_reviews(
     request_json: &str,
 ) -> Result<ReviewPageDto, CommandError> {
     let services = state.services()?;
-    let request = parse_request(request_json, REVIEW_ERROR)?;
+    let request = parse_object_request(request_json, REVIEW_ERROR)?;
     let report_id = optional_text_field(&request, "reportId", REVIEW_ERROR)?;
     let cursor = optional_text_field(&request, "cursor", REVIEW_ERROR)?;
     let _slot = state.begin_review()?;
@@ -432,7 +397,7 @@ async fn run_list_disagreements(
     request_json: &str,
 ) -> Result<DisagreementPageDto, CommandError> {
     let services = state.services()?;
-    let request = parse_request(request_json, REVIEW_ERROR)?;
+    let request = parse_object_request(request_json, REVIEW_ERROR)?;
     let report_id = optional_text_field(&request, "reportId", REVIEW_ERROR)?;
     let cursor = optional_text_field(&request, "cursor", REVIEW_ERROR)?;
     let _slot = state.begin_review()?;
@@ -463,7 +428,7 @@ async fn run_acknowledge(
     request_json: &str,
 ) -> Result<DisagreementViewDto, CommandError> {
     let services = state.services()?;
-    let request = parse_request(request_json, REVIEW_ERROR)?;
+    let request = parse_object_request(request_json, REVIEW_ERROR)?;
     let disagreement_id = text_field(&request, "disagreementId", REVIEW_ERROR)?;
     let issue_reference = optional_text_field(&request, "issueReference", REVIEW_ERROR)?;
     let _slot = state.begin_review()?;
@@ -493,7 +458,7 @@ async fn run_link(
     request_json: &str,
 ) -> Result<DisagreementViewDto, CommandError> {
     let services = state.services()?;
-    let request = parse_request(request_json, REVIEW_ERROR)?;
+    let request = parse_object_request(request_json, REVIEW_ERROR)?;
     let disagreement_id = text_field(&request, "disagreementId", REVIEW_ERROR)?;
     let issue_reference = text_field(&request, "issueReference", REVIEW_ERROR)?;
     let _slot = state.begin_review()?;
@@ -510,6 +475,7 @@ async fn run_link(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::request::NOT_CONFIGURED;
     use crate::state::{MATCH_BUSY, REVIEW_BUSY};
     use jobniac_core::env::Environment;
     use jobniac_core::errors::{ApplicationError, validation_error};
@@ -627,11 +593,11 @@ mod tests {
     #[test]
     fn a_request_must_be_an_object_and_its_text_fields_must_be_text() {
         assert_eq!(
-            parse_request("[]", MATCH_ERROR).err(),
+            parse_object_request("[]", MATCH_ERROR).err(),
             Some(CommandError::new("validation_error", MATCH_ERROR))
         );
         // A lone surrogate in an identifier is refused with the operation copy, not a plain error.
-        let lone = parse_request(r#"{"profileId":"\ud800","jobId":"x"}"#, MATCH_ERROR);
+        let lone = parse_object_request(r#"{"profileId":"\ud800","jobId":"x"}"#, MATCH_ERROR);
         assert_eq!(
             lone.err(),
             Some(CommandError::new("validation_error", MATCH_ERROR))

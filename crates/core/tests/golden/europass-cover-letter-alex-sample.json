@@ -1,0 +1,114 @@
+{
+  "type": "coverLetter",
+  "document": {
+    "locale": "en",
+    "documentInfo": {
+      "creationDate": "2026-11-03T17:00:00.000Z",
+      "lastUpdateDate": "2026-11-03T17:00:00.000Z",
+      "xsdVersion": "V3.4",
+      "generator": "EUROPASS2"
+    },
+    "sender": {
+      "givenName": "Alex",
+      "familyName": "Sample",
+      "emails": [
+        "alex.sample@example.com"
+      ],
+      "websites": [],
+      "phones": [
+        {
+          "useCode": "mobile",
+          "countryDialing": null,
+          "number": "+12025550147",
+          "countryCode": null
+        }
+      ],
+      "addresses": [
+        {
+          "kind": null,
+          "lines": [
+            "42 Example Street",
+            "Apartment 3B"
+          ],
+          "city": "Testville",
+          "postalCode": "10001",
+          "countryCode": "US",
+          "countryLabel": "United States"
+        }
+      ],
+      "birthDate": null,
+      "primaryLanguage": null
+    },
+    "addressee": {
+      "givenName": "Morgan",
+      "familyName": "Example",
+      "organisation": "Demo Systems Ltd (fictional)",
+      "address": {
+        "kind": null,
+        "lines": [
+          "99 Mock Avenue"
+        ],
+        "city": "Testville",
+        "postalCode": "10002",
+        "countryCode": "US",
+        "countryLabel": "United States"
+      }
+    },
+    "date": "2026-11-03",
+    "place": "Testville",
+    "subject": "TEST SAMPLE - Software QA Engineer (QA-TEST-001)",
+    "opening": {
+      "label": "Dear",
+      "name": "Morgan Example"
+    },
+    "body": {
+      "markup": "<p>TEST SAMPLE — FICTIONAL DATA. This document was created solely for JobniacFastFS field-recognition testing. All people, employers, education details and application circumstances are invented. This is not a real job application.</p><p><br></p><p>I am applying for the sample Software QA Engineer position, reference QA-TEST-001, at Demo Systems Ltd. My fictional background combines automated web testing, API validation and structured defect reporting.</p><p><br></p><p>At Example Software Laboratory, I develop Playwright regression tests, validate REST endpoints and check SQL data consistency using synthetic records. Previously, as a Junior Software Tester at Sandbox Applications Studio, I executed manual test cases and maintained reproducible test fixtures.</p><p><br></p><p>I hold a sample Bachelor of Science in Computer Science from Fictional Technical University. My technical skills include Python, SQL, Playwright and Git. I would bring a careful, systematic approach to testing and clear documentation of expected and actual results.</p><p><br></p><p>Thank you for reviewing this test specimen. The accompanying mock Europass CV contains matching sample identity, contact, education and employment fields for automated comparison.</p>",
+      "blocks": [
+        {
+          "kind": "paragraph",
+          "text": "TEST SAMPLE — FICTIONAL DATA. This document was created solely for JobniacFastFS field-recognition testing. All people, employers, education details and application circumstances are invented. This is not a real job application."
+        },
+        {
+          "kind": "blank"
+        },
+        {
+          "kind": "paragraph",
+          "text": "I am applying for the sample Software QA Engineer position, reference QA-TEST-001, at Demo Systems Ltd. My fictional background combines automated web testing, API validation and structured defect reporting."
+        },
+        {
+          "kind": "blank"
+        },
+        {
+          "kind": "paragraph",
+          "text": "At Example Software Laboratory, I develop Playwright regression tests, validate REST endpoints and check SQL data consistency using synthetic records. Previously, as a Junior Software Tester at Sandbox Applications Studio, I executed manual test cases and maintained reproducible test fixtures."
+        },
+        {
+          "kind": "blank"
+        },
+        {
+          "kind": "paragraph",
+          "text": "I hold a sample Bachelor of Science in Computer Science from Fictional Technical University. My technical skills include Python, SQL, Playwright and Git. I would bring a careful, systematic approach to testing and clear documentation of expected and actual results."
+        },
+        {
+          "kind": "blank"
+        },
+        {
+          "kind": "paragraph",
+          "text": "Thank you for reviewing this test specimen. The accompanying mock Europass CV contains matching sample identity, contact, education and employment fields for automated comparison."
+        }
+      ]
+    },
+    "closing": "Kind regards",
+    "design": {
+      "template": "Template1",
+      "color": "Default",
+      "fontSize": "Medium",
+      "logo": null,
+      "pageNumbers": true,
+      "sectionsOrder": []
+    },
+    "unsupportedSections": [],
+    "truncatedFields": [],
+    "invalidFields": []
+  }
+}

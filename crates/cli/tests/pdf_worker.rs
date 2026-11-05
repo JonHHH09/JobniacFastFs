@@ -17,10 +17,12 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
+use jobniac_core::documents::model::PdfPageBox;
 use jobniac_infra::workers::WorkerSupervisor;
 use jobniac_infra::workers::pdf::{
     EXTRACT_FAILURE_MESSAGE, EXTRACTION_VALIDATION_MESSAGE, ExtractionOptions, MAX_FILE_BYTES,
-    PdfError, PdfExtraction, PdfOperation, RENDER_FAILURE_MESSAGE, extract_text, render_page,
+    PdfError, PdfExtraction, PdfOperation, RENDER_FAILURE_MESSAGE, extract_text, inspect_pdf,
+    render_page,
 };
 use serde_json::Value;
 
@@ -627,5 +629,136 @@ async fn the_pdf_children_return_only_when_confined() -> TestResult {
         std::future::pending(),
     )
     .await?;
+    Ok(())
+}
+
+/// The two synthetic Europass-style fixtures and what PDFium reports for them.
+#[tokio::test]
+async fn europass_samples_are_inspected_with_pages_info_and_attachments() -> TestResult {
+    let Some(directory) = pdfium_dir() else {
+        return Ok(());
+    };
+    // (file, title, size of "Content Credentials", size of "attachment.xml", marker in the XML)
+    let samples = [
+        (
+            "europass/europass-cv-alex-sample.pdf",
+            "Europass CV",
+            24_290_u64,
+            11_221_u64,
+            "http://www.europass.eu/1.0",
+        ),
+        (
+            "europass/europass-cover-letter-alex-sample.pdf",
+            "Europass Cover Letter",
+            24_288,
+            5_224,
+            "SkillsPassport",
+        ),
+    ];
+    for (name, title, credentials_size, xml_size, marker) in samples {
+        let content = fs::read(fixture_root().join(name))?;
+        let inspection = inspect_pdf(&supervisor(), &directory, &content, std::future::pending())
+            .await
+            .map_err(|error| format!("{name}: {error:?}"))?;
+        assert_eq!(inspection.page_count, 1, "{name}");
+        assert_eq!(
+            inspection.pages,
+            vec![PdfPageBox {
+                width_centipoints: 59_500,
+                height_centipoints: 84_200
+            }],
+            "{name}"
+        );
+        assert_eq!(inspection.title.as_deref(), Some(title), "{name}");
+        assert_eq!(
+            inspection.producer.as_deref(),
+            Some("pdf-lib (https://github.com/Hopding/pdf-lib)"),
+            "{name}"
+        );
+        assert!(!inspection.attachments_truncated, "{name}");
+        let listed: Vec<(&str, u64)> = inspection
+            .attachments
+            .iter()
+            .map(|attachment| (attachment.name.as_str(), attachment.byte_size))
+            .collect();
+        assert_eq!(
+            listed,
+            vec![
+                ("attachment.xml", xml_size),
+                ("Content Credentials", credentials_size)
+            ],
+            "{name}"
+        );
+        let xml = inspection
+            .attachments
+            .iter()
+            .find(|attachment| attachment.name == "attachment.xml")
+            .and_then(|attachment| attachment.content.as_ref())
+            .ok_or("attachment.xml content")?;
+        assert_eq!(u64::try_from(xml.len())?, xml_size, "{name}");
+        let text = String::from_utf8_lossy(xml);
+        assert!(
+            text.starts_with("<?xml") || name.contains("cover-letter"),
+            "{name}"
+        );
+        assert!(text.contains(marker), "{name}: {marker}");
+    }
+    Ok(())
+}
+
+/// Inspection refuses the hostile files that extraction refuses, with the sanitized failure of the
+/// operation, and applies the same page limit.
+#[tokio::test]
+async fn inspection_refuses_the_hostile_files_that_extraction_refuses() -> TestResult {
+    let Some(directory) = pdfium_dir() else {
+        return Ok(());
+    };
+    let corpus = recorded()?;
+    let mut differences = Vec::new();
+    for (name, path) in fixtures("hostile")? {
+        let record = record_for(&corpus, &name)?;
+        let expected = match name.as_str() {
+            "hostile/huge-page-count.pdf" | "hostile/page-limit.pdf" => PdfError::PageLimit,
+            "hostile/zero-byte" | "hostile/not-a-pdf.txt" => PdfError::Validation {
+                field: "path",
+                reason: String::new(),
+            },
+            _ if record["ok"].as_bool() == Some(false) => PdfError::Inspection,
+            // Documents the extraction reads are not part of this check.
+            _ => continue,
+        };
+        let content = fs::read(&path)?;
+        let outcome = tokio::time::timeout(
+            HOSTILE_BOUND,
+            inspect_pdf(&supervisor(), &directory, &content, std::future::pending()),
+        )
+        .await;
+        match outcome {
+            Ok(Err(error))
+                if std::mem::discriminant(&error) == std::mem::discriminant(&expected) => {}
+            other => differences.push(format!("{name}: expected {expected:?}, got {other:?}")),
+        }
+    }
+    assert!(
+        differences.is_empty(),
+        "differences:\n{}",
+        differences.join("\n")
+    );
+    Ok(())
+}
+
+/// Inspecting a corpus page reports its size and no attachments or invented info.
+#[tokio::test]
+async fn a_plain_corpus_pdf_has_no_attachments() -> TestResult {
+    let Some(directory) = pdfium_dir() else {
+        return Ok(());
+    };
+    let content = fs::read(fixture_root().join("corpus/two-pages.pdf"))?;
+    let inspection =
+        inspect_pdf(&supervisor(), &directory, &content, std::future::pending()).await?;
+    assert_eq!(inspection.page_count, 2);
+    assert_eq!(inspection.pages.len(), 2);
+    assert!(inspection.attachments.is_empty());
+    assert!(!inspection.attachments_truncated);
     Ok(())
 }

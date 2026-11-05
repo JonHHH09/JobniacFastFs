@@ -8,7 +8,9 @@ import {
   formatInstant,
   formatRelative,
   humanizeEnum,
+  percentOf,
   sentenceCase,
+  statusVariant,
 } from "./format";
 
 describe("humanizeEnum", () => {
@@ -135,5 +137,35 @@ describe("formatBytes", () => {
     expect(formatBytes("2097152", "en-US")).toBe("2 MB");
     expect(formatBytes(null)).toBe("");
     expect(formatBytes(-1)).toBe("");
+  });
+});
+
+describe("percentOf", () => {
+  it("rounds the earned share of the available points to a whole percent", () => {
+    expect(percentOf(3, 4)).toBe(75);
+    expect(percentOf(1, 3)).toBe(33);
+    expect(percentOf(2, 3)).toBe(67);
+    expect(percentOf(4, 4)).toBe(100);
+    expect(percentOf(0, 4)).toBe(0);
+  });
+
+  it("is 0 when there are no available points", () => {
+    expect(percentOf(0, 0)).toBe(0);
+    expect(percentOf(3, 0)).toBe(0);
+    expect(percentOf(3, -2)).toBe(0);
+  });
+});
+
+describe("statusVariant", () => {
+  it("maps every status to its badge variant", () => {
+    expect(statusVariant("MATCH")).toBe("success");
+    expect(statusVariant("PARTIAL")).toBe("warning");
+    expect(statusVariant("MISMATCH")).toBe("destructive");
+    expect(statusVariant("UNKNOWN")).toBe("neutral");
+  });
+
+  it("is neutral for a status it does not know", () => {
+    expect(statusVariant("")).toBe("neutral");
+    expect(statusVariant("match")).toBe("neutral");
   });
 });

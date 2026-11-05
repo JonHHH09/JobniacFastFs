@@ -6,6 +6,8 @@
 //! * [`DocumentFileReader`]: reads one file from the configured import root. Refusals come back as
 //!   validation errors whose `reason` detail is the caller-visible text.
 //! * [`PdfExtractor`]: the canonical extraction of PDF bytes. The PDF worker client implements it.
+//! * [`PdfInspector`]: the page sizes, document info and attachments of PDF bytes.
+//! * [`PdfLayoutReader`]: the positioned line fragments with font information of PDF bytes.
 
 use async_trait::async_trait;
 use uuid::Uuid;
@@ -14,7 +16,9 @@ use crate::errors::AppError;
 use crate::pagination::{Page, PageRequest};
 
 use super::list::DocumentSummary;
-use super::model::{DocumentMetadata, ExtractionRecord, FileSnapshot, PdfText};
+use super::model::{
+    DocumentMetadata, ExtractionRecord, FileSnapshot, PdfInspection, PdfLayout, PdfText,
+};
 
 /// Persistence port of stored documents and extraction records.
 #[async_trait]
@@ -101,6 +105,57 @@ pub trait PdfExtractor: Send + Sync + std::fmt::Debug {
     ///
     /// A validation error for an invalid or over-long document, or an extraction failure.
     async fn extract(&self, content: &[u8], file_name: &str) -> Result<PdfText, AppError>;
+}
+
+/// Inspects PDF bytes: page sizes, document-info strings and embedded files (the `pdf-inspect`
+/// operation of the PDF worker). Nothing is persisted.
+#[async_trait]
+pub trait PdfInspector: Send + Sync + std::fmt::Debug {
+    /// Inspects `content`, which the caller has already checked for size and the PDF header.
+    ///
+    /// Attachments are listed with `.xml` names first, then in document order. PDFium decodes an
+    /// attachment's whole stream to size it and again to read it, and the pdfium-render binding
+    /// exposes no cheaper declared size. A decompression-bomb attachment therefore exhausts the
+    /// worker limits (memory, CPU, wall time) and the whole inspection fails closed with the fixed
+    /// inspection failure; no partial result is returned. The attachment count is reported through
+    /// a 16-bit value by the binding, so a document with 65,536 or more attachments may report a
+    /// wrapped count.
+    ///
+    /// # Errors
+    ///
+    /// A validation error for an invalid, encrypted or over-long document, or the fixed inspection
+    /// failure for any other outcome (including cancellation).
+    async fn inspect(&self, content: &[u8]) -> Result<PdfInspection, AppError>;
+}
+
+/// Reads the layout of PDF bytes: positioned line fragments with font information (the
+/// `pdf-layout` operation of the PDF worker). Nothing is persisted.
+#[async_trait]
+pub trait PdfLayoutReader: Send + Sync + std::fmt::Debug {
+    /// Reads the layout of `content`, which the caller has already checked for size and the PDF
+    /// header.
+    ///
+    /// Characters are walked in content order and grouped into fragments: a fragment continues
+    /// while the next character's baseline is within half a font size of the current baseline and
+    /// the horizontal gap from the previous character is below one and a half font sizes, so two
+    /// columns on one baseline give two fragments, and so does a change of bold or italic (a bold
+    /// label in front of a regular value). Coordinates are integer centipoints with the origin at
+    /// the top-left of the page, clamped to the page. The font size is the median over the
+    /// fragment. Boldness comes from the font weight, PDFium's bold flag, the font name or, as
+    /// many producers name every face alike, the `OS/2` and `head` tables of the embedded font.
+    ///
+    /// The bounds are the page limit of text extraction ([`super::MAX_PAGE_COUNT`]), at most
+    /// [`super::MAX_LAYOUT_LINES`] fragments per document, at most
+    /// [`super::MAX_LAYOUT_LINE_CHARS`] characters per fragment and in total at most
+    /// [`super::MAX_CHARACTERS_LIMIT`] characters; a bound that cuts output sets `truncated`.
+    /// Rotated text is grouped by its unrotated bounds and pages whose box does not start at the
+    /// origin are not translated, so such pages may lose or clamp fragments.
+    ///
+    /// # Errors
+    ///
+    /// A validation error for an invalid, encrypted or over-long document, or the fixed layout
+    /// failure for any other outcome (including cancellation).
+    async fn read_layout(&self, content: &[u8]) -> Result<PdfLayout, AppError>;
 }
 
 /// One page rendered to PNG by the PDF worker.

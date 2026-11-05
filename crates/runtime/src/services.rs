@@ -39,7 +39,8 @@ use crate::blocking::BlockingHasher;
 use crate::database::{database_path, prepare};
 use crate::deletion::{DeletionServices, compose_deletion};
 use crate::document_ports::{
-    ImportRootReader, PickedFileGrant, WorkerCancellation, WorkerPdfExtractor, WorkerPdfRenderer,
+    ImportRootReader, PickedFileGrant, WorkerCancellation, WorkerPdfExtractor, WorkerPdfInspector,
+    WorkerPdfLayoutReader, WorkerPdfRenderer,
 };
 use crate::generation::{GenerationServices, compose_generation};
 
@@ -259,6 +260,10 @@ fn compose_documents(
     let cancellation = WorkerCancellation::new();
     let extractor =
         WorkerPdfExtractor::shared(supervisor.clone(), pdfium_dir.clone(), cancellation.clone());
+    let inspector =
+        WorkerPdfInspector::new(supervisor.clone(), pdfium_dir.clone(), cancellation.clone());
+    let layout_reader =
+        WorkerPdfLayoutReader::new(supervisor.clone(), pdfium_dir.clone(), cancellation.clone());
     let renderer = Arc::new(WorkerPdfRenderer::new(
         supervisor,
         pdfium_dir,
@@ -274,6 +279,8 @@ fn compose_documents(
                 Arc::new(SystemClock),
             )
             .with_renderer(renderer.clone())
+            .with_inspector(Arc::new(inspector))
+            .with_layout_reader(Arc::new(layout_reader))
             .with_hasher(Arc::new(BlockingHasher)),
         ),
         cancellation,

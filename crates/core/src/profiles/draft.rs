@@ -425,6 +425,38 @@ fn optional_normalized(value: &Option<String>) -> String {
     value.as_deref().map_or_else(String::new, lowercase_text)
 }
 
+/// The duplicate key of an education entry: institution, degree, field, start and end.
+pub(crate) fn education_key(
+    institution: &Option<String>,
+    degree: &Option<String>,
+    study_field: &Option<String>,
+    start: Option<Date>,
+    end: Option<Date>,
+) -> (String, String, String, String, String) {
+    (
+        optional_normalized(institution),
+        optional_normalized(degree),
+        optional_normalized(study_field),
+        date_key(start),
+        date_key(end),
+    )
+}
+
+/// The duplicate key of an experience entry: company, title, start and end.
+pub(crate) fn experience_key(
+    company: &Option<String>,
+    title: &Option<String>,
+    start: Option<Date>,
+    end: Option<Date>,
+) -> (String, String, String, String) {
+    (
+        optional_normalized(company),
+        optional_normalized(title),
+        date_key(start),
+        date_key(end),
+    )
+}
+
 fn education(values: Option<&Value>) -> Result<Vec<EducationDraft>, AppError> {
     let mut result = Vec::new();
     let mut seen: HashSet<(String, String, String, String, String)> = HashSet::new();
@@ -447,13 +479,7 @@ fn education(values: Option<&Value>) -> Result<Vec<EducationDraft>, AppError> {
         let location = optional_text(item.get("location"), &format!("{field}.location"))?;
         let relevant_focus =
             optional_text(item.get("relevantFocus"), &format!("{field}.relevantFocus"))?;
-        let key = (
-            optional_normalized(&institution),
-            optional_normalized(&degree),
-            optional_normalized(&study_field),
-            date_key(start),
-            date_key(end),
-        );
+        let key = education_key(&institution, &degree, &study_field, start, end);
         if !seen.insert(key) {
             return Err(write_invalid(
                 &format!("{field}.institution"),
@@ -495,12 +521,7 @@ fn experiences(values: Option<&Value>) -> Result<Vec<ExperienceDraft>, AppError>
         let location = optional_text(item.get("location"), &format!("{field}.location"))?;
         let description = optional_text(item.get("description"), &format!("{field}.description"))?;
         let order = display_order(item, &format!("{field}.displayOrder"))?;
-        let key = (
-            optional_normalized(&company),
-            optional_normalized(&title),
-            date_key(start),
-            date_key(end),
-        );
+        let key = experience_key(&company, &title, start, end);
         if !seen.insert(key) {
             return Err(write_invalid(
                 &format!("{field}.company"),

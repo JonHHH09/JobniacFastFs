@@ -50,6 +50,47 @@ fn extraction_request_limit_admits_a_full_import_sized_pdf() -> TestResult {
 }
 
 #[test]
+fn inspection_has_the_limits_and_confinement_of_extraction() {
+    let inspect = WorkerKind::PdfInspect;
+    assert_eq!(inspect.name(), "pdf-inspect");
+    assert_eq!(inspect.limits(), WorkerKind::PdfExtract.limits());
+    assert_eq!(
+        inspect.request_limit(),
+        WorkerKind::PdfExtract.request_limit()
+    );
+    assert_eq!(
+        inspect.sandbox_profile(),
+        WorkerKind::PdfExtract.sandbox_profile()
+    );
+    assert_eq!(
+        inspect.max_concurrent(),
+        WorkerKind::PdfExtract.max_concurrent()
+    );
+    assert!(inspect.handler().is_none());
+}
+
+#[test]
+fn layout_has_the_limits_and_confinement_of_extraction() {
+    let layout = WorkerKind::PdfLayout;
+    assert_eq!(layout.name(), "pdf-layout");
+    assert_eq!(WorkerKind::from_name("pdf-layout"), Some(layout));
+    assert_eq!(layout.limits(), WorkerKind::PdfExtract.limits());
+    assert_eq!(
+        layout.request_limit(),
+        WorkerKind::PdfExtract.request_limit()
+    );
+    assert_eq!(
+        layout.sandbox_profile(),
+        WorkerKind::PdfExtract.sandbox_profile()
+    );
+    assert_eq!(
+        layout.max_concurrent(),
+        WorkerKind::PdfExtract.max_concurrent()
+    );
+    assert!(layout.handler().is_none());
+}
+
+#[test]
 fn rendering_limits_are_those_of_the_preview_worker() {
     let limits = WorkerKind::PdfRender.limits();
     assert_eq!(limits.memory_bytes, 1024 * MIB);

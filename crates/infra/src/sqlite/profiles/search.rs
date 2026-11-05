@@ -20,7 +20,7 @@ use jobniac_text::search::prefixes;
 use rusqlite::Connection;
 
 use super::{col, query_rows};
-use crate::sqlite::codec::{Id, Instant};
+use crate::sqlite::codec::{Id, Instant, count_bind};
 
 /// Largest number of candidate profiles returned by one search.
 pub const MAX_SEARCH_CANDIDATES: usize = 500;
@@ -260,9 +260,4 @@ pub(crate) fn search_profile_candidates(
 fn json_array<S: AsRef<str>>(values: &[S]) -> Result<String, AppError> {
     let texts: Vec<&str> = values.iter().map(AsRef::as_ref).collect();
     serde_json::to_string(&texts).map_err(|_| AppError::Internal)
-}
-
-/// A count as an integer bind.
-fn count_bind(value: usize) -> Result<i64, AppError> {
-    i64::try_from(value).map_err(|_| AppError::Internal)
 }

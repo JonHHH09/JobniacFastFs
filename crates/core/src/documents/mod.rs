@@ -19,12 +19,16 @@ pub use list::{
 };
 pub use model::{
     DEFAULT_MAX_CHARACTERS, DocumentMetadata, ExtractionOptions, ExtractionRecord, FileSnapshot,
-    MAX_CHARACTERS_LIMIT, MAX_FILE_BYTES, MAX_PAGE_COUNT, PAGE_VALIDATION_MESSAGE, PageText,
-    PdfText, RENDER_FAILURE_MESSAGE, StoredExtraction,
+    INSPECTION_FAILURE_MESSAGE, LAYOUT_BOUNDS_TOLERANCE, LAYOUT_FAILURE_MESSAGE, LayoutLine,
+    MAX_ATTACHMENT_BYTES, MAX_ATTACHMENT_TOTAL_BYTES, MAX_CHARACTERS_LIMIT, MAX_FILE_BYTES,
+    MAX_INSPECT_ATTACHMENT_NAME_CHARS, MAX_INSPECT_ATTACHMENT_NAMES, MAX_INSPECT_ATTACHMENTS,
+    MAX_INSPECT_METADATA_CHARS, MAX_LAYOUT_FONT_SIZE, MAX_LAYOUT_LINE_CHARS, MAX_LAYOUT_LINES,
+    MAX_PAGE_COUNT, PAGE_VALIDATION_MESSAGE, PageLayout, PageText, PdfAttachmentInfo,
+    PdfInspection, PdfLayout, PdfPageBox, PdfText, RENDER_FAILURE_MESSAGE, StoredExtraction,
 };
 pub use repository::{
-    DocumentFileReader, DocumentListRepository, DocumentRepository, PdfExtractor, PdfRenderer,
-    RenderedPdfPage,
+    DocumentFileReader, DocumentListRepository, DocumentRepository, PdfExtractor, PdfInspector,
+    PdfLayoutReader, PdfRenderer, RenderedPdfPage,
 };
 pub use service::{ContentHasher, DocumentService, InlineHasher, sha256_hex};
 pub use view::{extraction_view, page_index_in_range, safe_basename, validate_pdf_content};

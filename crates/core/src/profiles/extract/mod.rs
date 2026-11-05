@@ -6,9 +6,13 @@
 //!
 //! The regular expressions and the string
 //! rules are in [`pattern`] and [`text`]; the section split is in [`sections`]; the link,
-//! phrase and entry builders are in [`entries`].
+//! phrase and entry builders are in [`entries`]. The line model, reading order, locale rules,
+//! line features and synthetic corpus that a later line-role classifier will use are in [`lines`];
+//! nothing here calls them yet.
 
 mod entries;
+mod europass;
+pub mod lines;
 mod pattern;
 mod sections;
 mod text;
@@ -20,6 +24,7 @@ use serde_json::{Value, json};
 
 use crate::errors::{AppError, validation_error};
 
+pub use self::europass::profile_write_from_europass_cv;
 use self::pattern::{EMAIL, PHONE, guarded_find};
 use self::text::{local_part_words, title_case};
 

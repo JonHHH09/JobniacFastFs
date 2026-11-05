@@ -4,6 +4,8 @@
 use jobniac_text::search::lower_text;
 use jobniac_text::str_rules::{is_text_decimal, is_text_whitespace, strip_text};
 
+use super::lines::dates::{DateOutcome, parse_date_text_in};
+use super::lines::locale::LocaleHint;
 use super::pattern::{LOCAL_SEPARATOR, URL};
 
 /// Splits on runs of whitespace characters; they separate the words.
@@ -45,16 +47,6 @@ pub(super) fn decimal_value(character: char) -> Option<u32> {
     Some((character as u32 - start) % 10)
 }
 
-/// The value of a token made only of decimal digits.
-pub(super) fn decimal_text(token: &str) -> Option<u32> {
-    if token.is_empty() {
-        return None;
-    }
-    token.chars().try_fold(0_u32, |value, character| {
-        decimal_value(character).map(|digit| value * 10 + digit)
-    })
-}
-
 /// Trailing `.,;` removed, the query and fragment dropped, trailing
 /// slashes removed, and `https://` added unless the value already starts with `http://` or
 /// `https://` (case-insensitively).
@@ -81,63 +73,42 @@ pub(super) fn url_matches(text: &str) -> impl Iterator<Item = &str> {
 /// Parses a month-and-year text, where the text is the matched start or end of a date range,
 /// without `present` or `current`.
 ///
-/// The lower-cased text is split on whitespace and the last token is read as the year. A start
-/// with no space between the month and the year (`Jan2020`) is read as the spaced form
-/// (`Jan 2020`).
+/// This delegates to the line reader's date parser (`lines::dates`), with Unicode decimal digits
+/// read as ASCII digits and any four-digit year accepted, so every date of the section split keeps
+/// its output: a bare year is January of that year, a month name and year is the first of that
+/// month, and `Jan2020` reads as `Jan 2020`.
 pub(super) fn parse_date(value: &str) -> Option<String> {
-    let lower = lower_text(value);
-    let mut tokens: Vec<String> = split_words(&lower).map(str::to_owned).collect();
-    let last = tokens.last()?.clone();
-    if last == "present" || last == "current" {
-        return None;
-    }
-    let (year, prefix) = match decimal_text(&last) {
-        Some(year) => (year, None),
-        None => split_year_token(&last)?,
-    };
-    if let Some(prefix) = prefix {
-        tokens.pop();
-        tokens.push(prefix);
-        tokens.push(year.to_string());
-    }
-    let month = if tokens.len() == 1 {
-        1
+    // Unicode decimal digits read as ASCII digits, and any Unicode whitespace (the range pattern
+    // accepts a no-break space) as an ASCII space.
+    let ascii: String = value
+        .chars()
+        .map(|character| {
+            if character.is_whitespace() {
+                return ' ';
+            }
+            decimal_value(character)
+                .and_then(|digit| char::from_digit(digit, 10))
+                .unwrap_or(character)
+        })
+        .collect();
+    // The month table of the section split knows ASCII letters only: a month word with another
+    // letter (`ſep`, long s) is an unknown month, which reads as January. The line reader folds
+    // such letters (`ſ` to `s`), so keep only the year for them. Only the letters are checked,
+    // so punctuation or spacing around the month never discards it.
+    let lowered = lower_text(&ascii);
+    let month_letters_are_ascii = lowered
+        .chars()
+        .take_while(|character| !character.is_ascii_digit())
+        .filter(|character| character.is_alphabetic())
+        .all(|character| character.is_ascii());
+    let ascii = if month_letters_are_ascii {
+        ascii
     } else {
-        month_number(tokens.first()?)
+        lowered.chars().filter(char::is_ascii_digit).collect()
     };
-    Some(format!("{year:04}-{month:02}-01"))
-}
-
-/// Splits a token such as `sep2020` into its letter prefix and its trailing four-digit year.
-fn split_year_token(token: &str) -> Option<(u32, Option<String>)> {
-    let characters: Vec<char> = token.chars().collect();
-    let split = characters.len().checked_sub(4)?;
-    if split == 0 {
-        return None;
-    }
-    let year_text: String = characters[split..].iter().collect();
-    let year = decimal_text(&year_text)?;
-    let prefix: String = characters[..split].iter().collect();
-    Some((year, Some(prefix)))
-}
-
-/// The month number of the first three letters of a token, or 1 when unknown.
-fn month_number(first: &str) -> u32 {
-    let key: String = first.chars().take(3).collect();
-    match key.as_str() {
-        "jan" => 1,
-        "feb" => 2,
-        "mar" => 3,
-        "apr" => 4,
-        "may" => 5,
-        "jun" => 6,
-        "jul" => 7,
-        "aug" => 8,
-        "sep" => 9,
-        "oct" => 10,
-        "nov" => 11,
-        "dec" => 12,
-        _ => 1,
+    match parse_date_text_in(&ascii, LocaleHint::Unknown, (0, 9999)) {
+        DateOutcome::Parsed(date) => Some(date.iso()),
+        DateOutcome::Ambiguous | DateOutcome::NotADate => None,
     }
 }
 
@@ -152,12 +123,16 @@ mod tests {
 
     #[test]
     fn decimal_values_follow_unicode_runs() {
-        assert_eq!(decimal_text("2020"), Some(2020));
-        assert_eq!(decimal_text("\u{0662}\u{0660}\u{0662}\u{0660}"), Some(2020));
-        assert_eq!(decimal_text("\u{1d7d8}\u{1d7d9}"), Some(1));
-        assert_eq!(decimal_text("\u{1d7ff}"), Some(9));
-        assert_eq!(decimal_text("20x0"), None);
-        assert_eq!(decimal_text(""), None);
+        assert_eq!(decimal_value('7'), Some(7));
+        assert_eq!(decimal_value('\u{0662}'), Some(2));
+        assert_eq!(decimal_value('\u{0660}'), Some(0));
+        assert_eq!(decimal_value('\u{1d7d9}'), Some(1));
+        assert_eq!(decimal_value('\u{1d7ff}'), Some(9));
+        assert_eq!(decimal_value('x'), None);
+        assert_eq!(
+            parse_date("\u{0662}\u{0660}\u{0662}\u{0660}").as_deref(),
+            Some("2020-01-01")
+        );
     }
 
     #[test]
@@ -166,7 +141,24 @@ mod tests {
         assert_eq!(parse_date("Sept2020").as_deref(), Some("2020-09-01"));
         assert_eq!(parse_date("Sept 2020").as_deref(), Some("2020-09-01"));
         assert_eq!(parse_date("2019").as_deref(), Some("2019-01-01"));
+        assert_eq!(parse_date("1850").as_deref(), Some("1850-01-01"));
+        assert_eq!(parse_date("March 2021").as_deref(), Some("2021-03-01"));
+        assert_eq!(parse_date("june2018").as_deref(), Some("2018-06-01"));
+        // A long s is not an ASCII month letter: an unknown month, January.
+        assert_eq!(parse_date("\u{17f}ep 2020").as_deref(), Some("2020-01-01"));
         assert_eq!(parse_date("present"), None);
+    }
+
+    #[test]
+    fn unicode_whitespace_between_month_and_year_keeps_the_month() {
+        // The range pattern accepts any whitespace, so a no-break or narrow space can reach here.
+        assert_eq!(parse_date("Sep\u{a0}2020").as_deref(), Some("2020-09-01"));
+        assert_eq!(parse_date("Sep\u{202f}2020").as_deref(), Some("2020-09-01"));
+        assert_eq!(
+            parse_date("March\u{2009}2021").as_deref(),
+            Some("2021-03-01")
+        );
+        assert_eq!(parse_date("\u{a0}2019").as_deref(), Some("2019-01-01"));
     }
 
     #[test]

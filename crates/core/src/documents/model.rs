@@ -31,6 +31,32 @@ pub const PAGE_VALIDATION_MESSAGE: &str = "Invalid PDF page request";
 /// The fixed message of a page render that fails for any reason.
 pub const RENDER_FAILURE_MESSAGE: &str = "Unable to preview this PDF safely.";
 
+/// The fixed message of an inspection that fails for any reason.
+pub const INSPECTION_FAILURE_MESSAGE: &str = "PDF could not be inspected";
+/// The most attachments an inspection lists; more are flagged as truncated.
+pub const MAX_INSPECT_ATTACHMENTS: usize = 16;
+/// The most attachment names an inspection reads to choose which attachments to list.
+pub const MAX_INSPECT_ATTACHMENT_NAMES: usize = 256;
+/// The largest attachment whose bytes an inspection returns, in bytes (1 MiB).
+pub const MAX_ATTACHMENT_BYTES: u64 = 1024 * 1024;
+/// The most attachment bytes one inspection returns in total, in bytes (4 MiB).
+pub const MAX_ATTACHMENT_TOTAL_BYTES: u64 = 4 * 1024 * 1024;
+/// The longest document-info string an inspection returns, in characters.
+pub const MAX_INSPECT_METADATA_CHARS: usize = 512;
+/// The longest attachment name an inspection returns, in characters.
+pub const MAX_INSPECT_ATTACHMENT_NAME_CHARS: usize = 255;
+
+/// The fixed message of a layout read that fails for any reason.
+pub const LAYOUT_FAILURE_MESSAGE: &str = "PDF layout could not be read";
+/// The most layout lines a document returns; more are flagged as truncated.
+pub const MAX_LAYOUT_LINES: usize = 20_000;
+/// The most characters one layout line returns.
+pub const MAX_LAYOUT_LINE_CHARS: usize = 1_000;
+/// The slack, in centipoints, by which a layout line may lie outside its page.
+pub const LAYOUT_BOUNDS_TOLERANCE: u32 = 100;
+/// The largest font size a layout line reports, in centipoints (1000 points).
+pub const MAX_LAYOUT_FONT_SIZE: u32 = 100_000;
+
 /// Immutable bytes read from one securely opened local source.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FileSnapshot {
@@ -84,6 +110,95 @@ pub struct PdfText {
     pub text: String,
     /// The per-page text in page order, bounded by the budget when pages are included.
     pub pages: Vec<PageText>,
+}
+
+/// The size of one page: points times 100, rounded half away from zero, so that the value is an
+/// exact integer on every platform.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PdfPageBox {
+    /// The page width in hundredths of a point.
+    pub width_centipoints: u32,
+    /// The page height in hundredths of a point.
+    pub height_centipoints: u32,
+}
+
+/// One embedded file (attachment) of a PDF.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PdfAttachmentInfo {
+    /// The attachment name, without control characters, at most
+    /// [`MAX_INSPECT_ATTACHMENT_NAME_CHARS`] characters.
+    pub name: String,
+    /// The size of the attachment in bytes.
+    pub byte_size: u64,
+    /// The bytes, only when the attachment is at most [`MAX_ATTACHMENT_BYTES`] and the running total
+    /// stays within [`MAX_ATTACHMENT_TOTAL_BYTES`].
+    pub content: Option<Vec<u8>>,
+}
+
+/// The read-only inspection of a PDF: page sizes, document-info strings and attachments.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PdfInspection {
+    /// The number of pages of the document.
+    pub page_count: u32,
+    /// The size of every page, in document order.
+    pub pages: Vec<PdfPageBox>,
+    /// The document title, normalized, when present.
+    pub title: Option<String>,
+    /// The producer, normalized, when present.
+    pub producer: Option<String>,
+    /// The creator, normalized, when present.
+    pub creator: Option<String>,
+    /// The first [`MAX_INSPECT_ATTACHMENTS`] attachments in PDFium enumeration order.
+    pub attachments: Vec<PdfAttachmentInfo>,
+    /// Whether the document has more attachments than were listed.
+    pub attachments_truncated: bool,
+}
+
+/// One positioned line fragment of a page. Coordinates are integer centipoints (points times 100)
+/// with the origin at the top-left of the page, so `y` grows down the page and `x0 <= x1`,
+/// `y0 <= y1`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LayoutLine {
+    /// The text: trimmed, with internal whitespace collapsed to single spaces, never empty.
+    pub text: String,
+    /// The left edge.
+    pub x0: u32,
+    /// The top edge.
+    pub y0: u32,
+    /// The right edge.
+    pub x1: u32,
+    /// The bottom edge.
+    pub y1: u32,
+    /// The font size: the median over the characters of the line, in centipoints.
+    pub font_size_centipoints: u32,
+    /// Whether the line is bold. A change of boldness starts a new line.
+    pub bold: bool,
+    /// Whether the line is italic. A change of italic starts a new line.
+    pub italic: bool,
+}
+
+/// The line fragments of one page, in content order.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PageLayout {
+    /// The page number, from 1.
+    pub page_number: u32,
+    /// The page width in centipoints.
+    pub width_centipoints: u32,
+    /// The page height in centipoints.
+    pub height_centipoints: u32,
+    /// The line fragments in content order.
+    pub lines: Vec<LayoutLine>,
+}
+
+/// The read-only layout of a PDF: positioned line fragments with font information.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PdfLayout {
+    /// The number of pages of the document.
+    pub page_count: u32,
+    /// Every page, in document order.
+    pub pages: Vec<PageLayout>,
+    /// Whether a bound (fragment count, characters per fragment or total characters) cut output.
+    pub truncated: bool,
 }
 
 /// The durable canonical extraction of a stored document.
