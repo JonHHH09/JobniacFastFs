@@ -2446,6 +2446,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "jobniac-cart"
+version = "0.1.0"
+
+[[package]]
 name = "jobniac-cli"
 version = "0.1.0"
 dependencies = [

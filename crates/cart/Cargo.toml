@@ -1,0 +1,12 @@
+[package]
+name = "jobniac-cart"
+description = "Dependency-free CART decision-tree classifier (training, pruning, exact text model format)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
