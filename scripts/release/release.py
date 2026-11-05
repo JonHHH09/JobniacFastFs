@@ -305,6 +305,12 @@ def next_version(file_version: str, tags: list[str], tags_at_merge: list[str]) -
     return result, previous
 
 
+def latest_stable_tag(tags: list[str]) -> str:
+    """The tag of the newest stable release (what GitHub serves as the latest release), or empty when none."""
+    stable = [version for version in _release_versions(tags) if _is_stable(version)]
+    return f"v{max(stable, key=_version_key)}" if stable else ""
+
+
 def check_newest_release_is_ancestor(repo_root: Path, merge_sha: str, tags: list[str], tags_at_merge: list[str]) -> None:
     """Fails unless the highest stable tag is an ancestor of the merge commit.
 
@@ -801,8 +807,11 @@ def assemble(legs_dir: Path, out: Path, version: str, platforms: tuple[str, ...]
             seen[path.name] = path
             shutil.copyfile(path, out / path.name)
     if shared is not None:
-        if (shared / LEG_DIGESTS).is_file():
-            verify_digest_manifest(shared, LEG_DIGESTS, set())
+        if not (shared / LEG_DIGESTS).is_file():
+            raise ReleaseError(f"the shared directory lacks {LEG_DIGESTS}")
+        verify_digest_manifest(shared, LEG_DIGESTS, set())
+        if {entry.name for entry in shared.iterdir()} != sbom_names | {LEG_DIGESTS}:
+            raise ReleaseError("the shared directory must hold exactly the SBOMs and their digests")
         for name in sorted(sbom_names):
             if not (shared / name).is_file():
                 raise ReleaseError("the shared directory lacks an SBOM")
@@ -832,11 +841,22 @@ Transport = Callable[[str, str, str, bytes | None, str], tuple[int, bytes]]
 
 
 class _DropAuthOnForeignRedirect(urllib.request.HTTPRedirectHandler):
-    """Follows a redirect without sending the token to another host (asset downloads go to a signed URL)."""
+    """Follows a redirect over HTTPS only, and keeps the token only for the same origin.
+
+    Asset downloads redirect to a signed URL on another host, which must not receive the token. The origin
+    is the scheme, the lowercased host name and the port (443 when absent).
+    """
+
+    @staticmethod
+    def _origin(url: str) -> tuple[str, str, int]:
+        parts = urllib.parse.urlsplit(url)
+        return parts.scheme, (parts.hostname or "").lower(), parts.port or 443
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):  # type: ignore[no-untyped-def]
+        if urllib.parse.urlsplit(newurl).scheme != "https":
+            raise ReleaseError("GitHub API redirected to a URL that is not HTTPS")
         redirected = super().redirect_request(req, fp, code, msg, headers, newurl)
-        if redirected is not None and urllib.parse.urlsplit(newurl).netloc != urllib.parse.urlsplit(req.full_url).netloc:
+        if redirected is not None and self._origin(newurl) != self._origin(req.full_url):
             redirected.remove_header("Authorization")
         return redirected
 
@@ -1085,7 +1105,8 @@ def check_updater_manifest(manifest: Path, version: str, assets_dir: Path, platf
         raw = manifest.read_bytes()
     except OSError as error:
         raise ReleaseError(fixed) from error
-    _check_manifest_data(_parse_manifest(raw, fixed), version, assets_dir, platforms, False, fixed)
+    # A full set keeps accepting extra platform keys; a subset must name exactly its own keys.
+    _check_manifest_data(_parse_manifest(raw, fixed), version, assets_dir, platforms, len(platforms) != len(PLATFORMS), fixed)
 
 
 @dataclass(frozen=True)
@@ -1112,11 +1133,15 @@ def _validate_carried(data: dict[str, object], version: str, fixed: str, key: st
         raise ReleaseError(fixed)
     if exact and key is not None and set(entries) != {key}:
         raise ReleaseError(fixed)
-    for entry in entries.values():
+    installers = updater_installers(previous)
+    for entry_key, entry in entries.items():
         if not isinstance(entry, dict) or not isinstance(entry.get("signature"), str) or not entry["signature"].strip():
             raise ReleaseError(fixed)
-        url = entry.get("url")
-        if not isinstance(url, str) or not url.startswith(f"{RELEASE_DOWNLOAD_BASE}/v{previous}/"):
+        # The URL is exactly the installer of that key at the carried version, encoded as the writer does.
+        if entry_key not in installers:
+            raise ReleaseError(fixed)
+        expected_url = f"{RELEASE_DOWNLOAD_BASE}/v{previous}/{urllib.parse.quote(installers[entry_key])}"
+        if entry.get("url") != expected_url:
             raise ReleaseError(fixed)
 
 
@@ -1161,6 +1186,17 @@ def carried_legacy_manifest(previous_dir: Path | None, version: str) -> bytes | 
     return raw
 
 
+def _previous_has_files(previous_dir: Path | None) -> bool:
+    """Whether the previous-manifests directory exists and holds anything (an empty one means a first release)."""
+    return previous_dir is not None and previous_dir.is_dir() and any(previous_dir.iterdir())
+
+
+def _missing_carry(previous_dir: Path | None, platform: str) -> None:
+    """A platform outside the set has no previous manifest: fatal unless there is no previous release at all."""
+    if _previous_has_files(previous_dir):
+        raise ReleaseError(f"the previous release carries no updater manifest for {platform}")
+
+
 def build_platform_manifests(assets_dir: Path, version: str, platforms: tuple[str, ...], previous_dir: Path | None,
                              notes: str, pub_date: str, out_dir: Path) -> list[str]:
     """Writes latest-<key>.json for every updater key (and latest.json) and returns the warnings.
@@ -1178,6 +1214,7 @@ def build_platform_manifests(assets_dir: Path, version: str, platforms: tuple[st
             continue
         carried = carried_manifest(previous_dir, key, version)
         if carried is None:
+            _missing_carry(previous_dir, platform)
             warnings.append(f"no earlier build of {platform} exists: {target.name} is not written")
         elif carried.raw is not None:
             target.write_bytes(carried.raw)
@@ -1209,6 +1246,7 @@ def check_platform_manifests(manifests_dir: Path, version: str, assets_dir: Path
             continue
         carried = carried_manifest(previous_dir, key, version)
         if carried is None:
+            _missing_carry(previous_dir, platform)
             continue
         expected.add(name)
         if not path.is_file():
@@ -1246,27 +1284,46 @@ def _check_platform_file(path: Path, version: str, assets_dir: Path, platform: s
 # ---------------------------------------------------------------------------
 
 
-def fetch_previous_manifests(api: GitHubApi, out_dir: Path) -> list[str]:
+def _release_assets(api: GitHubApi, release_id: int) -> list[dict[str, object]]:
+    """Every asset of a release, read from the paginated asset listing."""
+    assets: list[dict[str, object]] = []
+    for page in range(1, PRUNE_MAX_PAGES + 1):
+        batch = api.call("GET", f"/releases/{release_id}/assets?per_page=100&page={page}")
+        if not isinstance(batch, list):
+            raise ReleaseError("release asset listing is not a list")
+        assets.extend(item for item in batch if isinstance(item, dict))
+        if len(batch) < 100:
+            return assets
+    raise ReleaseError("release asset listing exceeds the page cap")
+
+
+def fetch_previous_manifests(api: GitHubApi, out_dir: Path, expect_tag: str) -> list[str]:
     """Downloads the updater manifests of the latest published stable release into `out_dir`.
 
-    Only latest.json and the per-platform manifests are fetched, each capped at API_MAX_BYTES. With no
-    published release, the directory is created empty. Returns the names written.
+    `expect_tag` is the tag that release must have (the newest stable tag), or empty when none exists yet.
+    A 404, an unexpected tag or an unexpected release fails, so a mistyped repository or a bad token never
+    looks like a first release. Only latest.json and the per-platform manifests are fetched, each capped at
+    API_MAX_BYTES. Returns the names written.
     """
     out_dir.mkdir(parents=True, exist_ok=True)
     status, data = api.raw("GET", "/releases/latest")
     if status == 404:
+        if expect_tag:
+            raise ReleaseError("the expected latest release was not found")
         return []
     if status != 200:
         raise ReleaseError("GitHub API GET failed")
-    release = _parse_manifest(data, "latest release is not a JSON object")
-    assets = release.get("assets")
-    if not isinstance(assets, list):
-        raise ReleaseError("latest release has no asset list")
+    latest = _parse_manifest(data, "latest release is not a JSON object")
+    if not expect_tag or latest.get("tag_name") != expect_tag:
+        raise ReleaseError("the latest release is not the expected one")
+    release_id = latest.get("id")
+    if isinstance(release_id, bool) or not isinstance(release_id, int):
+        raise ReleaseError("latest release has no id")
     wanted = {UPDATER_MANIFEST, *(platform_manifest_name(key) for key in UPDATER_PLATFORMS)}
     found: dict[str, int] = {}
-    for asset in assets:
-        name = asset.get("name") if isinstance(asset, dict) else None
-        if name not in wanted:
+    for asset in _release_assets(api, release_id):
+        name = asset.get("name")
+        if not isinstance(name, str) or name not in wanted:
             continue
         asset_id, size = asset.get("id"), asset.get("size")
         if name in found:
@@ -1275,7 +1332,7 @@ def fetch_previous_manifests(api: GitHubApi, out_dir: Path) -> list[str]:
             raise ReleaseError("a previous manifest has no asset id")
         if isinstance(size, bool) or not isinstance(size, int) or size > API_MAX_BYTES:
             raise ReleaseError("a previous manifest is too large")
-        found[str(name)] = asset_id
+        found[name] = asset_id
     for name, asset_id in sorted(found.items()):
         status, blob = api.raw("GET", f"/releases/assets/{asset_id}", content_type="application/octet-stream")
         if status != 200 or len(blob) > API_MAX_BYTES:
@@ -1323,6 +1380,9 @@ def apply_platform_section(body: str, section: str) -> str:
     An empty section removes an existing one, so a re-run never duplicates or leaves a stale table.
     """
     section = section.strip()
+    begins, ends = body.count(PLATFORM_NOTES_BEGIN), body.count(PLATFORM_NOTES_END)
+    if begins != ends or begins > 1 or (begins == 1 and body.index(PLATFORM_NOTES_END) < body.index(PLATFORM_NOTES_BEGIN)):
+        raise ReleaseError("the release body has a malformed platforms section")
     existing = PLATFORM_NOTES_RE.search(body)
     if existing:
         if section:
@@ -1356,14 +1416,16 @@ def _other_published_release(api: GitHubApi, tag: str, release_id: int) -> bool:
 
 
 def verify_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, assets_dir: Path, latest_json: Path | None,
-                 release_id: int, platforms: tuple[str, ...] = PLATFORMS, manifests_dir: Path | None = None) -> None:
+                 release_id: int, platforms: tuple[str, ...] = PLATFORMS, manifests_dir: Path | None = None,
+                 previous_dir: Path | None = None) -> None:
     """Checks the draft against the tag, the commit, the local asset set and the updater manifests.
 
     The draft is read by its ID (its `tag_name` is a placeholder until it is published).
     `latest_json` is the draft's own latest.json, downloaded by the workflow; `manifests_dir` instead holds
-    every updater manifest the draft must carry (latest-<key>.json of each platform, and latest.json).
-    The draft must hold exactly the local assets plus those files, and each must be the one that the API
-    digest describes. Fails with a fixed message.
+    every updater manifest the draft must carry (latest-<key>.json of each platform, and latest.json); it is
+    checked like `check_platform_manifests` against `previous_dir` (required with it). The draft must hold
+    exactly the local assets plus those files, and each must be the one that the API digest describes.
+    Fails with a fixed message.
     """
     fixed = "draft verification failed"
     # A draft has no tag yet (`publish` creates it); one that exists must already be on the merge commit.
@@ -1384,7 +1446,9 @@ def verify_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, assets_d
             raise ReleaseError(fixed)
         local[UPDATER_MANIFEST] = latest_json
     else:
-        _check_draft_manifests_dir(manifests_dir, intent.version, assets_dir, platforms, local, fixed)
+        if previous_dir is None:
+            raise ReleaseError(fixed)
+        _check_draft_manifests_dir(manifests_dir, intent.version, assets_dir, platforms, previous_dir, local, fixed)
     assets = {str(asset["name"]): asset for asset in release.get("assets", [])}  # type: ignore[union-attr]
     if set(assets) != set(local):
         raise ReleaseError(fixed)
@@ -1397,23 +1461,17 @@ def verify_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, assets_d
 
 
 def _check_draft_manifests_dir(manifests_dir: Path, version: str, assets_dir: Path, platforms: tuple[str, ...],
-                               local: dict[str, Path], fixed: str) -> None:
-    """Adds the manifest files to the expected draft assets after checking the ones of this release."""
+                               previous_dir: Path, local: dict[str, Path], fixed: str) -> None:
+    """Checks the manifests directory in full, then adds its files to the expected draft assets."""
     if not manifests_dir.is_dir():
         raise ReleaseError(fixed)
-    allowed = {UPDATER_MANIFEST, *(platform_manifest_name(key) for key in UPDATER_PLATFORMS)}
     found = {entry.name: entry for entry in manifests_dir.iterdir()}
-    if any(name not in allowed or not entry.is_file() or name in local for name, entry in found.items()):
+    if any(not entry.is_file() or name in local for name, entry in found.items()):
         raise ReleaseError(fixed)
-    for platform in platforms:
-        name = platform_manifest_name(PLATFORM_UPDATER_KEYS[platform])
-        if name not in found:
-            raise ReleaseError(fixed)
-        _check_platform_file(found[name], version, assets_dir, platform, fixed)
-    if len(platforms) == len(PLATFORMS):
-        if UPDATER_MANIFEST not in found:
-            raise ReleaseError(fixed)
-        check_updater_manifest(found[UPDATER_MANIFEST], version, assets_dir)
+    try:
+        check_platform_manifests(manifests_dir, version, assets_dir, platforms, previous_dir)
+    except ReleaseError as error:
+        raise ReleaseError(fixed) from error
     local.update(found)
 
 
@@ -1624,6 +1682,7 @@ def build_parser() -> argparse.ArgumentParser:
     source = p.add_mutually_exclusive_group(required=True)
     source.add_argument("--latest-json", type=Path, help="the draft's latest.json, downloaded")
     source.add_argument("--manifests-dir", type=Path, help="every updater manifest the draft must carry")
+    p.add_argument("--previous", type=Path, help="the previous release's manifests (required with --manifests-dir)")
 
     p = add("updater-manifest", "write latest.json from the assembled installers and signatures")
     p.add_argument("--version", required=True)
@@ -1658,6 +1717,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = add("fetch-previous-manifests", "download the updater manifests of the latest published release")
     p.add_argument("--repo", required=True)
     p.add_argument("--out", type=Path, required=True)
+    p.add_argument("--expect-tag", required=True, help="the tag of the newest stable release, or '' when there is none")
 
     p = add("platform-notes", "print the release-notes section for a partial platform set (nothing for a full set)")
     p.add_argument("--version", required=True)
@@ -1708,6 +1768,7 @@ def run_command(args: argparse.Namespace) -> int:
             "tag": intent.tag,
             "prerelease": str(intent.prerelease).lower(),
             "previous_tag": previous_tag,
+            "latest_stable_tag": latest_stable_tag(tags),
         })
     elif command == "set-version":
         set_version(args.repo_root, args.version)
@@ -1806,7 +1867,7 @@ def run_command(args: argparse.Namespace) -> int:
         check_platform_manifests(args.manifests, intent.version, args.dir, parse_platforms(args.platforms), args.previous)
         sys.stdout.write(f"PASS: the updater manifests match {intent.version}, its installers and the previous release\n")
     elif command == "fetch-previous-manifests":
-        names = fetch_previous_manifests(GitHubApi(args.repo, token_from_env()), args.out)
+        names = fetch_previous_manifests(GitHubApi(args.repo, token_from_env()), args.out, args.expect_tag)
         sys.stdout.write(f"fetched {len(names)} previous manifests\n")
     elif command == "platform-notes":
         intent = tag_for_version(args.version)
@@ -1820,8 +1881,10 @@ def run_command(args: argparse.Namespace) -> int:
         sys.stdout.write(f"attached {uploaded} missing assets; existing assets match their digests\n")
     elif command == "verify-draft":
         intent = tag_for_version(args.version)
+        if (args.manifests_dir is None) != (args.previous is None):
+            raise ReleaseError("--previous and --manifests-dir must be given together")
         verify_draft(GitHubApi(args.repo, token_from_env()), intent, args.merge_sha, args.dir, args.latest_json,
-                     args.release_id, parse_platforms(args.platforms), args.manifests_dir)
+                     args.release_id, parse_platforms(args.platforms), args.manifests_dir, args.previous)
         sys.stdout.write("PASS: draft matches the tag, the commit, the asset set and the updater manifest\n")
     elif command == "publish":
         intent = tag_for_version(args.version)

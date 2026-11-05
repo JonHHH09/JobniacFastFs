@@ -14,6 +14,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 HERE = Path(__file__).resolve().parent
 RELEASE_DIR = HERE.parent
@@ -151,6 +152,7 @@ class SubsetAssembly(TempDirCase):
         shared.mkdir(exist_ok=True)
         for name in release.sbom_asset_names(self.VERSION):
             (shared / name).write_bytes(name.encode("utf-8"))
+        release.write_digest_manifest(shared, release.LEG_DIGESTS, set())
         return shared
 
     def test_all_three_legs_assemble_as_before(self) -> None:
@@ -276,11 +278,26 @@ class PlatformManifests(TempDirCase):
         self.assertEqual(self.read(out, "linux-x86_64")["version"], "1.2.1")
         self.assertEqual(self.read(out, "darwin-aarch64")["version"], "1.2.2")
 
-    def test_a_platform_with_no_earlier_build_is_skipped_with_a_warning(self) -> None:
-        _, out, warnings = self.write_manifests((WINDOWS,), self.make_previous(per_platform=(LINUX,)))
-        self.assertEqual(len(warnings), 2)
+    def test_a_missing_source_fails_when_the_previous_directory_is_not_empty(self) -> None:
+        previous = self.make_previous(per_platform=(LINUX,))
+        with self.assertRaisesRegex(release.ReleaseError, "macos-arm64"):
+            self.write_manifests((WINDOWS,), previous)
+
+    def test_a_platform_with_no_earlier_build_is_skipped_with_a_warning_for_an_empty_previous_directory(self) -> None:
+        previous = self.tmp / "previous"
+        previous.mkdir()
+        _, out, warnings = self.write_manifests((WINDOWS,), previous)
+        self.assertEqual(len(warnings), 3)
         self.assertTrue(any("macos-arm64" in warning for warning in warnings))
-        self.assertEqual(self.names(out), ["latest-linux-x86_64.json", "latest-windows-x86_64.json"])
+        self.assertEqual(self.names(out), ["latest-windows-x86_64.json"])
+        release.check_platform_manifests(out, self.VERSION, self.tmp / "assets", (WINDOWS,), previous)
+
+    def test_the_check_fails_for_a_missing_source_when_the_previous_directory_is_not_empty(self) -> None:
+        previous = self.make_previous(per_platform=(LINUX, MACOS))
+        assets, out, _ = self.write_manifests((WINDOWS,), previous)
+        (previous / "latest-darwin-aarch64.json").unlink()
+        with self.assertRaises(release.ReleaseError):
+            release.check_platform_manifests(out, self.VERSION, assets, (WINDOWS,), previous)
 
     def test_a_missing_or_none_previous_directory_carries_nothing(self) -> None:
         for previous in (None, self.tmp / "does-not-exist"):
@@ -354,6 +371,7 @@ class CarriedValidation(TempDirCase):
         previous = self.tmp / "previous"
         previous.mkdir()
         write_manifest(previous / "latest-linux-x86_64.json", "1.2.3-dev.4", ["linux-x86_64"])
+        write_manifest(previous / "latest-darwin-aarch64.json", "1.2.3-dev.4", ["darwin-aarch64"])
         self.carry(previous, "1.2.3")
         self.assertTrue((self.tmp / "out" / "latest-linux-x86_64.json").is_file())
 
@@ -486,11 +504,13 @@ class ManifestCheck(TempDirCase):
 
 
 class AssetTransport:
-    """A stub GitHub transport that serves a latest release and its asset bodies, and records the calls."""
+    """A stub GitHub transport that serves the latest release, its asset listing and the asset bodies."""
 
-    def __init__(self, release_status: int, release_payload: object, bodies: dict[int, bytes] | None = None) -> None:
+    def __init__(self, release_status: int, release_payload: dict[str, object], assets: list[object] | None = None,
+                 bodies: dict[int, bytes] | None = None) -> None:
         self.release_status = release_status
         self.release_payload = release_payload
+        self.assets = assets or []
         self.bodies = bodies or {}
         self.calls: list[tuple[str, str, str]] = []
 
@@ -499,6 +519,9 @@ class AssetTransport:
         self.calls.append((method, path, content_type))
         if path == "/releases/latest":
             return self.release_status, json.dumps(self.release_payload).encode("utf-8")
+        if path.startswith("/releases/9/assets?"):
+            page = int(path.rsplit("page=", 1)[1])
+            return 200, json.dumps(self.assets[(page - 1) * 100:page * 100]).encode("utf-8")
         if path.startswith("/releases/assets/"):
             asset_id = int(path.rsplit("/", 1)[1])
             if asset_id in self.bodies:
@@ -507,11 +530,16 @@ class AssetTransport:
 
 
 class FetchPreviousManifests(TempDirCase):
+    LATEST = {"id": 9, "tag_name": "v1.2.2"}
+
     def api(self, transport: AssetTransport) -> release.GitHubApi:
         return release.GitHubApi("example/app", "token", transport)
 
-    def asset(self, asset_id: int, name: str, size: int = 10) -> dict[str, object]:
+    def asset(self, asset_id: int, name: object, size: int = 10) -> dict[str, object]:
         return {"id": asset_id, "name": name, "size": size}
+
+    def fetch(self, transport: AssetTransport, expect: str = "v1.2.2") -> list[str]:
+        return release.fetch_previous_manifests(self.api(transport), self.tmp / "previous", expect)
 
     def test_only_the_manifests_are_downloaded(self) -> None:
         assets = [
@@ -523,9 +551,9 @@ class FetchPreviousManifests(TempDirCase):
             self.asset(6, "latest.json.sig"),
             self.asset(7, "SHA256SUMS"),
         ]
-        transport = AssetTransport(200, {"assets": assets}, {1: b"legacy", 2: b"linux", 3: b"windows"})
+        transport = AssetTransport(200, self.LATEST, assets, {1: b"legacy", 2: b"linux", 3: b"windows"})
+        names = self.fetch(transport)
         out = self.tmp / "previous"
-        names = release.fetch_previous_manifests(self.api(transport), out)
         self.assertEqual(names, ["latest-linux-x86_64.json", "latest-windows-x86_64.json", "latest.json"])
         self.assertEqual(self.names(out), names)
         self.assertEqual((out / "latest-linux-x86_64.json").read_bytes(), b"linux")
@@ -533,49 +561,74 @@ class FetchPreviousManifests(TempDirCase):
         self.assertEqual({call[1] for call in downloads}, {"/releases/assets/1", "/releases/assets/2", "/releases/assets/3"})
         self.assertTrue(all(call[0] == "GET" and call[2] == "application/octet-stream" for call in downloads))
 
-    def test_no_published_release_gives_an_empty_directory(self) -> None:
+    def test_the_asset_listing_is_paginated(self) -> None:
+        assets = [self.asset(1000 + index, f"other-{index}.bin") for index in range(100)]
+        assets += [self.asset(1, "latest.json")]
+        transport = AssetTransport(200, self.LATEST, assets, {1: b"legacy"})
+        self.assertEqual(self.fetch(transport), ["latest.json"])
+        listings = [call[1] for call in transport.calls if "/assets?" in call[1]]
+        self.assertEqual(listings, ["/releases/9/assets?per_page=100&page=1", "/releases/9/assets?per_page=100&page=2"])
+
+    def test_a_non_text_asset_name_is_skipped(self) -> None:
+        assets = [self.asset(2, ["latest.json"]), self.asset(3, None), self.asset(4, 5), self.asset(1, "latest.json")]
+        self.assertEqual(self.fetch(AssetTransport(200, self.LATEST, assets, {1: b"x"})), ["latest.json"])
+
+    def test_no_published_release_gives_an_empty_directory_when_none_is_expected(self) -> None:
         transport = AssetTransport(404, {"message": "Not Found"})
         out = self.tmp / "nested" / "previous"
-        self.assertEqual(release.fetch_previous_manifests(self.api(transport), out), [])
+        self.assertEqual(release.fetch_previous_manifests(self.api(transport), out, ""), [])
         self.assertTrue(out.is_dir())
         self.assertEqual(self.names(out), [])
         self.assertEqual(transport.calls, [("GET", "/releases/latest", "application/json")])
 
+    def test_a_404_fails_when_a_release_is_expected(self) -> None:
+        with self.assertRaises(release.ReleaseError):
+            self.fetch(AssetTransport(404, {"message": "Not Found"}))
+
+    def test_a_tag_mismatch_fails(self) -> None:
+        with self.assertRaises(release.ReleaseError):
+            self.fetch(AssetTransport(200, self.LATEST), "v1.2.1")
+
+    def test_an_existing_release_fails_when_none_is_expected(self) -> None:
+        with self.assertRaises(release.ReleaseError):
+            self.fetch(AssetTransport(200, self.LATEST), "")
+
     def test_a_release_without_manifests_gives_an_empty_directory(self) -> None:
-        transport = AssetTransport(200, {"assets": [self.asset(4, "SHA256SUMS")]})
-        self.assertEqual(release.fetch_previous_manifests(self.api(transport), self.tmp / "previous"), [])
+        self.assertEqual(self.fetch(AssetTransport(200, self.LATEST, [self.asset(4, "SHA256SUMS")])), [])
 
     def test_a_manifest_declared_over_one_mebibyte_is_rejected(self) -> None:
-        transport = AssetTransport(200, {"assets": [self.asset(1, "latest.json", release.API_MAX_BYTES + 1)]}, {1: b"x"})
+        transport = AssetTransport(200, self.LATEST, [self.asset(1, "latest.json", release.API_MAX_BYTES + 1)], {1: b"x"})
         with self.assertRaises(release.ReleaseError):
-            release.fetch_previous_manifests(self.api(transport), self.tmp / "previous")
+            self.fetch(transport)
         self.assertEqual([call for call in transport.calls if call[1].startswith("/releases/assets/")], [])
 
     def test_a_download_over_one_mebibyte_is_rejected(self) -> None:
-        transport = AssetTransport(200, {"assets": [self.asset(1, "latest.json", 10)]}, {1: b"x" * (release.API_MAX_BYTES + 1)})
+        transport = AssetTransport(200, self.LATEST, [self.asset(1, "latest.json", 10)], {1: b"x" * (release.API_MAX_BYTES + 1)})
         with self.assertRaises(release.ReleaseError):
-            release.fetch_previous_manifests(self.api(transport), self.tmp / "previous")
+            self.fetch(transport)
         self.assertFalse((self.tmp / "previous" / "latest.json").exists())
 
     def test_a_download_of_exactly_one_mebibyte_is_accepted(self) -> None:
         body = b"x" * release.API_MAX_BYTES
-        transport = AssetTransport(200, {"assets": [self.asset(1, "latest.json", len(body))]}, {1: body})
-        self.assertEqual(release.fetch_previous_manifests(self.api(transport), self.tmp / "previous"), ["latest.json"])
+        transport = AssetTransport(200, self.LATEST, [self.asset(1, "latest.json", len(body))], {1: body})
+        self.assertEqual(self.fetch(transport), ["latest.json"])
 
     def test_other_failures_are_rejected(self) -> None:
         cases = [
             AssetTransport(500, {}),
-            AssetTransport(200, {"assets": "nope"}),
-            AssetTransport(200, {"assets": [self.asset(1, "latest.json"), self.asset(2, "latest.json")]}, {1: b"a", 2: b"b"}),
-            AssetTransport(200, {"assets": [self.asset(1, "latest.json")]}, {}),
-            AssetTransport(200, {"assets": [{"name": "latest.json", "size": 3}]}),
+            AssetTransport(200, {"tag_name": "v1.2.2"}),
+            AssetTransport(200, self.LATEST, [self.asset(1, "latest.json"), self.asset(2, "latest.json")], {1: b"a", 2: b"b"}),
+            AssetTransport(200, self.LATEST, [self.asset(1, "latest.json")], {}),
+            AssetTransport(200, self.LATEST, [{"name": "latest.json", "size": 3}]),
         ]
-        for transport in cases:
-            with self.subTest(transport=transport.release_payload), self.assertRaises(release.ReleaseError):
-                release.fetch_previous_manifests(self.api(transport), self.tmp / "previous")
+        for index, transport in enumerate(cases):
+            with self.subTest(case=index), self.assertRaises(release.ReleaseError):
+                self.fetch(transport)
 
-    def test_the_default_transport_asks_for_the_asset_body_only_on_a_download(self) -> None:
-        captured: list[dict[str, str]] = []
+
+class DefaultTransportHeaders(unittest.TestCase):
+    def accept_for(self, content_type: str) -> str:
+        seen: list[object] = []
 
         class Response:
             status = 200
@@ -589,20 +642,56 @@ class FetchPreviousManifests(TempDirCase):
             def read(self, _: int) -> bytes:
                 return b"{}"
 
-        class Opener:
-            def open(self, request: object, timeout: int) -> Response:
-                captured.append({key.lower(): value for key, value in request.header_items()})  # type: ignore[attr-defined]
-                return Response()
+        def fake_open(_opener: object, request: object, *_: object, **__: object) -> Response:
+            seen.append(request)
+            return Response()
 
-        original = release.urllib.request.build_opener
-        release.urllib.request.build_opener = lambda *_: Opener()  # type: ignore[assignment]
-        try:
-            release.default_transport("GET", "https://api.github.com/repos/example/app/releases/assets/1", "t", None, "application/octet-stream")
-            release.default_transport("GET", "https://api.github.com/repos/example/app/releases/latest", "t", None, "application/json")
-        finally:
-            release.urllib.request.build_opener = original  # type: ignore[assignment]
-        self.assertEqual(captured[0]["accept"], "application/octet-stream")
-        self.assertEqual(captured[1]["accept"], "application/vnd.github+json")
+        with mock.patch.object(release.urllib.request.OpenerDirector, "open", fake_open):
+            release.default_transport("GET", "https://api.github.com/repos/example/app/releases/assets/1", "t", None, content_type)
+        return seen[0].get_header("Accept")  # type: ignore[attr-defined]
+
+    def test_a_download_asks_for_the_asset_body_and_other_calls_for_json(self) -> None:
+        self.assertEqual(self.accept_for("application/octet-stream"), "application/octet-stream")
+        self.assertEqual(self.accept_for("application/json"), "application/vnd.github+json")
+
+
+class RedirectHandler(unittest.TestCase):
+    """The real redirect handler of the default transport, called directly."""
+
+    def hop(self, start: object, target: str) -> object:
+        handler = release._DropAuthOnForeignRedirect()
+        return handler.redirect_request(start, None, 302, "Found", {}, target)
+
+    def request(self, url: str) -> object:
+        request = release.urllib.request.Request(url)
+        request.add_header("Authorization", "Bearer secret")
+        return request
+
+    def test_the_same_origin_keeps_the_token(self) -> None:
+        redirected = self.hop(self.request("https://api.github.com/repos/example/app/x"), "https://API.github.com:443/other")
+        self.assertEqual(redirected.get_header("Authorization"), "Bearer secret")  # type: ignore[attr-defined]
+
+    def test_another_host_drops_the_token(self) -> None:
+        redirected = self.hop(self.request("https://api.github.com/x"), "https://objects.example.net/signed?x=1")
+        self.assertFalse(redirected.has_header("Authorization"))  # type: ignore[attr-defined]
+
+    def test_another_port_drops_the_token(self) -> None:
+        redirected = self.hop(self.request("https://api.github.com/x"), "https://api.github.com:8443/x")
+        self.assertFalse(redirected.has_header("Authorization"))  # type: ignore[attr-defined]
+
+    def test_a_downgrade_to_http_raises(self) -> None:
+        for target in ("http://api.github.com/x", "http://objects.example.net/x", "ftp://api.github.com/x"):
+            with self.subTest(target=target), self.assertRaises(release.ReleaseError):
+                self.hop(self.request("https://api.github.com/x"), target)
+
+    def test_a_chain_never_hands_the_token_to_the_last_host(self) -> None:
+        first = self.hop(self.request("https://api.github.com/x"), "https://b.example.net/y")
+        second = self.hop(first, "https://c.example.net/z")
+        self.assertFalse(first.has_header("Authorization"))  # type: ignore[attr-defined]
+        self.assertFalse(second.has_header("Authorization"))  # type: ignore[attr-defined]
+        # Even a hop back to the first origin cannot restore a header that was dropped.
+        third = self.hop(second, "https://api.github.com/x")
+        self.assertFalse(third.has_header("Authorization"))  # type: ignore[attr-defined]
 
 
 class DraftWithManifestsDirectory(TempDirCase):
@@ -641,7 +730,7 @@ class DraftWithManifestsDirectory(TempDirCase):
 
         api = release.GitHubApi("example/app", "token", FakeTransport(routes))
         release.verify_draft(api, release.tag_for_version(self.VERSION), self.SHA, self.assets, None, 7,
-                             platforms or self.platforms, manifests or self.manifests)
+                             platforms or self.platforms, manifests or self.manifests, self.previous)
 
     def test_a_draft_with_the_assets_and_every_manifest_passes(self) -> None:
         self.verify(self.payload())
@@ -687,6 +776,37 @@ class DraftWithManifestsDirectory(TempDirCase):
         (self.manifests / "notes.txt").write_text("x", encoding="utf-8")
         with self.assertRaises(release.ReleaseError):
             self.verify(self.payload())
+
+    def test_a_carried_file_that_differs_from_the_previous_one_fails_even_with_a_matching_digest(self) -> None:
+        path = self.manifests / "latest-linux-x86_64.json"
+        data = json.loads(path.read_text(encoding="utf-8"))
+        data["platforms"]["linux-x86_64"]["signature"] = "forged"
+        path.write_text(json.dumps(data), encoding="utf-8")
+        with self.assertRaises(release.ReleaseError):
+            self.verify(self.payload())
+
+    def test_a_forged_latest_json_in_a_subset_fails(self) -> None:
+        write_manifest(self.previous / "latest.json", "1.2.2", ["windows-x86_64", "linux-x86_64", "darwin-aarch64"])
+        shutil.rmtree(self.manifests)
+        self.assets, self.manifests, _ = self.write_manifests(self.platforms, self.previous)
+        self.verify(self.payload())
+        (self.manifests / "latest.json").write_text("{}", encoding="utf-8")
+        with self.assertRaises(release.ReleaseError):
+            self.verify(self.payload())
+
+    def test_a_manifests_directory_needs_the_previous_directory(self) -> None:
+        from test_release import FakeTransport
+
+        payload = self.payload()
+        routes = {
+            ("GET", "/git/ref/tags/"): (200, {"object": {"type": "commit", "sha": self.SHA}}),
+            ("GET", "/releases?"): (200, [payload]),
+            ("GET", "/releases/7"): (200, payload),
+        }
+        api = release.GitHubApi("example/app", "token", FakeTransport(routes))
+        with self.assertRaises(release.ReleaseError):
+            release.verify_draft(api, release.tag_for_version(self.VERSION), self.SHA, self.assets, None, 7,
+                                 self.platforms, self.manifests)
 
     def test_the_other_draft_checks_still_apply(self) -> None:
         for overrides in ({"draft": False}, {"prerelease": True}, {"target_commitish": "b" * 40}):
@@ -859,6 +979,164 @@ class CommandLine(TempDirCase):
         self.assertEqual(set(json.loads(out.read_text(encoding="utf-8"))["platforms"]), set(release.UPDATER_PLATFORMS))
         code, _, stderr = self.run_main("check-updater-manifest", "--version", "1.2.3", "--dir", str(assets), "--latest-json", str(out))
         self.assertEqual(code, 0, stderr)
+
+
+class CarriedUrlStrictness(TempDirCase):
+    GOOD = {"signature": "s", "url": f"{BASE}/v1.2.2/JobniacFast_1.2.2_amd64.AppImage"}
+
+    def reject(self, entry: dict[str, object], key: str = "linux-x86_64", per_platform: bool = True) -> None:
+        previous = self.tmp / "previous"
+        shutil.rmtree(previous, ignore_errors=True)
+        previous.mkdir()
+        name = f"latest-{key}.json" if per_platform else "latest.json"
+        (previous / name).write_text(json.dumps({"version": "1.2.2", "platforms": {key: entry}}), encoding="utf-8")
+        with self.assertRaisesRegex(release.ReleaseError, "previous updater manifest"):
+            release.carried_manifest(previous, "linux-x86_64", self.VERSION)
+
+    def test_the_url_must_equal_the_installer_of_that_key_at_that_version(self) -> None:
+        urls = [
+            f"{BASE}/v1.2.2/../v0.1.0/JobniacFast_1.2.2_amd64.AppImage",
+            f"{BASE}/v1.2.2/JobniacFast_1.2.2_amd64.AppImage?x=1",
+            f"{BASE}/v1.2.2/JobniacFast_1.2.2_amd64.AppImage/",
+            f"{BASE}/v1.2.2/JobniacFast_1.2.2_x64-setup.exe",
+            f"{BASE}/v1.2.2/anything",
+            f"{BASE}/v1.2.1/JobniacFast_1.2.1_amd64.AppImage",
+            f"{BASE}/v1.2.2/",
+        ]
+        for url in urls:
+            with self.subTest(url=url):
+                self.reject(dict(self.GOOD, url=url))
+                self.reject(dict(self.GOOD, url=url), per_platform=False)
+
+    def test_an_unknown_key_in_a_carried_latest_json_fails(self) -> None:
+        previous = self.tmp / "previous"
+        previous.mkdir()
+        data = {"version": "1.2.2", "platforms": {"linux-x86_64": self.GOOD, "linux-x86_64-appimage": self.GOOD}}
+        (previous / "latest.json").write_text(json.dumps(data), encoding="utf-8")
+        with self.assertRaises(release.ReleaseError):
+            release.carried_manifest(previous, "linux-x86_64", self.VERSION)
+
+    def test_the_exact_url_is_accepted(self) -> None:
+        previous = self.make_previous(per_platform=(LINUX,))
+        carried = release.carried_manifest(previous, "linux-x86_64", self.VERSION)
+        self.assertEqual(carried.data["platforms"]["linux-x86_64"]["url"], self.GOOD["url"])  # type: ignore[index,union-attr]
+
+
+class SharedDirectoryStrictness(SubsetAssembly):
+    def assemble(self, shared: Path) -> None:
+        self.make_leg("windows-x64", self.leg_files(WINDOWS))
+        release.assemble(self.tmp / "legs", self.tmp / "out", self.VERSION, (WINDOWS,), shared)
+
+    def test_the_digests_file_is_required(self) -> None:
+        shared = self.make_shared()
+        (shared / release.LEG_DIGESTS).unlink()
+        with self.assertRaisesRegex(release.ReleaseError, release.LEG_DIGESTS):
+            self.assemble(shared)
+
+    def test_a_changed_sbom_fails_the_digests(self) -> None:
+        shared = self.make_shared()
+        (shared / release.sbom_asset_names(self.VERSION)[0]).write_bytes(b"changed")
+        with self.assertRaises(release.ReleaseError):
+            self.assemble(shared)
+
+    def test_an_unexpected_file_fails(self) -> None:
+        shared = self.make_shared()
+        (shared / "extra.txt").write_bytes(b"x")
+        release.write_digest_manifest(shared, release.LEG_DIGESTS, set())
+        with self.assertRaises(release.ReleaseError):
+            self.assemble(shared)
+
+    def test_the_sboms_and_their_digests_pass(self) -> None:
+        self.assemble(self.make_shared())
+
+
+class MarkerIntegrity(TempDirCase):
+    B, E = release.PLATFORM_NOTES_BEGIN, release.PLATFORM_NOTES_END
+
+    def test_a_malformed_body_is_refused_instead_of_rewritten(self) -> None:
+        section = release.platform_notes(self.VERSION, (WINDOWS,), None, "example/app")
+        bodies = {
+            "begin only": f"x\n{self.B}\ntable\n",
+            "end only": f"x\n{self.E}\n",
+            "two sections": f"{self.B}\na\n{self.E}\n{self.B}\nb\n{self.E}\n",
+            "two begins": f"{self.B}\n{self.B}\n{self.E}\n",
+            "two ends": f"{self.B}\n{self.E}\n{self.E}\n",
+            "end before begin": f"{self.E}\nx\n{self.B}\n",
+        }
+        for label, body in bodies.items():
+            for new_section in (section, ""):
+                with self.subTest(case=label, section=bool(new_section)), self.assertRaises(release.ReleaseError):
+                    release.apply_platform_section(body, new_section)
+
+    def test_annotate_draft_does_not_patch_a_malformed_body(self) -> None:
+        patches: list[bytes] = []
+
+        def transport(method: str, url: str, token: str, body: bytes | None, content_type: str) -> tuple[int, bytes]:
+            if method == "PATCH":
+                patches.append(body or b"")
+            return 200, json.dumps({"id": 7, "body": f"{self.B}\nonly a begin"}).encode("utf-8")
+
+        api = release.GitHubApi("example/app", "token", transport)
+        with self.assertRaises(release.ReleaseError):
+            release.annotate_draft(api, 7, "section")
+        self.assertEqual(patches, [])
+
+
+class SubsetKeyExactness(TempDirCase):
+    def test_a_subset_latest_json_must_hold_exactly_its_keys(self) -> None:
+        assets = self.make_assets((WINDOWS, LINUX))
+        manifest = release.build_updater_manifest(assets, self.VERSION, "n", "d", (WINDOWS, LINUX))
+        path = self.tmp / "latest.json"
+        release.write_json(path, manifest)
+        release.check_updater_manifest(path, self.VERSION, assets, (WINDOWS, LINUX))
+        manifest["platforms"]["darwin-aarch64"] = manifest["platforms"]["linux-x86_64"]  # type: ignore[index]
+        release.write_json(path, manifest)
+        with self.assertRaises(release.ReleaseError):
+            release.check_updater_manifest(path, self.VERSION, assets, (WINDOWS, LINUX))
+
+    def test_a_full_set_keeps_accepting_extra_keys(self) -> None:
+        assets = self.make_assets()
+        manifest = release.build_updater_manifest(assets, self.VERSION, "n", "d")
+        manifest["platforms"]["linux-x86_64-appimage"] = manifest["platforms"]["linux-x86_64"]  # type: ignore[index]
+        path = self.tmp / "latest.json"
+        release.write_json(path, manifest)
+        release.check_updater_manifest(path, self.VERSION, assets)
+
+
+class LatestStableTag(unittest.TestCase):
+    TAGS = ["v1.2.0", "v1.2.2", "v1.2.3-dev.1", "v1.3.0-dev.2", "v0.9.0", "nightly"]
+
+    def test_the_newest_stable_tag_ignores_prereleases_and_other_tags(self) -> None:
+        self.assertEqual(release.latest_stable_tag(self.TAGS), "v1.2.2")
+        self.assertEqual(release.latest_stable_tag(["v1.0.0-dev.1", "x"]), "")
+        self.assertEqual(release.latest_stable_tag([]), "")
+
+    def test_it_differs_from_previous_tag_on_a_rerun_of_a_published_version(self) -> None:
+        tags = ["v1.2.1", "v1.2.2"]
+        _, previous = release.next_version("1.2.2", tags, ["v1.2.2"])
+        self.assertEqual(previous, "v1.2.1")
+        self.assertEqual(release.latest_stable_tag(tags), "v1.2.2")
+
+    def test_it_equals_previous_tag_for_a_new_stable_and_a_new_dev_release(self) -> None:
+        tags = ["v1.2.1", "v1.2.2", "v1.3.0-dev.1"]
+        for file_version in ("0.1.0", "1.4.0-dev.1"):
+            with self.subTest(file_version=file_version):
+                _, previous = release.next_version(file_version, tags, [])
+                self.assertEqual(previous, release.latest_stable_tag(tags))
+
+
+class CommandLinePairing(TempDirCase):
+    def test_previous_and_manifests_dir_must_be_given_together(self) -> None:
+        err = io.StringIO()
+        with mock.patch.dict("os.environ", {"GITHUB_TOKEN": "t"}), contextlib.redirect_stderr(err):
+            code = release.main(["verify-draft", "--repo", "example/app", "--version", "1.2.3", "--release-id", "7",
+                                 "--merge-sha", "a" * 40, "--dir", str(self.tmp), "--manifests-dir", str(self.tmp)])
+        self.assertEqual(code, 1)
+        self.assertIn("together", err.getvalue())
+
+    def test_fetch_requires_expect_tag(self) -> None:
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            release.main(["fetch-previous-manifests", "--repo", "example/app", "--out", str(self.tmp)])
 
 
 if __name__ == "__main__":
