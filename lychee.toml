@@ -1,0 +1,27 @@
+# Configuration of the lychee link checker, run by the `text` job in .github/workflows/ci.yml.
+# The job checks local file links and heading anchors in the Markdown files and makes no network request.
+
+# Check only links that resolve inside the repository; external URLs are skipped, never fetched.
+offline = true
+
+# Verify that `file.md#heading` anchors exist in the target file.
+include_fragments = "anchor-only"
+
+# Honour .gitignore, so untracked and build directories are not scanned.
+no_ignore = false
+
+# Do not count skipped external links as errors or show progress bars in CI logs.
+no_progress = true
+
+# Paths that are not checked.
+exclude_path = [
+    # Dependencies and build output.
+    "node_modules",
+    "target",
+    "dist",
+    "vendor",
+    "src-tauri/gen",
+    # Test fixtures and golden data hold deliberately odd text.
+    "tests/fixtures",
+    "golden",
+]

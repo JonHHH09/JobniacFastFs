@@ -7,7 +7,7 @@ by in-memory handlers instead of Rust. Nothing here ships: `src/main.tsx` import
 
 ## Run
 
-```
+```sh
 pnpm dev:mock                          # vite --mode mock, reads .env.mock (VITE_MOCK_IPC=1)
 pnpm dev:mock --port 1431 --strictPort
 ```
