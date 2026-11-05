@@ -42,6 +42,13 @@ extend-ignore-re = [
     "\\b[0-9a-fA-F]{32,}\\b",
     # "PNGs" in the changelog is split as PN + Gs by the identifier tokenizer.
     "\\bPNGs\\b",
+    # `/fo` and `/FO` are the output-format flags of the Windows whoami and tasklist commands. Matched in
+    # context only, because "fo" is a common typo of "of" and "for".
+    '"/(?i:fo)"',
+    # French "sur" in the localized PDF footer "Page N sur M". Matched in context only, because "sur"
+    # is a common typo of "sure".
+    'Page N sur M',
+    '=> "sur"',
 ]
 
 [default.extend-words]
@@ -64,10 +71,5 @@ mis = "mis"
 BA = "BA"
 # "CHEC" is the stem of "CHECKs" split by the identifier tokenizer in an SQL comment.
 CHEC = "CHEC"
-# `/fo` and `/FO` are the output-format flags of the Windows whoami and tasklist commands.
-fo = "fo"
-FO = "FO"
-# French "sur" in the localized PDF footer "Page N sur M".
-sur = "sur"
 # French "Entreprise" in the localized generated content.
 Entreprise = "Entreprise"
