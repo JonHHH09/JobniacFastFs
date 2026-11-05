@@ -17,6 +17,7 @@ pub mod error;
 pub mod fetch;
 pub mod kinds;
 pub mod pdf;
+pub mod pdf_layout;
 pub mod probe;
 pub mod protocol;
 pub mod sandbox;

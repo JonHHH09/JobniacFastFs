@@ -46,6 +46,17 @@ pub const MAX_INSPECT_METADATA_CHARS: usize = 512;
 /// The longest attachment name an inspection returns, in characters.
 pub const MAX_INSPECT_ATTACHMENT_NAME_CHARS: usize = 255;
 
+/// The fixed message of a layout read that fails for any reason.
+pub const LAYOUT_FAILURE_MESSAGE: &str = "PDF layout could not be read";
+/// The most layout lines a document returns; more are flagged as truncated.
+pub const MAX_LAYOUT_LINES: usize = 20_000;
+/// The most characters one layout line returns.
+pub const MAX_LAYOUT_LINE_CHARS: usize = 1_000;
+/// The slack, in centipoints, by which a layout line may lie outside its page.
+pub const LAYOUT_BOUNDS_TOLERANCE: u32 = 100;
+/// The largest font size a layout line reports, in centipoints (1000 points).
+pub const MAX_LAYOUT_FONT_SIZE: u32 = 100_000;
+
 /// Immutable bytes read from one securely opened local source.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FileSnapshot {
@@ -141,6 +152,53 @@ pub struct PdfInspection {
     pub attachments: Vec<PdfAttachmentInfo>,
     /// Whether the document has more attachments than were listed.
     pub attachments_truncated: bool,
+}
+
+/// One positioned line fragment of a page. Coordinates are integer centipoints (points times 100)
+/// with the origin at the top-left of the page, so `y` grows down the page and `x0 <= x1`,
+/// `y0 <= y1`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LayoutLine {
+    /// The text: trimmed, with internal whitespace collapsed to single spaces, never empty.
+    pub text: String,
+    /// The left edge.
+    pub x0: u32,
+    /// The top edge.
+    pub y0: u32,
+    /// The right edge.
+    pub x1: u32,
+    /// The bottom edge.
+    pub y1: u32,
+    /// The font size: the median over the characters of the line, in centipoints.
+    pub font_size_centipoints: u32,
+    /// Whether the line is bold. A change of boldness starts a new line.
+    pub bold: bool,
+    /// Whether the line is italic. A change of italic starts a new line.
+    pub italic: bool,
+}
+
+/// The line fragments of one page, in content order.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PageLayout {
+    /// The page number, from 1.
+    pub page_number: u32,
+    /// The page width in centipoints.
+    pub width_centipoints: u32,
+    /// The page height in centipoints.
+    pub height_centipoints: u32,
+    /// The line fragments in content order.
+    pub lines: Vec<LayoutLine>,
+}
+
+/// The read-only layout of a PDF: positioned line fragments with font information.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PdfLayout {
+    /// The number of pages of the document.
+    pub page_count: u32,
+    /// Every page, in document order.
+    pub pages: Vec<PageLayout>,
+    /// Whether a bound (fragment count, characters per fragment or total characters) cut output.
+    pub truncated: bool,
 }
 
 /// The durable canonical extraction of a stored document.
