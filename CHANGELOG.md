@@ -160,6 +160,15 @@ drafts take the body of their version section from this file.
 - CI: apt on the Linux runners retries and times out a stalled mirror connection sooner, every CI job
   has a timeout instead of the 6-hour default (the end-to-end jobs already had one), and a failed or cancelled nightly run on
   `development` opens or updates an issue labelled `ci-nightly`.
+- CI: a new job checks spelling (typos), Markdown structure (markdownlint) and local links (lychee,
+  offline). Pull requests are filtered by change classes (`scripts/ci/change_classes.toml`): each
+  changed path takes the classes of the first matching rule, a path no rule matches runs every
+  job, and a change that touches no code runs only the cheap checks (text, privacy scan and the
+  release tool tests). The Windows Rust and
+  end-to-end jobs now run on pull requests that change Rust or the app. Each heavy job has its own
+  passed marker, so one red job no longer blocks the others' markers. `CI result (shared)`, `CI
+  result (platforms)` and `E2E result` replace the seven required checks, and a pull request into
+  `main` from a branch other than `development` runs only what its changes need.
 
 - Desktop Arbeitnow screen: a scan and "Load more results" each read up to five board pages instead
   of one, so a narrow filter (a search term plus a location) finds older postings without repeated
