@@ -12,7 +12,7 @@ use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
 use jobniac_core::clock::SystemClock;
-use jobniac_core::documents::{DocumentMetadata, StoredExtraction};
+use jobniac_core::documents::{DocumentMetadata, PdfInspection, StoredExtraction};
 use jobniac_core::errors::{AppError, ApplicationError, ErrorCode, error_envelope};
 use jobniac_core::profiles::pdf_ingest::{
     INGEST_VALIDATION_MESSAGE, LinkedSource, NewSourceLink, ProfilePdfRepository,
@@ -70,6 +70,11 @@ impl StoredPdfDocuments for Documents {
         _request: &Value,
     ) -> Result<StoredExtraction, AppError> {
         push(&self.log, "extract");
+        Err(unexpected(REACHED))
+    }
+
+    async fn inspect_stored_pdf(&self, _document_id: &str) -> Result<PdfInspection, AppError> {
+        push(&self.log, "inspect");
         Err(unexpected(REACHED))
     }
 }
