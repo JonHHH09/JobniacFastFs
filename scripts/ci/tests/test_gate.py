@@ -48,7 +48,7 @@ BASE_FILES = {
 }
 
 CI_HEAVY = ("ui", "rust-linux", "rust-macos", "rust-windows")
-CI_LIGHT = ("supply-chain", "release-tools", "privacy-scan")
+CI_LIGHT = ("supply-chain", "release-tools", "privacy-scan", "text")
 CI_JOBS = CI_HEAVY + CI_LIGHT
 E2E_JOBS = ("e2e-linux", "e2e-windows")
 
@@ -167,35 +167,35 @@ class GateTests(unittest.TestCase):
     def test_plain_pull_request_with_docs_only_runs_only_the_privacy_scan(self) -> None:
         self.make_merge_commit({"docs/guide.md": "changed\n"})
         out = self.run_gate()
-        self.assertRuns(out, CI_JOBS, {"privacy-scan"})
+        self.assertRuns(out, CI_JOBS, {"privacy-scan", "text"})
         self.assertEqual(out["tree"], self.tree())
         self.assertRuns(self.run_gate(workflow="e2e"), E2E_JOBS, set())
 
     def test_prose_only_change_to_a_fixture_directory_is_not_prose(self) -> None:
         self.make_merge_commit({"crates/cli/tests/fixtures/README.md": "changed\n"})
         out = self.run_gate()
-        self.assertRuns(out, CI_JOBS, {"rust-linux", "rust-macos", "rust-windows", "privacy-scan"})
+        self.assertRuns(out, CI_JOBS, {"rust-linux", "rust-macos", "rust-windows", "privacy-scan", "text"})
 
     def test_plain_pull_request_with_rust_change_skips_ui_and_runs_windows(self) -> None:
         self.make_merge_commit({"crates/core/lib.rs": "changed\n"})
         out = self.run_gate()
-        self.assertRuns(out, CI_JOBS, {"rust-linux", "rust-macos", "rust-windows", "privacy-scan"})
+        self.assertRuns(out, CI_JOBS, {"rust-linux", "rust-macos", "rust-windows", "privacy-scan", "text"})
         self.assertRuns(self.run_gate(workflow="e2e"), E2E_JOBS, set(E2E_JOBS))
 
     def test_plain_pull_request_with_ui_change_skips_rust(self) -> None:
         self.make_merge_commit({"src/app.ts": "changed\n"})
         out = self.run_gate()
-        self.assertRuns(out, CI_JOBS, {"ui", "privacy-scan"})
+        self.assertRuns(out, CI_JOBS, {"ui", "privacy-scan", "text"})
         self.assertRuns(self.run_gate(workflow="e2e"), E2E_JOBS, set(E2E_JOBS))
 
     def test_plain_pull_request_with_browser_suite_change_runs_only_the_ui_job(self) -> None:
         self.make_merge_commit({"playwright/shell.spec.ts": "changed\n"})
-        self.assertRuns(self.run_gate(), CI_JOBS, {"ui", "privacy-scan"})
+        self.assertRuns(self.run_gate(), CI_JOBS, {"ui", "privacy-scan", "text"})
         self.assertRuns(self.run_gate(workflow="e2e"), E2E_JOBS, set())
 
     def test_plain_pull_request_with_changelog_change_runs_the_release_tool_tests(self) -> None:
         self.make_merge_commit({"CHANGELOG.md": "changed\n"})
-        self.assertRuns(self.run_gate(), CI_JOBS, {"release-tools", "privacy-scan"})
+        self.assertRuns(self.run_gate(), CI_JOBS, {"release-tools", "privacy-scan", "text"})
 
     def test_plain_pull_request_with_an_unknown_path_runs_everything(self) -> None:
         self.make_merge_commit({"unlisted/file.bin": "changed\n"})
@@ -205,7 +205,7 @@ class GateTests(unittest.TestCase):
 
     def test_a_renamed_file_counts_with_its_old_path(self) -> None:
         self.make_merge_commit({}, renames={"src/app.ts": "docs/app.md"})
-        self.assertRuns(self.run_gate(), CI_JOBS, {"ui", "privacy-scan"})
+        self.assertRuns(self.run_gate(), CI_JOBS, {"ui", "privacy-scan", "text"})
 
     def test_a_checkout_that_is_not_a_merge_commit_runs_everything(self) -> None:
         git(self.repo, "init", "-q", "-b", "base")
@@ -233,12 +233,12 @@ class GateTests(unittest.TestCase):
     def test_pull_request_into_main_from_another_branch_is_plain(self) -> None:
         self.make_merge_commit({"docs/guide.md": "changed\n"})
         out = self.run_gate(base_ref="main", head_ref="dependabot/cargo/x")
-        self.assertRuns(out, CI_JOBS, {"privacy-scan"})
+        self.assertRuns(out, CI_JOBS, {"privacy-scan", "text"})
 
     def test_pull_request_from_a_fork_branch_named_development_is_plain(self) -> None:
         self.make_merge_commit({"docs/guide.md": "changed\n"})
         out = self.run_gate(base_ref="main", head_ref="development", head_repo="someone-else/example-repo")
-        self.assertRuns(out, CI_JOBS, {"privacy-scan"})
+        self.assertRuns(out, CI_JOBS, {"privacy-scan", "text"})
 
     # --- full runs ------------------------------------------------------------------------------
 
@@ -268,7 +268,7 @@ class GateTests(unittest.TestCase):
         expected = {
             "all": (set(CI_JOBS), set(E2E_JOBS)),
             "": (set(CI_JOBS), set(E2E_JOBS)),
-            "shared": ({"ui", "supply-chain", "release-tools", "privacy-scan"}, set()),
+            "shared": ({"ui", "supply-chain", "release-tools", "privacy-scan", "text"}, set()),
             "linux": ({"rust-linux"}, {"e2e-linux"}),
             "macos": ({"rust-macos"}, set()),
             "windows": ({"rust-windows"}, {"e2e-windows"}),
@@ -308,7 +308,7 @@ class GateTests(unittest.TestCase):
     def test_a_marker_does_not_switch_a_job_on_that_the_classes_leave_off(self) -> None:
         self.make_merge_commit({"docs/guide.md": "changed\n"})
         self.marker("ci-passed-ui", "refs/heads/development")
-        self.assertRuns(self.run_gate(), CI_JOBS, {"privacy-scan"})
+        self.assertRuns(self.run_gate(), CI_JOBS, {"privacy-scan", "text"})
 
     def test_main_marker_is_trusted(self) -> None:
         self.make_merge_commit({"src/app.ts": "changed\n"})
@@ -374,7 +374,7 @@ class GateTests(unittest.TestCase):
 
     def test_lookup_failure_on_a_plain_pull_request_keeps_the_path_filter(self) -> None:
         self.make_merge_commit({"docs/guide.md": "changed\n"})
-        self.assertRuns(self.run_gate(), CI_JOBS, {"privacy-scan"})
+        self.assertRuns(self.run_gate(), CI_JOBS, {"privacy-scan", "text"})
 
     def test_manual_run_ignores_markers(self) -> None:
         self.make_merge_commit({"docs/guide.md": "changed\n"})

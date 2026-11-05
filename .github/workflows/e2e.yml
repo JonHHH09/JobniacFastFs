@@ -41,7 +41,9 @@ permissions:
 
 # Pull requests cancel superseded runs. Pushes and the release call (a merged pull request) never cancel.
 concurrency:
-  group: e2e-${{ github.ref }}
+  # The scope is in the group: release.yml calls this workflow once per scope in one run, and the calls
+  # must not queue or cancel each other.
+  group: e2e-${{ github.ref }}-${{ inputs.scope || 'all' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged != true }}
 
 env:

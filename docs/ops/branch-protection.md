@@ -43,8 +43,8 @@ leaves it skipped (a skipped required check counts as passed), prints a table of
 the step summary and fails unless every dependency is `success` or `skipped`. A failed `Changes` job
 fails them too. They have no checkout and use only bash and `jq`.
 
-- `CI result (shared)` needs `Changes`, `UI`, `Supply chain (cargo-deny)`, `Release tool unit tests`
-  and `Privacy scan (working tree and history, generic classes)`.
+- `CI result (shared)` needs `Changes`, `UI`, `Supply chain (cargo-deny)`, `Release tool unit tests`,
+  `Privacy scan (working tree and history, generic classes)` and `Text (spelling, Markdown, links)`.
 - `CI result (platforms)` needs `Changes`, `Rust (ubuntu-26.04)`, `Rust (macos-latest)` and
   `Rust (windows-latest)`.
 - `E2E result` needs `Changes`, `E2E (ubuntu-26.04)` and `E2E (windows-latest)`.
@@ -90,7 +90,7 @@ matches is `unknown`, and `unknown` turns every job on. The classes and what the
 
 | Class | Paths (the first matching rule wins) | Jobs |
 |---|---|---|
-| `prose` | `**/*.md`, `docs/**`, `LICENSE`, issue templates, `CODEOWNERS`, `dependabot.yml`, `.vscode/**`, `.gitignore`, `osv-scanner.toml`, the other workflows, `scripts/ci/**` | none (the privacy scan always runs) |
+| `prose` | `**/*.md`, `docs/**`, `LICENSE`, issue templates, `CODEOWNERS`, `dependabot.yml`, `.vscode/**`, `.gitignore`, `osv-scanner.toml`, the text check configuration, the other workflows, `scripts/ci/**` | none (the privacy scan and the text checks always run) |
 | `changelog` | `CHANGELOG.md` | `Release tool unit tests` |
 | `release` | `release.yml`, `scripts/release/**`, `tauri.release.conf.json`; also root `Cargo.toml`, `package.json`, `tauri.conf.json`, which `release.py check-versions` reads | `Release tool unit tests` |
 | `ui` | `src/**`, `index.html`, `public/**`, Vite, TypeScript and biome configuration, pnpm files | `UI`, both `E2E` jobs |
@@ -106,8 +106,8 @@ matches is `unknown`, and `unknown` turns every job on. The classes and what the
 A fixture or golden file is `rust` even when it is Markdown: tests read whole fixture directories. The
 UI changes switch no Rust job on, because no Rust test reads the UI; the `E2E` jobs embed it and run.
 
-- The privacy scan always runs (subject to the release-call scope), and runs the unit tests of
-  `scripts/ci/tests`, which include the classifier's.
+- The privacy scan and `Text (spelling, Markdown, links)` always run (subject to the release-call
+  scope). The privacy scan runs the unit tests of `scripts/ci/tests`, which include the classifier's.
 - Force a full run on a branch: `gh workflow run ci.yml --ref <branch>` and
   `gh workflow run e2e.yml --ref <branch>`. A manual run ignores markers and runs everything.
 - Every job that is a required check must keep a literal `name:`, and the aggregators must keep
@@ -118,6 +118,7 @@ UI changes switch no Rust job on, because no Rust test reads the UI; the `E2E` j
   count as passed. The aggregators fail in that case, so the check stays red.
 
 ### Passed markers
+
 - `.github/workflows/nightly.yml` runs daily at 02:30 UTC and on demand, and dispatches `ci.yml` and
   `e2e.yml` on `development` with `workflow_dispatch`. Merges into `development` are made by
   auto-merge with the workflow token, and GitHub starts no workflow for those, so `development` has
@@ -132,7 +133,7 @@ UI changes switch no Rust job on, because no Rust test reads the UI; the `E2E` j
 - Each heavy job has its own marker, an Actions cache entry keyed by the git tree SHA:
   `ci-passed-ui-<tree>`, `ci-passed-rust-linux-<tree>`, `ci-passed-rust-macos-<tree>`,
   `ci-passed-rust-windows-<tree>`, `e2e-passed-linux-<tree>` and `e2e-passed-windows-<tree>`. Supply
-  chain, release tools and the privacy scan have none: they are cheap and always rerun.
+  chain, release tools, the privacy scan and the text checks have none: they are cheap and always rerun.
 - `Mark tree as passed` (one job per workflow) saves the marker of each heavy job that ran and
   succeeded in that run. A red Windows job therefore does not block the Linux and macOS markers. It
   saves on a push, a manual or nightly run on `development` or `main`, and on the promotion pull
@@ -154,7 +155,7 @@ suite blocks the release.
 
 Both workflows have a `workflow_call` input `scope` (default `all`; `all`, `shared`, `linux`, `macos` or
 `windows`; any other value fails the gate). The gate turns off every job outside the scope: `shared` is
-UI, supply chain, release tools and the privacy scan; `linux` is `Rust (ubuntu-26.04)` and
+UI, supply chain, release tools, the privacy scan and the text checks; `linux` is `Rust (ubuntu-26.04)` and
 `E2E (ubuntu-26.04)`; `macos` is `Rust (macos-latest)`; `windows` is `Rust (windows-latest)` and
 `E2E (windows-latest)`. The current calls in `release.yml` pass no scope, so they run the full set minus
 the already-passed jobs.

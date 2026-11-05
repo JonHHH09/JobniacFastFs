@@ -17,7 +17,7 @@
 # Outputs:
 #   tree        git tree SHA of the checked-out commit (the identity of the tested content)
 #   <job id>    true when that job has to run, one output per job of the workflow (ci: ui, rust-linux,
-#               rust-macos, rust-windows, supply-chain, release-tools, privacy-scan; e2e: e2e-linux,
+#               rust-macos, rust-windows, supply-chain, release-tools, privacy-scan, text; e2e: e2e-linux,
 #               e2e-windows). A job runs when its change class is on, it is in the scope and, for the
 #               jobs that have a marker, no trusted marker says this tree already passed it.
 #
@@ -51,7 +51,7 @@ case "$workflow" in
   # expected_jobs: every job id the workflow gates (the [workflows] table of change_classes.toml and the
   # `needs.changes.outputs.<job>` conditions of the workflow file; test_classify.py keeps the three in sync).
   ci)
-    expected_jobs="ui rust-linux rust-macos rust-windows supply-chain release-tools privacy-scan"
+    expected_jobs="ui rust-linux rust-macos rust-windows supply-chain release-tools privacy-scan text"
     marked_jobs="ui rust-linux rust-macos rust-windows"
     ;;
   e2e)

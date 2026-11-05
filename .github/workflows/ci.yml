@@ -37,7 +37,7 @@ on:
         type: boolean
         default: false
       scope:
-        description: "Which jobs the release call runs: all, shared (UI, supply chain, release tools, privacy scan), linux, macos or windows. Empty means all."
+        description: "Which jobs the release call runs: all, shared (UI, supply chain, release tools, privacy scan, text checks), linux, macos or windows. Empty means all."
         type: string
         default: all
 
@@ -46,7 +46,9 @@ permissions:
 
 # Pull requests cancel superseded runs. Pushes and the release call (a merged pull request) never cancel.
 concurrency:
-  group: ci-${{ github.ref }}
+  # The scope is in the group: release.yml calls this workflow once per scope in one run, and the calls
+  # must not queue or cancel each other.
+  group: ci-${{ github.ref }}-${{ inputs.scope || 'all' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged != true }}
 
 env:
@@ -76,6 +78,7 @@ jobs:
       supply-chain: ${{ steps.gate.outputs.supply-chain }}
       release-tools: ${{ steps.gate.outputs.release-tools }}
       privacy-scan: ${{ steps.gate.outputs.privacy-scan }}
+      text: ${{ steps.gate.outputs.text }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -255,9 +258,12 @@ jobs:
   # and lychee checks that relative links and heading anchors in the Markdown files resolve inside the
   # repository. lychee runs offline, so the job makes no network request and cannot fail on a remote
   # outage. The rules and exclusions live in `_typos.toml`, `.markdownlint-cli2.jsonc` and `lychee.toml`.
-  # The job has no `needs` and no `if`, so it also runs for the release call.
+  # Like the privacy scan, it runs on every change (only the release-call scope can turn it off), and
+  # it also runs for the release call.
   text:
     name: Text (spelling, Markdown, links)
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.text == 'true') }}
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     steps:
@@ -394,7 +400,7 @@ jobs:
   # fail-open. No checkout: bash and jq are on the runner.
   result-shared:
     name: CI result (shared)
-    needs: [changes, ui, supply-chain, release-tools, privacy-scan]
+    needs: [changes, ui, supply-chain, release-tools, privacy-scan, text]
     if: ${{ always() }}
     runs-on: ubuntu-26.04
     timeout-minutes: 5

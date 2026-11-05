@@ -29,17 +29,17 @@ unknown = ["@all"]
 
 # The jobs of each workflow.
 [workflows]
-ci = ["ui", "rust-linux", "rust-macos", "rust-windows", "supply-chain", "release-tools", "privacy-scan"]
+ci = ["ui", "rust-linux", "rust-macos", "rust-windows", "supply-chain", "release-tools", "privacy-scan", "text"]
 e2e = ["e2e-linux", "e2e-windows"]
 
 # Jobs that run whatever the classes are (subject to the scope).
 [always]
-jobs = ["privacy-scan"]
+jobs = ["privacy-scan", "text"]
 
 # Scopes of a release call (the `scope` input of ci.yml and e2e.yml); a job outside the scope is off.
 [scopes]
 all = ["@all"]
-shared = ["ui", "supply-chain", "release-tools", "privacy-scan"]
+shared = ["ui", "supply-chain", "release-tools", "privacy-scan", "text"]
 linux = ["rust-linux", "e2e-linux"]
 macos = ["rust-macos"]
 windows = ["rust-windows", "e2e-windows"]
@@ -70,6 +70,10 @@ globs = [
   ".vscode/**",
   ".gitignore",
   "osv-scanner.toml",
+  # Configuration of the text job, which always runs.
+  "_typos.toml",
+  ".markdownlint-cli2.jsonc",
+  "lychee.toml",
 ]
 classes = ["prose"]
 

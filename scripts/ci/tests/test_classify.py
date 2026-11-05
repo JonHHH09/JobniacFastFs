@@ -20,7 +20,7 @@ import classify as cl  # noqa: E402
 
 TABLE = cl.load_table(SCRIPT_DIR / "change_classes.toml")
 
-CI_JOBS = {"ui", "rust-linux", "rust-macos", "rust-windows", "supply-chain", "release-tools", "privacy-scan"}
+CI_JOBS = {"ui", "rust-linux", "rust-macos", "rust-windows", "supply-chain", "release-tools", "privacy-scan", "text"}
 E2E_JOBS = {"e2e-linux", "e2e-windows"}
 
 
@@ -97,6 +97,9 @@ class RuleTests(unittest.TestCase):
             ".vscode/extensions.json",
             ".gitignore",
             "osv-scanner.toml",
+            "_typos.toml",
+            ".markdownlint-cli2.jsonc",
+            "lychee.toml",
         ):
             self.assertEqual(classes_of(path), {"prose"}, path)
 
@@ -218,49 +221,49 @@ class OrderingTests(unittest.TestCase):
 
 class JobTests(unittest.TestCase):
     def test_an_empty_diff_runs_nothing_conditional(self) -> None:
-        self.assertEqual(running([]), {"privacy-scan"})
+        self.assertEqual(running([]), {"privacy-scan", "text"})
         self.assertEqual(running([], "e2e"), set())
 
     def test_prose_only_runs_only_the_privacy_scan(self) -> None:
-        self.assertEqual(running(["README.md", "docs/a.md", "LICENSE"]), {"privacy-scan"})
+        self.assertEqual(running(["README.md", "docs/a.md", "LICENSE"]), {"privacy-scan", "text"})
         self.assertEqual(running(["README.md"], "e2e"), set())
 
     def test_changelog_and_release_run_the_release_tool_tests(self) -> None:
-        self.assertEqual(running(["CHANGELOG.md"]), {"release-tools", "privacy-scan"})
-        self.assertEqual(running(["scripts/release/release.py"]), {"release-tools", "privacy-scan"})
+        self.assertEqual(running(["CHANGELOG.md"]), {"release-tools", "privacy-scan", "text"})
+        self.assertEqual(running(["scripts/release/release.py"]), {"release-tools", "privacy-scan", "text"})
         self.assertEqual(running(["CHANGELOG.md"], "e2e"), set())
 
     def test_ui_runs_the_ui_job_and_both_e2e_jobs_but_no_rust(self) -> None:
-        self.assertEqual(running(["src/App.tsx"]), {"ui", "privacy-scan"})
+        self.assertEqual(running(["src/App.tsx"]), {"ui", "privacy-scan", "text"})
         self.assertEqual(running(["src/App.tsx"], "e2e"), E2E_JOBS)
 
     def test_ui_tests_run_only_the_ui_job(self) -> None:
-        self.assertEqual(running(["playwright/shell.spec.ts"]), {"ui", "privacy-scan"})
+        self.assertEqual(running(["playwright/shell.spec.ts"]), {"ui", "privacy-scan", "text"})
         self.assertEqual(running(["playwright/shell.spec.ts"], "e2e"), set())
 
     def test_e2e_tests_run_the_ui_job_and_both_e2e_jobs(self) -> None:
-        self.assertEqual(running(["e2e/run.mjs"]), {"ui", "privacy-scan"})
+        self.assertEqual(running(["e2e/run.mjs"]), {"ui", "privacy-scan", "text"})
         self.assertEqual(running(["e2e/run.mjs"], "e2e"), E2E_JOBS)
 
     def test_rust_runs_the_three_rust_jobs_and_both_e2e_jobs(self) -> None:
-        self.assertEqual(running(["crates/core/src/lib.rs"]), {"rust-linux", "rust-macos", "rust-windows", "privacy-scan"})
+        self.assertEqual(running(["crates/core/src/lib.rs"]), {"rust-linux", "rust-macos", "rust-windows", "privacy-scan", "text"})
         self.assertEqual(running(["crates/core/src/lib.rs"], "e2e"), E2E_JOBS)
 
     def test_supply_chain_runs_cargo_deny(self) -> None:
-        self.assertEqual(running(["deny.toml"]), {"supply-chain", "privacy-scan"})
+        self.assertEqual(running(["deny.toml"]), {"supply-chain", "privacy-scan", "text"})
 
     def test_a_crate_manifest_runs_rust_and_cargo_deny(self) -> None:
         self.assertEqual(
             running(["crates/core/Cargo.toml"]),
-            {"rust-linux", "rust-macos", "rust-windows", "supply-chain", "privacy-scan"},
+            {"rust-linux", "rust-macos", "rust-windows", "supply-chain", "privacy-scan", "text"},
         )
 
     def test_ipc_bindings_run_ui_and_rust(self) -> None:
-        self.assertEqual(running(["src/ipc/bindings.ts"]), {"ui", "rust-linux", "rust-macos", "rust-windows", "privacy-scan"})
+        self.assertEqual(running(["src/ipc/bindings.ts"]), {"ui", "rust-linux", "rust-macos", "rust-windows", "privacy-scan", "text"})
 
     def test_classes_union(self) -> None:
         got = running(["README.md", "src/App.tsx", "deny.toml"])
-        self.assertEqual(got, {"ui", "supply-chain", "privacy-scan"})
+        self.assertEqual(got, {"ui", "supply-chain", "privacy-scan", "text"})
 
     def test_ci_all_runs_every_ci_job_and_no_e2e_job(self) -> None:
         self.assertEqual(running([".github/workflows/ci.yml"]), CI_JOBS)
@@ -268,7 +271,7 @@ class JobTests(unittest.TestCase):
 
     def test_e2e_all_runs_every_e2e_job_and_only_the_privacy_scan_of_ci(self) -> None:
         self.assertEqual(running([".github/workflows/e2e.yml"], "e2e"), E2E_JOBS)
-        self.assertEqual(running([".github/workflows/e2e.yml"]), {"privacy-scan"})
+        self.assertEqual(running([".github/workflows/e2e.yml"]), {"privacy-scan", "text"})
 
     def test_all_and_unknown_run_everything(self) -> None:
         for path in ("scripts/ci/gate.sh", ".gitattributes", "no/such/file"):
@@ -287,6 +290,7 @@ class JobTests(unittest.TestCase):
         self.assertEqual(jobs["rust-linux"], ("run", ["rust"]))
         self.assertEqual(jobs["supply-chain"], ("no-class", []))
         self.assertEqual(jobs["privacy-scan"], ("run", ["always"]))
+        self.assertEqual(jobs["text"], ("run", ["always"]))
 
 
 class ScopeTests(unittest.TestCase):
@@ -294,7 +298,7 @@ class ScopeTests(unittest.TestCase):
         full = ["scripts/ci/gate.sh"]
         self.assertEqual(running(full, "ci", ""), CI_JOBS)
         self.assertEqual(running(full, "ci", "all"), CI_JOBS)
-        self.assertEqual(running(full, "ci", "shared"), {"ui", "supply-chain", "release-tools", "privacy-scan"})
+        self.assertEqual(running(full, "ci", "shared"), {"ui", "supply-chain", "release-tools", "privacy-scan", "text"})
         self.assertEqual(running(full, "ci", "linux"), {"rust-linux"})
         self.assertEqual(running(full, "ci", "macos"), {"rust-macos"})
         self.assertEqual(running(full, "ci", "windows"), {"rust-windows"})
@@ -311,8 +315,10 @@ class ScopeTests(unittest.TestCase):
         self.assertEqual(jobs["rust-linux"][0], "run")
 
     def test_the_privacy_scan_is_subject_to_the_scope(self) -> None:
-        self.assertIn("privacy-scan", running([], "ci", "shared"))
-        self.assertNotIn("privacy-scan", running([], "ci", "linux"))
+        for job in ("privacy-scan", "text"):
+            self.assertIn(job, running([], "ci", "shared"))
+            for scope in ("linux", "macos", "windows"):
+                self.assertNotIn(job, running([], "ci", scope))
 
     def test_an_invalid_scope_is_an_error(self) -> None:
         with self.assertRaises(cl.RuleError):
