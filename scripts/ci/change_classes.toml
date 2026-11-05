@@ -32,9 +32,13 @@ unknown = ["@all"]
 ci = ["ui", "rust-linux", "rust-macos", "rust-windows", "supply-chain", "release-tools", "privacy-scan", "text"]
 e2e = ["e2e-linux", "e2e-windows"]
 
-# Jobs that run whatever the classes are (subject to the scope).
+# Jobs that run whatever the classes are (subject to the scope). The release tool tests are here
+# rather than class-driven: they read many repository files (the platform bundle configs and
+# entitlements, Cargo.lock, crate manifests, the licence and notice texts, the workflows), which no
+# path rule would keep track of, and they take seconds. The `changelog` and `release` classes still
+# name them, so they keep working if the job ever leaves this list.
 [always]
-jobs = ["privacy-scan", "text"]
+jobs = ["privacy-scan", "text", "release-tools"]
 
 # Scopes of a release call (the `scope` input of ci.yml and e2e.yml); a job outside the scope is off.
 [scopes]

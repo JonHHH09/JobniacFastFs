@@ -90,7 +90,7 @@ matches is `unknown`, and `unknown` turns every job on. The classes and what the
 
 | Class | Paths (the first matching rule wins) | Jobs |
 |---|---|---|
-| `prose` | `**/*.md`, `docs/**`, `LICENSE`, issue templates, `CODEOWNERS`, `dependabot.yml`, `.vscode/**`, `.gitignore`, `osv-scanner.toml`, the text check configuration, the other workflows, `scripts/ci/**` | none (the privacy scan and the text checks always run) |
+| `prose` | `**/*.md`, `docs/**`, `LICENSE`, issue templates, `CODEOWNERS`, `dependabot.yml`, `.vscode/**`, `.gitignore`, `osv-scanner.toml`, the text check configuration, the other workflows, `scripts/ci/**` | none (the privacy scan, the text checks and the release tool tests always run) |
 | `changelog` | `CHANGELOG.md` | `Release tool unit tests` |
 | `release` | `release.yml`, `scripts/release/**`, `tauri.release.conf.json`; also root `Cargo.toml`, `package.json`, `tauri.conf.json`, which `release.py check-versions` reads | `Release tool unit tests` |
 | `ui` | `src/**`, `index.html`, `public/**`, Vite, TypeScript and biome configuration, pnpm files | `UI`, both `E2E` jobs |
@@ -106,8 +106,12 @@ matches is `unknown`, and `unknown` turns every job on. The classes and what the
 A fixture or golden file is `rust` even when it is Markdown: tests read whole fixture directories. The
 UI changes switch no Rust job on, because no Rust test reads the UI; the `E2E` jobs embed it and run.
 
-- The privacy scan and `Text (spelling, Markdown, links)` always run (subject to the release-call
-  scope). The privacy scan runs the unit tests of `scripts/ci/tests`, which include the classifier's.
+- The privacy scan, `Text (spelling, Markdown, links)` and `Release tool unit tests` always run
+  (subject to the release-call scope). The release tool tests are always on because they read many
+  repository files (the platform bundle configs, entitlements, `Cargo.lock`, crate manifests, the
+  licence and notice texts, the workflows) that no path rule would keep track of, and they take
+  seconds; the `changelog` and `release` classes still name them. The privacy scan runs the unit
+  tests of `scripts/ci/tests`, which include the classifier's.
 - Force a full run on a branch: `gh workflow run ci.yml --ref <branch>` and
   `gh workflow run e2e.yml --ref <branch>`. A manual run ignores markers and runs everything.
 - Every job that is a required check must keep a literal `name:`, and the aggregators must keep
@@ -133,7 +137,8 @@ UI changes switch no Rust job on, because no Rust test reads the UI; the `E2E` j
 - Each heavy job has its own marker, an Actions cache entry keyed by the git tree SHA:
   `ci-passed-ui-<tree>`, `ci-passed-rust-linux-<tree>`, `ci-passed-rust-macos-<tree>`,
   `ci-passed-rust-windows-<tree>`, `e2e-passed-linux-<tree>` and `e2e-passed-windows-<tree>`. Supply
-  chain, release tools, the privacy scan and the text checks have none: they are cheap and always rerun.
+  chain, release tools, the privacy scan and the text checks have none: they are cheap (and, except
+  supply chain, always on) and rerun.
 - `Mark tree as passed` (one job per workflow) saves the marker of each heavy job that ran and
   succeeded in that run. A red Windows job therefore does not block the Linux and macOS markers. It
   saves on a push, a manual or nightly run on `development` or `main`, and on the promotion pull
