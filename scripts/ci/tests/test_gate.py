@@ -207,6 +207,29 @@ class GateTests(unittest.TestCase):
         self.make_merge_commit({}, renames={"src/app.ts": "docs/app.md"})
         self.assertRuns(self.run_gate(), CI_JOBS, {"ui", "privacy-scan"})
 
+    def test_a_checkout_that_is_not_a_merge_commit_runs_everything(self) -> None:
+        git(self.repo, "init", "-q", "-b", "base")
+        write(self.repo, "README.md", "base\n")
+        git(self.repo, "add", "-A")
+        git(self.repo, "commit", "-q", "-m", "base")
+        write(self.repo, "docs/guide.md", "changed\n")
+        git(self.repo, "add", "-A")
+        git(self.repo, "commit", "-q", "-m", "change")
+        self.assertRuns(self.run_gate(), CI_JOBS, set(CI_JOBS))
+        self.assertIn("not a merge commit", self.summary.read_text(encoding="utf-8"))
+
+    @unittest.skipIf(os.name == "nt", "Windows cannot create such file names")
+    def test_hostile_file_names_do_not_reach_the_log_or_summary_raw(self) -> None:
+        name = "::add-mask::x`|y.bin"
+        self.make_merge_commit({name: "changed\n"})
+        completed = self.gate()
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        for line in completed.stdout.splitlines():
+            self.assertFalse(line.startswith("::"), line)
+        text = self.summary.read_text(encoding="utf-8")
+        self.assertIn("`::add-mask::xy.bin`", text)
+        self.assertNotIn("`|", text)
+
     def test_pull_request_into_main_from_another_branch_is_plain(self) -> None:
         self.make_merge_commit({"docs/guide.md": "changed\n"})
         out = self.run_gate(base_ref="main", head_ref="dependabot/cargo/x")

@@ -48,8 +48,16 @@ python="${PYTHON:-python3}"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 case "$workflow" in
-  ci) marked_jobs="ui rust-linux rust-macos rust-windows" ;;
-  e2e) marked_jobs="e2e-linux e2e-windows" ;;
+  # expected_jobs: every job id the workflow gates (the [workflows] table of change_classes.toml and the
+  # `needs.changes.outputs.<job>` conditions of the workflow file; test_classify.py keeps the three in sync).
+  ci)
+    expected_jobs="ui rust-linux rust-macos rust-windows supply-chain release-tools privacy-scan"
+    marked_jobs="ui rust-linux rust-macos rust-windows"
+    ;;
+  e2e)
+    expected_jobs="e2e-linux e2e-windows"
+    marked_jobs="e2e-linux e2e-windows"
+    ;;
   *) echo "::error::usage: gate.sh <ci|e2e>" >&2; exit 1 ;;
 esac
 
@@ -79,14 +87,21 @@ fi
 
 # 2. Classes and the jobs they switch on. The checkout of a pull request is the merge commit, so its
 #    first parent is the base branch tip and `HEAD^1..HEAD` is what the pull request changes.
-if [ "$plain_pr" = true ]; then
+if [ "$plain_pr" = true ] && ! git rev-parse --verify --quiet 'HEAD^2' > /dev/null; then
+  # Not a merge commit: HEAD^1 is not known to be the base tip, so the diff cannot be trusted.
+  changed_count="not counted (the checkout is not a merge commit: treated as unknown, full run)"
+  echo "::warning::the checkout is not a pull request merge commit; running everything" >&2
+  classified="$("$python" -I "$script_dir/classify.py" --workflow "$workflow" --scope "$scope" --unknown)" \
+    || { echo "::error::the change classifier failed" >&2; exit 1; }
+elif [ "$plain_pr" = true ]; then
   # --no-renames lists the old path of a rename too.
   changed_nul="$(mktemp)"
   trap 'rm -f "$changed_nul"' EXIT
   git diff --name-only --no-renames -z HEAD^1 HEAD > "$changed_nul"
   changed_count="$(tr -cd '\0' < "$changed_nul" | wc -c | tr -d ' ')"
   echo "Changed files: $changed_count"
-  tr '\0' '\n' < "$changed_nul"
+  # Indented, so that no name can start a line with `::` (a workflow command).
+  tr '\0' '\n' < "$changed_nul" | sed 's/^/  /'
   classified="$("$python" -I "$script_dir/classify.py" --workflow "$workflow" --scope "$scope" -z < "$changed_nul")" \
     || { echo "::error::the change classifier failed" >&2; exit 1; }
 else
@@ -111,6 +126,13 @@ while IFS= read -r line; do
       ;;
   esac
 done <<< "$classified"
+
+# The workflows read one output per job: the classifier must emit exactly the expected jobs, or a job
+# would be skipped silently behind an empty output.
+if [ "$(printf '%s\n' "${jobs[@]}" | sort | tr '\n' ' ')" != "$(printf '%s\n' $expected_jobs | sort | tr '\n' ' ')" ]; then
+  echo "::error::the classifier emitted jobs [${jobs[*]}] but the gate expects [$expected_jobs]" >&2
+  exit 1
+fi
 
 # 3. Markers. A job that the classes and the scope switch on is skipped when a trusted marker says
 #    this tree already passed it. A manual run ignores markers.
@@ -164,6 +186,10 @@ for name in "${jobs[@]}"; do
       esac
       run[$name]=true
       ;;
+    *)
+      echo "::error::the classifier gave job $name the unknown state '${state[$name]}'" >&2
+      exit 1
+      ;;
   esac
 done
 if [ "$lookup_failed" = true ]; then
@@ -186,7 +212,11 @@ fi
   if [ "${#unknown_paths[@]}" -gt 0 ]; then
     echo "- Unknown paths (no rule matched, so every job is on):"
     for path in "${unknown_paths[@]}"; do
-      echo "  - \`${path//\`/}\`"
+      # Control characters, backticks and pipes would break the Markdown (or inject lines into it).
+      safe="${path//[[:cntrl:]]/ }"
+      safe="${safe//\`/}"
+      safe="${safe//|/}"
+      echo "  - \`${safe}\`"
     done
   fi
   echo

@@ -64,7 +64,7 @@ def glob_to_regex(glob: str) -> re.Pattern[str]:
         else:
             out.append(re.escape(glob[i]))
             i += 1
-    return re.compile("".join(out))
+    return re.compile("".join(out), re.DOTALL)  # DOTALL: `**` crosses a newline in a name like `*` does
 
 
 @dataclass(frozen=True)
@@ -177,14 +177,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--scope", default="", help="release-call scope; empty means all")
     parser.add_argument("--rules", type=Path, default=RULES_FILE, help="rule file (default: next to this script)")
     parser.add_argument("--all", action="store_true", help="do not read paths: act as if the class `all` was found")
+    parser.add_argument("--unknown", action="store_true", help="do not read paths: act as if one path matched no rule")
     parser.add_argument("-z", action="store_true", help="paths on stdin are NUL separated (default: newline)")
     args = parser.parse_args(argv)
     try:
         table = load_table(args.rules)
         if args.all:
-            paths: list[str] = []
             classes = {"all"}
             unknown: list[str] = []
+        elif args.unknown:
+            classes = {UNKNOWN}
+            unknown = []
         else:
             raw = sys.stdin.buffer.read().decode("utf-8", errors="surrogateescape")
             paths = [p for p in raw.split("\0" if args.z else "\n") if p]

@@ -6,6 +6,7 @@ Run: py -I -m unittest discover -s scripts/ci/tests -p "test_*.py"
 from __future__ import annotations
 
 import io
+import re
 import sys
 import tempfile
 import unittest
@@ -356,6 +357,12 @@ class CommandLineTests(unittest.TestCase):
         self.assertIn("job rust-windows run all\n", out)
         self.assertIn("job ui out-of-scope all\n", out)
 
+    def test_unknown_flag_acts_as_one_unmatched_path(self) -> None:
+        code, out, _ = self.run_main(["--workflow", "e2e", "--unknown"])
+        self.assertEqual(code, 0)
+        self.assertIn("classes unknown\n", out)
+        self.assertIn("job e2e-linux run unknown\n", out)
+
     def test_an_invalid_scope_exits_with_2(self) -> None:
         code, _, err = self.run_main(["--workflow", "ci", "--all", "--scope", "nope"])
         self.assertEqual(code, 2)
@@ -365,6 +372,56 @@ class CommandLineTests(unittest.TestCase):
         code, out, _ = self.run_main(["--workflow", "ci", "-z"], b"")
         self.assertEqual(code, 0)
         self.assertIn("classes -\n", out)
+
+
+class NewlineTests(unittest.TestCase):
+    def test_double_star_crosses_a_newline_in_a_name(self) -> None:
+        self.assertEqual(classes_of("docs/a\nb.txt"), {"prose"})
+        self.assertEqual(classes_of("docs/a\nb/c.txt"), {"prose"})
+
+    def test_star_matches_a_newline_within_a_segment(self) -> None:
+        self.assertEqual(classes_of("notes\nx.md"), {"prose"})
+
+
+class WorkflowSyncTests(unittest.TestCase):
+    """The workflow files, the rule file and gate.sh must name the same jobs.
+
+    A job whose `needs.changes.outputs.<job>` is missing from the gate output would be skipped
+    silently (the output is empty), and the aggregator would count that as passed.
+    """
+
+    ROOT = SCRIPT_DIR.parents[1]
+
+    def job_blocks(self, workflow: str) -> dict[str, str]:
+        text = (self.ROOT / ".github" / "workflows" / f"{workflow}.yml").read_text(encoding="utf-8")
+        jobs_text = text.split("\njobs:\n", 1)[1]
+        parts = re.split(r"(?m)^  ([A-Za-z0-9_-]+):\n", jobs_text)
+        return {parts[i]: parts[i + 1] for i in range(1, len(parts) - 1, 2)}
+
+    def test_gated_jobs_and_referenced_outputs_match_the_rule_file(self) -> None:
+        for workflow, expected in TABLE.workflows.items():
+            with self.subTest(workflow=workflow):
+                blocks = self.job_blocks(workflow)
+                gated = set()
+                referenced = set()
+                for job, block in blocks.items():
+                    if_lines = re.findall(r"(?m)^    if: .*$", block)
+                    names = set(re.findall(r"needs\.changes\.outputs\.([A-Za-z0-9_-]+)", "\n".join(if_lines)))
+                    if names:
+                        gated.add(job)
+                        referenced |= names
+                self.assertEqual(gated, set(expected))
+                self.assertEqual(referenced, set(expected))
+                declared = set(re.findall(r"(?m)^      ([A-Za-z0-9_-]+): \$\{\{ steps\.gate\.outputs\.\1 \}\}$", blocks["changes"]))
+                self.assertEqual(declared, set(expected) | {"tree"})
+
+    def test_gate_script_expects_the_same_jobs(self) -> None:
+        text = (SCRIPT_DIR / "gate.sh").read_text(encoding="utf-8")
+        for workflow, expected in TABLE.workflows.items():
+            with self.subTest(workflow=workflow):
+                match = re.search(rf'(?m)^  {workflow}\)\n    expected_jobs="([^"]*)"', text)
+                self.assertIsNotNone(match)
+                self.assertEqual(set(match.group(1).split()), set(expected))  # type: ignore[union-attr]
 
 
 class RuleFileTests(unittest.TestCase):

@@ -66,7 +66,7 @@ but a runner that is no longer arm64 fails the release leg, which checks the arc
 
 `Rust (windows-latest)` and `E2E (windows-latest)` run on pull requests whose change classes need them
 (below), and on every full run. The WebDriver suite has no macOS leg (`tauri-driver` has no macOS
-driver). `E2E (windows-latest)` still fails on `main`. The end-to-end suite is a release
+driver). The end-to-end suite is a release
 gate (`release.yml` needs it), so a promotion pull request whose `E2E (...)` checks are red must not
 be merged: the release would stop after the merge.
 
