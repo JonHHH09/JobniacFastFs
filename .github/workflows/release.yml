@@ -76,7 +76,7 @@ permissions:
 # the release group). A pull request closed without a merge gets its own group, so it never cancels a real
 # release run.
 concurrency:
-  group: ${{ github.event_name == 'workflow_dispatch' && 'release' || github.event.action != 'closed' && format('release-dry-run-{0}', github.event.pull_request.number) || github.event.pull_request.merged == true && 'release' || format('skip-{0}', github.run_id) }}
+  group: ${{ github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' && 'release' || format('skip-{0}', github.run_id)) || github.event.action != 'closed' && format('release-dry-run-{0}', github.event.pull_request.number) || github.event.pull_request.merged == true && 'release' || format('skip-{0}', github.run_id) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
 
 defaults:
@@ -280,7 +280,6 @@ jobs:
       tag: ${{ steps.resolve.outputs.tag }}
       prerelease: ${{ steps.resolve.outputs.prerelease }}
       previous_tag: ${{ steps.resolve.outputs.previous_tag }}
-      latest_stable_tag: ${{ steps.resolve.outputs.latest_stable_tag }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -700,10 +699,10 @@ jobs:
       - name: Fetch the manifests of the latest published release (the carry-forward source)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LATEST_STABLE_TAG: ${{ needs.prepare.outputs.latest_stable_tag }}
+          PREVIOUS_TAG: ${{ needs.prepare.outputs.previous_tag }}
         run: >-
           python -I scripts/release/release.py fetch-previous-manifests
-          --repo "$GITHUB_REPOSITORY" --out previous --expect-tag "$LATEST_STABLE_TAG"
+          --repo "$GITHUB_REPOSITORY" --out previous --expect-tag "$PREVIOUS_TAG"
       - name: Write the updater manifests and check them like verify-draft does (nothing is uploaded)
         run: |
           set -euo pipefail
@@ -757,9 +756,23 @@ jobs:
       VERSION: ${{ needs.prepare.outputs.version }}
       RELEASE_ID: ${{ needs.draft.outputs.release_id }}
       GREEN: ${{ needs.plan.outputs.green }}
-      LATEST_STABLE_TAG: ${{ needs.prepare.outputs.latest_stable_tag }}
+      PREVIOUS_TAG: ${{ needs.prepare.outputs.previous_tag }}
       MODE: ${{ needs.mode.outputs.mode }}
+    outputs:
+      has_previous: ${{ steps.previous.outputs.has_previous }}
     steps:
+      # A "Re-run failed jobs" of a run that already published keeps the old draft ID, which is a published
+      # release by now. Nothing may be added to a published release, so this job stops before it writes.
+      - name: Check that the release is still a draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          draft="$(gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" --jq .draft)"
+          if [ "$draft" != "true" ]; then
+            echo "::error::v$VERSION is already published. Re-running failed jobs cannot add a platform to a published release. Re-release the platform from main instead: gh workflow run release.yml --ref main -f platforms=<platform>" >&2
+            exit 1
+          fi
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ env.MERGE_SHA }}
@@ -797,12 +810,22 @@ jobs:
         run: >-
           python -I scripts/release/release.py attach
           --repo "$GITHUB_REPOSITORY" --release-id "$RELEASE_ID" --dir release-assets
+      # No version is published while its own run fetches this, so the latest release is the highest published
+      # stable one below this version, which is `previous_tag` (in a re-release, the tag at main's commit).
       - name: Fetch the manifests of the latest published release (the carry-forward source)
+        id: previous
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: >-
-          python -I scripts/release/release.py fetch-previous-manifests
-          --repo "$GITHUB_REPOSITORY" --out previous --expect-tag "$LATEST_STABLE_TAG"
+        run: |
+          set -euo pipefail
+          python -I scripts/release/release.py fetch-previous-manifests \
+            --repo "$GITHUB_REPOSITORY" --out previous --expect-tag "$PREVIOUS_TAG"
+          # Empty only when no stable release exists yet (the very first release has nothing to carry).
+          if [ -n "$(ls -A previous)" ]; then
+            echo "has_previous=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_previous=false" >> "$GITHUB_OUTPUT"
+          fi
       # The platforms section of the draft body: the table of a partial set, and for a re-release the sentence
       # that says which commit is built again. For a full release that is no re-release the notes come out empty,
       # which removes a section that an earlier run of this job left in the draft body.
@@ -813,7 +836,7 @@ jobs:
           set -euo pipefail
           if [ "$MODE" = "rerelease" ]; then
             python -I scripts/release/release.py platform-notes --version "$VERSION" --platforms "$GREEN" \
-              --previous previous --repo "$GITHUB_REPOSITORY" --rerelease-of "$LATEST_STABLE_TAG" > platform-notes.md
+              --previous previous --repo "$GITHUB_REPOSITORY" --rerelease-of "$PREVIOUS_TAG" > platform-notes.md
           else
             python -I scripts/release/release.py platform-notes --version "$VERSION" --platforms "$GREEN" \
               --previous previous --repo "$GITHUB_REPOSITORY" > platform-notes.md
@@ -859,13 +882,14 @@ jobs:
           retention-days: 30
 
   # 10. Build provenance, only for a public repository (GitHub refuses it for user-owned private ones).
+  #     The job always runs once `attach` succeeded, and asks the API for the visibility (a manual run's event
+  #     payload may lack it), so a re-release never skips provenance by accident: a failed lookup fails the
+  #     job, and `publish` needs it to have succeeded. A private repository logs that attestation is skipped.
   #     The permissions sit on this job because a job cannot grant them conditionally. Never in the dry run:
   #     provenance of an unreleased build would be public.
   attest:
     needs: [mode, attach]
-    if: >-
-      ${{ (needs.mode.outputs.mode == 'release' || needs.mode.outputs.mode == 'rerelease')
-      && github.event.repository.visibility == 'public' }}
+    if: ${{ needs.mode.outputs.mode == 'release' || needs.mode.outputs.mode == 'rerelease' }}
     runs-on: ubuntu-26.04
     timeout-minutes: 15
     permissions:
@@ -873,11 +897,28 @@ jobs:
       attestations: write
       id-token: write
     steps:
+      - name: Read the repository visibility
+        id: visibility
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          visibility="$(gh api "repos/$GITHUB_REPOSITORY" --jq .visibility)"
+          if [ -z "$visibility" ] || [ "$visibility" = "null" ]; then
+            echo "::error::the repository visibility could not be read" >&2
+            exit 1
+          fi
+          echo "visibility=$visibility" >> "$GITHUB_OUTPUT"
+          if [ "$visibility" != "public" ]; then
+            echo "::notice::the repository is $visibility: build provenance attestation is skipped"
+          fi
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        if: ${{ steps.visibility.outputs.visibility == 'public' }}
         with:
           name: release-assets
           path: release-assets
       - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        if: ${{ steps.visibility.outputs.visibility == 'public' }}
         with:
           subject-path: release-assets/*
 
@@ -910,12 +951,13 @@ jobs:
         with:
           name: updater-manifest
           path: updater-manifests
-      # The first release of a repository has no previous manifests, so its artifact is empty and absent; the
-      # check then runs against an empty directory, which a carried platform would fail.
-      - name: Make the previous-manifests directory
+      # The first release of a repository has no previous manifests, so its artifact does not exist; the
+      # check then runs against an empty directory (a carried platform would fail it).
+      - name: Make an empty previous-manifests directory (no stable release yet)
+        if: ${{ needs.attach.outputs.has_previous != 'true' }}
         run: mkdir -p previous-manifests
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        continue-on-error: true
+        if: ${{ needs.attach.outputs.has_previous == 'true' }}
         with:
           name: previous-manifests
           path: previous-manifests
@@ -946,7 +988,7 @@ jobs:
       && needs.plan.result == 'success'
       && needs.attach.result == 'success'
       && needs.verify-draft.result == 'success'
-      && (needs.attest.result == 'success' || needs.attest.result == 'skipped') }}
+      && needs.attest.result == 'success' }}
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:

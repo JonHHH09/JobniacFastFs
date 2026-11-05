@@ -1615,7 +1615,9 @@ class WorkflowRules(unittest.TestCase):
         self.assertIn("release.py publish", publish)
         self.assertEqual(text.count("release.py publish"), 1)
         self.assertRegex(publish, r"needs\.verify-draft\.result == 'success'")
-        self.assertRegex(publish, r"needs\.attest\.result == 'skipped'")
+        # Provenance is never skipped by accident: the attest job itself decides on the visibility.
+        self.assertNotIn("needs.attest.result == 'skipped'", publish)
+        self.assertRegex(publish, r"needs\.attest\.result == 'success'")
         issues = self.job("platform-issues")
         self.assertRegex(issues, r"needs: \[[^\]]*\bpublish\b")
         self.assertIn("needs.publish.result == 'success'", issues)
@@ -1627,7 +1629,7 @@ class WorkflowRules(unittest.TestCase):
     def test_merged_runs_and_re_releases_share_one_group_dry_runs_and_unmerged_closes_get_their_own(self) -> None:
         text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
         block = text.split("\nconcurrency:\n", 1)[1].split("\n\n", 1)[0]
-        self.assertIn("github.event_name == 'workflow_dispatch' && 'release'", block)
+        self.assertIn("github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' && 'release'", block)
         self.assertIn("github.event.action != 'closed' && format('release-dry-run-{0}', github.event.pull_request.number)", block)
         self.assertIn("|| github.event.pull_request.merged == true && 'release'", block)
         self.assertIn("|| format('skip-{0}', github.run_id)", block)
@@ -1671,7 +1673,36 @@ class WorkflowRules(unittest.TestCase):
                 self.assertIn("needs.mode.outputs.mode == 'rerelease'", condition)
                 # Neither the dry run nor an unrelated event can reach them.
                 self.assertNotIn("'dry'", condition)
-        self.assertIn("github.event.repository.visibility == 'public'", self.condition("attest"))
+        attest = self.job("attest")
+        self.assertNotIn("github.event.repository.visibility", attest)
+        self.assertIn('gh api "repos/$GITHUB_REPOSITORY" --jq .visibility', attest)
+        self.assertEqual(attest.count("steps.visibility.outputs.visibility == 'public'"), 2)
+        self.assertRegex(attest, r"attestations: write\n\s+id-token: write")
+        for name in self.job_names():
+            if name != "attest":
+                self.assertNotIn("id-token: write", self.job(name))
+
+    def test_a_published_release_is_never_attached_to_and_the_previous_tag_is_expected(self) -> None:
+        attach = self.job("attach")
+        first_step = attach.split("    steps:\n", 1)[1].split("      - uses:", 1)[0]
+        self.assertIn("Check that the release is still a draft", first_step)
+        self.assertIn("is already published", first_step)
+        self.assertIn("gh workflow run release.yml --ref main -f platforms=<platform>", first_step)
+        for name in ("attach", "dry-run-assemble"):
+            self.assertIn('--expect-tag "$PREVIOUS_TAG"', self.job(name))
+        self.assertNotIn("latest_stable_tag", (WORKFLOWS / "release.yml").read_text(encoding="utf-8"))
+        self.assertNotIn("continue-on-error", (WORKFLOWS / "release.yml").read_text(encoding="utf-8"))
+        self.assertIn("has_previous: ${{ steps.previous.outputs.has_previous }}", attach)
+        verify = self.job("verify-draft")
+        self.assertIn("needs.attach.outputs.has_previous == 'true'", verify)
+        self.assertIn("needs.attach.outputs.has_previous != 'true'", verify)
+
+    def test_only_a_dispatch_on_main_joins_the_release_group(self) -> None:
+        text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        block = text.split("\nconcurrency:\n", 1)[1].split("\n\n", 1)[0]
+        self.assertIn(
+            "github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' && 'release' "
+            "|| format('skip-{0}', github.run_id))", block)
 
     def test_the_dry_run_job_runs_only_in_the_dry_mode_and_has_no_write_permission(self) -> None:
         job = self.job("dry-run-assemble")
@@ -1812,7 +1843,6 @@ class WorkflowRules(unittest.TestCase):
                                   r'next-version --merge-sha "\$MERGE_SHA" --next-patch-even-if-tagged')
         self.assertNotIn("resolve-version", (WORKFLOWS / "release.yml").read_text(encoding="utf-8"))
         self.assertIn("previous_tag: ${{ steps.resolve.outputs.previous_tag }}", prepare)
-        self.assertIn("latest_stable_tag: ${{ steps.resolve.outputs.latest_stable_tag }}", prepare)
         build = self.job("build", "release-build.yml")
         stamp = build.index('release.py set-version "$VERSION"')
         self.assertLess(build.index("release.py check-checkout"), stamp)

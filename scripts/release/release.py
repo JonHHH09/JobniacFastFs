@@ -1037,9 +1037,20 @@ def prepare_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, body: s
     return int(created["id"])  # type: ignore[index,call-overload]
 
 
+def require_draft(release: dict[str, object]) -> None:
+    """A release is only written to while it is a draft. A published one is never modified.
+
+    A "Re-run failed jobs" of a run that already published keeps the old draft ID, which is then a
+    published release: it must not gain files or notes (a platform is added by a re-release instead).
+    """
+    if release.get("draft") is not True:
+        raise ReleaseError("the release is already published: refusing to modify it (re-release the platform instead)")
+
+
 def attach_assets(api: GitHubApi, release_id: int, directory: Path) -> int:
     """Uploads the assets the draft lacks. An asset with the same name and a different digest fails."""
     release = api.call("GET", f"/releases/{release_id}")
+    require_draft(release)  # type: ignore[arg-type]
     existing = {str(asset["name"]): asset for asset in release["assets"]}  # type: ignore[index,call-overload]
     uploaded = 0
     for path in sorted(entry for entry in directory.iterdir() if entry.is_file()):
@@ -1440,6 +1451,7 @@ def apply_platform_section(body: str, section: str) -> str:
 def annotate_draft(api: GitHubApi, release_id: int, section: str) -> bool:
     """Writes the platform section into the release body. Returns whether the body changed."""
     release = api.release_by_id(release_id)
+    require_draft(release)
     body = release.get("body") or ""
     if not isinstance(body, str):
         raise ReleaseError("release body is not text")

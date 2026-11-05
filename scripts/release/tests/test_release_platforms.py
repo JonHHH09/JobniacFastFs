@@ -905,7 +905,7 @@ class BodyAnnotation(TempDirCase):
             if method == "PATCH":
                 state["patches"] += 1
                 state["body"] = json.loads(body.decode("utf-8"))["body"]  # type: ignore[union-attr]
-            return 200, json.dumps({"id": 7, "body": state["body"]}).encode("utf-8")
+            return 200, json.dumps({"id": 7, "draft": True, "body": state["body"]}).encode("utf-8")
 
         api = release.GitHubApi("example/app", "token", transport)
         self.assertTrue(release.annotate_draft(api, 7, self.section()))
@@ -1074,7 +1074,7 @@ class MarkerIntegrity(TempDirCase):
         def transport(method: str, url: str, token: str, body: bytes | None, content_type: str) -> tuple[int, bytes]:
             if method == "PATCH":
                 patches.append(body or b"")
-            return 200, json.dumps({"id": 7, "body": f"{self.B}\nonly a begin"}).encode("utf-8")
+            return 200, json.dumps({"id": 7, "draft": True, "body": f"{self.B}\nonly a begin"}).encode("utf-8")
 
         api = release.GitHubApi("example/app", "token", transport)
         with self.assertRaises(release.ReleaseError):

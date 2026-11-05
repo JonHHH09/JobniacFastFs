@@ -138,7 +138,8 @@ hosted runner yet.
   that version when it exists, otherwise GitHub's generated notes since the previous stable tag.
   Runs of merged promotions share one concurrency group, so they serialize and never compute the same
   version. GitHub keeps one pending run per group, so when several promotions merge quickly the middle
-  pending run is cancelled; its changes ship with the next release. The run refuses (fails closed) when
+  pending run is cancelled; its changes ship with the next release. A pending re-release can be displaced
+  the same way by a newer pending run in the `release` group (only a dispatch on `main` joins it). The run refuses (fails closed) when
   the highest stable tag is not an ancestor of the merge commit, so a stale re-run of an old merge cannot
   publish older code as a newer release. After a `-dev.N` prerelease, the next automatic release is the
   next stable patch of the last stable line.
@@ -187,10 +188,13 @@ hosted runner yet.
   it. Read the failed step's log first. "Re-run failed jobs" of a `Release` run replays the same run: the
   old merge commit, the workflow file and scripts of that commit, and the same version (a tag already on
   the commit keeps its version, and the draft is reused). Use it only for transient failures (a runner
-  or network error), including a red lane that failed for that reason when the run did not publish; it
-  cannot pick up a fix. A code or workflow fix goes through `development` and a new promotion pull
-  request. To add a platform to a release that is already published, re-release it (above): "Re-run
-  failed jobs" never changes a published release. The build lanes do not cancel each other, so one run
+  or network error) of a run that has not published; it cannot pick up a fix. A code or workflow fix goes
+  through `development` and a new promotion pull request. Once the run has published, "Re-run failed
+  jobs" can no longer help a red lane: GitHub re-runs the failed build and its dependents with the old
+  release ID, which is now published, so `attach` fails at its first step with "already published" and
+  changes nothing (`release.py attach` and `annotate-draft` also refuse a release that is not a draft, and
+  `publish` on a published release only reports it). Add the platform with a re-release (above) instead.
+  The build lanes do not cancel each other, so one run
   shows every failing lane, and the smoke jobs still run for the builds that succeeded.
 - **Closed:** the builds never upload: `tauri-action` only builds, the build jobs have no GitHub token or
   write access, and `attach` uploads the files from the workflow artifacts to the existing draft by

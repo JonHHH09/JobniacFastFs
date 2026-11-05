@@ -6,6 +6,7 @@ All data is synthetic; the git tests build a throwaway repository in a temporary
 
 from __future__ import annotations
 
+import json
 import shutil
 import sys
 import tempfile
@@ -80,6 +81,55 @@ class RereleaseNotes(unittest.TestCase):
     def test_a_bad_tag_is_refused(self) -> None:
         with self.assertRaises(release.ReleaseError):
             release.platform_notes("1.2.4", (self.MACOS,), None, "example/app", "not a tag")
+
+
+class PublishedReleaseIsNeverModified(unittest.TestCase):
+    """A re-run of failed jobs keeps the old release ID, which may be published by now."""
+
+    def api(self, draft: object, writes: list[str]) -> release.GitHubApi:
+        def transport(method: str, url: str, token: str, body: bytes | None, content_type: str) -> tuple[int, bytes]:
+            if method != "GET":
+                writes.append(f"{method} {url}")
+            payload = {"id": 7, "draft": draft, "body": "Notes.\n", "assets": []}
+            return 200, json.dumps(payload).encode("utf-8")
+
+        return release.GitHubApi("example/app", "token", transport)
+
+    def test_attach_refuses_a_published_release_and_uploads_nothing(self) -> None:
+        directory = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, directory, True)
+        (directory / "a.txt").write_bytes(b"a")
+        for draft in (False, None, "true"):
+            writes: list[str] = []
+            with self.subTest(draft=draft), self.assertRaises(release.ReleaseError) as context:
+                release.attach_assets(self.api(draft, writes), 7, directory)
+            self.assertIn("already published", str(context.exception))
+            self.assertEqual(writes, [])
+
+    def test_annotate_refuses_a_published_release_and_patches_nothing(self) -> None:
+        writes: list[str] = []
+        with self.assertRaises(release.ReleaseError):
+            release.annotate_draft(self.api(False, writes), 7, "<!-- platforms -->\nx\n<!-- /platforms -->")
+        self.assertEqual(writes, [])
+
+    def test_verify_draft_and_publish_are_no_ops_or_refusals_on_a_published_release(self) -> None:
+        writes: list[str] = []
+        intent = release.tag_for_version("1.2.3")
+        sha = "a" * 40
+
+        def transport(method: str, url: str, token: str, body: bytes | None, content_type: str) -> tuple[int, bytes]:
+            if method != "GET":
+                writes.append(f"{method} {url}")
+            if "/git/ref" in url or "/git/matching-refs" in url:
+                return 404, b"{}"
+            payload = {"id": 7, "draft": False, "tag_name": "v1.2.3", "prerelease": False,
+                       "target_commitish": sha, "assets": []}
+            return 200, json.dumps(payload).encode("utf-8")
+
+        api = release.GitHubApi("example/app", "token", transport)
+        with self.assertRaises(release.ReleaseError):
+            release.publish_release(api, intent, sha, 7)
+        self.assertEqual(writes, [])
 
 
 class ForcedNextPatchGit(unittest.TestCase):

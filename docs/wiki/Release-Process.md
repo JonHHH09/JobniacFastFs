@@ -25,7 +25,7 @@ Merge the promotion pull request only when its checks are green, `E2E (...)` inc
 | `clean-machine-macos` | macOS smoke: mount the DMG, launch, exercise MCP and the PDF worker. |
 | `plan` | Lists the green platforms; fails when there are none. |
 | `attach` | Assembles the green platforms' asset set, writes and verifies `SHA256SUMS`, attaches the missing assets, then writes and attaches the updater manifests. |
-| `attest` | Build provenance attestation. It runs only where GitHub supports it, and `publish` accepts a skip. |
+| `attest` | Build provenance attestation. It reads the repository visibility and attests only a public repository (it logs the skip for a private one); `publish` needs it to succeed. |
 | `verify-draft` | Final API check of the draft: tag, flags, target commit, exact asset set and digests, and every updater manifest. |
 | `publish` | Tags the merge commit and publishes the draft. |
 | `platform-issues` | Opens or updates one `release-platform` issue per missing platform, and closes it when a platform ships. |
