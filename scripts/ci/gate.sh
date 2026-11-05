@@ -1,125 +1,204 @@
 #!/usr/bin/env bash
-# Gate of the CI and E2E workflows: decides which heavy jobs run and writes the decision to
-# $GITHUB_OUTPUT. Usage: gate.sh <ci|e2e>
+# Gate of the CI and E2E workflows: decides which jobs run and writes the decision to $GITHUB_OUTPUT
+# and a short Markdown summary to $GITHUB_STEP_SUMMARY. Usage: gate.sh <ci|e2e>
 #
 # Inputs (environment):
 #   EVENT_NAME         github.event_name (the caller's event for a workflow_call)
 #   BASE_REF           github.base_ref (the target branch of a pull request, empty otherwise)
-#   RELEASE_CALL       "true" for the release call of ci.yml and e2e.yml: a full run, no path filtering
-#   GH_TOKEN           token with `actions: read`, used to look the passed marker up
-#   GITHUB_REPOSITORY, GITHUB_OUTPUT  set by the runner
+#   HEAD_REF           github.head_ref (the source branch of a pull request, empty otherwise)
+#   HEAD_REPO          github.event.pull_request.head.repo.full_name (empty outside pull requests)
+#   RELEASE_CALL       "true" for the release call of ci.yml and e2e.yml
+#   SCOPE              the `scope` input of the release call: all, shared, linux, macos or windows;
+#                      empty means all, anything else fails the gate
+#   GH_TOKEN           token with `actions: read` and `pull-requests: read`, used to look markers up
+#   PYTHON             interpreter of the classifier (default python3; run locally with PYTHON=python)
+#   GITHUB_REPOSITORY, GITHUB_OUTPUT, GITHUB_STEP_SUMMARY  set by the runner
 #
 # Outputs:
-#   tree            git tree SHA of the checked-out commit (the identity of the tested content)
-#   already-passed  true when a trusted run already passed this workflow on this exact tree
-#   rust, ui, app   true when the Rust, UI or desktop-app jobs have to run (already-passed folded in)
-#   windows         true when the Windows jobs have to run (never on a plain pull request)
+#   tree        git tree SHA of the checked-out commit (the identity of the tested content)
+#   <job id>    true when that job has to run, one output per job of the workflow (ci: ui, rust-linux,
+#               rust-macos, rust-windows, supply-chain, release-tools, privacy-scan; e2e: e2e-linux,
+#               e2e-windows). A job runs when its change class is on, it is in the scope and, for the
+#               jobs that have a marker, no trusted marker says this tree already passed it.
 #
-# A marker is the Actions cache entry `<workflow>-passed-<tree>` that the `mark-passed` job saves at
-# the end of a fully green run on development or main (a push or the nightly dispatch) or on a
-# promotion pull request (development into main). It is trusted when its cache ref is
-# refs/heads/development or refs/heads/main, or refs/pull/<n>/merge of a pull request that the API
-# shows to be a promotion pull request of this repository. Caches written by any other pull request
-# (forks included) are scoped to their own ref and ignored. Required checks are strict (the branch
-# must be up to date), so the merge commit tree of a promotion pull request equals the tree that
-# lands on main.
+# Which runs are filtered: only a plain pull request (neither the release call nor a promotion pull
+# request) is path-filtered, by the change classes of scripts/ci/change_classes.toml (scripts/ci/classify.py).
+# A promotion pull request (development into main, same repository), a push, a manual run and the release
+# call run the full set, minus the jobs whose marker is trusted (a manual run ignores markers).
+#
+# A marker is the Actions cache entry `<workflow>-passed-<job>-<tree>` that the `mark-passed` job saves for
+# each heavy job that passed on development or main (a push or the nightly dispatch) or on a promotion
+# pull request. It is trusted when its cache ref is refs/heads/development or refs/heads/main, or
+# refs/pull/<n>/merge of a pull request that the API shows to be a promotion pull request of this
+# repository. Caches written by any other pull request (forks included) are scoped to their own ref and
+# ignored. Required checks are strict (the branch must be up to date), so the merge commit tree of a
+# promotion pull request equals the tree that lands on main. Any API failure is a miss.
 set -euo pipefail
 
 workflow="${1:?usage: gate.sh <ci|e2e>}"
 event="${EVENT_NAME:?}"
-required="${RELEASE_CALL:-false}"
+release_call="${RELEASE_CALL:-false}"
 base_ref="${BASE_REF:-}"
+head_ref="${HEAD_REF:-}"
+head_repo="${HEAD_REPO:-}"
+scope="${SCOPE:-}"
+repository="${GITHUB_REPOSITORY:?}"
+summary="${GITHUB_STEP_SUMMARY:-/dev/null}"
+python="${PYTHON:-python3}"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+case "$workflow" in
+  ci) marked_jobs="ui rust-linux rust-macos rust-windows" ;;
+  e2e) marked_jobs="e2e-linux e2e-windows" ;;
+  *) echo "::error::usage: gate.sh <ci|e2e>" >&2; exit 1 ;;
+esac
 
 tree="$(git rev-parse 'HEAD^{tree}')"
 echo "tree=$tree" >> "$GITHUB_OUTPUT"
 
-# A plain pull request is path-filtered and skips Windows. Pushes, manual runs, promotion pull
-# requests (base main) and the release call (a pull_request event with the required flag) run the
-# full set.
-plain_pr=false
-if [ "$event" = "pull_request" ] && [ "$required" != "true" ] && [ "$base_ref" != "main" ]; then
-  plain_pr=true
+# 1. Kind of run. Only a plain pull request is path-filtered.
+if [ "$release_call" = "true" ]; then
+  kind="release call (scope: ${scope:-all})"
+  plain_pr=false
+elif [ "$event" = "pull_request" ]; then
+  if [ "$base_ref" = "main" ] && [ "$head_ref" = "development" ] && [ "$head_repo" = "$repository" ]; then
+    kind="promotion pull request"
+    plain_pr=false
+  else
+    kind="plain pull request"
+    plain_pr=true
+  fi
+else
+  case "$event" in
+    push) kind="push" ;;
+    workflow_dispatch) kind="manual run (workflow_dispatch)" ;;
+    *) kind="$event" ;;
+  esac
+  plain_pr=false
 fi
 
-# 1. Has this exact tree already passed on a trusted run? A manual run always runs everything.
-#    Any API failure is a miss: nothing is trusted that could not be verified.
+# 2. Classes and the jobs they switch on. The checkout of a pull request is the merge commit, so its
+#    first parent is the base branch tip and `HEAD^1..HEAD` is what the pull request changes.
+if [ "$plain_pr" = true ]; then
+  # --no-renames lists the old path of a rename too.
+  changed_nul="$(mktemp)"
+  trap 'rm -f "$changed_nul"' EXIT
+  git diff --name-only --no-renames -z HEAD^1 HEAD > "$changed_nul"
+  changed_count="$(tr -cd '\0' < "$changed_nul" | wc -c | tr -d ' ')"
+  echo "Changed files: $changed_count"
+  tr '\0' '\n' < "$changed_nul"
+  classified="$("$python" -I "$script_dir/classify.py" --workflow "$workflow" --scope "$scope" -z < "$changed_nul")" \
+    || { echo "::error::the change classifier failed" >&2; exit 1; }
+else
+  changed_count="not counted (full run, no path filter)"
+  classified="$("$python" -I "$script_dir/classify.py" --workflow "$workflow" --scope "$scope" --all)" \
+    || { echo "::error::the change classifier failed (invalid scope?)" >&2; exit 1; }
+fi
+
+classes=""
+unknown_paths=()
+declare -A state by
+jobs=()
+while IFS= read -r line; do
+  case "$line" in
+    "classes "*) classes="${line#classes }" ;;
+    "unknown "*) unknown_paths+=("${line#unknown }") ;;
+    "job "*)
+      read -r _ name job_state job_by <<< "$line"
+      jobs+=("$name")
+      state[$name]="$job_state"
+      by[$name]="$job_by"
+      ;;
+  esac
+done <<< "$classified"
+
+# 3. Markers. A job that the classes and the scope switch on is skipped when a trusted marker says
+#    this tree already passed it. A manual run ignores markers.
 promotion_pr() { # promotion_pr <number>: a development -> main pull request of this repository?
   local info
-  info="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/$1" \
+  info="$(gh api "repos/${repository}/pulls/$1" \
     --jq '[.head.ref, .base.ref, .head.repo.full_name] | join(" ")' 2> /dev/null)" || return 1
-  [ "$info" = "development main ${GITHUB_REPOSITORY}" ]
+  [ "$info" = "development main ${repository}" ]
 }
 
-already=false
-if [ "$event" != "workflow_dispatch" ]; then
-  key="${workflow}-passed-${tree}"
-  if refs="$(gh api "repos/${GITHUB_REPOSITORY}/actions/caches?key=${key}&per_page=100" \
+lookup_failed=false
+marker_trusted() { # marker_trusted <key>: is there a trusted cache entry with exactly this key?
+  local key="$1" refs ref number
+  if ! refs="$(gh api "repos/${repository}/actions/caches?key=${key}&per_page=100" \
     --jq ".actions_caches[] | select(.key == \"${key}\") | .ref")"; then
-    while IFS= read -r ref; do
-      case "$ref" in
-        refs/heads/development | refs/heads/main)
-          already=true
-          ;;
-        refs/pull/*/merge)
-          number="${ref#refs/pull/}"
-          number="${number%/merge}"
-          if [[ "$number" =~ ^[0-9]+$ ]] && promotion_pr "$number"; then
-            already=true
+    lookup_failed=true
+    return 1
+  fi
+  while IFS= read -r ref; do
+    case "$ref" in
+      refs/heads/development | refs/heads/main) return 0 ;;
+      refs/pull/*/merge)
+        number="${ref#refs/pull/}"
+        number="${number%/merge}"
+        if [[ "$number" =~ ^[0-9]+$ ]] && promotion_pr "$number"; then
+          return 0
+        fi
+        ;;
+    esac
+  done <<< "$refs"
+  return 1
+}
+
+declare -A run why
+for name in "${jobs[@]}"; do
+  run[$name]=false
+  case "${state[$name]}" in
+    out-of-scope) why[$name]="skipped: outside the scope \`${scope:-all}\`" ;;
+    no-class) why[$name]="skipped: no change class needs it" ;;
+    run)
+      why[$name]="runs: ${by[$name]}"
+      case " $marked_jobs " in
+        *" $name "*)
+          if [ "$event" != "workflow_dispatch" ]; then
+            if marker_trusted "${workflow}-passed-${name#"${workflow}"-}-${tree}"; then
+              why[$name]="skipped: already passed on this tree (trusted marker)"
+              continue
+            fi
           fi
           ;;
       esac
-    done <<< "$refs"
-  else
-    echo "::warning::passed-marker lookup failed; running all checks" >&2
-  fi
-fi
-echo "already-passed=$already" >> "$GITHUB_OUTPUT"
-
-# 2. Path filter (plain pull requests only). The checkout of a pull request is the merge commit, so
-#    its first parent is the base branch tip and `HEAD^1..HEAD` is what the pull request changes.
-rust=true ui=true app=true
-if [ "$plain_pr" = true ]; then
-  changed="$(git diff --name-only HEAD^1 HEAD)"
-  echo "Changed files:"
-  echo "$changed"
-
-  matches() { # matches <extended regex>
-    grep -Eq "$1" <<< "$changed"
-  }
-
-  # The UI dist is embedded by tauri::generate_context!, so UI sources count for the Rust jobs.
-  ui_paths='^(src/|e2e/|tools/|public/|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|index\.html$|vite\.config\.ts$|tsconfig[^/]*\.json$|biome\.json$|components\.json$|\.env\.mock$)'
-  rust_paths='^(crates/|src-tauri/|Cargo\.(toml|lock)$|rust-toolchain|clippy\.toml$|deny\.toml$|about\.toml$|\.cargo/|\.gitattributes$|\.github/actions/|scripts/fetch-pdfium)'
-
-  rust=false ui=false app=false
-  # The workflow file, its composite actions and this script affect every job of the workflow.
-  if matches "^(\.github/actions/|scripts/ci/gate\.sh$|\.github/workflows/${workflow}\.yml$)"; then
-    rust=true ui=true app=true
-  fi
-  if matches "$ui_paths"; then rust=true ui=true app=true; fi
-  # The browser UI suite runs in the UI job and is not embedded in the app: only the UI job reruns.
-  if matches '^(playwright/|playwright\.config\.ts$)'; then ui=true; fi
-  # Rust-only changes cannot break the UI lint, type-check and unit tests: that job stays off.
-  if matches "$rust_paths"; then rust=true app=true; fi
+      run[$name]=true
+      ;;
+  esac
+done
+if [ "$lookup_failed" = true ]; then
+  echo "::warning::passed-marker lookup failed; the affected jobs run" >&2
 fi
 
-# 3. Fold already-passed in: nothing heavy runs for a tree that already passed.
-if [ "$already" = true ]; then
-  rust=false ui=false app=false
-fi
-
-windows=false
-if [ "$plain_pr" != true ]; then
-  windows=true
-fi
-if [ "$already" = true ]; then
-  windows=false
-fi
+# 4. Outputs and summary.
+{
+  for name in "${jobs[@]}"; do
+    echo "$name=${run[$name]}"
+  done
+} >> "$GITHUB_OUTPUT"
 
 {
-  echo "rust=$rust"
-  echo "ui=$ui"
-  echo "app=$app"
-  echo "windows=$windows"
-} >> "$GITHUB_OUTPUT"
-echo "gate($workflow): event=$event already-passed=$already rust=$rust ui=$ui app=$app windows=$windows"
+  echo "### Gate ($workflow)"
+  echo
+  echo "- Run: $kind"
+  echo "- Changed files: $changed_count"
+  echo "- Change classes: \`${classes}\`"
+  if [ "${#unknown_paths[@]}" -gt 0 ]; then
+    echo "- Unknown paths (no rule matched, so every job is on):"
+    for path in "${unknown_paths[@]}"; do
+      echo "  - \`${path//\`/}\`"
+    done
+  fi
+  echo
+  echo "| Job | Runs | Why |"
+  echo "|---|---|---|"
+  for name in "${jobs[@]}"; do
+    echo "| $name | ${run[$name]} | ${why[$name]} |"
+  done
+} >> "$summary"
+
+line="gate($workflow): $kind classes=$classes"
+for name in "${jobs[@]}"; do
+  line="$line $name=${run[$name]}"
+done
+echo "$line"

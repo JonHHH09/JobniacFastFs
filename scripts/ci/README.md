@@ -58,6 +58,42 @@ credentials or real contact details: those need a fix in the content or a histor
 the owner. The CI job `privacy-scan` runs the unit tests and the generic scan on every push and pull
 request.
 
+## Gate and change classifier (`gate.sh`, `classify.py`, `change_classes.toml`)
+
+`gate.sh` is the `Changes` job of `ci.yml` and `e2e.yml`. It decides which jobs run, looks up the
+per-job passed markers and writes `$GITHUB_OUTPUT` and a Markdown step summary. The policy is in
+`docs/ops/branch-protection.md`.
+
+`classify.py` (standard library only, run with `-I`) reads changed paths and prints the classes and the
+jobs they switch on. Each path takes the classes of the first matching rule of `change_classes.toml`;
+a path that no rule matches is `unknown`, and `unknown` turns every job on. `*` and `?` never cross
+`/`; `**` does.
+
+    git diff --name-only -z HEAD^1 HEAD | py -I scripts/ci/classify.py --workflow ci -z
+    py -I scripts/ci/classify.py --workflow e2e --scope linux --all
+
+Run the gate locally in a repository whose `HEAD` is a merge commit (Git Bash; `PYTHON=python` on
+Windows):
+
+    PYTHON=python GITHUB_OUTPUT=out.txt GITHUB_STEP_SUMMARY=summary.md GITHUB_REPOSITORY=<owner>/<repo> \
+      EVENT_NAME=pull_request BASE_REF=development bash scripts/ci/gate.sh ci
+
+### Add a rule
+
+1. Add a `[[rule]]` table to `change_classes.toml` with `globs` and `classes`. Order is the
+   specification: put a specific rule before the general one it carves out of (for example
+   `src/ipc/**` is before `src/**`).
+2. A new class needs an entry under `[classes]` listing the jobs it switches on (`@ci`, `@e2e` and
+   `@all` name whole sets). A new job needs an entry under `[workflows]` and `[scopes]`.
+3. Add the path to `scripts/ci/tests/test_classify.py`, and run the checks below. Also run every
+   tracked path through the classifier (`git ls-files -z | py -I scripts/ci/classify.py --workflow ci -z`)
+   and read the `unknown` lines.
+
+A new job in the workflow files must also get a gate output and the matching `if:` condition.
+
+Tests: the unit tests described under Tests above cover the classifier (`test_classify.py`) and the gate with a stub `gh`
+(`test_gate.py`).
+
 ## Workflow helpers
 
 ### apt drop-in (`.github/actions/apt-config`)

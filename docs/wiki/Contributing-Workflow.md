@@ -22,12 +22,11 @@ issue branch --PR (squash, auto-merge)--> development --promotion PR (merge comm
 A pull request into `development` needs these checks to pass, and the branch must be up to date:
 
 - `Branch policy`
-- `UI`
-- `Rust (ubuntu-26.04)`
-- `Rust (macos-latest)`
-- `Supply chain (cargo-deny)`
-- `Release tool unit tests`
-- `Privacy scan (working tree and history, generic classes)`
+- `CI result (shared)`
+- `CI result (platforms)`
+- `E2E result`
+
+Each `result` check summarises the jobs behind it (UI, Rust on three systems, supply chain, release tools, privacy scan, end-to-end) and fails unless every one of them passed or was skipped because the change does not need it.
 
 Conversations must be resolved. No approvals are required today. See [Testing and CI](Testing-and-CI.md) for what each check does and how skipped jobs count.
 

@@ -1,0 +1,184 @@
+# Change classes of the CI and E2E workflows. Read by scripts/ci/classify.py (see scripts/ci/README.md).
+#
+# Each changed path takes the classes of the FIRST rule with a matching glob, so the order of the
+# [[rule]] tables below is the specification: a specific rule goes before the general one it carves
+# out of. A path that no rule matches is `unknown`, and `unknown` turns every job on.
+#
+# Glob syntax: `*` and `?` never cross `/`; `**` does. A `**/` prefix also matches the repository
+# root, so `**/*.md` matches `README.md`. There are no character classes; a glob is matched against
+# the whole path (relative to the repository root, with `/` separators).
+#
+# A path that is not covered here costs a full run, which is safe; a path that is covered too
+# loosely lets a broken change merge without its job. When in doubt, use a broader class.
+
+# Class -> jobs. The job keys are the job ids of ci.yml and e2e.yml. Special entries: "@ci" is every
+# job of ci.yml, "@e2e" every job of e2e.yml, "@all" both.
+[classes]
+prose = []
+changelog = ["release-tools"]
+release = ["release-tools"]
+ui = ["ui", "e2e-linux", "e2e-windows"]
+ui-tests = ["ui"]
+e2e-tests = ["ui", "e2e-linux", "e2e-windows"]
+rust = ["rust-linux", "rust-macos", "rust-windows", "e2e-linux", "e2e-windows"]
+supply-chain = ["supply-chain"]
+ci-all = ["@ci"]
+e2e-all = ["@e2e"]
+all = ["@all"]
+unknown = ["@all"]
+
+# The jobs of each workflow.
+[workflows]
+ci = ["ui", "rust-linux", "rust-macos", "rust-windows", "supply-chain", "release-tools", "privacy-scan"]
+e2e = ["e2e-linux", "e2e-windows"]
+
+# Jobs that run whatever the classes are (subject to the scope).
+[always]
+jobs = ["privacy-scan"]
+
+# Scopes of a release call (the `scope` input of ci.yml and e2e.yml); a job outside the scope is off.
+[scopes]
+all = ["@all"]
+shared = ["ui", "supply-chain", "release-tools", "privacy-scan"]
+linux = ["rust-linux", "e2e-linux"]
+macos = ["rust-macos"]
+windows = ["rust-windows", "e2e-windows"]
+
+# --- Rules, first match wins -------------------------------------------------------------------
+
+# Fixture files are test inputs; crates/cli/tests/pdf_worker.rs reads whole fixture directories, so
+# even a README there matters.
+[[rule]]
+globs = ["**/tests/fixtures/**", "**/golden/**"]
+classes = ["rust"]
+
+[[rule]]
+globs = ["CHANGELOG.md"]
+classes = ["changelog"]
+
+[[rule]]
+globs = ["**/*.md"]
+classes = ["prose"]
+
+[[rule]]
+globs = [
+  "docs/**",
+  "LICENSE",
+  ".github/ISSUE_TEMPLATE/**",
+  ".github/CODEOWNERS",
+  ".github/dependabot.yml",
+  ".vscode/**",
+  ".gitignore",
+  "osv-scanner.toml",
+]
+classes = ["prose"]
+
+# Line endings affect every job.
+[[rule]]
+globs = [".gitattributes"]
+classes = ["unknown"]
+
+# The gate and its inputs decide every job of both workflows.
+[[rule]]
+globs = [
+  ".github/actions/**",
+  "scripts/ci/gate.sh",
+  "scripts/ci/classify.py",
+  "scripts/ci/change_classes.toml",
+]
+classes = ["all"]
+
+[[rule]]
+globs = [".github/workflows/ci.yml"]
+classes = ["ci-all"]
+
+[[rule]]
+globs = [".github/workflows/e2e.yml"]
+classes = ["e2e-all"]
+
+# release.yml itself is only exercised by the release dry run; `release` runs the release tool tests.
+[[rule]]
+globs = [".github/workflows/release.yml", "scripts/release/**", "src-tauri/tauri.release.conf.json"]
+classes = ["release"]
+
+# Nothing in ci.yml or e2e.yml exercises the other workflows.
+[[rule]]
+globs = [".github/workflows/*.yml"]
+classes = ["prose"]
+
+# The privacy scanner, the wiki sync and their tests: the privacy-scan job always runs and runs
+# scripts/ci/tests.
+[[rule]]
+globs = ["scripts/ci/**"]
+classes = ["prose"]
+
+# The Linux Rust job regenerates src/ipc/bindings.ts and diffs it.
+[[rule]]
+globs = ["src/ipc/**"]
+classes = ["ui", "rust"]
+
+[[rule]]
+globs = [
+  "src/**",
+  "index.html",
+  "public/**",
+  "vite.config.ts",
+  "tsconfig*.json",
+  "biome.json",
+  "components.json",
+  ".env.mock",
+  "pnpm-lock.yaml",
+  "pnpm-workspace.yaml",
+]
+classes = ["ui"]
+
+# `release.py check-versions` reads the version of package.json.
+[[rule]]
+globs = ["package.json"]
+classes = ["ui", "release"]
+
+[[rule]]
+globs = ["playwright/**", "playwright.config.ts"]
+classes = ["ui-tests"]
+
+# biome lints e2e/ in the UI job.
+[[rule]]
+globs = ["e2e/**"]
+classes = ["e2e-tests"]
+
+[[rule]]
+globs = ["Cargo.lock"]
+classes = ["rust", "supply-chain"]
+
+# `release.py check-versions` reads the workspace version of the root Cargo.toml.
+[[rule]]
+globs = ["Cargo.toml"]
+classes = ["rust", "supply-chain", "release"]
+
+[[rule]]
+globs = ["**/Cargo.toml"]
+classes = ["rust", "supply-chain"]
+
+[[rule]]
+globs = ["deny.toml"]
+classes = ["supply-chain"]
+
+# `release.py check-versions` reads the version of tauri.conf.json.
+[[rule]]
+globs = ["src-tauri/tauri.conf.json"]
+classes = ["rust", "release"]
+
+[[rule]]
+globs = [
+  "crates/**",
+  "src-tauri/**",
+  "rust-toolchain.toml",
+  "clippy.toml",
+  ".cargo/**",
+  "about.toml",
+  "tools/**",
+  "scripts/fetch-pdfium*",
+]
+classes = ["rust"]
+
+# Anything else is `unknown` (no rule): every job runs.
