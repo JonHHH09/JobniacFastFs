@@ -32,6 +32,24 @@ pnpm test:ui                     # browser UI suite (playwright/README.md), afte
   file, never a real or personal database.
 - CI runs on Windows, Linux and macOS; platform-specific code needs tests on all three.
 
+### Text checks
+
+CI also runs a `Text (spelling, Markdown, links)` job: [typos](https://github.com/crate-ci/typos)
+for spelling, [markdownlint-cli2](https://github.com/DavidAnson/markdownlint-cli2) for Markdown
+structure and [lychee](https://github.com/lycheeverse/lychee) for relative links and heading
+anchors. lychee runs offline, so no external URL is fetched. The rules and exclusions are in
+`_typos.toml`, `.markdownlint-cli2.jsonc` and `lychee.toml`; each one says why it exists.
+
+```text
+typos                                                  # spelling, from the repository root
+pnpm dlx markdownlint-cli2@0.23.2                      # Markdown structure
+lychee --config lychee.toml --offline --include-fragments './**/*.md'
+```
+
+- Install typos and lychee with `cargo install typos-cli lychee`, or download a release binary.
+- Fix a real finding in the file. Add an allow-list entry only for a false positive, such as a
+  German or French word in a lexicon, and never rename a public identifier to satisfy typos.
+
 ## Architecture rules
 
 - UI concerns (rendering, UI state, animation) live in TypeScript; all business logic, validation
