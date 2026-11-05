@@ -50,6 +50,13 @@ UPDATER_ENDPOINT = "https://github.com/JonHHH09/JobniacFastFs/releases/latest/do
 # Apple Silicon app archive).
 UPDATER_PLATFORMS = ("windows-x86_64", "linux-x86_64", "darwin-aarch64")
 RELEASE_DOWNLOAD_BASE = "https://github.com/JonHHH09/JobniacFastFs/releases/download"
+# The updater key of each release platform, the labels of the platform notes and the marked notes section.
+PLATFORM_UPDATER_KEYS = dict(zip(PLATFORMS, UPDATER_PLATFORMS))
+PLATFORM_LABELS = {"windows-x64": "Windows (x64)", "linux-x64": "Linux (x64)", "macos-arm64": "macOS (Apple Silicon)"}
+NOTICES_ASSET = "THIRD-PARTY-NOTICES.txt"
+PLATFORM_NOTES_BEGIN = "<!-- platforms -->"
+PLATFORM_NOTES_END = "<!-- /platforms -->"
+PLATFORM_NOTES_RE = re.compile(re.escape(PLATFORM_NOTES_BEGIN) + r".*?" + re.escape(PLATFORM_NOTES_END), re.DOTALL)
 # Only the installed tree may hold these names beyond the staged payload.
 INSTALLED_ONLY_ALLOWLIST = ("uninstall.exe",)
 # tauri-bundler writes the bundle type into the main binary it packs (the updater reads it): the marker
@@ -298,6 +305,12 @@ def next_version(file_version: str, tags: list[str], tags_at_merge: list[str]) -
     return result, previous
 
 
+def latest_stable_tag(tags: list[str]) -> str:
+    """The tag of the newest stable release (what GitHub serves as the latest release), or empty when none."""
+    stable = [version for version in _release_versions(tags) if _is_stable(version)]
+    return f"v{max(stable, key=_version_key)}" if stable else ""
+
+
 def check_newest_release_is_ancestor(repo_root: Path, merge_sha: str, tags: list[str], tags_at_merge: list[str]) -> None:
     """Fails unless the highest stable tag is an ancestor of the merge commit.
 
@@ -389,39 +402,79 @@ def verify_sha256sums(directory: Path) -> int:
     return verify_digest_manifest(directory, SHA256SUMS, set())
 
 
-def expected_asset_names(version: str) -> list[str]:
-    """The local release asset set with the Tauri bundle names, including the updater signatures.
+def parse_platforms(value: str) -> tuple[str, ...]:
+    """A comma-separated, non-empty subset of PLATFORMS without duplicates, in the order of PLATFORMS."""
+    names = value.split(",")
+    if any(name not in PLATFORMS for name in names):
+        raise ReleaseError("platforms rejected: use a comma-separated subset of " + ", ".join(PLATFORMS))
+    if len(set(names)) != len(names):
+        raise ReleaseError("platforms rejected: a platform is listed twice")
+    return tuple(platform for platform in PLATFORMS if platform in names)
 
-    `latest.json` is not in it: the `attach` job writes it afterwards (see `build_updater_manifest`).
-    """
-    names = [
-        f"{PRODUCT}_{version}_x64-setup.exe",
-        f"{PRODUCT}_{version}_x64-setup.exe.sig",
-        f"{PRODUCT}_{version}_amd64.AppImage",
-        f"{PRODUCT}_{version}_amd64.AppImage.sig",
-        f"{PRODUCT}_{version}_amd64.deb",
-        # macOS: the DMG for people, the app archive (renamed from JobniacFast.app.tar.gz, which carries no
-        # version or architecture) and its signature for the updater.
-        f"{PRODUCT}_{version}_aarch64.dmg",
-        f"{PRODUCT}_{version}_aarch64.app.tar.gz",
-        f"{PRODUCT}_{version}_aarch64.app.tar.gz.sig",
+
+def platform_manifest_name(key: str) -> str:
+    """The name of the per-platform updater manifest of an updater key."""
+    return f"latest-{key}.json"
+
+
+def _is_platform_manifest_name(name: str) -> bool:
+    return name in {platform_manifest_name(key) for key in UPDATER_PLATFORMS}
+
+
+def platform_asset_names(version: str, platform: str) -> list[str]:
+    """The release assets that one platform leg contributes, with the Tauri bundle names and signatures."""
+    if platform == "windows-x64":
+        names = [f"{PRODUCT}_{version}_x64-setup.exe", f"{PRODUCT}_{version}_x64-setup.exe.sig"]
+    elif platform == "linux-x64":
+        names = [
+            f"{PRODUCT}_{version}_amd64.AppImage",
+            f"{PRODUCT}_{version}_amd64.AppImage.sig",
+            f"{PRODUCT}_{version}_amd64.deb",
+        ]
+    elif platform == "macos-arm64":
+        # The DMG for people, the app archive (renamed from JobniacFast.app.tar.gz, which carries no version
+        # or architecture) and its signature for the updater.
+        names = [
+            f"{PRODUCT}_{version}_aarch64.dmg",
+            f"{PRODUCT}_{version}_aarch64.app.tar.gz",
+            f"{PRODUCT}_{version}_aarch64.app.tar.gz.sig",
+        ]
+    else:
+        raise ReleaseError("unknown platform")
+    return names + [f"{PRODUCT}-{version}-{platform}.payload-inventory.json"]
+
+
+def sbom_asset_names(version: str) -> list[str]:
+    """The three SBOM assets, which are built once and shared by every platform."""
+    return [
         f"{PRODUCT}-{version}-desktop.cargo.cdx.json",
         f"{PRODUCT}-{version}-cli.cargo.cdx.json",
         f"{PRODUCT}-{version}.npm.cdx.json",
-        "THIRD-PARTY-NOTICES.txt",
-        f"{PRODUCT}-{version}-windows-x64.payload-inventory.json",
-        f"{PRODUCT}-{version}-linux-x64.payload-inventory.json",
-        f"{PRODUCT}-{version}-macos-arm64.payload-inventory.json",
-        SHA256SUMS,
     ]
+
+
+def shared_asset_names(version: str) -> list[str]:
+    """The assets every release holds whatever its platforms: notices, SBOMs and the checksums."""
+    return [NOTICES_ASSET, *sbom_asset_names(version), SHA256SUMS]
+
+
+def expected_asset_names(version: str, platforms: tuple[str, ...] = PLATFORMS) -> list[str]:
+    """The local release asset set of the platforms, including the updater signatures.
+
+    The updater manifests are not in it: the `attach` job writes them afterwards (see
+    `build_updater_manifest`).
+    """
+    names = shared_asset_names(version)
+    for platform in platforms:
+        names += platform_asset_names(version, platform)
     return sorted(names)
 
 
-def check_exact_asset_set(directory: Path, version: str) -> list[str]:
+def check_exact_asset_set(directory: Path, version: str, platforms: tuple[str, ...] = PLATFORMS) -> list[str]:
     present = sorted(entry.name for entry in directory.iterdir())
-    if UPDATER_MANIFEST in present:
+    if UPDATER_MANIFEST in present or any(_is_platform_manifest_name(name) for name in present):
         raise ReleaseError("latest.json is generated by updater-manifest after assembly, not assembled from the legs")
-    expected = expected_asset_names(version)
+    expected = expected_asset_names(version, platforms)
     missing = sorted(set(expected) - set(present))
     extra = sorted(set(present) - set(expected))
     if missing or extra:
@@ -725,15 +778,27 @@ def sysroot_path() -> Path:
 # ---------------------------------------------------------------------------
 
 
-def assemble(legs_dir: Path, out: Path, version: str) -> list[str]:
-    """Collects the leg artifacts, re-checks each leg's digests and copies one copy of every asset."""
+def assemble(legs_dir: Path, out: Path, version: str, platforms: tuple[str, ...] = PLATFORMS,
+             shared: Path | None = None) -> list[str]:
+    """Collects the leg artifacts, re-checks each leg's digests and copies one copy of every asset.
+
+    The SBOMs come from the legs (the Linux leg builds them) unless `shared` names a directory that holds
+    them; they must then not also be in a leg. Without `shared`, the Linux leg must be one of `platforms`.
+    """
+    if shared is None and "linux-x64" not in platforms:
+        raise ReleaseError("the SBOMs come from the Linux leg: without it, pass --shared with a directory that holds them")
+    sbom_names = set(sbom_asset_names(version))
     out.mkdir(parents=True, exist_ok=True)
     seen: dict[str, Path] = {}
     for leg in sorted(entry for entry in legs_dir.iterdir() if entry.is_dir()):
         verify_digest_manifest(leg, LEG_DIGESTS, set())
+        if not (leg / NOTICES_ASSET).is_file():
+            raise ReleaseError(f"a leg does not carry {NOTICES_ASSET}")
         for path in sorted(leg.iterdir()):
             if path.name == LEG_DIGESTS:
                 continue
+            if shared is not None and path.name in sbom_names:
+                raise ReleaseError("an SBOM is in a leg and in the shared directory: it must come from one place")
             if path.name in seen:
                 # Shared files (notices, SBOMs) are built once; the legs must agree byte for byte.
                 if sha256_file(path) != sha256_file(seen[path.name]):
@@ -741,9 +806,20 @@ def assemble(legs_dir: Path, out: Path, version: str) -> list[str]:
                 continue
             seen[path.name] = path
             shutil.copyfile(path, out / path.name)
+    if shared is not None:
+        if not (shared / LEG_DIGESTS).is_file():
+            raise ReleaseError(f"the shared directory lacks {LEG_DIGESTS}")
+        verify_digest_manifest(shared, LEG_DIGESTS, set())
+        if {entry.name for entry in shared.iterdir()} != sbom_names | {LEG_DIGESTS}:
+            raise ReleaseError("the shared directory must hold exactly the SBOMs and their digests")
+        for name in sorted(sbom_names):
+            if not (shared / name).is_file():
+                raise ReleaseError("the shared directory lacks an SBOM")
+            seen[name] = shared / name
+            shutil.copyfile(shared / name, out / name)
     write_sha256sums(out)
     verify_sha256sums(out)
-    check_exact_asset_set(out, version)
+    check_exact_asset_set(out, version, platforms)
     return sorted(seen)
 
 
@@ -764,16 +840,39 @@ def _reject_duplicate_keys(pairs: list[tuple[str, object]]) -> dict[str, object]
 Transport = Callable[[str, str, str, bytes | None, str], tuple[int, bytes]]
 
 
+class _DropAuthOnForeignRedirect(urllib.request.HTTPRedirectHandler):
+    """Follows a redirect over HTTPS only, and keeps the token only for the same origin.
+
+    Asset downloads redirect to a signed URL on another host, which must not receive the token. The origin
+    is the scheme, the lowercased host name and the port (443 when absent).
+    """
+
+    @staticmethod
+    def _origin(url: str) -> tuple[str, str, int]:
+        parts = urllib.parse.urlsplit(url)
+        return parts.scheme, (parts.hostname or "").lower(), parts.port or 443
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # type: ignore[no-untyped-def]
+        if urllib.parse.urlsplit(newurl).scheme != "https":
+            raise ReleaseError("GitHub API redirected to a URL that is not HTTPS")
+        redirected = super().redirect_request(req, fp, code, msg, headers, newurl)
+        if redirected is not None and self._origin(newurl) != self._origin(req.full_url):
+            redirected.remove_header("Authorization")
+        return redirected
+
+
 def default_transport(method: str, url: str, token: str, body: bytes | None, content_type: str) -> tuple[int, bytes]:
+    """One API call. A body-less GET whose `content_type` is application/octet-stream downloads an asset."""
     request = urllib.request.Request(url, data=body, method=method)
-    request.add_header("Accept", "application/vnd.github+json")
+    download = body is None and method == "GET" and content_type == "application/octet-stream"
+    request.add_header("Accept", "application/octet-stream" if download else "application/vnd.github+json")
     request.add_header("X-GitHub-Api-Version", API_VERSION_HEADER)
     request.add_header("Authorization", f"Bearer {token}")
     if body is not None:
         request.add_header("Content-Type", content_type)
     timeout = UPLOAD_TIMEOUT_SECONDS if "uploads." in url else API_TIMEOUT_SECONDS
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310 - fixed GitHub host
+        with urllib.request.build_opener(_DropAuthOnForeignRedirect).open(request, timeout=timeout) as response:  # noqa: S310 - fixed GitHub host
             data = response.read(API_MAX_BYTES + 1)
             status = response.status
     except urllib.error.HTTPError as error:
@@ -892,7 +991,7 @@ def prepare_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, body: s
         other_commit = release.get("target_commitish") != merge_sha
         for asset in release.get("assets", []):  # type: ignore[union-attr]
             name = str(asset["name"])
-            if other_commit or name.endswith(("-setup.exe", ".dmg", ".app.tar.gz", ".sig")) or name == UPDATER_MANIFEST:
+            if other_commit or name.endswith(("-setup.exe", ".dmg", ".app.tar.gz", ".sig")) or name == UPDATER_MANIFEST or _is_platform_manifest_name(name):
                 api.call("DELETE", f"/releases/assets/{asset['id']}", ok=(204,))
         api.call(
             "PATCH",
@@ -932,61 +1031,381 @@ def attach_assets(api: GitHubApi, release_id: int, directory: Path) -> int:
     return uploaded
 
 
-def updater_installers(version: str) -> dict[str, str]:
-    """The installer asset that each updater platform key downloads."""
-    return {
+def updater_installers(version: str, platforms: tuple[str, ...] = PLATFORMS) -> dict[str, str]:
+    """The installer asset that each updater platform key of the platforms downloads."""
+    installers = {
         "windows-x86_64": f"{PRODUCT}_{version}_x64-setup.exe",
         "linux-x86_64": f"{PRODUCT}_{version}_amd64.AppImage",
         "darwin-aarch64": f"{PRODUCT}_{version}_aarch64.app.tar.gz",
     }
+    return {PLATFORM_UPDATER_KEYS[platform]: installers[PLATFORM_UPDATER_KEYS[platform]] for platform in platforms}
 
 
-def build_updater_manifest(assets_dir: Path, version: str, notes: str, pub_date: str) -> dict[str, object]:
+def build_updater_manifest(assets_dir: Path, version: str, notes: str, pub_date: str,
+                           platforms: tuple[str, ...] = PLATFORMS) -> dict[str, object]:
     """The static updater JSON (`version`, `notes`, `pub_date`, `platforms.<key>.{signature,url}`).
 
-    Written by the `attach` job after both build legs, from the assembled `.sig` files, so no two legs
+    Written by the `attach` job after the build legs, from the assembled `.sig` files, so no two legs
     race to merge one file. Fails when an installer or its signature is missing.
     """
-    platforms: dict[str, object] = {}
-    for key, name in updater_installers(version).items():
+    entries: dict[str, object] = {}
+    for key, name in updater_installers(version, platforms).items():
         signature_path = assets_dir / f"{name}.sig"
         if not (assets_dir / name).is_file() or not signature_path.is_file():
             raise ReleaseError(f"installer or signature missing for {key}")
         signature = signature_path.read_text(encoding="utf-8").strip()
         if not signature:
             raise ReleaseError(f"signature is empty for {key}")
-        platforms[key] = {
+        entries[key] = {
             "signature": signature,
             "url": f"{RELEASE_DOWNLOAD_BASE}/v{version}/{urllib.parse.quote(name)}",
         }
-    return {"version": version, "notes": notes, "pub_date": pub_date, "platforms": platforms}
+    return {"version": version, "notes": notes, "pub_date": pub_date, "platforms": entries}
 
 
-def check_updater_manifest(manifest: Path, version: str, assets_dir: Path) -> None:
-    """latest.json names this version and, per platform, this release's installer and its signature."""
-    fixed = "updater manifest verification failed"
+def _parse_manifest(raw: bytes, fixed: str) -> dict[str, object]:
+    """A manifest's JSON object, without duplicate keys; any other content fails with the fixed message."""
     try:
-        data = json.loads(manifest.read_text(encoding="utf-8"), object_pairs_hook=_reject_duplicate_keys)
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError, ReleaseError) as error:
+        data = json.loads(raw.decode("utf-8"), object_pairs_hook=_reject_duplicate_keys)
+    except (UnicodeDecodeError, json.JSONDecodeError, ReleaseError) as error:
         raise ReleaseError(fixed) from error
-    if not isinstance(data, dict) or data.get("version") != version:
+    if not isinstance(data, dict):
         raise ReleaseError(fixed)
-    platforms = data.get("platforms")
-    if not isinstance(platforms, dict):
+    return data
+
+
+def _check_manifest_data(data: dict[str, object], version: str, assets_dir: Path, platforms: tuple[str, ...],
+                         exact: bool, fixed: str) -> None:
+    """The manifest names the version and, per platform, this release's installer and its signature."""
+    if data.get("version") != version:
+        raise ReleaseError(fixed)
+    entries = data.get("platforms")
+    if not isinstance(entries, dict):
+        raise ReleaseError(fixed)
+    installers = updater_installers(version, platforms)
+    if exact and set(entries) != set(installers):
         raise ReleaseError(fixed)
     # Each platform: the installer that the installed copy downloads, with the signature it verifies.
-    installers = updater_installers(version)
-    for key in UPDATER_PLATFORMS:
-        entry = platforms.get(key)
+    for key, name in installers.items():
+        entry = entries.get(key)
         if not isinstance(entry, dict):
             raise ReleaseError(fixed)
-        name = installers[key]
         url = str(entry.get("url", ""))
         if urllib.parse.unquote(url) != f"{RELEASE_DOWNLOAD_BASE}/v{version}/{name}":
             raise ReleaseError(fixed)
         signature = (assets_dir / f"{name}.sig").read_text(encoding="utf-8").strip()
         if not signature or str(entry.get("signature", "")).strip() != signature:
             raise ReleaseError(fixed)
+
+
+def check_updater_manifest(manifest: Path, version: str, assets_dir: Path, platforms: tuple[str, ...] = PLATFORMS) -> None:
+    """latest.json names this version and, per platform, this release's installer and its signature."""
+    fixed = "updater manifest verification failed"
+    try:
+        raw = manifest.read_bytes()
+    except OSError as error:
+        raise ReleaseError(fixed) from error
+    # A full set keeps accepting extra platform keys; a subset must name exactly its own keys.
+    _check_manifest_data(_parse_manifest(raw, fixed), version, assets_dir, platforms, len(platforms) != len(PLATFORMS), fixed)
+
+
+@dataclass(frozen=True)
+class CarriedManifest:
+    """The previous release's updater manifest of one platform key, validated.
+
+    `raw` is the file to copy (the per-platform file's bytes) or None when the manifest is derived from the
+    previous latest.json; `data` is the manifest content either way.
+    """
+
+    raw: bytes | None
+    data: dict[str, object]
+
+
+def _validate_carried(data: dict[str, object], version: str, fixed: str, key: str | None, exact: bool) -> None:
+    """A previous manifest names a lower valid version and URLs under that version's release downloads."""
+    previous = data.get("version")
+    if not isinstance(previous, str) or not VERSION_RE.fullmatch(previous):
+        raise ReleaseError(fixed)
+    if _version_key(previous) >= _version_key(version):
+        raise ReleaseError(fixed)
+    entries = data.get("platforms")
+    if not isinstance(entries, dict) or (key is not None and key not in entries):
+        raise ReleaseError(fixed)
+    if exact and key is not None and set(entries) != {key}:
+        raise ReleaseError(fixed)
+    installers = updater_installers(previous)
+    for entry_key, entry in entries.items():
+        if not isinstance(entry, dict) or not isinstance(entry.get("signature"), str) or not entry["signature"].strip():
+            raise ReleaseError(fixed)
+        # The URL is exactly the installer of that key at the carried version, encoded as the writer does.
+        if entry_key not in installers:
+            raise ReleaseError(fixed)
+        expected_url = f"{RELEASE_DOWNLOAD_BASE}/v{previous}/{urllib.parse.quote(installers[entry_key])}"
+        if entry.get("url") != expected_url:
+            raise ReleaseError(fixed)
+
+
+def _previous_file(previous_dir: Path | None, name: str) -> Path | None:
+    if previous_dir is None:
+        return None
+    path = previous_dir / name
+    return path if path.is_file() else None
+
+
+def carried_manifest(previous_dir: Path | None, key: str, version: str) -> CarriedManifest | None:
+    """What the previous release holds for an updater key, or None when no earlier build of it exists.
+
+    The per-platform file wins; otherwise the entry of the previous latest.json is used. Either is validated
+    and fails with a fixed message when it is malformed or not from an older version.
+    """
+    fixed = f"previous updater manifest for {key} rejected"
+    per_platform = _previous_file(previous_dir, platform_manifest_name(key))
+    if per_platform is not None:
+        raw = per_platform.read_bytes()
+        data = _parse_manifest(raw, fixed)
+        _validate_carried(data, version, fixed, key, True)
+        return CarriedManifest(raw, data)
+    legacy = _previous_file(previous_dir, UPDATER_MANIFEST)
+    if legacy is None:
+        return None
+    data = _parse_manifest(legacy.read_bytes(), fixed)
+    _validate_carried(data, version, fixed, key, False)
+    derived: dict[str, object] = {name: data[name] for name in ("version", "notes", "pub_date") if name in data}
+    derived["platforms"] = {key: data["platforms"][key]}  # type: ignore[index]
+    return CarriedManifest(None, derived)
+
+
+def carried_legacy_manifest(previous_dir: Path | None, version: str) -> bytes | None:
+    """The bytes of the previous latest.json (validated), or None when there is none."""
+    legacy = _previous_file(previous_dir, UPDATER_MANIFEST)
+    if legacy is None:
+        return None
+    fixed = "previous updater manifest latest.json rejected"
+    raw = legacy.read_bytes()
+    _validate_carried(_parse_manifest(raw, fixed), version, fixed, None, False)
+    return raw
+
+
+def _previous_has_files(previous_dir: Path | None) -> bool:
+    """Whether the previous-manifests directory exists and holds anything (an empty one means a first release)."""
+    return previous_dir is not None and previous_dir.is_dir() and any(previous_dir.iterdir())
+
+
+def _missing_carry(previous_dir: Path | None, platform: str) -> None:
+    """A platform outside the set has no previous manifest: fatal unless there is no previous release at all."""
+    if _previous_has_files(previous_dir):
+        raise ReleaseError(f"the previous release carries no updater manifest for {platform}")
+
+
+def build_platform_manifests(assets_dir: Path, version: str, platforms: tuple[str, ...], previous_dir: Path | None,
+                             notes: str, pub_date: str, out_dir: Path) -> list[str]:
+    """Writes latest-<key>.json for every updater key (and latest.json) and returns the warnings.
+
+    A key of a built platform gets a manifest of this release. Any other key carries the previous release's
+    manifest forward, so its installed copies see no update. The legacy latest.json (read by installed 0.1.x
+    copies) is the combined manifest of a full set, else the previous one unchanged.
+    """
+    out_dir.mkdir(parents=True, exist_ok=True)
+    warnings: list[str] = []
+    for platform, key in PLATFORM_UPDATER_KEYS.items():
+        target = out_dir / platform_manifest_name(key)
+        if platform in platforms:
+            write_json(target, build_updater_manifest(assets_dir, version, notes, pub_date, (platform,)))
+            continue
+        carried = carried_manifest(previous_dir, key, version)
+        if carried is None:
+            _missing_carry(previous_dir, platform)
+            warnings.append(f"no earlier build of {platform} exists: {target.name} is not written")
+        elif carried.raw is not None:
+            target.write_bytes(carried.raw)
+        else:
+            write_json(target, carried.data)
+    legacy_target = out_dir / UPDATER_MANIFEST
+    if len(platforms) == len(PLATFORMS):
+        write_json(legacy_target, build_updater_manifest(assets_dir, version, notes, pub_date))
+    else:
+        legacy = carried_legacy_manifest(previous_dir, version)
+        if legacy is not None:
+            legacy_target.write_bytes(legacy)
+        else:
+            warnings.append(f"no earlier {UPDATER_MANIFEST} exists: it is not written")
+    return warnings
+
+
+def check_platform_manifests(manifests_dir: Path, version: str, assets_dir: Path, platforms: tuple[str, ...],
+                             previous_dir: Path | None) -> None:
+    """The manifests directory holds exactly what `build_platform_manifests` writes for the same inputs."""
+    fixed = "updater manifests verification failed"
+    expected: set[str] = set()
+    for platform, key in PLATFORM_UPDATER_KEYS.items():
+        name = platform_manifest_name(key)
+        path = manifests_dir / name
+        if platform in platforms:
+            expected.add(name)
+            _check_platform_file(path, version, assets_dir, platform, fixed)
+            continue
+        carried = carried_manifest(previous_dir, key, version)
+        if carried is None:
+            _missing_carry(previous_dir, platform)
+            continue
+        expected.add(name)
+        if not path.is_file():
+            raise ReleaseError(fixed)
+        if carried.raw is not None:
+            if path.read_bytes() != carried.raw:
+                raise ReleaseError(fixed)
+        elif _parse_manifest(path.read_bytes(), fixed) != carried.data:
+            raise ReleaseError(fixed)
+    legacy_path = manifests_dir / UPDATER_MANIFEST
+    if len(platforms) == len(PLATFORMS):
+        expected.add(UPDATER_MANIFEST)
+        check_updater_manifest(legacy_path, version, assets_dir)
+    else:
+        legacy = carried_legacy_manifest(previous_dir, version)
+        if legacy is not None:
+            expected.add(UPDATER_MANIFEST)
+            if not legacy_path.is_file() or legacy_path.read_bytes() != legacy:
+                raise ReleaseError(fixed)
+    if {entry.name for entry in manifests_dir.iterdir()} != expected:
+        raise ReleaseError(fixed)
+
+
+def _check_platform_file(path: Path, version: str, assets_dir: Path, platform: str, fixed: str) -> None:
+    """A per-platform manifest of this release: only its key, with this release's installer and signature."""
+    try:
+        raw = path.read_bytes()
+    except OSError as error:
+        raise ReleaseError(fixed) from error
+    _check_manifest_data(_parse_manifest(raw, fixed), version, assets_dir, (platform,), True, fixed)
+
+
+# ---------------------------------------------------------------------------
+# Previous manifests, platform notes
+# ---------------------------------------------------------------------------
+
+
+def _release_assets(api: GitHubApi, release_id: int) -> list[dict[str, object]]:
+    """Every asset of a release, read from the paginated asset listing."""
+    assets: list[dict[str, object]] = []
+    for page in range(1, PRUNE_MAX_PAGES + 1):
+        batch = api.call("GET", f"/releases/{release_id}/assets?per_page=100&page={page}")
+        if not isinstance(batch, list):
+            raise ReleaseError("release asset listing is not a list")
+        assets.extend(item for item in batch if isinstance(item, dict))
+        if len(batch) < 100:
+            return assets
+    raise ReleaseError("release asset listing exceeds the page cap")
+
+
+def fetch_previous_manifests(api: GitHubApi, out_dir: Path, expect_tag: str) -> list[str]:
+    """Downloads the updater manifests of the latest published stable release into `out_dir`.
+
+    `expect_tag` is the tag that release must have (the newest stable tag), or empty when none exists yet.
+    A 404, an unexpected tag or an unexpected release fails, so a mistyped repository or a bad token never
+    looks like a first release. Only latest.json and the per-platform manifests are fetched, each capped at
+    API_MAX_BYTES. Returns the names written.
+    """
+    out_dir.mkdir(parents=True, exist_ok=True)
+    status, data = api.raw("GET", "/releases/latest")
+    if status == 404:
+        if expect_tag:
+            raise ReleaseError("the expected latest release was not found")
+        return []
+    if status != 200:
+        raise ReleaseError("GitHub API GET failed")
+    latest = _parse_manifest(data, "latest release is not a JSON object")
+    if not expect_tag or latest.get("tag_name") != expect_tag:
+        raise ReleaseError("the latest release is not the expected one")
+    release_id = latest.get("id")
+    if isinstance(release_id, bool) or not isinstance(release_id, int):
+        raise ReleaseError("latest release has no id")
+    wanted = {UPDATER_MANIFEST, *(platform_manifest_name(key) for key in UPDATER_PLATFORMS)}
+    found: dict[str, int] = {}
+    for asset in _release_assets(api, release_id):
+        name = asset.get("name")
+        if not isinstance(name, str) or name not in wanted:
+            continue
+        asset_id, size = asset.get("id"), asset.get("size")
+        if name in found:
+            raise ReleaseError("latest release holds a manifest twice")
+        if isinstance(asset_id, bool) or not isinstance(asset_id, int):
+            raise ReleaseError("a previous manifest has no asset id")
+        if isinstance(size, bool) or not isinstance(size, int) or size > API_MAX_BYTES:
+            raise ReleaseError("a previous manifest is too large")
+        found[name] = asset_id
+    for name, asset_id in sorted(found.items()):
+        status, blob = api.raw("GET", f"/releases/assets/{asset_id}", content_type="application/octet-stream")
+        if status != 200 or len(blob) > API_MAX_BYTES:
+            raise ReleaseError("a previous manifest could not be downloaded")
+        (out_dir / name).write_bytes(blob)
+    return sorted(found)
+
+
+def platform_notes(version: str, platforms: tuple[str, ...], previous_dir: Path | None, repo: str) -> str:
+    """The marked release-notes section for a partial set (empty for a full set): one row per platform."""
+    if len(platforms) == len(PLATFORMS):
+        return ""
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
+        raise ReleaseError("repository must be owner/name")
+    rows: list[str] = []
+    for platform, key in PLATFORM_UPDATER_KEYS.items():
+        if platform in platforms:
+            cell = version
+        else:
+            carried = carried_manifest(previous_dir, key, version)
+            if carried is None:
+                cell = "not available yet"
+            else:
+                earlier = carried.data["version"]
+                cell = f"[{earlier}](https://github.com/{repo}/releases/tag/v{earlier})"
+        rows.append(f"| {PLATFORM_LABELS[platform]} | {cell} |")
+    lines = [
+        PLATFORM_NOTES_BEGIN,
+        "### Platforms",
+        "",
+        "This release does not include every platform. A platform that is missing keeps its earlier version, "
+        "and its installed copies see no update.",
+        "",
+        "| Platform | Version |",
+        "| --- | --- |",
+        *rows,
+        PLATFORM_NOTES_END,
+    ]
+    return "\n".join(lines) + "\n"
+
+
+def apply_platform_section(body: str, section: str) -> str:
+    """Puts the marked section into a release body: replaces an existing one, else appends it.
+
+    An empty section removes an existing one, so a re-run never duplicates or leaves a stale table.
+    """
+    section = section.strip()
+    begins, ends = body.count(PLATFORM_NOTES_BEGIN), body.count(PLATFORM_NOTES_END)
+    if begins != ends or begins > 1 or (begins == 1 and body.index(PLATFORM_NOTES_END) < body.index(PLATFORM_NOTES_BEGIN)):
+        raise ReleaseError("the release body has a malformed platforms section")
+    existing = PLATFORM_NOTES_RE.search(body)
+    if existing:
+        if section:
+            return body[:existing.start()] + section + body[existing.end():]
+        before, after = body[:existing.start()], body[existing.end():]
+        text = (before.rstrip("\n") + "\n\n" + after.lstrip("\n")).strip("\n")
+        return text + "\n" if text else ""
+    if not section:
+        return body
+    return (body.rstrip("\n") + "\n\n" if body.strip() else "") + section + "\n"
+
+
+def annotate_draft(api: GitHubApi, release_id: int, section: str) -> bool:
+    """Writes the platform section into the release body. Returns whether the body changed."""
+    release = api.release_by_id(release_id)
+    body = release.get("body") or ""
+    if not isinstance(body, str):
+        raise ReleaseError("release body is not text")
+    updated = apply_platform_section(body, section)
+    if updated == body:
+        return False
+    api.call("PATCH", f"/releases/{release_id}", {"body": updated})
+    return True
 
 
 def _other_published_release(api: GitHubApi, tag: str, release_id: int) -> bool:
@@ -996,13 +1415,16 @@ def _other_published_release(api: GitHubApi, tag: str, release_id: int) -> bool:
     )
 
 
-def verify_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, assets_dir: Path, latest_json: Path,
-                 release_id: int) -> None:
-    """Checks the draft against the tag, the commit, the local asset set and the updater manifest.
+def verify_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, assets_dir: Path, latest_json: Path | None,
+                 release_id: int, platforms: tuple[str, ...] = PLATFORMS, manifests_dir: Path | None = None,
+                 previous_dir: Path | None = None) -> None:
+    """Checks the draft against the tag, the commit, the local asset set and the updater manifests.
 
     The draft is read by its ID (its `tag_name` is a placeholder until it is published).
-    `latest_json` is the draft's own latest.json, downloaded by the workflow. The draft must hold exactly
-    the local assets plus that file, and the file must be the one that the API digest describes.
+    `latest_json` is the draft's own latest.json, downloaded by the workflow; `manifests_dir` instead holds
+    every updater manifest the draft must carry (latest-<key>.json of each platform, and latest.json); it is
+    checked like `check_platform_manifests` against `previous_dir` (required with it). The draft must hold
+    exactly the local assets plus those files, and each must be the one that the API digest describes.
     Fails with a fixed message.
     """
     fixed = "draft verification failed"
@@ -1017,11 +1439,16 @@ def verify_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, assets_d
     if release.get("target_commitish") != merge_sha:
         raise ReleaseError(fixed)
     local = {entry.name: entry for entry in assets_dir.iterdir() if entry.is_file()}
-    if UPDATER_MANIFEST in local or set(local) != set(expected_asset_names(intent.version)):
+    if UPDATER_MANIFEST in local or set(local) != set(expected_asset_names(intent.version, platforms)):
         raise ReleaseError(fixed)
-    if not latest_json.is_file():
-        raise ReleaseError(fixed)
-    local[UPDATER_MANIFEST] = latest_json
+    if manifests_dir is None:
+        if latest_json is None or not latest_json.is_file():
+            raise ReleaseError(fixed)
+        local[UPDATER_MANIFEST] = latest_json
+    else:
+        if previous_dir is None:
+            raise ReleaseError(fixed)
+        _check_draft_manifests_dir(manifests_dir, intent.version, assets_dir, platforms, previous_dir, local, fixed)
     assets = {str(asset["name"]): asset for asset in release.get("assets", [])}  # type: ignore[union-attr]
     if set(assets) != set(local):
         raise ReleaseError(fixed)
@@ -1029,7 +1456,23 @@ def verify_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, assets_d
         path = local[name]
         if str(asset.get("digest") or "") != f"sha256:{sha256_file(path)}" or asset.get("size") != path.stat().st_size:
             raise ReleaseError(fixed)
-    check_updater_manifest(latest_json, intent.version, assets_dir)
+    if manifests_dir is None:
+        check_updater_manifest(local[UPDATER_MANIFEST], intent.version, assets_dir, platforms)
+
+
+def _check_draft_manifests_dir(manifests_dir: Path, version: str, assets_dir: Path, platforms: tuple[str, ...],
+                               previous_dir: Path, local: dict[str, Path], fixed: str) -> None:
+    """Checks the manifests directory in full, then adds its files to the expected draft assets."""
+    if not manifests_dir.is_dir():
+        raise ReleaseError(fixed)
+    found = {entry.name: entry for entry in manifests_dir.iterdir()}
+    if any(not entry.is_file() or name in local for name, entry in found.items()):
+        raise ReleaseError(fixed)
+    try:
+        check_platform_manifests(manifests_dir, version, assets_dir, platforms, previous_dir)
+    except ReleaseError as error:
+        raise ReleaseError(fixed) from error
+    local.update(found)
 
 
 def publish_release(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, release_id: int) -> str:
@@ -1130,6 +1573,12 @@ def build_parser() -> argparse.ArgumentParser:
     def add(name: str, help_text: str) -> argparse.ArgumentParser:
         return sub.add_parser(name, help=help_text)
 
+    def add_platforms(p: argparse.ArgumentParser) -> None:
+        p.add_argument(
+            "--platforms", default=",".join(PLATFORMS),
+            help="the platforms of this release: a comma-separated subset of " + ", ".join(PLATFORMS) + " (default: all)",
+        )
+
     p = add("resolve-version", "check the three version fields and print the tag")
     p.add_argument("--repo-root", type=Path, default=REPO_ROOT)
 
@@ -1193,10 +1642,13 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--legs", type=Path, required=True)
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--version", required=True)
+    add_platforms(p)
+    p.add_argument("--shared", type=Path, help="a directory that holds the SBOMs (else they come from the Linux leg)")
 
     p = add("exact-set", "the asset directory holds exactly the release set")
     p.add_argument("--dir", type=Path, required=True)
     p.add_argument("--version", required=True)
+    add_platforms(p)
 
     p = add("changelog-body", "print the CHANGELOG.md section of a version")
     p.add_argument("--changelog", type=Path, default=REPO_ROOT / "CHANGELOG.md")
@@ -1226,7 +1678,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--release-id", type=int, required=True)
     p.add_argument("--merge-sha", required=True)
     p.add_argument("--dir", type=Path, required=True)
-    p.add_argument("--latest-json", type=Path, required=True, help="the draft's latest.json, downloaded")
+    add_platforms(p)
+    source = p.add_mutually_exclusive_group(required=True)
+    source.add_argument("--latest-json", type=Path, help="the draft's latest.json, downloaded")
+    source.add_argument("--manifests-dir", type=Path, help="every updater manifest the draft must carry")
+    p.add_argument("--previous", type=Path, help="the previous release's manifests (required with --manifests-dir)")
 
     p = add("updater-manifest", "write latest.json from the assembled installers and signatures")
     p.add_argument("--version", required=True)
@@ -1234,11 +1690,45 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--notes-file", type=Path, required=True, help="the release notes (the draft's body)")
     p.add_argument("--pub-date", help="RFC 3339 UTC time (default: now)")
+    add_platforms(p)
 
     p = add("check-updater-manifest", "latest.json names this version and this release's installers and signatures")
     p.add_argument("--version", required=True)
     p.add_argument("--dir", type=Path, required=True, help="the assembled asset directory")
     p.add_argument("--latest-json", type=Path, required=True)
+    add_platforms(p)
+
+    p = add("updater-manifests", "write latest-<key>.json per platform (carrying missing ones forward) and latest.json")
+    p.add_argument("--version", required=True)
+    p.add_argument("--dir", type=Path, required=True, help="the assembled asset directory")
+    add_platforms(p)
+    p.add_argument("--previous", type=Path, help="manifests downloaded from the previous published release")
+    p.add_argument("--notes-file", type=Path, required=True, help="the release notes (the draft's body)")
+    p.add_argument("--out", type=Path, required=True, help="the directory the manifests are written to")
+    p.add_argument("--pub-date", help="RFC 3339 UTC time (default: now)")
+
+    p = add("check-updater-manifests", "the manifests directory holds exactly the expected updater manifests")
+    p.add_argument("--version", required=True)
+    p.add_argument("--dir", type=Path, required=True, help="the assembled asset directory")
+    add_platforms(p)
+    p.add_argument("--previous", type=Path, help="manifests downloaded from the previous published release")
+    p.add_argument("--manifests", type=Path, required=True, help="the directory written by updater-manifests")
+
+    p = add("fetch-previous-manifests", "download the updater manifests of the latest published release")
+    p.add_argument("--repo", required=True)
+    p.add_argument("--out", type=Path, required=True)
+    p.add_argument("--expect-tag", required=True, help="the tag of the newest stable release, or '' when there is none")
+
+    p = add("platform-notes", "print the release-notes section for a partial platform set (nothing for a full set)")
+    p.add_argument("--version", required=True)
+    add_platforms(p)
+    p.add_argument("--previous", type=Path, help="manifests downloaded from the previous published release")
+    p.add_argument("--repo", required=True)
+
+    p = add("annotate-draft", "put the platform-notes section into the draft body (replaces a marked one)")
+    p.add_argument("--repo", required=True)
+    p.add_argument("--release-id", type=int, required=True)
+    p.add_argument("--notes-file", type=Path, required=True, help="the output of platform-notes (may be empty)")
 
     p = add("publish", "create the tag on the merge commit and publish the verified draft (write scope)")
     p.add_argument("--repo", required=True)
@@ -1278,6 +1768,7 @@ def run_command(args: argparse.Namespace) -> int:
             "tag": intent.tag,
             "prerelease": str(intent.prerelease).lower(),
             "previous_tag": previous_tag,
+            "latest_stable_tag": latest_stable_tag(tags),
         })
     elif command == "set-version":
         set_version(args.repo_root, args.version)
@@ -1328,10 +1819,10 @@ def run_command(args: argparse.Namespace) -> int:
         write_digest_manifest(args.dir, LEG_DIGESTS, set())
         sys.stdout.write(f"{LEG_DIGESTS} written\n")
     elif command == "assemble":
-        names = assemble(args.legs, args.out, args.version)
+        names = assemble(args.legs, args.out, args.version, parse_platforms(args.platforms), args.shared)
         sys.stdout.write(f"assembled {len(names)} assets; SHA256SUMS verified\n")
     elif command == "exact-set":
-        names = check_exact_asset_set(args.dir, args.version)
+        names = check_exact_asset_set(args.dir, args.version, parse_platforms(args.platforms))
         sys.stdout.write(f"exact asset set: {len(names)} files\n")
     elif command == "changelog-body":
         args.out.write_bytes(changelog_body(args.changelog, args.version).encode("utf-8"))
@@ -1353,22 +1844,47 @@ def run_command(args: argparse.Namespace) -> int:
         intent = tag_for_version(args.version)
         pub_date = args.pub_date or datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         notes = args.notes_file.read_text(encoding="utf-8").strip()
-        manifest = build_updater_manifest(args.dir, intent.version, notes, pub_date)
+        manifest = build_updater_manifest(args.dir, intent.version, notes, pub_date, parse_platforms(args.platforms))
         args.out.parent.mkdir(parents=True, exist_ok=True)
         write_json(args.out, manifest)
         sys.stdout.write(f"{args.out.name} written for {intent.version}\n")
     elif command == "check-updater-manifest":
         # The manifest check of `verify-draft` on local files, for the dry run on a promotion pull request.
         intent = tag_for_version(args.version)
-        check_updater_manifest(args.latest_json, intent.version, args.dir)
+        check_updater_manifest(args.latest_json, intent.version, args.dir, parse_platforms(args.platforms))
         sys.stdout.write(f"PASS: {args.latest_json.name} names {intent.version} and its installers and signatures\n")
+    elif command == "updater-manifests":
+        intent = tag_for_version(args.version)
+        pub_date = args.pub_date or datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        notes = args.notes_file.read_text(encoding="utf-8").strip()
+        warnings = build_platform_manifests(args.dir, intent.version, parse_platforms(args.platforms), args.previous,
+                                            notes, pub_date, args.out)
+        for warning in warnings:
+            sys.stderr.write(f"WARNING: {warning}\n")
+        sys.stdout.write(f"updater manifests written for {intent.version}\n")
+    elif command == "check-updater-manifests":
+        intent = tag_for_version(args.version)
+        check_platform_manifests(args.manifests, intent.version, args.dir, parse_platforms(args.platforms), args.previous)
+        sys.stdout.write(f"PASS: the updater manifests match {intent.version}, its installers and the previous release\n")
+    elif command == "fetch-previous-manifests":
+        names = fetch_previous_manifests(GitHubApi(args.repo, token_from_env()), args.out, args.expect_tag)
+        sys.stdout.write(f"fetched {len(names)} previous manifests\n")
+    elif command == "platform-notes":
+        intent = tag_for_version(args.version)
+        sys.stdout.write(platform_notes(intent.version, parse_platforms(args.platforms), args.previous, args.repo))
+    elif command == "annotate-draft":
+        changed = annotate_draft(GitHubApi(args.repo, token_from_env()), args.release_id,
+                                 args.notes_file.read_text(encoding="utf-8"))
+        sys.stdout.write("draft body updated\n" if changed else "draft body already up to date\n")
     elif command == "attach":
         uploaded = attach_assets(GitHubApi(args.repo, token_from_env()), args.release_id, args.dir)
         sys.stdout.write(f"attached {uploaded} missing assets; existing assets match their digests\n")
     elif command == "verify-draft":
         intent = tag_for_version(args.version)
+        if (args.manifests_dir is None) != (args.previous is None):
+            raise ReleaseError("--previous and --manifests-dir must be given together")
         verify_draft(GitHubApi(args.repo, token_from_env()), intent, args.merge_sha, args.dir, args.latest_json,
-                     args.release_id)
+                     args.release_id, parse_platforms(args.platforms), args.manifests_dir, args.previous)
         sys.stdout.write("PASS: draft matches the tag, the commit, the asset set and the updater manifest\n")
     elif command == "publish":
         intent = tag_for_version(args.version)
