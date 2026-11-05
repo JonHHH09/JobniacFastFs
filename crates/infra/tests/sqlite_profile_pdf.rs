@@ -818,7 +818,7 @@ async fn concurrent_ingests_of_one_document_create_one_profile_and_one_source() 
 }
 
 #[tokio::test]
-async fn an_unparseable_resume_is_an_extraction_error_and_writes_nothing() -> TestResult {
+async fn an_unparsable_resume_is_an_extraction_error_and_writes_nothing() -> TestResult {
     let fixture = start();
     let extractor = ResumeExtractor::new("Ada Example\nno contact details here");
     let document = store(&fixture, pdf_bytes("no-email"), &extractor).await?;

@@ -64,7 +64,7 @@ Workflow `ci.yml`:
 | `UI` | ubuntu-26.04 | `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, then the Playwright suite. |
 | `Rust (ubuntu-26.04)` | ubuntu-26.04 | `cargo fmt --all --check`, clippy with `-D warnings`, `cargo nextest run --workspace --locked`, and the bindings diff check. |
 | `Rust (macos-latest)` | macOS, Apple Silicon | The same Rust steps, without the bindings check. Proves the macOS worker sandbox and file handling. |
-| `Rust (windows-latest)` | Windows | The same Rust steps. Not run on pull requests into `development`. |
+| `Rust (windows-latest)` | Windows | The same Rust steps. |
 | `Supply chain (cargo-deny)` | ubuntu-26.04 | `cargo deny check`. |
 | `Release tool unit tests` | ubuntu-26.04 | The `scripts/release` tests and `release.py check-versions`. |
 | `Privacy scan (working tree and history, generic classes)` | ubuntu-26.04 | The scanner tests, then `privacy_scan.py --mode all`. |
@@ -75,16 +75,17 @@ Workflow `e2e.yml` runs the WebDriver suite as `E2E (ubuntu-26.04)` and `E2E (wi
 
 ## Required checks
 
-A pull request into `development` needs `Branch policy`, `UI`, `Rust (ubuntu-26.04)`, `Rust (macos-latest)`, `Supply chain (cargo-deny)`, `Release tool unit tests` and `Privacy scan (working tree and history, generic classes)`. The Windows Rust job and the E2E jobs are not required there. They run on the promotion pull request. A red `E2E (...)` check blocks the release, so do not merge a promotion pull request with one.
+A pull request into `development` needs `Branch policy`, `CI result (shared)`, `CI result (platforms)` and `E2E result`. A pull request into `main` needs `Branch policy` and `CI result (shared)`. Each `result` job always runs and fails unless every job behind it succeeded or was skipped. `CI result (shared)` covers `UI`, `Supply chain (cargo-deny)`, `Release tool unit tests`, the privacy scan and the text checks. `CI result (platforms)` covers the three `Rust (...)` jobs. `E2E result` covers the two `E2E (...)` jobs. A red `E2E (...)` check blocks the release, so do not merge a promotion pull request with one.
 
 ## How CI skips repeated work
 
 This is a summary of [docs/ops/branch-protection.md](https://github.com/JonHHH09/JobniacFastFs/blob/main/docs/ops/branch-protection.md).
 
 - A required check whose job is skipped counts as passed. That is why the Rust and E2E jobs are plain jobs with literal names, not a matrix.
-- The `Changes` job (`scripts/ci/gate.sh`) path-filters pull requests into `development`. A docs-only change skips `UI`, `Rust (...)` and `E2E (...)`. A Rust-only change skips `UI`.
-- The gate fails open. If `Changes` did not succeed, every heavy job runs.
-- After a fully green run, `Mark tree as passed` saves a cache entry keyed by the git tree SHA. A later run on the same tree, such as the promotion pull request or the release call, skips the heavy jobs.
+- The `Changes` job (`scripts/ci/gate.sh`) path-filters plain pull requests (every pull request except the promotion pull request from `development` to `main`). Each changed path gets a change class from `scripts/ci/change_classes.toml`, and the classes decide the jobs. A docs-only change runs only the privacy scan, the text checks and the release tool tests, which always run. A Rust-only change skips `UI`. A UI-only change skips the Rust jobs. A path that no rule knows turns every job on. Windows jobs run on pull requests when the classes need them.
+- The gate fails open. If `Changes` did not succeed, every heavy job runs, and the `result` checks fail.
+- `Mark tree as passed` saves one cache entry per heavy job that ran and succeeded, keyed by job and git tree SHA. A later run on the same tree, such as the promotion pull request or the release call, skips the jobs that already passed.
+- To force a full run on a branch: `gh workflow run ci.yml --ref <branch>` and `gh workflow run e2e.yml --ref <branch>`.
 - Only markers saved on `development` or `main`, or on a verified `development` to `main` pull request, are trusted. Markers from issue branches and forks are ignored.
 - `nightly.yml` runs daily at 02:30 UTC and dispatches `ci.yml` and `e2e.yml` on `development`. This saves the Rust caches and the marker for the `development` tip.
 - Pull requests restore Rust caches but never save them.

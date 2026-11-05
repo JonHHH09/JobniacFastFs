@@ -45,6 +45,44 @@ drafts take the body of their version section from this file.
   `profile_pdf_ingest` result) gains one field, `profileSource`: `EUROPASS_CV` or `PDF_TEXT` on the
   MCP tool, `europassCv` or `pdfText` over desktop IPC, and `null` when an existing source was reused
   and no profile was read. Existing fields, statuses and errors are unchanged.
+- macOS (Apple Silicon) is a supported platform next to Windows and Linux. Releases carry a DMG and an
+  updater archive (`darwin-aarch64`). macOS builds are signed with a Developer ID and notarized when the
+  Apple signing secrets are set, and ad-hoc signed otherwise; PDFium ships in `Contents/Frameworks`.
+  `Rust (macos-latest)` is a required CI check, and every release runs a smoke test on macOS that
+  extracts a fixture PDF through the bundled `jobniac-cli` and PDFium. The WebDriver end-to-end suite
+  stays on Windows and Linux, because no WebDriver exists for the macOS webview. The startup refusal
+  message box is shown on macOS too.
+- In-app updates: Settings has an Updates card ("Check for updates", and a switch to check once after
+  startup, off by default and remembered across restarts) and an "Update available" banner with
+  "Install and restart" behind a confirmation. Updates come from the signed GitHub releases and are
+  verified against the app's public key before they install. A copy installed from a `.deb` links to the
+  releases page instead, and a development build reports updates as unavailable. New desktop commands
+  `check_for_update`, `install_update`, `update_settings_get` and `update_set_auto_check`; no MCP change.
+- Release workflow: versions are set with `release.py bump X.Y.Z` (new `check-versions` check in CI), the
+  release job now builds signed updater artifacts (`latest.json` and `.sig` files, needs the repository
+  secrets `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`), and the workflow tags
+  the merge commit and publishes the release itself after every gate passes (`-dev.N` versions as
+  prereleases, never the latest).
+- Desktop diagnostics on stderr, a startup refusal message box (Windows) and the opt-in log file
+  `JOBNIAC_LOG_FILE=1`.
+- `JOBNIAC_DB_PATH`: absolute path of the SQLite database file. Without it the file is
+  `%LOCALAPPDATA%\Jobniac\data\jobniac.sqlite3` on Windows and
+  `$XDG_DATA_HOME/jobniac/data/jobniac.sqlite3` (or `~/.local/share/jobniac/data/jobniac.sqlite3`) on
+  Linux and `~/Library/Application Support/Jobniac/data/jobniac.sqlite3` on macOS. The app and `jobniac-cli` create the folder owner-only (on Unix the database file is `0600`
+  too) and bring the schema up to date when they start. The MCP server that the app starts receives the
+  database file the app opened as `JOBNIAC_DB_PATH`, so it finds the default location too.
+- MCP: the `store_document_file` tool description now says the PDF is stored "in the local database".
+  Tool names, arguments and results are unchanged.
+- Linux worker children (PDF extraction and rendering, link and Arbeitnow fetches) now confine themselves
+  with Landlock and seccomp: no file system access (render may read the system fonts), no sockets for PDF
+  workers, no program execution, signals only to themselves. Kernels without Landlock run with seccomp only
+  and log a warning.
+- Desktop-only `documents_list` command (no MCP tool): the stored-PDF picker lists stored documents with
+  size, pages and date, filters by file name, and the review report field picks a saved report by job,
+  profile, date and score.
+- Settings section with an MCP server switch (off by default, remembered across restarts): the desktop app
+  starts and stops the loopback HTTP MCP server (`jobniac-cli http`) as a child process, with a fresh bearer
+  token per start that is copied to the clipboard from Rust and never reaches the webview; the child also exits when the app dies for any reason, including a hard kill.
 
 ### Changed
 
@@ -122,6 +160,15 @@ drafts take the body of their version section from this file.
 - CI: apt on the Linux runners retries and times out a stalled mirror connection sooner, every CI job
   has a timeout instead of the 6-hour default (the end-to-end jobs already had one), and a failed or cancelled nightly run on
   `development` opens or updates an issue labelled `ci-nightly`.
+- CI: a new job checks spelling (typos), Markdown structure (markdownlint) and local links (lychee,
+  offline). Pull requests are filtered by change classes (`scripts/ci/change_classes.toml`): each
+  changed path takes the classes of the first matching rule, a path no rule matches runs every
+  job, and a change that touches no code runs only the cheap checks (text, privacy scan and the
+  release tool tests). The Windows Rust and
+  end-to-end jobs now run on pull requests that change Rust or the app. Each heavy job has its own
+  passed marker, so one red job no longer blocks the others' markers. `CI result (shared)`, `CI
+  result (platforms)` and `E2E result` replace the seven required checks, and a pull request into
+  `main` from a branch other than `development` runs only what its changes need.
 
 - Desktop Arbeitnow screen: a scan and "Load more results" each read up to five board pages instead
   of one, so a narrow filter (a search term plus a location) finds older postings without repeated
@@ -172,47 +219,6 @@ drafts take the body of their version section from this file.
   be dismissed and is announced again for each refusal.
 - CLI: `RUST_LOG` module-path directives can no longer reopen rmcp logs; `--help` no longer says that
   cleanup and setup-generated-root are unavailable.
-
-### Added
-
-- macOS (Apple Silicon) is a supported platform next to Windows and Linux. Releases carry a DMG and an
-  updater archive (`darwin-aarch64`). macOS builds are signed with a Developer ID and notarized when the
-  Apple signing secrets are set, and ad-hoc signed otherwise; PDFium ships in `Contents/Frameworks`.
-  `Rust (macos-latest)` is a required CI check, and every release runs a smoke test on macOS that
-  extracts a fixture PDF through the bundled `jobniac-cli` and PDFium. The WebDriver end-to-end suite
-  stays on Windows and Linux, because no WebDriver exists for the macOS webview. The startup refusal
-  message box is shown on macOS too.
-- In-app updates: Settings has an Updates card ("Check for updates", and a switch to check once after
-  startup, off by default and remembered across restarts) and an "Update available" banner with
-  "Install and restart" behind a confirmation. Updates come from the signed GitHub releases and are
-  verified against the app's public key before they install. A copy installed from a `.deb` links to the
-  releases page instead, and a development build reports updates as unavailable. New desktop commands
-  `check_for_update`, `install_update`, `update_settings_get` and `update_set_auto_check`; no MCP change.
-- Release workflow: versions are set with `release.py bump X.Y.Z` (new `check-versions` check in CI), the
-  release job now builds signed updater artifacts (`latest.json` and `.sig` files, needs the repository
-  secrets `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`), and the workflow tags
-  the merge commit and publishes the release itself after every gate passes (`-dev.N` versions as
-  prereleases, never the latest).
-- Desktop diagnostics on stderr, a startup refusal message box (Windows) and the opt-in log file
-  `JOBNIAC_LOG_FILE=1`.
-- `JOBNIAC_DB_PATH`: absolute path of the SQLite database file. Without it the file is
-  `%LOCALAPPDATA%\Jobniac\data\jobniac.sqlite3` on Windows and
-  `$XDG_DATA_HOME/jobniac/data/jobniac.sqlite3` (or `~/.local/share/jobniac/data/jobniac.sqlite3`) on
-  Linux and `~/Library/Application Support/Jobniac/data/jobniac.sqlite3` on macOS. The app and `jobniac-cli` create the folder owner-only (on Unix the database file is `0600`
-  too) and bring the schema up to date when they start. The MCP server that the app starts receives the
-  database file the app opened as `JOBNIAC_DB_PATH`, so it finds the default location too.
-- MCP: the `store_document_file` tool description now says the PDF is stored "in the local database".
-  Tool names, arguments and results are unchanged.
-- Linux worker children (PDF extraction and rendering, link and Arbeitnow fetches) now confine themselves
-  with Landlock and seccomp: no file system access (render may read the system fonts), no sockets for PDF
-  workers, no program execution, signals only to themselves. Kernels without Landlock run with seccomp only
-  and log a warning.
-- Desktop-only `documents_list` command (no MCP tool): the stored-PDF picker lists stored documents with
-  size, pages and date, filters by file name, and the review report field picks a saved report by job,
-  profile, date and score.
-- Settings section with an MCP server switch (off by default, remembered across restarts): the desktop app
-  starts and stops the loopback HTTP MCP server (`jobniac-cli http`) as a child process, with a fresh bearer
-  token per start that is copied to the clipboard from Rust and never reaches the webview; the child also exits when the app dies for any reason, including a hard kill.
 
 ### Removed
 
