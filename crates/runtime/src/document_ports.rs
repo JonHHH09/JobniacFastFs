@@ -9,6 +9,8 @@
 //!   extraction fails with the fixed extraction message.
 //! * [`WorkerPdfInspector`] inspects a PDF (page sizes, document info, attachments) through the
 //!   `pdf-inspect` worker, with the same requirements.
+//! * [`WorkerPdfLayoutReader`] reads the positioned line fragments of a PDF through the
+//!   `pdf-layout` worker, with the same requirements.
 
 use std::future::{Future, pending};
 use std::path::PathBuf;
@@ -16,9 +18,9 @@ use std::sync::{Arc, Mutex, PoisonError};
 
 use async_trait::async_trait;
 use jobniac_core::documents::{
-    DocumentFileReader, FileSnapshot, INSPECTION_FAILURE_MESSAGE, MAX_CHARACTERS_LIMIT,
-    MAX_PAGE_COUNT, PageText, PdfExtractor, PdfInspection, PdfInspector, PdfRenderer, PdfText,
-    RENDER_FAILURE_MESSAGE, RenderedPdfPage,
+    DocumentFileReader, FileSnapshot, INSPECTION_FAILURE_MESSAGE, LAYOUT_FAILURE_MESSAGE,
+    MAX_CHARACTERS_LIMIT, MAX_PAGE_COUNT, PageText, PdfExtractor, PdfInspection, PdfInspector,
+    PdfLayout, PdfLayoutReader, PdfRenderer, PdfText, RENDER_FAILURE_MESSAGE, RenderedPdfPage,
 };
 use jobniac_core::errors::{AppError, ApplicationError, ErrorCode, validation_error};
 use jobniac_infra::files::import_root::{ImportRefusal, ImportRoot, read_picked};
@@ -27,6 +29,7 @@ use jobniac_infra::workers::pdf::{
     self, EXTRACT_FAILURE_MESSAGE, EXTRACTION_VALIDATION_MESSAGE, EXTRACTOR_VERSION,
     ExtractionOptions, PdfError, PdfExtraction,
 };
+use jobniac_infra::workers::pdf_layout;
 use tokio::sync::watch;
 
 /// The one file the desktop user picked in the native file dialog and that may be read without an
@@ -343,6 +346,56 @@ impl PdfInspector for WorkerPdfInspector {
     }
 }
 
+/// Reads the layout of PDF bytes through the PDF worker.
+#[derive(Debug)]
+pub struct WorkerPdfLayoutReader {
+    supervisor: Option<Arc<WorkerSupervisor>>,
+    pdfium_dir: Option<PathBuf>,
+    cancellation: WorkerCancellation,
+}
+
+impl WorkerPdfLayoutReader {
+    /// A layout reader over an optional supervisor shared with the other PDF adapters and an
+    /// optional PDFium directory, cancelled through `cancellation`.
+    #[must_use]
+    pub const fn new(
+        supervisor: Option<Arc<WorkerSupervisor>>,
+        pdfium_dir: Option<PathBuf>,
+        cancellation: WorkerCancellation,
+    ) -> Self {
+        Self {
+            supervisor,
+            pdfium_dir,
+            cancellation,
+        }
+    }
+}
+
+#[async_trait]
+impl PdfLayoutReader for WorkerPdfLayoutReader {
+    async fn read_layout(&self, content: &[u8]) -> Result<PdfLayout, AppError> {
+        let (Some(supervisor), Some(pdfium_dir)) = (&self.supervisor, &self.pdfium_dir) else {
+            return Err(layout_failure());
+        };
+        pdf_layout::layout_pdf(supervisor, pdfium_dir, content, self.cancellation.signal())
+            .await
+            .map_err(|error| match error {
+                PdfError::Validation { .. } | PdfError::PageLimit => pdf_error(error),
+                _ => layout_failure(),
+            })
+    }
+}
+
+/// The failure of a layout read: the fixed message on the `documentId` field. Every worker
+/// failure, cancellation included, maps here.
+fn layout_failure() -> AppError {
+    AppError::from(validation_error(
+        LAYOUT_FAILURE_MESSAGE,
+        Some("documentId"),
+        Some(LAYOUT_FAILURE_MESSAGE),
+    ))
+}
+
 /// The failure of an inspection: the fixed message on the `documentId` field. Every worker failure,
 /// cancellation included, maps here.
 fn inspection_failure() -> AppError {
@@ -389,6 +442,7 @@ fn pdf_error(error: PdfError) -> AppError {
         PdfError::Extraction
         | PdfError::Render
         | PdfError::Inspection
+        | PdfError::Layout
         | PdfError::Cancelled { .. } => extraction_failure(),
     }
 }

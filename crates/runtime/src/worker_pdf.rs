@@ -1,19 +1,22 @@
 //! The child side of the PDF worker operations.
 //!
-//! Runs inside the `__worker pdf-extract`, `__worker pdf-render` and `__worker pdf-inspect`
-//! children only. PDFium is bound
+//! Runs inside the `__worker pdf-extract`, `__worker pdf-render`, `__worker pdf-inspect`
+//! and `__worker pdf-layout` children only. PDFium is bound
 //! from the absolute directory named in the request, never from the working directory. Every
 //! failure returns a [`WorkerFault`], which the child turns into exit status 1 without diagnostics.
 //!
-//! All operations (text extraction, page rendering and inspection) use PDFium.
+//! All operations (text extraction, page rendering, inspection and layout) use PDFium.
 
+use std::collections::HashMap;
 use std::io::Write;
 use std::path::Path;
 
 use image::ExtendedColorType;
 use image::ImageEncoder;
 use image::codecs::png::{CompressionType, FilterType, PngEncoder};
-use jobniac_core::documents::model::{MAX_INSPECT_ATTACHMENT_NAMES, PdfInspection, PdfPageBox};
+use jobniac_core::documents::model::{
+    MAX_INSPECT_ATTACHMENT_NAMES, PageLayout, PdfInspection, PdfLayout, PdfPageBox,
+};
 use jobniac_infra::workers::WorkerFault;
 use jobniac_infra::workers::child::write_response;
 use jobniac_infra::workers::pdf::{
@@ -22,6 +25,10 @@ use jobniac_infra::workers::pdf::{
     decode_render_response, decode_request, encode_extract_response, encode_inspect_response,
     encode_page_limit_response, extraction_view, has_strict_structure, normalize_metadata_text,
     normalize_page_text, page_box, render_size, select_attachments, validate_pdf_content,
+};
+use jobniac_infra::workers::pdf_layout::{
+    FontStyle, LayoutBudget, LayoutChar, decode_layout_response, encode_layout_response,
+    group_page_chars, is_bold_font, sfnt_style,
 };
 use jobniac_infra::workers::sandbox::{self, SandboxProfile};
 use pdfium_render::prelude::*;
@@ -170,6 +177,316 @@ pub fn inspect(request: &[u8], output: &mut dyn Write) -> Result<(), WorkerFault
     };
     let body = encode_inspect_response(&inspection);
     decode_inspect_response(&body).map_err(|_| WorkerFault)?;
+    write_response(output, &body)
+}
+
+/// The most embedded font data one layout operation reads, in bytes. Past it, fonts are judged by
+/// their descriptor and name only, which bounds the copying of large or many fonts.
+const MAX_FONT_DATA_BYTES: usize = 128 * 1024 * 1024;
+
+/// The largest embedded font program whose style is read, in bytes. A larger one is judged by its
+/// descriptor and name only.
+const MAX_FONT_PROGRAM_BYTES: usize = 8 * 1024 * 1024;
+
+/// How many font programs of one font identity are read before the identity is trusted, when they
+/// all agree.
+const FONT_AGREEMENT_READS: u8 = 3;
+
+/// The most text objects remembered by their bounds.
+const MAX_REMEMBERED_OBJECTS: usize = 100_000;
+
+/// How many characters beyond the remaining character budget are read from a page, as slack for
+/// whitespace and characters that are not returned.
+const CHARACTER_SLACK: usize = 100_000;
+
+/// What is known about one font identity.
+#[derive(Default)]
+struct FontEntry {
+    reads: u8,
+    first: Option<FontStyle>,
+    ambiguous: bool,
+}
+
+/// The style the embedded font programs declare, with each font read as rarely as possible.
+///
+/// Producers such as the Europass editor name the regular and the bold face alike and leave the
+/// weight out of the font descriptor, so PDFium reports no difference between them; the font
+/// program itself carries the weight. pdfium-render exposes no font handle and no way to ask the
+/// size of a font program before it is copied, so a font is identified by its name, family,
+/// descriptor flags, italic angle and metrics. The first [`FONT_AGREEMENT_READS`] programs of an
+/// identity are read; when they agree the identity is trusted, and when they differ (the regular
+/// and bold subsets above) every new text object of it is read, within the overall cap. Only
+/// embedded fonts are read: PDFium would otherwise hand out a substitute system font and the
+/// result would depend on the machine.
+#[derive(Default)]
+struct FontStyles {
+    by_object: HashMap<([u32; 4], String), FontStyle>,
+    by_font: HashMap<String, FontEntry>,
+    read_bytes: usize,
+}
+
+impl FontStyles {
+    /// Forgets the styles remembered by text-object bounds: two objects on different pages can
+    /// share bounds and font name but use different font programs. The per-font knowledge and the
+    /// font-data budget are kept for the whole document.
+    fn start_page(&mut self) {
+        self.by_object.clear();
+    }
+
+    /// The declared style of the font of the text object that holds `character`, or the default
+    /// (nothing declared) when it cannot be read.
+    fn style_of(&mut self, character: &PdfPageTextChar<'_>) -> FontStyle {
+        let Ok(object) = character.text_object() else {
+            return FontStyle::default();
+        };
+        let font = object.font();
+        let name = font.name();
+        let bounds = object.bounds().ok().map(|quad| {
+            [
+                quad.left().value.to_bits(),
+                quad.right().value.to_bits(),
+                quad.bottom().value.to_bits(),
+                quad.top().value.to_bits(),
+            ]
+        });
+        let object_key = bounds.map(|bounds| (bounds, name.clone()));
+        if let Some(style) = object_key.as_ref().and_then(|key| self.by_object.get(key)) {
+            return *style;
+        }
+        let style = self.style_of_font(&font, &name);
+        if let Some(key) = object_key
+            && self.by_object.len() < MAX_REMEMBERED_OBJECTS
+        {
+            self.by_object.insert(key, style);
+        }
+        style
+    }
+
+    /// The style of `font`, reading its program when its identity is not yet trusted.
+    fn style_of_font(&mut self, font: &PdfFont<'_>, name: &str) -> FontStyle {
+        if !matches!(font.is_embedded(), Ok(true)) {
+            return FontStyle::default();
+        }
+        let metric = |value: Result<PdfPoints, PdfiumError>| value.map_or(0, |v| v.value.to_bits());
+        let size = PdfPoints::new(1000.0);
+        let identity = format!(
+            "{name}|{}|{:?}|{:?}|{:?}|{}{}{}{}{}{}|{}|{}",
+            font.family(),
+            font.weight(),
+            font.is_fixed_pitch(),
+            font.is_serif(),
+            u8::from(font.is_symbolic()),
+            u8::from(font.is_italic()),
+            u8::from(font.is_bold_reenforced()),
+            u8::from(font.is_all_caps()),
+            u8::from(font.is_small_caps()),
+            u8::from(font.is_sans_serif()),
+            metric(font.ascent(size)),
+            metric(font.descent(size)),
+        );
+        let entry = self.by_font.entry(identity).or_default();
+        if entry.reads >= FONT_AGREEMENT_READS && !entry.ambiguous {
+            return entry.first.unwrap_or_default();
+        }
+        if self.read_bytes >= MAX_FONT_DATA_BYTES {
+            return FontStyle::default();
+        }
+        // `PdfFont::data` allocates the whole program before any cap applies; the worker's memory
+        // limit is what bounds an oversized one.
+        let Ok(data) = font.data() else {
+            return FontStyle::default();
+        };
+        self.read_bytes = self.read_bytes.saturating_add(data.len());
+        let style = if data.len() > MAX_FONT_PROGRAM_BYTES {
+            FontStyle::default()
+        } else {
+            sfnt_style(&data).unwrap_or_default()
+        };
+        entry.reads = entry.reads.saturating_add(1);
+        match entry.first {
+            None => entry.first = Some(style),
+            Some(first) if first != style => entry.ambiguous = true,
+            Some(_) => {}
+        }
+        style
+    }
+}
+
+/// The page frame that character geometry is reported in: the displayed page, so `/Rotate` and a
+/// MediaBox or CropBox that does not start at the origin are applied. PDFium maps a point of
+/// the page to a device position; with the device sized in centipoints the position is the
+/// top-left centipoint position the response uses.
+struct PageFrame<'a> {
+    page: &'a PdfPage<'a>,
+    config: PdfRenderConfig,
+    height: i32,
+}
+
+impl PageFrame<'_> {
+    /// A page point as displayed-page points with the y axis pointing up, or `None` when PDFium
+    /// cannot map it.
+    fn map(&self, x: PdfPoints, y: PdfPoints) -> Option<(f32, f32)> {
+        let (device_x, device_y) = self.page.points_to_pixels(x, y, &self.config).ok()?;
+        let up = i64::from(self.height) - i64::from(device_y);
+        #[allow(clippy::cast_precision_loss)]
+        Some((device_x as f32 / 100.0, up as f32 / 100.0))
+    }
+}
+
+/// One character of a page as the layout grouping wants it, or `None` for a character PDFium
+/// cannot place (no Unicode value or no box).
+fn layout_char(
+    character: &PdfPageTextChar<'_>,
+    frame: &PageFrame<'_>,
+    fonts: &mut FontStyles,
+) -> Option<LayoutChar> {
+    let unicode = character.unicode_char()?;
+    let generated = character.is_generated().unwrap_or(true);
+    // `scaled_font_size` multiplies by the matrix's `d`, which is 0 for text rotated by a quarter
+    // turn; the length of the matrix's vertical axis is the scale whatever the rotation.
+    let size = match character.matrix() {
+        Ok(matrix) => character.unscaled_font_size().value * matrix.c().hypot(matrix.d()),
+        Err(_) => character.unscaled_font_size().value,
+    };
+    // Generated characters (spaces and breaks PDFium synthesizes) only separate words, so they
+    // need no box.
+    if generated {
+        return Some(LayoutChar {
+            character: unicode,
+            generated,
+            left: 0.0,
+            right: 0.0,
+            bottom: 0.0,
+            top: 0.0,
+            baseline: 0.0,
+            font_size: size,
+            bold: false,
+            italic: false,
+        });
+    }
+    let bounds = character.loose_bounds().ok()?;
+    let (x_a, y_a) = frame.map(bounds.left(), bounds.top())?;
+    let (x_b, y_b) = frame.map(bounds.right(), bounds.bottom())?;
+    let baseline = match character.origin() {
+        Ok((x, y)) => frame.map(x, y)?.1,
+        Err(_) => y_a.min(y_b),
+    };
+    let program = fonts.style_of(character);
+    let weight = character.font_weight().map(|weight| match weight {
+        PdfFontWeight::Weight100 => 100,
+        PdfFontWeight::Weight200 => 200,
+        PdfFontWeight::Weight300 => 300,
+        PdfFontWeight::Weight400Normal => 400,
+        PdfFontWeight::Weight500 => 500,
+        PdfFontWeight::Weight600 => 600,
+        PdfFontWeight::Weight700Bold => 700,
+        PdfFontWeight::Weight800 => 800,
+        PdfFontWeight::Weight900 => 900,
+        PdfFontWeight::Custom(value) => value,
+    });
+    Some(LayoutChar {
+        character: unicode,
+        generated,
+        // A box may come out inverted (a rotated page, a negative scale): order the edges.
+        left: x_a.min(x_b),
+        right: x_a.max(x_b),
+        bottom: y_a.min(y_b),
+        top: y_a.max(y_b),
+        baseline,
+        font_size: size,
+        bold: program.bold
+            || is_bold_font(
+                weight,
+                character.font_is_bold_reenforced(),
+                &character.font_name(),
+            ),
+        italic: program.italic || character.font_is_italic(),
+    })
+}
+
+/// Layout operation (`pdf-layout`): writes the positioned line fragments of every page, with font
+/// information, as the response.
+///
+/// It runs the same checks as [`extract`] under the same confinement. The characters of each page
+/// are walked in content order and grouped by [`group_page_chars`] under the document bounds (at
+/// most 20,000 fragments, 1,000 characters per fragment and 250,000 characters in total); a page
+/// is read only up to the remaining character budget plus a slack, and a cut sets `truncated`.
+/// Geometry is in the displayed page, with `/Rotate` and the page box origin applied. A document
+/// with more than 200 pages gets the page-limit response.
+///
+/// # Errors
+///
+/// Returns [`WorkerFault`] for a malformed request, a page with a degenerate size, a PDFium failure
+/// or a failed write.
+pub fn layout(request: &[u8], output: &mut dyn Write) -> Result<(), WorkerFault> {
+    let decoded = parse(request, PdfOperation::Layout)?;
+    // Confine first: only the framing and the header decode ran before this point.
+    let pdfium = bind(decoded.pdfium_dir, SandboxProfile::PdfExtract)?;
+    validate_pdf_content(decoded.content, MAX_FILE_BYTES).map_err(|_| WorkerFault)?;
+    if !has_strict_structure(decoded.content) {
+        return Err(WorkerFault);
+    }
+    let document = pdfium
+        .load_pdf_from_byte_slice(decoded.content, None)
+        .map_err(|_| WorkerFault)?;
+    refuse_encrypted(&document)?;
+    let pages = document.pages();
+    if pages.len() > MAX_PAGE_COUNT as i32 {
+        return write_response(output, &encode_page_limit_response());
+    }
+    let mut budget = LayoutBudget::new();
+    let mut fonts = FontStyles::default();
+    let mut laid_out = Vec::new();
+    for (index, page) in pages.iter().enumerate() {
+        // Text-object bounds are page coordinates, so a remembered object style holds for one
+        // page only; the font identities and the font-data budget stay document-wide.
+        fonts.start_page();
+        let size = page_box(page.width().value, page.height().value).ok_or(WorkerFault)?;
+        let width = i32::try_from(size.width_centipoints).map_err(|_| WorkerFault)?;
+        let height = i32::try_from(size.height_centipoints).map_err(|_| WorkerFault)?;
+        let mut chars = Vec::new();
+        let mut cut = false;
+        if !budget.stopped {
+            let frame = PageFrame {
+                page: &page,
+                config: PdfRenderConfig::new().set_target_size(width, height),
+                height,
+            };
+            let text = page.text().map_err(|_| WorkerFault)?;
+            let all = text.chars();
+            let mut walk = all.iter();
+            let limit = budget.chars_left.saturating_add(CHARACTER_SLACK);
+            chars.extend(
+                walk.by_ref()
+                    .take(limit)
+                    .filter_map(|character| layout_char(&character, &frame, &mut fonts)),
+            );
+            cut = walk.next().is_some();
+        }
+        let lines = group_page_chars(
+            &chars,
+            size.width_centipoints,
+            size.height_centipoints,
+            &mut budget,
+        );
+        if cut {
+            budget.truncated = true;
+            budget.stopped = true;
+        }
+        laid_out.push(PageLayout {
+            page_number: u32::try_from(index + 1).map_err(|_| WorkerFault)?,
+            width_centipoints: size.width_centipoints,
+            height_centipoints: size.height_centipoints,
+            lines,
+        });
+    }
+    let layout = PdfLayout {
+        page_count: u32::try_from(laid_out.len()).map_err(|_| WorkerFault)?,
+        pages: laid_out,
+        truncated: budget.truncated,
+    };
+    let body = encode_layout_response(&layout);
+    decode_layout_response(&body).map_err(|_| WorkerFault)?;
     write_response(output, &body)
 }
 

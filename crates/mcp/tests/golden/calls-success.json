@@ -2949,14 +2949,15 @@
         "existingProfileLink": false,
         "candidateProfileId": null,
         "matchedOn": null,
-        "recommendedAction": null
+        "recommendedAction": null,
+        "profileSource": "EUROPASS_CV"
       }
     },
     "result": {
       "content": [
         {
           "type": "text",
-          "text": "{\n  \"status\": \"CREATED_PROFILE\",\n  \"profileId\": \"00000000-0000-4000-8000-0000000000aa\",\n  \"documentId\": \"00000000-0000-4000-8000-0000000000cc\",\n  \"pdfExtractionId\": \"00000000-0000-4000-8000-0000000000e1\",\n  \"sourceLinkId\": null,\n  \"originalFileName\": \"resume-synthetic.pdf\",\n  \"pageCount\": 1,\n  \"characterCount\": 15,\n  \"truncated\": false,\n  \"createdProfile\": true,\n  \"existingProfileLink\": false,\n  \"candidateProfileId\": null,\n  \"matchedOn\": null,\n  \"recommendedAction\": null\n}"
+          "text": "{\n  \"status\": \"CREATED_PROFILE\",\n  \"profileId\": \"00000000-0000-4000-8000-0000000000aa\",\n  \"documentId\": \"00000000-0000-4000-8000-0000000000cc\",\n  \"pdfExtractionId\": \"00000000-0000-4000-8000-0000000000e1\",\n  \"sourceLinkId\": null,\n  \"originalFileName\": \"resume-synthetic.pdf\",\n  \"pageCount\": 1,\n  \"characterCount\": 15,\n  \"truncated\": false,\n  \"createdProfile\": true,\n  \"existingProfileLink\": false,\n  \"candidateProfileId\": null,\n  \"matchedOn\": null,\n  \"recommendedAction\": null,\n  \"profileSource\": \"EUROPASS_CV\"\n}"
         }
       ],
       "structuredContent": {
@@ -2973,7 +2974,8 @@
         "existingProfileLink": false,
         "candidateProfileId": null,
         "matchedOn": null,
-        "recommendedAction": null
+        "recommendedAction": null,
+        "profileSource": "EUROPASS_CV"
       },
       "isError": false,
       "resultType": "complete"
@@ -3008,14 +3010,15 @@
         "existingProfileLink": true,
         "candidateProfileId": null,
         "matchedOn": null,
-        "recommendedAction": null
+        "recommendedAction": null,
+        "profileSource": null
       }
     },
     "result": {
       "content": [
         {
           "type": "text",
-          "text": "{\n  \"status\": \"REUSED_EXISTING_SOURCE\",\n  \"profileId\": \"00000000-0000-4000-8000-0000000000aa\",\n  \"documentId\": \"00000000-0000-4000-8000-0000000000cc\",\n  \"pdfExtractionId\": \"00000000-0000-4000-8000-0000000000e1\",\n  \"sourceLinkId\": \"00000000-0000-4000-8000-0000000000aa\",\n  \"originalFileName\": \"resume-synthetic.pdf\",\n  \"pageCount\": 1,\n  \"characterCount\": 15,\n  \"truncated\": false,\n  \"createdProfile\": false,\n  \"existingProfileLink\": true,\n  \"candidateProfileId\": null,\n  \"matchedOn\": null,\n  \"recommendedAction\": null\n}"
+          "text": "{\n  \"status\": \"REUSED_EXISTING_SOURCE\",\n  \"profileId\": \"00000000-0000-4000-8000-0000000000aa\",\n  \"documentId\": \"00000000-0000-4000-8000-0000000000cc\",\n  \"pdfExtractionId\": \"00000000-0000-4000-8000-0000000000e1\",\n  \"sourceLinkId\": \"00000000-0000-4000-8000-0000000000aa\",\n  \"originalFileName\": \"resume-synthetic.pdf\",\n  \"pageCount\": 1,\n  \"characterCount\": 15,\n  \"truncated\": false,\n  \"createdProfile\": false,\n  \"existingProfileLink\": true,\n  \"candidateProfileId\": null,\n  \"matchedOn\": null,\n  \"recommendedAction\": null,\n  \"profileSource\": null\n}"
         }
       ],
       "structuredContent": {
@@ -3032,7 +3035,8 @@
         "existingProfileLink": true,
         "candidateProfileId": null,
         "matchedOn": null,
-        "recommendedAction": null
+        "recommendedAction": null,
+        "profileSource": null
       },
       "isError": false,
       "resultType": "complete"

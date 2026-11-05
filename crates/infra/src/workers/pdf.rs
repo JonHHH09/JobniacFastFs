@@ -1,22 +1,25 @@
-//! The parent side of the PDF worker operations: text extraction, page rendering and inspection.
+//! The parent side of the PDF worker operations: text extraction, page rendering, inspection and
+//! layout.
 //!
 //! The operations run in the CLI binary re-executed as `__worker pdf-extract`, `__worker
-//! pdf-render` or `__worker pdf-inspect`. This module owns everything that does not need PDFium: the request and response
-//! codecs, the validation order and messages, the text normalization, the canonical view and the
-//! PNG response check. The child side (PDFium) lives in the CLI crate.
+//! pdf-render`, `__worker pdf-inspect` or `__worker pdf-layout`. This module owns everything that
+//! does not need PDFium: the request and response codecs, the validation order and messages, the
+//! text normalization, the canonical view and the PNG response check. The child side (PDFium)
+//! lives in the CLI crate.
 //!
-//! Request body (all operations): one operation byte (`1` extract, `2` render, `3` inspect), a
-//! big-endian `u16` length and the absolute PDFium directory in UTF-8, a big-endian `u32` page
-//! index (render only), then the PDF bytes. The PDFium directory is supplied by the caller (the composition root reads
-//! `JOBNIAC_PDFIUM_DIR`); the child never searches the working directory.
+//! Request body (all operations): one operation byte (`1` extract, `2` render, `3` inspect, `4`
+//! layout), a big-endian `u16` length and the absolute PDFium directory in UTF-8, a big-endian
+//! `u32` page index (render only), then the PDF bytes. The PDFium directory is supplied by the
+//! caller (the composition root reads `JOBNIAC_PDFIUM_DIR`); the child never searches the working
+//! directory.
 //!
-//! Extraction response body: the canonical view as JSON (`{"result": {...}}`),
-//! or `{"error": "page_limit"}` when the document has more pages than the limit. Render response
-//! body: three big-endian `u32` (page count, width, height) followed by a PNG. Inspection response
-//! body: `{"result": {...}}` with `pageCount`, `pages` (`[widthCentipoints, heightCentipoints]`
-//! pairs), `title`, `producer`, `creator` (string or null), `attachments` (objects with `name`,
-//! `byteSize` and `content` as lowercase hexadecimal or null) and `attachmentsTruncated`, or
-//! `{"error": "page_limit"}`.
+//! Extraction response body: the canonical view as JSON (`{"result": {...}}`), or `{"error":
+//! "page_limit"}` when the document has more pages than the limit. Render response body: three
+//! big-endian `u32` (page count, width, height) followed by a PNG. Inspection response body:
+//! `{"result": {...}}` with `pageCount`, `pages` (`[widthCentipoints, heightCentipoints]` pairs),
+//! `title`, `producer`, `creator` (string or null), `attachments` (objects with `name`, `byteSize`
+//! and `content` as lowercase hexadecimal or null) and `attachmentsTruncated`, or `{"error":
+//! "page_limit"}`. The layout response body is described in [`super::pdf_layout`].
 
 use std::fmt;
 use std::future::Future;
@@ -72,6 +75,9 @@ pub const OPERATION_RENDER: u8 = 2;
 /// Operation byte of the inspect request.
 pub const OPERATION_INSPECT: u8 = 3;
 
+/// Operation byte of the layout request.
+pub const OPERATION_LAYOUT: u8 = 4;
+
 /// Largest accepted PDFium directory path, in bytes.
 pub const MAX_PDFIUM_DIR_BYTES: usize = 1024;
 
@@ -87,6 +93,9 @@ pub const RENDER_FAILURE_MESSAGE: &str = "Unable to preview this PDF safely.";
 /// Fixed message of every inspection failure.
 pub const INSPECT_FAILURE_MESSAGE: &str =
     jobniac_core::documents::model::INSPECTION_FAILURE_MESSAGE;
+
+/// Fixed message of every layout failure.
+pub const LAYOUT_FAILURE_MESSAGE: &str = jobniac_core::documents::model::LAYOUT_FAILURE_MESSAGE;
 
 /// The PNG signature.
 const PNG_SIGNATURE: [u8; 8] = [0x89, b'P', b'N', b'G', b'\r', b'\n', 0x1A, b'\n'];
@@ -115,6 +124,8 @@ pub enum PdfError {
     Render,
     /// Inspection failed for any reason after validation.
     Inspection,
+    /// Layout reading failed for any reason after validation.
+    Layout,
     /// The caller cancelled the operation; the worker tree was killed. The operation tells which
     /// fixed message applies.
     Cancelled {
@@ -141,6 +152,10 @@ impl PdfError {
             | Self::Cancelled {
                 operation: PdfOperation::Inspect,
             } => INSPECT_FAILURE_MESSAGE,
+            Self::Layout
+            | Self::Cancelled {
+                operation: PdfOperation::Layout,
+            } => LAYOUT_FAILURE_MESSAGE,
         }
     }
 }
@@ -162,6 +177,8 @@ pub enum PdfOperation {
     Render,
     /// Page sizes, document info and attachments.
     Inspect,
+    /// Positioned line fragments with font information.
+    Layout,
 }
 
 /// The validated options of a text extraction.
@@ -459,6 +476,7 @@ pub fn encode_request(
         PdfOperation::Extract => OPERATION_EXTRACT,
         PdfOperation::Render => OPERATION_RENDER,
         PdfOperation::Inspect => OPERATION_INSPECT,
+        PdfOperation::Layout => OPERATION_LAYOUT,
     });
     let dir_length = u16::try_from(dir.len()).map_err(|_| PdfError::Render)?;
     body.extend_from_slice(&dir_length.to_be_bytes());
@@ -491,6 +509,7 @@ pub fn decode_request(body: &[u8]) -> Option<DecodedRequest<'_>> {
         OPERATION_EXTRACT => PdfOperation::Extract,
         OPERATION_RENDER => PdfOperation::Render,
         OPERATION_INSPECT => PdfOperation::Inspect,
+        OPERATION_LAYOUT => PdfOperation::Layout,
         _ => return None,
     };
     let (length_bytes, rest) = rest.split_at_checked(2)?;
@@ -504,7 +523,7 @@ pub fn decode_request(body: &[u8]) -> Option<DecodedRequest<'_>> {
         return None;
     }
     let (page, content) = match operation {
-        PdfOperation::Extract | PdfOperation::Inspect => (0, rest),
+        PdfOperation::Extract | PdfOperation::Inspect | PdfOperation::Layout => (0, rest),
         PdfOperation::Render => {
             let (page_bytes, content) = rest.split_at_checked(4)?;
             (
@@ -924,7 +943,11 @@ fn read_u32(bytes: &[u8], offset: usize) -> Result<u32, PdfError> {
 }
 
 /// Maps a supervisor failure to the fixed failure of the operation.
-fn map_worker_error(error: WorkerError, operation: PdfOperation, failure: PdfError) -> PdfError {
+pub(crate) fn map_worker_error(
+    error: WorkerError,
+    operation: PdfOperation,
+    failure: PdfError,
+) -> PdfError {
     match error.kind() {
         WorkerErrorKind::Cancelled => PdfError::Cancelled { operation },
         _ => failure,

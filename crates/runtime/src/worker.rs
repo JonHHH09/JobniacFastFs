@@ -36,6 +36,7 @@ pub fn run(arguments: &[&OsStr]) -> ExitCode {
         WorkerKind::PdfExtract => run_from_process_with(kind, worker_pdf::extract),
         WorkerKind::PdfRender => run_from_process_with(kind, worker_pdf::render),
         WorkerKind::PdfInspect => run_from_process_with(kind, worker_pdf::inspect),
+        WorkerKind::PdfLayout => run_from_process_with(kind, worker_pdf::layout),
         WorkerKind::Probe | WorkerKind::FetchLink | WorkerKind::FetchArbeitnow => {
             run_from_process(kind)
         }

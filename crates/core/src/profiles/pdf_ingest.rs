@@ -19,14 +19,15 @@ use uuid::Uuid;
 
 use crate::clock::{Clock, format_instant};
 use crate::documents::{
-    DocumentMetadata, DocumentRepository, DocumentService, MAX_CHARACTERS_LIMIT, StoredExtraction,
-    safe_basename, sha256_hex,
+    DocumentMetadata, DocumentRepository, DocumentService, MAX_CHARACTERS_LIMIT, PdfInspection,
+    StoredExtraction, safe_basename, sha256_hex,
 };
 use crate::errors::{AppError, ApplicationError, ErrorCode, not_found, validation_error};
+use crate::europass::{EuropassDocument, detect, parse};
 use crate::ids::UuidRefusal;
 
 use super::draft::{ProfileDraft, canonicalize_profile_write};
-use super::extract::DeterministicProfileTextExtractor;
+use super::extract::{DeterministicProfileTextExtractor, profile_write_from_europass_cv};
 use super::graph::build_profile_graph;
 use super::repository::{ProfileRepository, READ_ONLY, READ_WRITE, UnitOfWork};
 use super::revision::{next_revision, persisted_revision, profile_conflict, profile_not_found};
@@ -80,6 +81,12 @@ pub trait StoredPdfDocuments: Send + Sync {
         &self,
         request: &Value,
     ) -> impl Future<Output = Result<StoredExtraction, AppError>>;
+
+    /// Inspects the stored document: page sizes, document-info strings and attachments.
+    fn inspect_stored_pdf(
+        &self,
+        document_id: &str,
+    ) -> impl Future<Output = Result<PdfInspection, AppError>>;
 }
 
 impl<U, R> StoredPdfDocuments for DocumentService<U, R>
@@ -100,6 +107,13 @@ where
     ) -> impl Future<Output = Result<StoredExtraction, AppError>> {
         DocumentService::extract_stored_pdf_text(self, request)
     }
+
+    fn inspect_stored_pdf(
+        &self,
+        document_id: &str,
+    ) -> impl Future<Output = Result<PdfInspection, AppError>> {
+        DocumentService::inspect_stored_pdf(self, document_id)
+    }
 }
 
 impl<T: StoredPdfDocuments> StoredPdfDocuments for Arc<T> {
@@ -116,6 +130,54 @@ impl<T: StoredPdfDocuments> StoredPdfDocuments for Arc<T> {
     ) -> impl Future<Output = Result<StoredExtraction, AppError>> {
         (**self).extract_stored_pdf_text(request)
     }
+
+    fn inspect_stored_pdf(
+        &self,
+        document_id: &str,
+    ) -> impl Future<Output = Result<PdfInspection, AppError>> {
+        (**self).inspect_stored_pdf(document_id)
+    }
+}
+
+/// The reader that built the profile write of an ingestion.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ProfileSource {
+    /// The Europass CV XML attached to the PDF.
+    EuropassCv,
+    /// The deterministic reader of the PDF text.
+    PdfText,
+}
+
+impl ProfileSource {
+    /// The wire value of the source.
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::EuropassCv => "EUROPASS_CV",
+            Self::PdfText => "PDF_TEXT",
+        }
+    }
+}
+
+/// The profile draft of the Europass CV attached to the inspected PDF, or `None` when the text
+/// reader must be used. This is the one place that decides the fallback: the `.xml` attachments
+/// with content are tried in order (the inspection caps their number) and the first that parses as
+/// a Europass CV is used. Anything else (no such attachment, only cover letters, legacy or
+/// malformed documents) falls back, and so does a CV that does not map to a valid profile (for
+/// example one without an email address).
+fn europass_draft(inspection: &PdfInspection) -> Option<ProfileDraft> {
+    let cv = inspection
+        .attachments
+        .iter()
+        .filter(|attachment| attachment.name.to_lowercase().ends_with(".xml"))
+        .filter_map(|attachment| attachment.content.as_deref())
+        .filter(|bytes| detect(bytes).is_some())
+        .find_map(|bytes| match parse(bytes) {
+            Ok(EuropassDocument::Cv(cv)) => Some(cv),
+            _ => None,
+        })?;
+    let value = profile_write_from_europass_cv(&cv).ok()?;
+    canonicalize_profile_write(&value).ok()
 }
 
 /// The base name of a stored document for the ingestion. A name that reduces to a
@@ -450,6 +512,7 @@ pub struct IngestOutcome {
     candidate_profile_id: Option<Uuid>,
     matched_on: Vec<String>,
     recommended_action: Option<String>,
+    profile_source: Option<ProfileSource>,
 }
 
 impl IngestOutcome {
@@ -470,6 +533,7 @@ impl IngestOutcome {
             candidate_profile_id: None,
             matched_on: Vec::new(),
             recommended_action: None,
+            profile_source: None,
         }
     }
 
@@ -490,6 +554,7 @@ impl IngestOutcome {
             candidate_profile_id: None,
             matched_on: Vec::new(),
             recommended_action: None,
+            profile_source: None,
         }
     }
 
@@ -519,8 +584,10 @@ impl IngestOutcome {
         profile_id: Uuid,
         source_id: Uuid,
         created_profile: bool,
+        profile_source: ProfileSource,
     ) -> Self {
         let mut outcome = Self::base(provenance);
+        outcome.profile_source = Some(profile_source);
         outcome.status = Some(status);
         outcome.profile_id = Some(profile_id);
         outcome.source_link_id = Some(source_id);
@@ -546,6 +613,7 @@ impl IngestOutcome {
             "candidateProfileId": self.candidate_profile_id.map(|id| id.to_string()),
             "matchedOn": self.matched_on,
             "recommendedAction": self.recommended_action,
+            "profileSource": self.profile_source.map(ProfileSource::as_str),
         })
     }
 }
@@ -644,16 +712,35 @@ where
         if let Some(outcome) = reusable {
             return Ok(outcome.to_value());
         }
-        let draft_value =
-            DeterministicProfileTextExtractor.extract_profile(&stored.extraction.text)?;
-        let draft = canonicalize_profile_write(&draft_value)?;
+        let (draft, profile_source) = self
+            .profile_draft(&request.document_id, &stored.extraction.text)
+            .await?;
         let outcome = self
             .uow
             .transaction(READ_WRITE, async |tx| {
-                self.persist(tx, &request, &provenance, &draft).await
+                self.persist(tx, &request, &provenance, &draft, profile_source)
+                    .await
             })
             .await?;
         Ok(outcome.to_value())
+    }
+
+    /// The profile draft of a stored PDF: the attached Europass CV when it can be used, otherwise
+    /// the deterministic reading of the PDF text. A failed inspection falls back too.
+    async fn profile_draft(
+        &self,
+        document_id: &Uuid,
+        text: &str,
+    ) -> Result<(ProfileDraft, ProfileSource), AppError> {
+        let inspection = self
+            .documents
+            .inspect_stored_pdf(&document_id.to_string())
+            .await;
+        if let Some(draft) = inspection.ok().as_ref().and_then(europass_draft) {
+            return Ok((draft, ProfileSource::EuropassCv));
+        }
+        let value = DeterministicProfileTextExtractor.extract_profile(text)?;
+        Ok((canonicalize_profile_write(&value)?, ProfileSource::PdfText))
     }
 
     /// The one-to-one PDF source of a profile.
@@ -726,6 +813,7 @@ where
         request: &IngestRequest,
         provenance: &Provenance,
         draft: &ProfileDraft,
+        profile_source: ProfileSource,
     ) -> Result<IngestOutcome, AppError> {
         self.pdf
             .lock(
@@ -761,7 +849,10 @@ where
                 }
             }
             None => {
-                if let Some(candidate) = self.identity_candidate(tx, draft, provenance).await? {
+                if let Some(candidate) = self
+                    .identity_candidate(tx, draft, provenance, profile_source)
+                    .await?
+                {
                     return Ok(candidate);
                 }
             }
@@ -817,6 +908,7 @@ where
                 profile_id,
                 source_id,
                 existing.is_none(),
+                profile_source,
             ));
         }
         // Roll back every graph and posting mutation, including a newly created root, and let a
@@ -844,6 +936,7 @@ where
         tx: &mut U::Tx,
         draft: &ProfileDraft,
         provenance: &Provenance,
+        profile_source: ProfileSource,
     ) -> Result<Option<IngestOutcome>, AppError> {
         let mut reasons: Vec<(Uuid, Vec<String>)> = Vec::new();
         for profile_id in self.pdf.email_candidates(tx, &draft.email).await? {
@@ -881,12 +974,10 @@ where
                 matched_on.push(reason);
             }
         }
-        Ok(Some(IngestOutcome::candidate(
-            provenance,
-            strongest,
-            matched_on,
-            reasons.len() > 1,
-        )))
+        let mut outcome =
+            IngestOutcome::candidate(provenance, strongest, matched_on, reasons.len() > 1);
+        outcome.profile_source = Some(profile_source);
+        Ok(Some(outcome))
     }
 
     /// The graph built from the canonical draft, inserted on the same transaction.
