@@ -203,7 +203,12 @@ ruleset cannot express that, so it is a required check.
 - Allow auto-merge: on.
 - Automatically delete head branches: on. The rulesets forbid deleting `development` and `main`, so
   the promotion pull request does not remove `development`.
-- Dependabot pull requests target `development`.
+- Dependabot pull requests target `development`. Version updates are opened there (`target-branch`
+  in `.github/dependabot.yml`). Security updates always open against `main`, so the `Dependabot
+  retarget` workflow (`.github/workflows/dependabot-retarget.yml`) moves them to `development`. For
+  the move to start the checks, store a fine-grained token (this repository, "Pull requests: read
+  and write") as the Dependabot secret `DEPENDABOT_RETARGET_TOKEN`. Without it, close and reopen the
+  moved pull request once.
 - Wiki: on, with "Restrict editing to collaborators only" checked. The pages live in `docs/wiki/` and the `Wiki`
   workflow (`.github/workflows/wiki.yml`) mirrors them to the wiki whenever `main` changes them; an
   edit made in the wiki web editor is overwritten by the next sync. GitHub creates the wiki repository

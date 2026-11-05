@@ -1,0 +1,38 @@
+name: Dependabot retarget
+
+# Dependabot security updates always open against the default branch (`main`) and ignore the
+# `target-branch` setting in `.github/dependabot.yml`; `Branch policy` rejects them there. This
+# workflow moves each such pull request onto `development`, where the regular version updates go.
+#
+# Events caused by the default `GITHUB_TOKEN` start no workflow runs, so a retarget made with it does
+# not run the checks against `development`. Store a fine-grained token (this repository only,
+# "Pull requests: read and write") as the Dependabot secret `DEPENDABOT_RETARGET_TOKEN` to have the
+# retarget start them. Without it, close and reopen the pull request once to start them.
+#
+# pull_request_target runs with write access, so this workflow never checks out or runs pull request
+# code; it only calls the GitHub API.
+
+on:
+  pull_request_target:
+    types: [opened, reopened]
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  retarget:
+    name: Retarget to development
+    if: >-
+      github.event.pull_request.user.login == 'dependabot[bot]'
+      && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-26.04
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Change the base branch to development
+        env:
+          GH_TOKEN: ${{ secrets.DEPENDABOT_RETARGET_TOKEN || github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          gh pr edit "$PR_URL" --base development
+          gh pr comment "$PR_URL" --body "Moved from \`main\` to \`development\`: Dependabot security updates always target the default branch, and changes reach \`main\` only through the promotion pull request."
