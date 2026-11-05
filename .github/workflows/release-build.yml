@@ -1,0 +1,304 @@
+name: Release build
+
+# Reusable: release.yml calls this workflow once per platform (`build-windows`, `build-linux`,
+# `build-macos`). One call is one lane's build: it builds the installers of one platform, audits and
+# inventories them and uploads them as the workflow artifact `release-<platform>`. It never touches a
+# release. tauri-action only builds (it gets neither a tag nor a release ID, and no GitHub token), and
+# the job has `contents: read`, so the build job holds neither the token nor write access: every
+# upload to the draft happens in the `attach` job of release.yml, from the workflow artifacts.
+#
+# Every decision comes from the inputs. The event that started release.yml (a promotion pull request or
+# a manual re-release) is not visible here on purpose, so a lane builds the same way in each: the Apple
+# secrets are empty when the caller passes none (the dry run, which therefore builds macOS ad-hoc), and
+# the caller's workflow-level `env` does not reach this workflow, so the values below are defined again
+# from the inputs.
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: "The runner label of the build host."
+        type: string
+        required: true
+      platform:
+        description: "The release platform: windows-x64, linux-x64 or macos-arm64."
+        type: string
+        required: true
+      pdfium:
+        description: "The PDFium platform name of the vendor/ directory (windows-x64, linux-x64, mac-arm64)."
+        type: string
+        required: true
+      bundles:
+        description: "The Tauri bundle list, for example nsis."
+        type: string
+        required: true
+      library:
+        description: "The PDFium library file name of the platform."
+        type: string
+        required: true
+      version:
+        description: "The computed release version, stamped into the checkout."
+        type: string
+        required: true
+      merge-sha:
+        description: "The commit to build; the checkout must be exactly this commit."
+        type: string
+        required: true
+      prerelease:
+        description: "true for a -dev.N version."
+        type: string
+        default: "false"
+      retention-days:
+        description: "How long the leg artifact is kept."
+        type: number
+        default: 30
+      macos-signing-required:
+        description: "Exactly 1: an ad-hoc macOS build fails instead of warning. Empty otherwise."
+        type: string
+        default: ""
+    secrets:
+      TAURI_SIGNING_PRIVATE_KEY:
+        required: true
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD:
+        required: true
+      APPLE_CERTIFICATE:
+        required: false
+      APPLE_CERTIFICATE_PASSWORD:
+        required: false
+      APPLE_SIGNING_IDENTITY:
+        required: false
+      APPLE_API_ISSUER:
+        required: false
+      APPLE_API_KEY:
+        required: false
+      APPLE_API_PRIVATE_KEY:
+        required: false
+      APPLE_ID:
+        required: false
+      APPLE_PASSWORD:
+        required: false
+      APPLE_TEAM_ID:
+        required: false
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: Build (${{ inputs.platform }})
+    runs-on: ${{ inputs.os }}
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    env:
+      MERGE_SHA: ${{ inputs.merge-sha }}
+      RELEASE_OUT: release-out
+      VERSION: ${{ inputs.version }}
+      PLATFORM: ${{ inputs.platform }}
+      PDFIUM_PLATFORM: ${{ inputs.pdfium }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ env.MERGE_SHA }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Check the macOS runner is Apple Silicon
+        if: runner.os == 'macOS'
+        run: test "$(uname -m)" = arm64
+      - name: Linux system packages for Tauri
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: "24"
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.14"
+      - name: Check that HEAD is the merge commit
+        run: python -I scripts/release/release.py check-checkout --merge-sha "$MERGE_SHA"
+      # The files hold the version of the last manual bump; every build below (and the tools that read the
+      # files, such as `tauri build`, cargo and the notices) must see the computed one.
+      - name: Stamp the computed version into the checkout (not committed)
+        run: python -I scripts/release/release.py set-version "$VERSION"
+      - name: Install pnpm (version from package.json packageManager)
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - name: Install the locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Rust toolchain from rust-toolchain.toml
+        run: rustup show
+      - name: Fetch the pinned PDFium binaries (every release platform, for the notices)
+        if: runner.os != 'Windows'
+        run: bash scripts/fetch-pdfium.sh all
+      - name: Fetch the pinned PDFium binaries (every release platform, for the notices)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/fetch-pdfium.ps1 -Platform all
+      # Prebuilt and checksum-verified by install-action, with no fallback to a source build: compiling
+      # them took 4 to 11 minutes per leg. The cargo-about binary only exists with its `cli` feature, and
+      # `binary-scanning` is a default feature of cargo-audit, so the prebuilt binaries have both. The SBOM
+      # tool (cargo-cyclonedx) is installed by the `sbom` job of release.yml, which writes the SBOMs once.
+      - name: Install the release tools (prebuilt, versions pinned)
+        uses: taiki-e/install-action@86f7a0ffb25f40114606501a311ebcfaf882ea32 # v2.88.0
+        with:
+          tool: cargo-about@0.9.2,cargo-audit@0.22.1
+          fallback: none
+      # This install-action release has no cargo-auditable 0.7.7 build, so it is built from source.
+      - name: Install cargo-auditable (versions pinned)
+        run: |
+          set -euo pipefail
+          TOOLS="$RUNNER_TEMP/tools"
+          cargo install --locked --root "$TOOLS" --version 0.7.7 cargo-auditable
+          echo "$TOOLS/bin" >> "$GITHUB_PATH"
+          # tauri-action runs `tauri build`, which runs `cargo build` directly, so `cargo auditable` is not
+          # used there. Cargo's workspace wrapper hook does the same job: cargo-auditable answers as the
+          # rustc wrapper when RUSTC_WORKSPACE_WRAPPER names it (see the tauri-action step below).
+          SUFFIX=""
+          if [ "$RUNNER_OS" = "Windows" ]; then SUFFIX=".exe"; fi
+          echo "JOBNIAC_AUDITABLE_WRAPPER=$TOOLS/bin/cargo-auditable$SUFFIX" >> "$GITHUB_ENV"
+      - name: Frontend build (the desktop crate embeds it)
+        run: pnpm build
+      - name: Licence notices (cargo-about, pnpm licences, static components)
+        run: >-
+          python -I scripts/release/release.py notices
+          --out-dir src-tauri/resources
+          --pdfium-dir vendor/pdfium/windows-x64
+          --pdfium-dir vendor/pdfium/linux-x64
+          --pdfium-dir vendor/pdfium/mac-arm64
+      - name: Build the CLI with cargo auditable and stage the sidecar
+        run: |
+          set -euo pipefail
+          cargo auditable build --release --locked -p jobniac-cli
+          python -I scripts/release/release.py stage-sidecar --target-dir target/release --binaries-dir src-tauri/binaries
+      # tauri-action only builds here: it gets neither a release ID nor a tag name ("No releaseId or
+      # tagName provided, skipping all uploads", src/index.ts at the pinned commit) and no GitHub token, so
+      # it cannot reach a release. The `attach` job uploads from the workflow artifact. The updater signing
+      # key is the real one in every call (the dry run too): only a same-repository promotion pull request
+      # from the protected development branch, or a manual run on main, gets it, and a build that signs
+      # with it is what proves that the secret matches the public key.
+      - name: Build (tauri-action, build only, no token and no upload)
+        if: runner.os != 'macOS'
+        uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1.0.0
+        env:
+          # Makes the desktop binary auditable: cargo-auditable is the workspace rustc wrapper for this build.
+          RUSTC_WORKSPACE_WRAPPER: ${{ env.JOBNIAC_AUDITABLE_WRAPPER }}
+          CARGO_AUDITABLE_ORIG_ARGS: '{"config":[],"offline":false,"locked":true,"frozen":false}'
+          # The updater signing key (tauri signer generate). Only this step can read it.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          projectPath: .
+          releaseDraft: true
+          prerelease: ${{ inputs.prerelease == 'true' }}
+          # latest.json and the updater signatures are attached by the `attach` job (two legs would race
+          # to merge latest.json here, and tauri-action would also upload a .deb.sig that is not a
+          # release asset). tauri-action v1 ignores unknown inputs with a warning only.
+          uploadUpdaterJson: false
+          uploadUpdaterSignatures: false
+          args: --bundles ${{ inputs.bundles }} --config src-tauri/tauri.release.conf.json
+      # The macOS build. The Apple secrets are passed to this step only (never to tauri-action, and never
+      # echoed). The caller passes them only for a real release or re-release; without them (the dry run,
+      # or a repository that has none) the script builds an ad-hoc signed app, and with them it signs with
+      # Developer ID and notarizes. The dry run therefore checks the build and the smoke test, not the
+      # signing and notarization, which only a real release exercises. The updater key is passed in both,
+      # as for the other legs.
+      - name: Build the macOS bundles (Developer ID signing and notarization when the secrets exist)
+        if: runner.os == 'macOS'
+        env:
+          BUNDLES: ${{ inputs.bundles }}
+          # Opt-in, exactly `1`: an ad-hoc macOS build then fails the release instead of warning. The
+          # caller leaves it empty in the dry run, which builds ad-hoc by design.
+          MACOS_SIGNING_REQUIRED: ${{ inputs.macos-signing-required }}
+          RUSTC_WORKSPACE_WRAPPER: ${{ env.JOBNIAC_AUDITABLE_WRAPPER }}
+          CARGO_AUDITABLE_ORIG_ARGS: '{"config":[],"offline":false,"locked":true,"frozen":false}'
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_PRIVATE_KEY: ${{ secrets.APPLE_API_PRIVATE_KEY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: bash scripts/release/macos_build.sh
+      - name: Audit the built binaries (embedded cargo-auditable data is required)
+        run: |
+          set -euo pipefail
+          SUFFIX=""
+          if [ "$RUNNER_OS" = "Windows" ]; then SUFFIX=".exe"; fi
+          LOG="$RUNNER_TEMP/cargo-audit-bin.log"
+          for bin in "target/release/jobniac$SUFFIX" "target/release/jobniac-cli$SUFFIX"; do
+            cargo audit bin "$bin" 2>&1 | tee -a "$LOG"
+          done
+          # cargo audit bin only warns when the data is missing (the message wraps inside 'cargo auditable'),
+          # so the warning is the gate.
+          if grep -Fq "was not built with '" "$LOG"; then
+            echo "::error::a built binary has no cargo-auditable data" >&2
+            exit 1
+          fi
+      - name: Stage the payload and reconcile it with the notices
+        env:
+          LIBRARY: ${{ inputs.library }}
+        run: |
+          set -euo pipefail
+          SUFFIX=""
+          if [ "$RUNNER_OS" = "Windows" ]; then SUFFIX=".exe"; fi
+          mkdir -p "$RELEASE_OUT"
+          python -I scripts/release/release.py stage-payload \
+            --target-dir target/release --platform "$PLATFORM" \
+            --pdfium-library "vendor/pdfium/$PDFIUM_PLATFORM/$LIBRARY" \
+            --notices src-tauri/resources/THIRD-PARTY-NOTICES.txt \
+            --out "$RUNNER_TEMP/payload"
+          python -I scripts/release/release.py inventory \
+            --payload "$RUNNER_TEMP/payload" \
+            --notices-manifest src-tauri/resources/notices-manifest.json \
+            --out "$RELEASE_OUT/JobniacFast-$VERSION-$PLATFORM.payload-inventory.json"
+      - name: Collect the installer, the notices and the leg digests
+        run: |
+          set -euo pipefail
+          mkdir -p "$RELEASE_OUT"
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            cp "target/release/bundle/nsis/JobniacFast_${VERSION}_x64-setup.exe" "$RELEASE_OUT/"
+            cp "target/release/bundle/nsis/JobniacFast_${VERSION}_x64-setup.exe.sig" "$RELEASE_OUT/"
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            cp "target/release/bundle/dmg/JobniacFast_${VERSION}_aarch64.dmg" "$RELEASE_OUT/"
+            # Tauri names the updater archive JobniacFast.app.tar.gz, with no version or architecture. The
+            # signature covers the bytes of the archive, so renaming both keeps it valid.
+            cp "target/release/bundle/macos/JobniacFast.app.tar.gz" "$RELEASE_OUT/JobniacFast_${VERSION}_aarch64.app.tar.gz"
+            cp "target/release/bundle/macos/JobniacFast.app.tar.gz.sig" "$RELEASE_OUT/JobniacFast_${VERSION}_aarch64.app.tar.gz.sig"
+          else
+            cp "target/release/bundle/appimage/JobniacFast_${VERSION}_amd64.AppImage" "$RELEASE_OUT/"
+            cp "target/release/bundle/appimage/JobniacFast_${VERSION}_amd64.AppImage.sig" "$RELEASE_OUT/"
+            cp "target/release/bundle/deb/JobniacFast_${VERSION}_amd64.deb" "$RELEASE_OUT/"
+          fi
+          cp src-tauri/resources/THIRD-PARTY-NOTICES.txt "$RELEASE_OUT/"
+          python -I scripts/release/release.py leg-digests --dir "$RELEASE_OUT"
+      # The Windows and macOS installers get a clean-machine job; the Linux packages get this check that
+      # the CLI they ship runs (a sidecar copied without its mode bits once shipped as 0644).
+      - name: The deb and the AppImage ship a runnable CLI
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          OUT="$PWD/$RELEASE_OUT"
+          dpkg-deb -x "$OUT/JobniacFast_${VERSION}_amd64.deb" "$RUNNER_TEMP/deb-root"
+          "$RUNNER_TEMP/deb-root/usr/bin/jobniac-cli" --version | grep -Fq "$VERSION"
+          # The app in the deb embeds the updater public key of the release config, exactly once.
+          python -I scripts/release/release.py check-binary-pubkey --binary "$RUNNER_TEMP/deb-root/usr/bin/jobniac"
+          cd "$RUNNER_TEMP"
+          "$OUT/JobniacFast_${VERSION}_amd64.AppImage" --appimage-extract >/dev/null
+          squashfs-root/usr/bin/jobniac-cli --version | grep -Fq "$VERSION"
+      - name: Upload the leg artifacts (workflow artifacts, not the draft)
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-${{ inputs.platform }}
+          path: ${{ env.RELEASE_OUT }}/*
+          if-no-files-found: error
+          # A dry run's legs are never released, so the caller passes a short retention for them.
+          retention-days: ${{ inputs.retention-days }}

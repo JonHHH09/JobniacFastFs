@@ -1,131 +1,286 @@
 name: Release
 
-# Draft-first release. Runs once a promotion pull request from development into main is
-# merged in this repository. It creates a draft, builds and verifies it, and only the last job
-# (`publish`) tags the merge commit and publishes the draft, after every other job has passed.
-# A stable version becomes the latest release (the one the in-app updater reads); a -dev.N
-# version is published as a prerelease and never as the latest.
+# Draft-first release with one lane per platform. A release is one version, one tag and one release
+# page, and it carries every platform whose lane is green. A lane is a platform's tests (Rust on its OS,
+# and the end-to-end suite where the platform has one), its build and its clean-machine smoke test. A red
+# lane does not hold the others back: the release publishes with the green platforms, and the platform
+# that is left out keeps its previous updater manifest (its installed copies see no update), so no
+# installed copy is ever pointed at a build that did not pass. A shared failure still stops everything:
+# the shared checks (UI, supply chain, release tools, privacy scan), the version computation or the
+# software bill of materials. Nothing publishes when no lane is green.
+#
+# The `mode` job decides what this run is, and every other job needs it:
+#   dry        a pull request (opened, a push to development, reopened) from development into main in this
+#              repository. A pull request run uses the workflow file of its merge ref, so a release fix that
+#              sits on development is exercised here before the promotion merges, not by the merge itself.
+#              It builds all three platforms on the pull request's merge ref (the tree the merge will
+#              produce), signs the updater artifacts with the real key (a same-repository pull request from
+#              the protected development branch is the only one that gets it, and it is what proves a key
+#              rotation), builds the macOS leg ad-hoc (no Apple secret), runs both clean-machine smokes and
+#              assembles the green platforms' assets and updater manifests into a short-lived workflow
+#              artifact. It never creates or changes a release, a draft, a tag or an attestation, and ci.yml
+#              and e2e.yml already run on the pull request as workflows of their own.
+#   release    the same pull request, closed and merged. All platforms are selected.
+#   rerelease  a manual run on main (`workflow_dispatch`, input `platforms`). It builds main's current commit
+#              again as the NEXT patch version for the selected platforms only, which recovers a platform
+#              that was red in an earlier release. It creates a new draft and a new release and never edits a
+#              published one (the platform left out keeps its earlier manifest, carried forward).
+#   none       anything else (a pull request closed unmerged, a pull request from another branch or
+#              repository, a manual run on another branch): every job is skipped.
+#
+# What the jobs run (each lane job runs only for a selected platform, and only when the lane before it passed):
+#   dry:               mode, prepare, sbom, builds, smokes, plan, dry-run-assemble.
+#   release/rerelease: mode, checks (shared, and per selected platform), prepare, sbom, draft, builds,
+#                      smokes, plan, attach, attest, verify-draft, publish, platform-issues.
+# The `plan` job lists the green platforms. `attach`, `attest`, `verify-draft` and `publish` work on that list
+# alone: a platform whose tests, build or smoke failed has no asset in the release. `publish` is the only job
+# that tags the merge commit and publishes the draft. A stable version becomes the latest release (the one the
+# in-app updater reads); a -dev.N version is published as a prerelease and never as the latest.
+#
+# Updater manifests: each platform has its own (`latest-<target>-<arch>.json`, the first endpoint of the app).
+# A platform that is not in the release carries its previous manifest forward. The combined `latest.json`
+# advances only on a full release, for installed 0.1.x apps that read it alone, and is carried otherwise.
+#
+# The run conclusion stays red when a lane failed, even though a release was published. That is intended: the
+# red run and the `release-platform` issue that `platform-issues` opens (and closes again when a later release
+# ships the platform) are what tells the owner that a platform is missing.
 #
 # The version is computed, never committed (main and development are PR-only): the `prepare` job takes
 # the patch after the highest stable `v*` tag, or the version in the files when a manual bump on
-# development set a higher, untagged one (a minor, major or -dev.N floor). The build legs stamp that
-# version into their checkout (`set-version`), so nothing is pushed to any branch.
+# development set a higher, untagged one (a minor, major or -dev.N floor). A rerun of a failed release
+# (GitHub's "Re-run failed jobs") keeps its version: a release tag already on the merge commit is a rerun of
+# that version. A re-release is the one case that wants the next patch even though the commit is tagged. The
+# build lanes stamp the version into their checkout (`set-version`), so nothing is pushed to any branch.
 #
-# The same workflow also runs as a dry run on the OPEN promotion pull request (opened, a push to
-# development, reopened). A pull request run uses the workflow file of its merge ref, so a release fix
-# that sits on development is exercised here before the promotion merges, not by the merge itself. The
-# dry run builds on the pull request's merge ref (the tree that the merge will produce), signs the
-# updater artifacts with the real key (a same-repository pull request from the protected development
-# branch is the only one that gets it, and it is what proves a key rotation), builds the macOS leg
-# ad-hoc (no Apple secret), runs both clean-machine smokes, and assembles the asset set and
-# latest.json into a short-lived workflow artifact. It never creates or changes a release, a draft, a
-# tag or an attestation: `draft`, `attach`, `attest`, `verify-draft` and `publish` run only for the
-# `closed` event of a merged promotion. `checks` and `e2e` are skipped in it, because ci.yml and e2e.yml
-# already run on the pull request as workflows of their own.
-#
-# What the jobs run for each event (P = promotion pull request, development into main, same repository):
-#   P opened, pushed to, reopened: prepare, build (build only), both smokes, dry-run-assemble.
-#   P closed and merged: checks, e2e, prepare, draft, build (attaches), both smokes, attach, attest,
-#                        verify-draft, publish.
-#   P closed unmerged, or any other pull request into main: every job is skipped.
+# Write access is held by the jobs that need it and by no build job: the builds (release-build.yml) have
+# `contents: read` and no token, and every upload to the draft happens in `attach`.
 
 on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: "Re-release main's current commit as the next patch version for these platforms only (comma-separated: windows-x64, linux-x64, macos-arm64)."
+        type: string
+        default: "windows-x64,linux-x64,macos-arm64"
 
 permissions:
   contents: read
 
-# Runs of merged promotions share one group, so they run one after another and two merges cannot
-# compute the same version from the same tags. GitHub keeps one pending run per group: of several
-# quick merges the middle pending run is cancelled, and its changes ship with the next release. A dry
-# run has a group per pull request and a newer push cancels the older dry run (it is only a check, and
-# it never touches the release group). A pull request closed without a merge gets its own group, so it
-# never cancels a real release run.
+# Runs of merged promotions and manual re-releases share one group, so they run one after another and two of
+# them cannot compute the same version from the same tags. GitHub keeps one pending run per group: of several
+# quick merges the middle pending run is cancelled, and its changes ship with the next release. A dry run has a
+# group per pull request and a newer push cancels the older dry run (it is only a check, and it never touches
+# the release group). A pull request closed without a merge gets its own group, so it never cancels a real
+# release run.
 concurrency:
-  group: >-
-    ${{ github.event.action != 'closed' && format('release-dry-run-{0}', github.event.pull_request.number)
-    || github.event.pull_request.merged == true && 'release'
-    || format('skip-{0}', github.run_id) }}
-  cancel-in-progress: ${{ github.event.action != 'closed' }}
+  group: ${{ github.event_name == 'workflow_dispatch' && 'release' || github.event.action != 'closed' && format('release-dry-run-{0}', github.event.pull_request.number) || github.event.pull_request.merged == true && 'release' || format('skip-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
 
 defaults:
   run:
     shell: bash
 
-env:
-  # The commit that every job checks out and asserts. A real release uses the merge commit on main. A dry
-  # run uses the commit of the pull request's merge ref (github.sha on these events). The first
-  # expression is never empty on a dry run, and a closed event falls through to merge_commit_sha, so a
-  # missing merge commit still fails the commit-id check instead of building something else.
-  MERGE_SHA: ${{ github.event.action != 'closed' && github.sha || github.event.pull_request.merge_commit_sha }}
-  RELEASE_OUT: release-out
-
 jobs:
-  # 1. Every CI and E2E gate on the merge commit. ci.yml and e2e.yml declare `workflow_call` with the
-  #    input `release-call`, which runs the full set there. Both skip the work when the promotion pull
-  #    request already passed them on this exact tree. Skipped in the dry run (merged is false there):
-  #    ci.yml and e2e.yml run on the open pull request as their own workflows.
-  checks:
-    if: >-
-      github.event.pull_request.merged == true
-      && github.event.pull_request.head.ref == 'development'
-      && github.event.pull_request.base.ref == 'main'
-      && github.event.pull_request.head.repo.full_name == github.repository
+  # 0. What this run is (see the header), the commit that every job checks out and asserts, and the selected
+  #    platforms in canonical order. A real release uses the merge commit on main, a re-release the commit
+  #    main points at, and a dry run the commit of the pull request's merge ref (github.sha on those events).
+  #    A missing merge commit fails here instead of building something else. Nothing is checked out: the
+  #    event's values go through env, never into the script text.
+  mode:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    permissions: {}
+    outputs:
+      mode: ${{ steps.decide.outputs.mode }}
+      merge_sha: ${{ steps.decide.outputs.merge_sha }}
+      platforms: ${{ steps.decide.outputs.platforms }}
+    steps:
+      - name: Decide the mode, the commit and the platforms
+        id: decide
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_ACTION: ${{ github.event.action }}
+          MERGED: ${{ github.event.pull_request.merged }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          REF: ${{ github.ref }}
+          SHA: ${{ github.sha }}
+          MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          PLATFORMS_INPUT: ${{ inputs.platforms }}
+        run: |
+          set -euo pipefail
+          all="windows-x64,linux-x64,macos-arm64"
+          mode=none
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            if [ "$HEAD_REF" = "development" ] && [ "$BASE_REF" = "main" ] && [ "$HEAD_REPO" = "$GITHUB_REPOSITORY" ]; then
+              if [ "$EVENT_ACTION" != "closed" ]; then
+                mode=dry
+              elif [ "$MERGED" = "true" ]; then
+                mode=release
+              fi
+            fi
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$REF" = "refs/heads/main" ]; then
+            mode=rerelease
+          fi
+
+          merge_sha=""
+          case "$mode" in
+            dry | rerelease) merge_sha="$SHA" ;;
+            release) merge_sha="$MERGE_COMMIT_SHA" ;;
+          esac
+          if [ "$mode" != "none" ] && ! [[ "$merge_sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::the commit to release is missing or not a full commit id" >&2
+            exit 1
+          fi
+
+          # A re-release takes a validated subset in canonical order; every other mode takes all three.
+          platforms="$all"
+          if [ "$mode" = "rerelease" ]; then
+            requested="${PLATFORMS_INPUT// /}"
+            declare -A seen=()
+            if [ -z "$requested" ]; then
+              echo "::error::the platforms input is empty" >&2
+              exit 1
+            fi
+            IFS=',' read -r -a names <<< "$requested"
+            for name in "${names[@]}"; do
+              case "$name" in
+                windows-x64 | linux-x64 | macos-arm64) ;;
+                *) echo "::error::unknown platform in the platforms input: '$name'" >&2; exit 1 ;;
+              esac
+              if [ -n "${seen[$name]:-}" ]; then
+                echo "::error::platform listed twice in the platforms input: '$name'" >&2
+                exit 1
+              fi
+              seen[$name]=1
+            done
+            platforms=""
+            for name in windows-x64 linux-x64 macos-arm64; do
+              if [ -n "${seen[$name]:-}" ]; then
+                platforms="${platforms:+$platforms,}$name"
+              fi
+            done
+          fi
+
+          {
+            echo "mode=$mode"
+            echo "merge_sha=$merge_sha"
+            echo "platforms=$platforms"
+          } >> "$GITHUB_OUTPUT"
+          echo "mode=$mode merge_sha=$merge_sha platforms=$platforms"
+
+  # 1. The CI and E2E gates on the merge commit, one call per scope. ci.yml and e2e.yml declare
+  #    `workflow_call` with the inputs `release-call` (run the full set, with no path filtering) and `scope`
+  #    (which jobs). Both skip the work when the promotion pull request already passed them on this exact
+  #    tree. The shared scope always runs: a failure there stops the release. A platform's calls run only
+  #    when it is selected, and a failure there takes that platform out of the release only. Skipped in the
+  #    dry run: ci.yml and e2e.yml run on the open pull request as their own workflows.
+  checks-shared:
+    needs: mode
+    if: ${{ needs.mode.outputs.mode == 'release' || needs.mode.outputs.mode == 'rerelease' }}
     uses: ./.github/workflows/ci.yml
-    # The called workflow cannot hold more than its caller grants: its `changes` job reads the
-    # Actions cache list to find the passed marker of this tree, and the pull request that saved it.
+    # The called workflow cannot hold more than its caller grants: its `changes` job reads the Actions cache
+    # list to find the passed marker of this tree, and the pull request that saved it.
     permissions:
       contents: read
       actions: read
       pull-requests: read
     with:
       release-call: true
+      scope: shared
 
-  # The end-to-end suite on the merge commit, on Linux and Windows (tauri-driver has no macOS driver),
-  # called like `checks`.
-  e2e:
-    if: >-
-      github.event.pull_request.merged == true
-      && github.event.pull_request.head.ref == 'development'
-      && github.event.pull_request.base.ref == 'main'
-      && github.event.pull_request.head.repo.full_name == github.repository
+  checks-linux:
+    needs: mode
+    if: ${{ (needs.mode.outputs.mode == 'release' || needs.mode.outputs.mode == 'rerelease') && contains(needs.mode.outputs.platforms, 'linux-x64') }}
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    with:
+      release-call: true
+      scope: linux
+
+  checks-macos:
+    needs: mode
+    if: ${{ (needs.mode.outputs.mode == 'release' || needs.mode.outputs.mode == 'rerelease') && contains(needs.mode.outputs.platforms, 'macos-arm64') }}
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    with:
+      release-call: true
+      scope: macos
+
+  checks-windows:
+    needs: mode
+    if: ${{ (needs.mode.outputs.mode == 'release' || needs.mode.outputs.mode == 'rerelease') && contains(needs.mode.outputs.platforms, 'windows-x64') }}
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    with:
+      release-call: true
+      scope: windows
+
+  # The end-to-end suite, on Linux and Windows (tauri-driver has no macOS driver), called like the checks.
+  e2e-linux:
+    needs: mode
+    if: ${{ (needs.mode.outputs.mode == 'release' || needs.mode.outputs.mode == 'rerelease') && contains(needs.mode.outputs.platforms, 'linux-x64') }}
     uses: ./.github/workflows/e2e.yml
-    # Same reason as `checks`: the called `changes` job reads the Actions cache list.
+    # Same reason as `checks-shared`: the called `changes` job reads the Actions cache list.
     permissions:
       contents: read
       actions: read
       pull-requests: read
     with:
       release-call: true
+      scope: linux
 
-  # 2. Read-only: checks out MERGE_SHA with every tag, asserts HEAD and computes the version. The merge
-  #    ref of an open promotion has main as a parent, so the check that the newest stable tag is an
-  #    ancestor holds there too (with no tag at all it is skipped), and the version is the one the merge
-  #    will get. A real release needs `checks` and `e2e` to have succeeded: a skipped one does not pass.
-  #    The dry run needs neither, and the same-repository development-to-main test keeps every other
-  #    pull request out.
+  e2e-windows:
+    needs: mode
+    if: ${{ (needs.mode.outputs.mode == 'release' || needs.mode.outputs.mode == 'rerelease') && contains(needs.mode.outputs.platforms, 'windows-x64') }}
+    uses: ./.github/workflows/e2e.yml
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    with:
+      release-call: true
+      scope: windows
+
+  # 2. Read-only: checks out the commit with every tag, asserts HEAD and computes the version. The merge ref
+  #    of an open promotion has main as a parent, so the check that the newest stable tag is an ancestor holds
+  #    there too (with no tag at all it is skipped), and the version is the one the merge will get. A real
+  #    release and a re-release need the shared checks to have succeeded: a skipped one does not pass. The dry
+  #    run needs none. In a re-release the version is the next patch after the highest stable tag even though
+  #    main's commit is already tagged (the default would take the tag on the commit as a rerun of that
+  #    version), and the ancestry check still has to hold.
   prepare:
-    needs: [checks, e2e]
+    needs: [mode, checks-shared]
     if: >-
       ${{ !cancelled()
-      && github.event.pull_request.head.ref == 'development'
-      && github.event.pull_request.base.ref == 'main'
-      && github.event.pull_request.head.repo.full_name == github.repository
-      && (github.event.action != 'closed'
-      || (github.event.pull_request.merged == true
-      && needs.checks.result == 'success'
-      && needs.e2e.result == 'success')) }}
+      && needs.mode.result == 'success'
+      && needs.mode.outputs.mode != 'none'
+      && (needs.mode.outputs.mode == 'dry' || needs.checks-shared.result == 'success') }}
     runs-on: ubuntu-26.04
     timeout-minutes: 15
     permissions:
       contents: read
+    env:
+      MERGE_SHA: ${{ needs.mode.outputs.merge_sha }}
     outputs:
       version: ${{ steps.resolve.outputs.version }}
       tag: ${{ steps.resolve.outputs.tag }}
       prerelease: ${{ steps.resolve.outputs.prerelease }}
       previous_tag: ${{ steps.resolve.outputs.previous_tag }}
+      latest_stable_tag: ${{ steps.resolve.outputs.latest_stable_tag }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -139,23 +294,110 @@ jobs:
         run: python -I scripts/release/release.py check-checkout --merge-sha "$MERGE_SHA"
       - name: Compute the version from the tags (the three fields must agree)
         id: resolve
-        run: python -I scripts/release/release.py next-version --merge-sha "$MERGE_SHA"
+        env:
+          MODE: ${{ needs.mode.outputs.mode }}
+        run: |
+          set -euo pipefail
+          if [ "$MODE" = "rerelease" ]; then
+            python -I scripts/release/release.py next-version --merge-sha "$MERGE_SHA" --next-patch-even-if-tagged
+          else
+            python -I scripts/release/release.py next-version --merge-sha "$MERGE_SHA"
+          fi
       - name: Refuse the updater public key placeholder
         run: python -I scripts/release/release.py check-updater-config
 
-  # 3. The only write step that creates the draft. The build legs attach to it by ID. Never in the dry run.
-  draft:
-    needs: prepare
+  # 3. The software bill of materials, written once for every platform (it used to be the Linux leg's job, so
+  #    a red Linux lane would have taken it away from the others). Recomputed and compared byte for byte. A
+  #    failure here is shared: it stops the release. The artifact name must not match `release-*`, the
+  #    pattern of the lane artifacts.
+  sbom:
+    needs: [mode, prepare]
     if: >-
-      github.event.action == 'closed'
-      && github.event.pull_request.merged == true
-      && github.event.pull_request.head.ref == 'development'
-      && github.event.pull_request.base.ref == 'main'
-      && github.event.pull_request.head.repo.full_name == github.repository
+      ${{ !cancelled()
+      && needs.mode.result == 'success'
+      && needs.prepare.result == 'success' }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      MERGE_SHA: ${{ needs.mode.outputs.merge_sha }}
+      VERSION: ${{ needs.prepare.outputs.version }}
+      RELEASE_OUT: shared-sbom
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ env.MERGE_SHA }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.14"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: "24"
+      - name: Install pnpm (version from package.json packageManager)
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      # The files hold the version of the last manual bump; the SBOMs must see the computed one.
+      - name: Stamp the computed version into the checkout (not committed)
+        run: python -I scripts/release/release.py set-version "$VERSION"
+      - name: Install the locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Rust toolchain from rust-toolchain.toml
+        run: rustup show
+      # Prebuilt and checksum-verified by install-action, with no fallback to a source build.
+      - name: Install the SBOM tool (prebuilt, version pinned)
+        uses: taiki-e/install-action@86f7a0ffb25f40114606501a311ebcfaf882ea32 # v2.88.0
+        with:
+          tool: cargo-cyclonedx@0.5.9
+          fallback: none
+      - name: Software bill of materials (recomputed and compared byte for byte)
+        run: |
+          set -euo pipefail
+          SBOM="$RUNNER_TEMP/sbom"
+          mkdir -p "$SBOM/first" "$SBOM/second" "$RELEASE_OUT"
+          for run in first second; do
+            cargo cyclonedx --format json --spec-version 1.5 --target all --all --manifest-path src-tauri/Cargo.toml -q
+            mv src-tauri/jobniac-desktop.cdx.json "$SBOM/$run/desktop.cdx.json"
+            cargo cyclonedx --format json --spec-version 1.5 --target all --all --manifest-path crates/cli/Cargo.toml -q
+            mv crates/cli/jobniac-cli.cdx.json "$SBOM/$run/cli.cdx.json"
+            pnpm sbom --sbom-format cyclonedx --sbom-spec-version 1.5 --prod --out "$SBOM/$run/npm.cdx.json"
+          done
+          for role in desktop cli; do
+            python -I scripts/release/release.py normalize-sbom --in "$SBOM/first/$role.cdx.json" --out "$SBOM/first/$role.norm.json" --seed "v$VERSION|$MERGE_SHA|$role"
+            python -I scripts/release/release.py normalize-sbom --in "$SBOM/second/$role.cdx.json" --out "$SBOM/second/$role.norm.json" --seed "v$VERSION|$MERGE_SHA|$role"
+            cmp "$SBOM/first/$role.norm.json" "$SBOM/second/$role.norm.json"
+            cp "$SBOM/first/$role.norm.json" "$RELEASE_OUT/JobniacFast-$VERSION-$role.cargo.cdx.json"
+          done
+          python -I scripts/release/release.py normalize-sbom --in "$SBOM/first/npm.cdx.json" --out "$SBOM/first/npm.norm.json" --seed "v$VERSION|$MERGE_SHA|npm"
+          python -I scripts/release/release.py normalize-sbom --in "$SBOM/second/npm.cdx.json" --out "$SBOM/second/npm.norm.json" --seed "v$VERSION|$MERGE_SHA|npm"
+          cmp "$SBOM/first/npm.norm.json" "$SBOM/second/npm.norm.json"
+          cp "$SBOM/first/npm.norm.json" "$RELEASE_OUT/JobniacFast-$VERSION.npm.cdx.json"
+      - name: Write the digests of the SBOMs
+        run: python -I scripts/release/release.py leg-digests --dir "$RELEASE_OUT"
+      - name: Upload the SBOMs (workflow artifact, not the draft)
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: shared-sbom
+          path: ${{ env.RELEASE_OUT }}/*
+          if-no-files-found: error
+          # A dry run's SBOMs are never released, so they expire with its dry-run-assets artifact.
+          retention-days: ${{ needs.mode.outputs.mode == 'dry' && 3 || 30 }}
+
+  # 4. The only write step that creates the draft. `attach` uploads to it by ID. Never in the dry run. It still
+  #    runs before the builds, so a tag that is already taken by another commit fails the release early.
+  draft:
+    needs: [mode, prepare]
+    if: >-
+      ${{ !cancelled()
+      && needs.prepare.result == 'success'
+      && (needs.mode.outputs.mode == 'release' || needs.mode.outputs.mode == 'rerelease') }}
     runs-on: ubuntu-26.04
     timeout-minutes: 15
     permissions:
       contents: write
+    env:
+      MERGE_SHA: ${{ needs.mode.outputs.merge_sha }}
     outputs:
       release_id: ${{ steps.draft.outputs.release_id }}
     steps:
@@ -178,300 +420,105 @@ jobs:
           --repo "$GITHUB_REPOSITORY" --merge-sha "$MERGE_SHA"
           --version "$VERSION" --previous-tag "$PREVIOUS_TAG"
 
-  # 4. Builds, one leg per platform. On Windows and Linux tauri-action attaches to the draft; the token is
-  #    passed to that step only, next to the updater signing key. The NSIS installer (Windows, not
-  #    code-signed) and the AppImage and deb (Linux, x86-64) are built; the NSIS installer and the AppImage
-  #    also get an updater signature. The macOS leg (Apple Silicon) builds the app and the DMG with
-  #    scripts/release/macos_build.sh, which never sees the token: it signs with Developer ID and
-  #    notarizes when the Apple secrets exist, and signs ad-hoc otherwise. The app archive gets an updater
-  #    signature. The `attach` job uploads the macOS files. latest.json is written later by the `attach` job.
-  #    In the dry run `draft` is skipped (a real release needs it to have succeeded), tauri-action gets
-  #    neither a release ID nor a tag and so only builds, and no step holds the GitHub token or an Apple
-  #    secret. The legs do not cancel each other (`fail-fast: false`): a failure in one leg must not hide
-  #    the failures of the others, and nothing publishes unless every leg succeeded.
-  build:
-    needs: [prepare, draft]
-    if: >-
-      ${{ !cancelled()
-      && needs.prepare.result == 'success'
-      && (needs.draft.result == 'success'
-      || (github.event.action != 'closed' && needs.draft.result == 'skipped')) }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: windows-latest
-            platform: windows-x64
-            pdfium: windows-x64
-            bundles: nsis
-            library: pdfium.dll
-          # Not the latest LTS like the other jobs: the build host sets the glibc floor of the
-          # AppImage and deb, so 24.04 keeps them running on Ubuntu 24.04 and newer.
-          - os: ubuntu-24.04
-            platform: linux-x64
-            pdfium: linux-x64
-            bundles: appimage,deb
-            library: libpdfium.so
-          # Apple Silicon only (the runner is arm64; the leg checks it).
-          - os: macos-latest
-            platform: macos-arm64
-            pdfium: mac-arm64
-            bundles: app,dmg
-            library: libpdfium.dylib
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 90
-    # Write access is for tauri-action's upload to the draft. A permission cannot depend on the event, so
-    # the dry run holds it too, but no step of the dry run is given the token.
+  # 5. Builds, one lane each (release-build.yml). A build never holds the GitHub token or write access:
+  #    tauri-action only builds, and `attach` uploads from the workflow artifacts. A lane builds when its
+  #    platform is selected, `prepare` succeeded and, outside the dry run, the draft exists and the
+  #    platform's own checks passed (the dry run has none). A red lane skips only its own build.
+  #    The NSIS installer (Windows, not code-signed) and the AppImage and deb (Linux, x86-64) are built; the
+  #    NSIS installer and the AppImage also get an updater signature. The macOS lane (Apple Silicon) builds the
+  #    app and the DMG with scripts/release/macos_build.sh: it signs with Developer ID and notarizes when the
+  #    Apple secrets exist, and signs ad-hoc otherwise. The app archive gets an updater signature. The updater
+  #    signing key goes to every build, the dry run too, which signs with the real key. The Apple secrets go to
+  #    macOS only, and not in the dry run, which therefore always builds ad-hoc: it checks the build and the
+  #    smoke test, not the signing and notarization, which only a real release exercises.
+  build-windows:
+    needs: [mode, prepare, draft, checks-windows, e2e-windows]
+    if: ${{ !cancelled() && needs.prepare.result == 'success' && contains(needs.mode.outputs.platforms, 'windows-x64') && (needs.mode.outputs.mode == 'dry' || (needs.draft.result == 'success' && needs.checks-windows.result == 'success' && needs.e2e-windows.result == 'success')) }}
+    uses: ./.github/workflows/release-build.yml
     permissions:
-      contents: write
-    env:
-      VERSION: ${{ needs.prepare.outputs.version }}
-      TAG: ${{ needs.prepare.outputs.tag }}
-      PRERELEASE: ${{ needs.prepare.outputs.prerelease }}
-      PLATFORM: ${{ matrix.platform }}
-      PDFIUM_PLATFORM: ${{ matrix.pdfium }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          ref: ${{ env.MERGE_SHA }}
-          fetch-depth: 1
-          persist-credentials: false
-      - name: Check the macOS runner is Apple Silicon
-        if: runner.os == 'macOS'
-        run: test "$(uname -m)" = arm64
-      - name: Linux system packages for Tauri
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
-        with:
-          node-version: "24"
-      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
-        with:
-          python-version: "3.14"
-      - name: Check that HEAD is the merge commit
-        run: python -I scripts/release/release.py check-checkout --merge-sha "$MERGE_SHA"
-      # The files hold the version of the last manual bump; every build below (and the tools that read the
-      # files, such as `tauri build`, cargo and the notices) must see the computed one.
-      - name: Stamp the computed version into the checkout (not committed)
-        run: python -I scripts/release/release.py set-version "$VERSION"
-      - name: Install pnpm (version from package.json packageManager)
-        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-      - name: Install the locked dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Rust toolchain from rust-toolchain.toml
-        run: rustup show
-      - name: Fetch the pinned PDFium binaries (every release platform, for the notices)
-        if: runner.os != 'Windows'
-        run: bash scripts/fetch-pdfium.sh all
-      - name: Fetch the pinned PDFium binaries (every release platform, for the notices)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: ./scripts/fetch-pdfium.ps1 -Platform all
-      # Prebuilt and checksum-verified by install-action, with no fallback to a source build: compiling
-      # them took 4 to 11 minutes per leg. The cargo-about binary only exists with its `cli` feature, and
-      # `binary-scanning` is a default feature of cargo-audit, so the prebuilt binaries have both.
-      - name: Install the release tools (prebuilt, versions pinned)
-        uses: taiki-e/install-action@86f7a0ffb25f40114606501a311ebcfaf882ea32 # v2.88.0
-        with:
-          tool: cargo-about@0.9.2,cargo-cyclonedx@0.5.9,cargo-audit@0.22.1
-          fallback: none
-      # This install-action release has no cargo-auditable 0.7.7 build, so it is built from source.
-      - name: Install cargo-auditable (versions pinned)
-        run: |
-          set -euo pipefail
-          TOOLS="$RUNNER_TEMP/tools"
-          cargo install --locked --root "$TOOLS" --version 0.7.7 cargo-auditable
-          echo "$TOOLS/bin" >> "$GITHUB_PATH"
-          # tauri-action runs `tauri build`, which runs `cargo build` directly, so `cargo auditable` is not
-          # used there. Cargo's workspace wrapper hook does the same job: cargo-auditable answers as the
-          # rustc wrapper when RUSTC_WORKSPACE_WRAPPER names it (see the tauri-action step below).
-          SUFFIX=""
-          if [ "$RUNNER_OS" = "Windows" ]; then SUFFIX=".exe"; fi
-          echo "JOBNIAC_AUDITABLE_WRAPPER=$TOOLS/bin/cargo-auditable$SUFFIX" >> "$GITHUB_ENV"
-      - name: Frontend build (the desktop crate embeds it)
-        run: pnpm build
-      - name: Licence notices (cargo-about, pnpm licences, static components)
-        run: >-
-          python -I scripts/release/release.py notices
-          --out-dir src-tauri/resources
-          --pdfium-dir vendor/pdfium/windows-x64
-          --pdfium-dir vendor/pdfium/linux-x64
-          --pdfium-dir vendor/pdfium/mac-arm64
-      - name: Build the CLI with cargo auditable and stage the sidecar
-        run: |
-          set -euo pipefail
-          cargo auditable build --release --locked -p jobniac-cli
-          python -I scripts/release/release.py stage-sidecar --target-dir target/release --binaries-dir src-tauri/binaries
-      # With a release ID or a tag name tauri-action uploads what it built; with neither it only builds
-      # ("No releaseId or tagName provided, skipping all uploads", src/index.ts at the pinned commit), and
-      # it reads the token only inside the release calls. The dry run (any event but `closed`) passes
-      # neither and no token, so it cannot reach the draft. The updater signing key is the real one in
-      # both: only a same-repository promotion pull request from the protected development branch gets
-      # it, and a build that signs with it is what proves that the secret matches the public key.
-      - name: Build, and attach the draft assets on a real release (tauri-action, the only step with the token)
-        if: runner.os != 'macOS'
-        uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1.0.0
-        env:
-          GITHUB_TOKEN: ${{ github.event.action == 'closed' && secrets.GITHUB_TOKEN || '' }}
-          # Makes the desktop binary auditable: cargo-auditable is the workspace rustc wrapper for this build.
-          RUSTC_WORKSPACE_WRAPPER: ${{ env.JOBNIAC_AUDITABLE_WRAPPER }}
-          CARGO_AUDITABLE_ORIG_ARGS: '{"config":[],"offline":false,"locked":true,"frozen":false}'
-          # The updater signing key (tauri signer generate). Only this step can read it.
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        with:
-          projectPath: .
-          tagName: ${{ github.event.action == 'closed' && env.TAG || '' }}
-          releaseId: ${{ github.event.action == 'closed' && needs.draft.outputs.release_id || '' }}
-          releaseDraft: true
-          prerelease: ${{ env.PRERELEASE == 'true' }}
-          # latest.json and the updater signatures are attached by the `attach` job (two legs would race
-          # to merge latest.json here, and tauri-action would also upload a .deb.sig that is not a
-          # release asset). tauri-action v1 ignores unknown inputs with a warning only.
-          uploadUpdaterJson: false
-          uploadUpdaterSignatures: false
-          args: --bundles ${{ matrix.bundles }} --config src-tauri/tauri.release.conf.json
-      # The macOS build. The Apple secrets are passed to this step only (never to tauri-action, which
-      # holds the GitHub token, and never echoed). The release runs only for a merged promotion pull
-      # request of this repository, so a fork's pull request never reaches it. Without the secrets the
-      # script builds an ad-hoc signed app; with them it signs with Developer ID and notarizes. The dry run
-      # (any event but `closed`) passes no Apple secret, so it always builds ad-hoc: it checks the build
-      # and the smoke test, not the signing and notarization, which only a real release exercises. The
-      # updater key is passed in both, as for the other legs.
-      - name: Build the macOS bundles (Developer ID signing and notarization on a real release when the secrets exist)
-        if: runner.os == 'macOS' && github.event.pull_request.head.repo.full_name == github.repository
-        env:
-          BUNDLES: ${{ matrix.bundles }}
-          # Opt-in, exactly `1`: an ad-hoc macOS build then fails the release instead of warning. Not in the
-          # dry run, which builds ad-hoc by design.
-          MACOS_SIGNING_REQUIRED: ${{ github.event.action == 'closed' && vars.MACOS_SIGNING_REQUIRED || '' }}
-          RUSTC_WORKSPACE_WRAPPER: ${{ env.JOBNIAC_AUDITABLE_WRAPPER }}
-          CARGO_AUDITABLE_ORIG_ARGS: '{"config":[],"offline":false,"locked":true,"frozen":false}'
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          APPLE_CERTIFICATE: ${{ github.event.action == 'closed' && secrets.APPLE_CERTIFICATE || '' }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ github.event.action == 'closed' && secrets.APPLE_CERTIFICATE_PASSWORD || '' }}
-          APPLE_SIGNING_IDENTITY: ${{ github.event.action == 'closed' && secrets.APPLE_SIGNING_IDENTITY || '' }}
-          APPLE_API_ISSUER: ${{ github.event.action == 'closed' && secrets.APPLE_API_ISSUER || '' }}
-          APPLE_API_KEY: ${{ github.event.action == 'closed' && secrets.APPLE_API_KEY || '' }}
-          APPLE_API_PRIVATE_KEY: ${{ github.event.action == 'closed' && secrets.APPLE_API_PRIVATE_KEY || '' }}
-          APPLE_ID: ${{ github.event.action == 'closed' && secrets.APPLE_ID || '' }}
-          APPLE_PASSWORD: ${{ github.event.action == 'closed' && secrets.APPLE_PASSWORD || '' }}
-          APPLE_TEAM_ID: ${{ github.event.action == 'closed' && secrets.APPLE_TEAM_ID || '' }}
-        run: bash scripts/release/macos_build.sh
-      - name: Audit the built binaries (embedded cargo-auditable data is required)
-        run: |
-          set -euo pipefail
-          SUFFIX=""
-          if [ "$RUNNER_OS" = "Windows" ]; then SUFFIX=".exe"; fi
-          LOG="$RUNNER_TEMP/cargo-audit-bin.log"
-          for bin in "target/release/jobniac$SUFFIX" "target/release/jobniac-cli$SUFFIX"; do
-            cargo audit bin "$bin" 2>&1 | tee -a "$LOG"
-          done
-          # cargo audit bin only warns when the data is missing (the message wraps inside 'cargo auditable'),
-          # so the warning is the gate.
-          if grep -Fq "was not built with '" "$LOG"; then
-            echo "::error::a built binary has no cargo-auditable data" >&2
-            exit 1
-          fi
-      - name: Stage the payload and reconcile it with the notices
-        run: |
-          set -euo pipefail
-          SUFFIX=""
-          if [ "$RUNNER_OS" = "Windows" ]; then SUFFIX=".exe"; fi
-          mkdir -p "$RELEASE_OUT"
-          python -I scripts/release/release.py stage-payload \
-            --target-dir target/release --platform "$PLATFORM" \
-            --pdfium-library "vendor/pdfium/$PDFIUM_PLATFORM/${{ matrix.library }}" \
-            --notices src-tauri/resources/THIRD-PARTY-NOTICES.txt \
-            --out "$RUNNER_TEMP/payload"
-          python -I scripts/release/release.py inventory \
-            --payload "$RUNNER_TEMP/payload" \
-            --notices-manifest src-tauri/resources/notices-manifest.json \
-            --out "$RELEASE_OUT/JobniacFast-$VERSION-$PLATFORM.payload-inventory.json"
-      - name: Software bill of materials (Linux leg only; recomputed and compared byte for byte)
-        if: runner.os == 'Linux'
-        run: |
-          set -euo pipefail
-          SBOM="$RUNNER_TEMP/sbom"
-          mkdir -p "$SBOM/first" "$SBOM/second"
-          for run in first second; do
-            cargo cyclonedx --format json --spec-version 1.5 --target all --all --manifest-path src-tauri/Cargo.toml -q
-            mv src-tauri/jobniac-desktop.cdx.json "$SBOM/$run/desktop.cdx.json"
-            cargo cyclonedx --format json --spec-version 1.5 --target all --all --manifest-path crates/cli/Cargo.toml -q
-            mv crates/cli/jobniac-cli.cdx.json "$SBOM/$run/cli.cdx.json"
-            pnpm sbom --sbom-format cyclonedx --sbom-spec-version 1.5 --prod --out "$SBOM/$run/npm.cdx.json"
-          done
-          for role in desktop cli; do
-            python -I scripts/release/release.py normalize-sbom --in "$SBOM/first/$role.cdx.json" --out "$SBOM/first/$role.norm.json" --seed "v$VERSION|$MERGE_SHA|$role"
-            python -I scripts/release/release.py normalize-sbom --in "$SBOM/second/$role.cdx.json" --out "$SBOM/second/$role.norm.json" --seed "v$VERSION|$MERGE_SHA|$role"
-            cmp "$SBOM/first/$role.norm.json" "$SBOM/second/$role.norm.json"
-            cp "$SBOM/first/$role.norm.json" "$RELEASE_OUT/JobniacFast-$VERSION-$role.cargo.cdx.json"
-          done
-          python -I scripts/release/release.py normalize-sbom --in "$SBOM/first/npm.cdx.json" --out "$SBOM/first/npm.norm.json" --seed "v$VERSION|$MERGE_SHA|npm"
-          python -I scripts/release/release.py normalize-sbom --in "$SBOM/second/npm.cdx.json" --out "$SBOM/second/npm.norm.json" --seed "v$VERSION|$MERGE_SHA|npm"
-          cmp "$SBOM/first/npm.norm.json" "$SBOM/second/npm.norm.json"
-          cp "$SBOM/first/npm.norm.json" "$RELEASE_OUT/JobniacFast-$VERSION.npm.cdx.json"
-      - name: Collect the installer, the notices and the leg digests
-        run: |
-          set -euo pipefail
-          mkdir -p "$RELEASE_OUT"
-          if [ "$RUNNER_OS" = "Windows" ]; then
-            cp "target/release/bundle/nsis/JobniacFast_${VERSION}_x64-setup.exe" "$RELEASE_OUT/"
-            cp "target/release/bundle/nsis/JobniacFast_${VERSION}_x64-setup.exe.sig" "$RELEASE_OUT/"
-          elif [ "$RUNNER_OS" = "macOS" ]; then
-            cp "target/release/bundle/dmg/JobniacFast_${VERSION}_aarch64.dmg" "$RELEASE_OUT/"
-            # Tauri names the updater archive JobniacFast.app.tar.gz, with no version or architecture. The
-            # signature covers the bytes of the archive, so renaming both keeps it valid.
-            cp "target/release/bundle/macos/JobniacFast.app.tar.gz" "$RELEASE_OUT/JobniacFast_${VERSION}_aarch64.app.tar.gz"
-            cp "target/release/bundle/macos/JobniacFast.app.tar.gz.sig" "$RELEASE_OUT/JobniacFast_${VERSION}_aarch64.app.tar.gz.sig"
-          else
-            cp "target/release/bundle/appimage/JobniacFast_${VERSION}_amd64.AppImage" "$RELEASE_OUT/"
-            cp "target/release/bundle/appimage/JobniacFast_${VERSION}_amd64.AppImage.sig" "$RELEASE_OUT/"
-            cp "target/release/bundle/deb/JobniacFast_${VERSION}_amd64.deb" "$RELEASE_OUT/"
-          fi
-          cp src-tauri/resources/THIRD-PARTY-NOTICES.txt "$RELEASE_OUT/"
-          python -I scripts/release/release.py leg-digests --dir "$RELEASE_OUT"
-      # The Windows and macOS installers get a clean-machine job; the Linux packages get this check that
-      # the CLI they ship runs (a sidecar copied without its mode bits once shipped as 0644).
-      - name: The deb and the AppImage ship a runnable CLI
-        if: runner.os == 'Linux'
-        run: |
-          set -euo pipefail
-          OUT="$PWD/$RELEASE_OUT"
-          dpkg-deb -x "$OUT/JobniacFast_${VERSION}_amd64.deb" "$RUNNER_TEMP/deb-root"
-          "$RUNNER_TEMP/deb-root/usr/bin/jobniac-cli" --version | grep -Fq "$VERSION"
-          # The app in the deb embeds the updater public key of the release config, exactly once.
-          python -I scripts/release/release.py check-binary-pubkey --binary "$RUNNER_TEMP/deb-root/usr/bin/jobniac"
-          cd "$RUNNER_TEMP"
-          "$OUT/JobniacFast_${VERSION}_amd64.AppImage" --appimage-extract >/dev/null
-          squashfs-root/usr/bin/jobniac-cli --version | grep -Fq "$VERSION"
-      - name: Upload the leg artifacts (workflow artifacts, not the draft)
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: release-${{ matrix.platform }}
-          path: ${{ env.RELEASE_OUT }}/*
-          if-no-files-found: error
-          # A dry run's legs are never released, so they expire with its dry-run-assets artifact.
-          retention-days: ${{ github.event.action == 'closed' && 30 || 3 }}
+      contents: read
+    with:
+      os: windows-latest
+      platform: windows-x64
+      pdfium: windows-x64
+      bundles: nsis
+      library: pdfium.dll
+      version: ${{ needs.prepare.outputs.version }}
+      merge-sha: ${{ needs.mode.outputs.merge_sha }}
+      prerelease: ${{ needs.prepare.outputs.prerelease }}
+      # A dry run's lanes are never released, so they expire with its dry-run-assets artifact.
+      retention-days: ${{ needs.mode.outputs.mode == 'dry' && 3 || 30 }}
+    secrets:
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
-  # 5. Installs the Windows installer on a fresh runner, from the workflow artifact, before attach. It runs
-  #    when every leg succeeded and also when one failed, so that a failed Linux leg does not hide a
-  #    smoke failure on the legs that did build (a failed Windows leg leaves no artifact, so this job then
-  #    fails on the download). `attach` and `publish` still need every leg to have succeeded.
+  build-linux:
+    needs: [mode, prepare, draft, checks-linux, e2e-linux]
+    if: ${{ !cancelled() && needs.prepare.result == 'success' && contains(needs.mode.outputs.platforms, 'linux-x64') && (needs.mode.outputs.mode == 'dry' || (needs.draft.result == 'success' && needs.checks-linux.result == 'success' && needs.e2e-linux.result == 'success')) }}
+    uses: ./.github/workflows/release-build.yml
+    permissions:
+      contents: read
+    with:
+      # Not the latest LTS like the other jobs: the build host sets the glibc floor of the
+      # AppImage and deb, so 24.04 keeps them running on Ubuntu 24.04 and newer.
+      os: ubuntu-24.04
+      platform: linux-x64
+      pdfium: linux-x64
+      bundles: appimage,deb
+      library: libpdfium.so
+      version: ${{ needs.prepare.outputs.version }}
+      merge-sha: ${{ needs.mode.outputs.merge_sha }}
+      prerelease: ${{ needs.prepare.outputs.prerelease }}
+      retention-days: ${{ needs.mode.outputs.mode == 'dry' && 3 || 30 }}
+    secrets:
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+
+  # macOS has no end-to-end suite, so its only gate is the Rust job of `checks-macos`.
+  build-macos:
+    needs: [mode, prepare, draft, checks-macos]
+    if: ${{ !cancelled() && needs.prepare.result == 'success' && contains(needs.mode.outputs.platforms, 'macos-arm64') && (needs.mode.outputs.mode == 'dry' || (needs.draft.result == 'success' && needs.checks-macos.result == 'success')) }}
+    uses: ./.github/workflows/release-build.yml
+    permissions:
+      contents: read
+    with:
+      # Apple Silicon only (the runner is arm64; the lane checks it).
+      os: macos-latest
+      platform: macos-arm64
+      pdfium: mac-arm64
+      bundles: app,dmg
+      library: libpdfium.dylib
+      version: ${{ needs.prepare.outputs.version }}
+      merge-sha: ${{ needs.mode.outputs.merge_sha }}
+      prerelease: ${{ needs.prepare.outputs.prerelease }}
+      retention-days: ${{ needs.mode.outputs.mode == 'dry' && 3 || 30 }}
+      # Opt-in, exactly `1`: an ad-hoc macOS build then fails the release instead of warning. Not in the dry
+      # run, which builds ad-hoc by design.
+      macos-signing-required: ${{ needs.mode.outputs.mode != 'dry' && vars.MACOS_SIGNING_REQUIRED || '' }}
+    secrets:
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+      APPLE_CERTIFICATE: ${{ needs.mode.outputs.mode != 'dry' && secrets.APPLE_CERTIFICATE || '' }}
+      APPLE_CERTIFICATE_PASSWORD: ${{ needs.mode.outputs.mode != 'dry' && secrets.APPLE_CERTIFICATE_PASSWORD || '' }}
+      APPLE_SIGNING_IDENTITY: ${{ needs.mode.outputs.mode != 'dry' && secrets.APPLE_SIGNING_IDENTITY || '' }}
+      APPLE_API_ISSUER: ${{ needs.mode.outputs.mode != 'dry' && secrets.APPLE_API_ISSUER || '' }}
+      APPLE_API_KEY: ${{ needs.mode.outputs.mode != 'dry' && secrets.APPLE_API_KEY || '' }}
+      APPLE_API_PRIVATE_KEY: ${{ needs.mode.outputs.mode != 'dry' && secrets.APPLE_API_PRIVATE_KEY || '' }}
+      APPLE_ID: ${{ needs.mode.outputs.mode != 'dry' && secrets.APPLE_ID || '' }}
+      APPLE_PASSWORD: ${{ needs.mode.outputs.mode != 'dry' && secrets.APPLE_PASSWORD || '' }}
+      APPLE_TEAM_ID: ${{ needs.mode.outputs.mode != 'dry' && secrets.APPLE_TEAM_ID || '' }}
+
+  # 6. Installs the Windows installer on a fresh runner, from the workflow artifact, before attach. It runs
+  #    when the Windows build succeeded; a platform whose build or smoke failed is not in the release.
   clean-machine:
-    needs: [prepare, build]
-    if: >-
-      ${{ !cancelled()
-      && needs.prepare.result == 'success'
-      && (needs.build.result == 'success' || needs.build.result == 'failure') }}
+    needs: [mode, prepare, build-windows]
+    if: ${{ !cancelled() && needs.build-windows.result == 'success' }}
     runs-on: windows-latest
     timeout-minutes: 30
     permissions:
       contents: read
     env:
+      MERGE_SHA: ${{ needs.mode.outputs.merge_sha }}
       VERSION: ${{ needs.prepare.outputs.version }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -495,22 +542,20 @@ jobs:
           --version "$VERSION"
           --work "$RUNNER_TEMP/clean-machine"
 
-  # 5b. Opens the macOS DMG and the updater archive on a fresh runner, from the workflow artifact, before
+  # 6b. Opens the macOS DMG and the updater archive on a fresh runner, from the workflow artifact, before
   #     attach: bundle layout, signature (Developer ID builds also Gatekeeper and the stapled ticket), GUI
   #     launch, CLI, MCP, and a PDF extraction through the bundled worker and the bundled PDFium. It runs
-  #     under the same condition as `clean-machine`. The dry run builds ad-hoc, so only a real release
-  #     can require a Developer ID signature.
+  #     under the same condition as `clean-machine`. The dry run builds ad-hoc, so only a real release or
+  #     re-release can require a Developer ID signature.
   clean-machine-macos:
-    needs: [prepare, build]
-    if: >-
-      ${{ !cancelled()
-      && needs.prepare.result == 'success'
-      && (needs.build.result == 'success' || needs.build.result == 'failure') }}
+    needs: [mode, prepare, build-macos]
+    if: ${{ !cancelled() && needs.build-macos.result == 'success' }}
     runs-on: macos-latest
     timeout-minutes: 30
     permissions:
       contents: read
     env:
+      MERGE_SHA: ${{ needs.mode.outputs.merge_sha }}
       VERSION: ${{ needs.prepare.outputs.version }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -533,27 +578,93 @@ jobs:
           --leg-digests legs/macos-arm64/leg-digests.txt
           --pdf-fixture crates/infra/tests/fixtures/pdf/corpus/resume-simple.pdf
           --version "$VERSION"
-          ${{ github.event.action == 'closed' && vars.MACOS_SIGNING_REQUIRED == '1' && '--require-developer-id' || '' }}
+          ${{ needs.mode.outputs.mode != 'dry' && vars.MACOS_SIGNING_REQUIRED == '1' && '--require-developer-id' || '' }}
           --work "$RUNNER_TEMP/macos-smoke"
 
-  # 5c. The dry run's stand-in for `attach` and `verify-draft`: the same assemble step (leg verification, the
-  #     exact asset set, SHA256SUMS), the same latest.json writer and the same manifest check, all on local
-  #     files, with nothing uploaded to a release. The assembled files go to a workflow artifact that
-  #     expires after three days. Its name must not match `release-*`, the pattern of the leg artifacts that
-  #     `attach` and this job download. It runs when every leg built, whatever the smokes said.
+  # 7. The release plan: which platforms are green (a platform is green when its build and its smoke test, where
+  #    it has one, succeeded; its checks gated its build already) and which selected ones failed. Everything
+  #    after this job works on the green list alone. It fails when nothing is green, so there is nothing to
+  #    release, and a shared failure (prepare or sbom) leaves it skipped.
+  plan:
+    needs: [mode, prepare, sbom, build-windows, build-linux, build-macos, clean-machine, clean-machine-macos]
+    if: ${{ always() && needs.mode.outputs.mode != 'none' && needs.prepare.result == 'success' && needs.sbom.result == 'success' }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    permissions: {}
+    outputs:
+      green: ${{ steps.plan.outputs.green }}
+      failed: ${{ steps.plan.outputs.failed }}
+      partial: ${{ steps.plan.outputs.partial }}
+    steps:
+      - name: Work out the green platforms
+        id: plan
+        env:
+          SELECTED: ${{ needs.mode.outputs.platforms }}
+          BUILD_WINDOWS: ${{ needs.build-windows.result }}
+          BUILD_LINUX: ${{ needs.build-linux.result }}
+          BUILD_MACOS: ${{ needs.build-macos.result }}
+          SMOKE_WINDOWS: ${{ needs.clean-machine.result }}
+          SMOKE_MACOS: ${{ needs.clean-machine-macos.result }}
+        run: |
+          set -euo pipefail
+          all="windows-x64,linux-x64,macos-arm64"
+          green=""
+          failed=""
+          {
+            echo "### Release plan"
+            echo
+            echo "| Platform | Selected | Build | Smoke | In release |"
+            echo "| --- | --- | --- | --- | --- |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          for platform in windows-x64 linux-x64 macos-arm64; do
+            case "$platform" in
+              windows-x64) build="$BUILD_WINDOWS"; smoke="$SMOKE_WINDOWS" ;;
+              linux-x64) build="$BUILD_LINUX"; smoke="n/a" ;;
+              macos-arm64) build="$BUILD_MACOS"; smoke="$SMOKE_MACOS" ;;
+            esac
+            selected=no
+            in_release=no
+            if [[ ",$SELECTED," == *",$platform,"* ]]; then
+              selected=yes
+              if [ "$build" = "success" ] && { [ "$smoke" = "success" ] || [ "$smoke" = "n/a" ]; }; then
+                in_release=yes
+                green="${green:+$green,}$platform"
+              else
+                failed="${failed:+$failed,}$platform"
+              fi
+            fi
+            echo "| $platform | $selected | $build | $smoke | $in_release |" >> "$GITHUB_STEP_SUMMARY"
+          done
+          partial=false
+          if [ "$green" != "$all" ]; then partial=true; fi
+          {
+            echo "green=$green"
+            echo "failed=$failed"
+            echo "partial=$partial"
+          } >> "$GITHUB_OUTPUT"
+          echo "green=$green failed=$failed partial=$partial"
+          if [ -z "$green" ]; then
+            echo "::error::no platform is green: there is nothing to release" >&2
+            exit 1
+          fi
+
+  # 8. The dry run's stand-in for `attach` and `verify-draft`: the same assemble step (lane verification, the
+  #    exact asset set, SHA256SUMS), the same updater manifest writer and the same manifest check, all on local
+  #    files, with nothing uploaded to a release. Only the green platforms' lanes are downloaded, each by its
+  #    exact name, so a platform that built but failed its smoke is never in the set. The assembled files go
+  #    to a workflow artifact that expires after three days. Its name must not match `release-*`, the pattern
+  #    of the lane artifacts.
   dry-run-assemble:
-    needs: [prepare, build, clean-machine, clean-machine-macos]
-    if: >-
-      ${{ !cancelled()
-      && github.event.action != 'closed'
-      && needs.prepare.result == 'success'
-      && needs.build.result == 'success' }}
+    needs: [mode, prepare, plan]
+    if: ${{ !cancelled() && needs.mode.outputs.mode == 'dry' && needs.plan.result == 'success' }}
     runs-on: ubuntu-26.04
     timeout-minutes: 20
     permissions:
       contents: read
     env:
+      MERGE_SHA: ${{ needs.mode.outputs.merge_sha }}
       VERSION: ${{ needs.prepare.outputs.version }}
+      GREEN: ${{ needs.plan.outputs.green }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -564,45 +675,90 @@ jobs:
         with:
           python-version: "3.14"
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        if: ${{ contains(needs.plan.outputs.green, 'windows-x64') }}
         with:
-          pattern: release-*
-          path: legs
+          name: release-windows-x64
+          path: legs/release-windows-x64
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        if: ${{ contains(needs.plan.outputs.green, 'linux-x64') }}
+        with:
+          name: release-linux-x64
+          path: legs/release-linux-x64
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        if: ${{ contains(needs.plan.outputs.green, 'macos-arm64') }}
+        with:
+          name: release-macos-arm64
+          path: legs/release-macos-arm64
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: shared-sbom
+          path: shared
       - name: Assemble the asset set and write SHA256SUMS (write, then verify)
-        run: python -I scripts/release/release.py assemble --legs legs --out release-assets --version "$VERSION"
-      - name: Write latest.json and check it like verify-draft does (nothing is uploaded)
+        run: >-
+          python -I scripts/release/release.py assemble
+          --legs legs --out release-assets --version "$VERSION" --platforms "$GREEN" --shared shared
+      - name: Fetch the manifests of the latest published release (the carry-forward source)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LATEST_STABLE_TAG: ${{ needs.prepare.outputs.latest_stable_tag }}
+        run: >-
+          python -I scripts/release/release.py fetch-previous-manifests
+          --repo "$GITHUB_REPOSITORY" --out previous --expect-tag "$LATEST_STABLE_TAG"
+      - name: Write the updater manifests and check them like verify-draft does (nothing is uploaded)
         run: |
           set -euo pipefail
-          echo "Dry run on a promotion pull request." > release-notes.md
-          python -I scripts/release/release.py updater-manifest --version "$VERSION" --dir release-assets \
-            --out updater-manifest/latest.json --notes-file release-notes.md
-          python -I scripts/release/release.py check-updater-manifest --version "$VERSION" --dir release-assets \
-            --latest-json updater-manifest/latest.json
+          printf 'Dry run on a promotion pull request.\n\n' > release-notes.md
+          python -I scripts/release/release.py platform-notes --version "$VERSION" --platforms "$GREEN" \
+            --previous previous --repo "$GITHUB_REPOSITORY" >> release-notes.md
+          python -I scripts/release/release.py updater-manifests --version "$VERSION" --dir release-assets \
+            --platforms "$GREEN" --previous previous --notes-file release-notes.md --out updater-manifests
+          python -I scripts/release/release.py check-updater-manifests --version "$VERSION" --dir release-assets \
+            --platforms "$GREEN" --previous previous --manifests updater-manifests
+      - name: Summarize what the merge would ship
+        run: |
+          set -euo pipefail
+          carried=""
+          for platform in windows-x64 linux-x64 macos-arm64; do
+            if [[ ",$GREEN," != *",$platform,"* ]]; then carried="${carried:+$carried, }$platform"; fi
+          done
+          {
+            echo "### Dry run: version $VERSION"
+            echo
+            echo "The merge would ship: ${GREEN//,/, }."
+            echo "Carried from the previous release: ${carried:-none}."
+          } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: dry-run-assets
           path: |
             release-assets/*
-            updater-manifest/latest.json
+            updater-manifests/*
+            previous/*
           if-no-files-found: error
           retention-days: 3
 
-  # 6. Verifies the legs, assembles the exact asset set, writes SHA256SUMS and attaches what the draft lacks.
-  #    Never in the dry run: it writes to the draft.
+  # 9. Verifies the green lanes, assembles the exact asset set, writes SHA256SUMS and attaches what the draft
+  #    lacks, then writes the updater manifests (the new platforms' own, the carried ones, and the combined
+  #    latest.json rule) and attaches them. This is the only job that uploads files to the draft. Never in the
+  #    dry run. A rerun of a draft replaces its stale manifests (prepare_draft), so a new pub_date never conflicts.
   attach:
-    needs: [prepare, draft, build, clean-machine, clean-machine-macos]
+    needs: [mode, prepare, draft, plan]
     if: >-
-      github.event.action == 'closed'
-      && github.event.pull_request.merged == true
-      && github.event.pull_request.head.ref == 'development'
-      && github.event.pull_request.base.ref == 'main'
-      && github.event.pull_request.head.repo.full_name == github.repository
+      ${{ !cancelled()
+      && (needs.mode.outputs.mode == 'release' || needs.mode.outputs.mode == 'rerelease')
+      && needs.plan.result == 'success'
+      && needs.draft.result == 'success' }}
     runs-on: ubuntu-26.04
     timeout-minutes: 20
     permissions:
       contents: write
     env:
+      MERGE_SHA: ${{ needs.mode.outputs.merge_sha }}
       VERSION: ${{ needs.prepare.outputs.version }}
       RELEASE_ID: ${{ needs.draft.outputs.release_id }}
+      GREEN: ${{ needs.plan.outputs.green }}
+      LATEST_STABLE_TAG: ${{ needs.prepare.outputs.latest_stable_tag }}
+      MODE: ${{ needs.mode.outputs.mode }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -613,53 +769,103 @@ jobs:
         with:
           python-version: "3.14"
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        if: ${{ contains(needs.plan.outputs.green, 'windows-x64') }}
         with:
-          pattern: release-*
-          path: legs
+          name: release-windows-x64
+          path: legs/release-windows-x64
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        if: ${{ contains(needs.plan.outputs.green, 'linux-x64') }}
+        with:
+          name: release-linux-x64
+          path: legs/release-linux-x64
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        if: ${{ contains(needs.plan.outputs.green, 'macos-arm64') }}
+        with:
+          name: release-macos-arm64
+          path: legs/release-macos-arm64
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: shared-sbom
+          path: shared
       - name: Assemble the asset set and write SHA256SUMS (write, then verify)
-        run: python -I scripts/release/release.py assemble --legs legs --out release-assets --version "$VERSION"
+        run: >-
+          python -I scripts/release/release.py assemble
+          --legs legs --out release-assets --version "$VERSION" --platforms "$GREEN" --shared shared
       - name: Attach the missing assets to the draft (same name and digest only)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >-
           python -I scripts/release/release.py attach
-          --repo "$GITHUB_REPOSITORY" --release-id "${{ needs.draft.outputs.release_id }}"
-          --dir release-assets
-      # latest.json is written once here, after both legs, so no two legs race to merge it. A rerun
-      # deletes the old one (prepare_draft), so the new pub_date never conflicts.
-      # The notes are the draft's body (the changelog section or GitHub's generated notes), so latest.json
-      # and the release page say the same.
-      - name: Write latest.json from the assembled installers and signatures
+          --repo "$GITHUB_REPOSITORY" --release-id "$RELEASE_ID" --dir release-assets
+      - name: Fetch the manifests of the latest published release (the carry-forward source)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >-
+          python -I scripts/release/release.py fetch-previous-manifests
+          --repo "$GITHUB_REPOSITORY" --out previous --expect-tag "$LATEST_STABLE_TAG"
+      # The platforms section of the draft body: the table of a partial set, and for a re-release the sentence
+      # that says which commit is built again. For a full release that is no re-release the notes come out empty,
+      # which removes a section that an earlier run of this job left in the draft body.
+      - name: Annotate the draft body with the platforms (replaces or removes the marked section)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ "$MODE" = "rerelease" ]; then
+            python -I scripts/release/release.py platform-notes --version "$VERSION" --platforms "$GREEN" \
+              --previous previous --repo "$GITHUB_REPOSITORY" --rerelease-of "$LATEST_STABLE_TAG" > platform-notes.md
+          else
+            python -I scripts/release/release.py platform-notes --version "$VERSION" --platforms "$GREEN" \
+              --previous previous --repo "$GITHUB_REPOSITORY" > platform-notes.md
+          fi
+          python -I scripts/release/release.py annotate-draft \
+            --repo "$GITHUB_REPOSITORY" --release-id "$RELEASE_ID" --notes-file platform-notes.md
+      # The notes are the draft's body (the changelog section or GitHub's generated notes, and the platforms
+      # section), so the manifests and the release page say the same.
+      - name: Write the updater manifests from the assembled installers and signatures
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" --jq .body > release-notes.md
-          python -I scripts/release/release.py updater-manifest --version "$VERSION" --dir release-assets \
-            --out updater-manifest/latest.json --notes-file release-notes.md
-      - name: Attach latest.json to the draft
+          python -I scripts/release/release.py updater-manifests --version "$VERSION" --dir release-assets \
+            --platforms "$GREEN" --previous previous --notes-file release-notes.md --out updater-manifests
+          python -I scripts/release/release.py check-updater-manifests --version "$VERSION" --dir release-assets \
+            --platforms "$GREEN" --previous previous --manifests updater-manifests
+      - name: Attach the updater manifests to the draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >-
           python -I scripts/release/release.py attach
-          --repo "$GITHUB_REPOSITORY" --release-id "${{ needs.draft.outputs.release_id }}"
-          --dir updater-manifest
+          --repo "$GITHUB_REPOSITORY" --release-id "$RELEASE_ID" --dir updater-manifests
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-assets
           path: release-assets/*
           if-no-files-found: error
           retention-days: 30
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: updater-manifest
+          path: updater-manifests/*
+          if-no-files-found: error
+          retention-days: 30
+      # Empty when no stable release exists yet (the very first release has nothing to carry).
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: previous-manifests
+          path: previous/*
+          if-no-files-found: ignore
+          retention-days: 30
 
-  # 7. Build provenance, only for a public repository (GitHub refuses it for user-owned private ones).
-  #    The permissions sit on this job because a job cannot grant them conditionally. Never in the dry run:
-  #    provenance of an unreleased build would be public.
+  # 10. Build provenance, only for a public repository (GitHub refuses it for user-owned private ones).
+  #     The permissions sit on this job because a job cannot grant them conditionally. Never in the dry run:
+  #     provenance of an unreleased build would be public.
   attest:
-    needs: [attach]
+    needs: [mode, attach]
     if: >-
-      github.event.action == 'closed'
-      && github.event.pull_request.merged == true
-      && github.event.repository.visibility == 'public'
+      ${{ (needs.mode.outputs.mode == 'release' || needs.mode.outputs.mode == 'rerelease')
+      && github.event.repository.visibility == 'public' }}
     runs-on: ubuntu-26.04
     timeout-minutes: 15
     permissions:
@@ -675,21 +881,18 @@ jobs:
         with:
           subject-path: release-assets/*
 
-  # 8. Final API check of the draft: tag peel, flags, target commit, exact asset set and digests, and
-  #    the updater manifest (latest.json) that `attach` wrote: this version, and per platform this
-  #    release's installer and its signature. Never in the dry run (`dry-run-assemble` runs the manifest check).
+  # 11. Final API check of the draft: tag peel, flags, target commit, exact asset set and digests, and every
+  #     updater manifest that `attach` wrote against the green platforms' installers and the previous release
+  #     (names, digests and contents). Never in the dry run (`dry-run-assemble` runs the manifest check).
   verify-draft:
-    needs: [prepare, draft, attach]
-    if: >-
-      github.event.action == 'closed'
-      && github.event.pull_request.merged == true
-      && github.event.pull_request.head.ref == 'development'
-      && github.event.pull_request.base.ref == 'main'
-      && github.event.pull_request.head.repo.full_name == github.repository
+    needs: [mode, prepare, draft, plan, attach]
+    if: ${{ needs.mode.outputs.mode == 'release' || needs.mode.outputs.mode == 'rerelease' }}
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:
       contents: write
+    env:
+      MERGE_SHA: ${{ needs.mode.outputs.merge_sha }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -703,49 +906,44 @@ jobs:
         with:
           name: release-assets
           path: release-assets
-      - name: Download latest.json from the draft (a draft has no public download URL)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_ID: ${{ needs.draft.outputs.release_id }}
-        run: |
-          set -euo pipefail
-          ASSET_ID="$(gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" --jq '[.assets[] | select(.name == "latest.json") | .id] | first')"
-          if [ -z "$ASSET_ID" ] || [ "$ASSET_ID" = "null" ]; then
-            echo "::error::the draft has no latest.json" >&2
-            exit 1
-          fi
-          mkdir -p updater-manifest
-          gh api -H "Accept: application/octet-stream" "repos/$GITHUB_REPOSITORY/releases/assets/$ASSET_ID" > updater-manifest/latest.json
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: updater-manifest
+          path: updater-manifests
+      # The first release of a repository has no previous manifests, so its artifact is empty and absent; the
+      # check then runs against an empty directory, which a carried platform would fail.
+      - name: Make the previous-manifests directory
+        run: mkdir -p previous-manifests
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        continue-on-error: true
+        with:
+          name: previous-manifests
+          path: previous-manifests
       - name: Verify the draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ needs.prepare.outputs.version }}
           RELEASE_ID: ${{ needs.draft.outputs.release_id }}
+          GREEN: ${{ needs.plan.outputs.green }}
         run: >-
           python -I scripts/release/release.py verify-draft
           --repo "$GITHUB_REPOSITORY" --merge-sha "$MERGE_SHA" --dir release-assets
-          --version "$VERSION" --release-id "$RELEASE_ID"
-          --latest-json updater-manifest/latest.json
+          --version "$VERSION" --release-id "$RELEASE_ID" --platforms "$GREEN"
+          --manifests-dir updater-manifests --previous previous-manifests
 
-  # 9. The only job that publishes. It runs after every other job has passed (the provenance job only
-  #    when it runs at all, in a public repository). It tags the merge commit (a tag that already exists
-  #    must be on that exact commit) and publishes the verified draft: the latest release for a stable
-  #    version, a prerelease for -dev.N. The permission sits on this job only. It can run only for the
-  #    `closed` event of a merged promotion; a dry run never gets here.
+  # 12. The only job that publishes. It runs after every other job it depends on has passed (the provenance
+  #     job only when it runs at all, in a public repository), and only when `plan` found a green platform.
+  #     It tags the merge commit (a tag that already exists must be on that exact commit) and publishes the
+  #     verified draft: the latest release for a stable version, a prerelease for -dev.N. The permission sits
+  #     on this job only. It can run only for a merged promotion or a manual re-release; a dry run never gets here.
   publish:
-    needs: [prepare, draft, build, clean-machine, clean-machine-macos, attach, attest, verify-draft]
+    needs: [mode, prepare, draft, plan, attach, attest, verify-draft]
     if: >-
       ${{ !cancelled()
-      && github.event.action == 'closed'
-      && github.event.pull_request.merged == true
-      && github.event.pull_request.head.ref == 'development'
-      && github.event.pull_request.base.ref == 'main'
-      && github.event.pull_request.head.repo.full_name == github.repository
+      && (needs.mode.outputs.mode == 'release' || needs.mode.outputs.mode == 'rerelease')
       && needs.prepare.result == 'success'
       && needs.draft.result == 'success'
-      && needs.build.result == 'success'
-      && needs.clean-machine.result == 'success'
-      && needs.clean-machine-macos.result == 'success'
+      && needs.plan.result == 'success'
       && needs.attach.result == 'success'
       && needs.verify-draft.result == 'success'
       && (needs.attest.result == 'success' || needs.attest.result == 'skipped') }}
@@ -753,6 +951,8 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: write
+    env:
+      MERGE_SHA: ${{ needs.mode.outputs.merge_sha }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -771,3 +971,61 @@ jobs:
           python -I scripts/release/release.py publish
           --repo "$GITHUB_REPOSITORY" --merge-sha "$MERGE_SHA"
           --version "$VERSION" --release-id "$RELEASE_ID"
+
+  # 13. Tells the owner which platforms are missing. After a publish, one open issue per platform that was
+  #     selected and not green gets a comment (or is created), and a platform that shipped closes its open
+  #     issue. Nothing is checked out; `gh` runs with the run's metadata passed through env, never into the
+  #     script text (like nightly-alert.yml). The run itself stays red when a lane failed: the issue is how
+  #     the owner finds out what to fix.
+  platform-issues:
+    needs: [mode, prepare, plan, publish]
+    if: ${{ !cancelled() && needs.publish.result == 'success' }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      VERSION: ${{ needs.prepare.outputs.version }}
+      GREEN: ${{ needs.plan.outputs.green }}
+      FAILED: ${{ needs.plan.outputs.failed }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Open, update or close the release-platform issues
+        run: |
+          set -euo pipefail
+          gh label create release-platform --repo "$GITHUB_REPOSITORY" --force \
+            --color B60205 --description "A platform was left out of a release"
+          label_of() {
+            case "$1" in
+              windows-x64) echo "Windows (x64)" ;;
+              linux-x64) echo "Linux (x64)" ;;
+              macos-arm64) echo "macOS (Apple Silicon)" ;;
+              *) echo "$1" ;;
+            esac
+          }
+          open_issue() {
+            ISSUE_TITLE="$1" gh issue list --repo "$GITHUB_REPOSITORY" --label release-platform --state open \
+              --limit 100 --json number,title \
+              --jq '[.[] | select(.title == $ENV.ISSUE_TITLE)] | .[0].number // empty'
+          }
+          for platform in ${FAILED//,/ }; do
+            label="$(label_of "$platform")"
+            title="Release: $label is not shipping"
+            body="$(printf '%s was left out of v%s: its tests, build or smoke test failed.\n\nRun: %s\n\nFix it on development, then promote it or re-release the platform from main: gh workflow run release.yml --ref main -f platforms=%s\n' \
+              "$label" "$VERSION" "$RUN_URL" "$platform")"
+            issue="$(open_issue "$title")"
+            if [ -n "$issue" ]; then
+              gh issue comment "$issue" --repo "$GITHUB_REPOSITORY" --body "$body"
+            else
+              gh issue create --repo "$GITHUB_REPOSITORY" --label release-platform --title "$title" --body "$body"
+            fi
+          done
+          for platform in ${GREEN//,/ }; do
+            label="$(label_of "$platform")"
+            issue="$(open_issue "Release: $label is not shipping")"
+            if [ -n "$issue" ]; then
+              gh issue close "$issue" --repo "$GITHUB_REPOSITORY" \
+                --comment "$label shipped in v$VERSION. Run: $RUN_URL"
+            fi
+          done

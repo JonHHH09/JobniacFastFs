@@ -2,7 +2,7 @@
 # Builds the macOS bundles (.app, .dmg and the updater archive) of the release leg, signed and notarized
 # when the Developer ID secrets exist and ad-hoc signed otherwise.
 #
-# Run by the `build` job of release.yml on the macOS leg, instead of tauri-action: this step never sees the
+# Run by the `build` job of release-build.yml on the macOS lane, instead of tauri-action: this step never sees the
 # GitHub token, and the Apple secrets reach this step only. Inputs (environment):
 #   BUNDLES                      the Tauri bundle list, for example `app,dmg`
 #   MACOS_SIGNING_REQUIRED       exactly `1`: an ad-hoc build (no Developer ID secrets) fails instead of
