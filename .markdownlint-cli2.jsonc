@@ -1,0 +1,36 @@
+{
+  // Configuration of markdownlint-cli2, run by the `text` job in .github/workflows/ci.yml.
+  // It starts from the default rule set; each change below says why.
+  "config": {
+    // MD013 (line length): prose is wrapped to the editor's width, and tables and links run long.
+    "MD013": false,
+    // MD024 (duplicate headings): CHANGELOG.md repeats "Added", "Changed" and "Fixed" under each version.
+    "MD024": { "siblings_only": true },
+    // MD029 (ordered list prefix): the smoke checklist numbers its steps continuously across
+    // sections, so each step can be cited by its number.
+    "MD029": false,
+    // MD031 (blank lines around fences): code blocks directly under a list item stay attached to the
+    // step they belong to; only fences outside lists need blank lines.
+    "MD031": { "list_items": false },
+    // MD036 (emphasis used as a heading): the GitHub wiki sidebar groups its links under bold labels.
+    "MD036": false,
+    // MD041 (first line is a top-level heading): the PR template and the wiki sidebar and footer
+    // pages do not start with a heading.
+    "MD041": false,
+    // MD060 (table column style): the tables use compact delimiter rows (`|---|---|`) throughout.
+    "MD060": false
+  },
+  "globs": ["**/*.md"],
+  "ignores": [
+    // Dependencies and build output (also untracked, so the glob never meets them in CI).
+    "**/node_modules/**",
+    "**/target/**",
+    "**/dist/**",
+    "src-tauri/gen/**",
+    "vendor/**",
+    // Test fixtures and golden data hold deliberately odd text.
+    "**/tests/fixtures/**",
+    "**/golden/**"
+  ],
+  "gitignore": true
+}

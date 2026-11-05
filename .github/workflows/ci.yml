@@ -227,6 +227,36 @@ jobs:
         # runs the generic classes. The scan fails on any finding that is not in the reviewed allow-list.
         run: python3 -I scripts/ci/privacy_scan.py --mode all
 
+  # Cheap text checks that catch typos, broken Markdown structure and dead local links before review.
+  # typos spell-checks the tracked files, markdownlint-cli2 checks the structure of every Markdown file,
+  # and lychee checks that relative links and heading anchors in the Markdown files resolve inside the
+  # repository. lychee runs offline, so the job makes no network request and cannot fail on a remote
+  # outage. The rules and exclusions live in `_typos.toml`, `.markdownlint-cli2.jsonc` and `lychee.toml`.
+  # The job has no `needs` and no `if`, so it also runs for the release call.
+  text:
+    name: Text (spelling, Markdown, links)
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # The release call tests the merge commit that release.yml pins, not the default merge ref.
+          ref: ${{ inputs.release-call && github.event.pull_request.merge_commit_sha || '' }}
+          persist-credentials: false
+      - name: Spelling (typos)
+        uses: crate-ci/typos@7f9d0819ca1c008ade73f4b41fa9d258d48f605b # v1.51.1
+      - name: Markdown structure (markdownlint-cli2 0.23.2, bundled with the action)
+        uses: DavidAnson/markdownlint-cli2-action@21c1be1b93ad9ed58fa840aacc3f279cde2a72ff # v24.2.0
+        with:
+          globs: "**/*.md"
+      - name: Local links and anchors (lychee, offline)
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          lycheeVersion: v0.24.2
+          args: --config lychee.toml --offline --include-fragments --no-progress './**/*.md'
+          # The job summary is not needed; the log carries the findings.
+          jobSummary: false
+
   # Smoke test of the pinned actions/cache action. `mark-passed` (which saves with it) is skipped on
   # pull requests into development, so a bump of the action would otherwise first run on a push to
   # development. This job saves and restores a synthetic file under a disposable key on every pull
