@@ -2,7 +2,7 @@
 
 ## The in-app updater
 
-JobniacFast checks GitHub for a newer signed release. It reads `latest.json` from the latest release, at `https://github.com/JonHHH09/JobniacFastFs/releases/latest/download/latest.json`.
+JobniacFast checks GitHub for a newer signed release. It reads the manifest of your platform from the latest release, at `https://github.com/JonHHH09/JobniacFastFs/releases/latest/download/latest-{{target}}-{{arch}}.json` (for example `latest-darwin-aarch64.json`), and falls back to `latest.json` at the same place. A release that leaves a platform out keeps that platform's previous manifest, so its copies see no update until a release ships it.
 
 In Settings, the Updates card has:
 

@@ -2,31 +2,39 @@
 
 For maintainers. A release starts when the promotion pull request from `development` into `main` is merged. Nobody runs it by hand. The workflow is [`release.yml`](https://github.com/JonHHH09/JobniacFastFs/blob/main/.github/workflows/release.yml).
 
-The release is draft-first. A draft is created and verified, and only the last job tags the merge commit and publishes it. A failed gate leaves the draft unpublished.
+The release is draft-first and per platform. A draft is created and verified, and only the `publish` job tags the merge commit and publishes it. Each platform is a lane (its tests, its build and its smoke test), and a release carries every platform whose lane is green, as one version, one tag and one release page. A red shared check, a failed version computation or SBOM, or no green platform leaves the draft unpublished.
 
 ## Trigger
 
-`release.yml` runs when a pull request into `main` is closed as merged, from `development`, in this repository. The branch flow is in [Contributing Workflow](Contributing-Workflow.md).
+`release.yml` runs in three situations, decided by its `mode` job: a pull request into `main` from `development` in this repository that is open (a dry run: nothing is released), the same pull request closed as merged (a release), and a manual run on `main` (a re-release of a platform, below). Anything else skips every job. The branch flow is in [Contributing Workflow](Contributing-Workflow.md).
 
-Merge the promotion pull request only when its checks are green, `E2E (...)` included. A red end-to-end suite stops the release after the merge.
+Merge the promotion pull request only when its checks are green, `E2E (...)` included. A red platform check takes that platform out of the release, and the run ends red.
 
 ## Jobs
 
 | Job | What it does |
 |---|---|
-| `checks` | Calls `ci.yml` on the merge commit with the full set, Windows and macOS included. |
-| `e2e` | Calls `e2e.yml` on the merge commit, on Linux and Windows. |
+| `mode` | Decides the mode, the commit and the selected platforms. |
+| `checks-shared`, `checks-linux`, `checks-macos`, `checks-windows` | Call `ci.yml` on the merge commit, one scope each. The shared scope always runs; a platform's runs when it is selected. |
+| `e2e-linux`, `e2e-windows` | Call `e2e.yml` on the merge commit for a selected platform. |
 | `prepare` | Read-only. Checks that HEAD is the merge commit, resolves the version and tag, and refuses the placeholder updater public key. |
+| `sbom` | Writes the software bill of materials once, recomputed and compared byte for byte. |
 | `draft` | The only job that creates the draft. It checks the tag, prunes stale Windows installers and creates or reuses the single draft. |
-| `build` | One leg per platform, see below. |
+| `build-windows`, `build-linux`, `build-macos` | One lane build each (`release-build.yml`), see below. They only build and hold no GitHub token. |
 | `clean-machine` | Windows smoke on a fresh runner: install, launch, exercise MCP, uninstall, check residue. |
 | `clean-machine-macos` | macOS smoke: mount the DMG, launch, exercise MCP and the PDF worker. |
-| `attach` | Assembles the asset set, writes and verifies `SHA256SUMS`, attaches missing assets, then writes and attaches `latest.json`, the updater manifest. |
+| `plan` | Lists the green platforms; fails when there are none. |
+| `attach` | Assembles the green platforms' asset set, writes and verifies `SHA256SUMS`, attaches the missing assets, then writes and attaches the updater manifests. |
 | `attest` | Build provenance attestation. It runs only where GitHub supports it, and `publish` accepts a skip. |
-| `verify-draft` | Final API check of the draft: tag, flags, target commit, exact asset set and digests, and `latest.json`. |
-| `publish` | Needs every job above. Tags the merge commit and publishes the draft. |
+| `verify-draft` | Final API check of the draft: tag, flags, target commit, exact asset set and digests, and every updater manifest. |
+| `publish` | Tags the merge commit and publishes the draft. |
+| `platform-issues` | Opens or updates one `release-platform` issue per missing platform, and closes it when a platform ships. |
 
-`checks` and `e2e` skip their heavy jobs when the promotion pull request already passed the same tree. See [Testing and CI](Testing-and-CI.md).
+The checks skip their heavy jobs when the promotion pull request already passed the same tree. See [Testing and CI](Testing-and-CI.md).
+
+### Re-release
+
+A platform that was left out is released again by a manual run on `main`: `gh workflow run release.yml --ref main -f platforms=macos-arm64`. It builds `main`'s current commit as the next patch version for the selected platforms only, with a new draft, tag and release. A published release is never edited. The other platforms keep their previous updater manifests.
 
 ### Build legs
 
@@ -36,7 +44,7 @@ Merge the promotion pull request only when its checks are green, `E2E (...)` inc
 | Linux x64 | `ubuntu-24.04` | AppImage and deb |
 | macOS Apple Silicon | `macos-latest` | DMG and an app archive for the updater |
 
-Linux builds on 24.04 on purpose. The build host sets the glibc floor of the AppImage and deb. Every leg fetches the pinned PDFium, builds the CLI sidecar, generates licence notices, audits the built binaries, and reconciles the payload with the notices. The Linux leg also checks the software bill of materials. The NSIS installer, the AppImage and the macOS app archive get an updater signature.
+Linux builds on 24.04 on purpose. The build host sets the glibc floor of the AppImage and deb. Every leg fetches the pinned PDFium, builds the CLI sidecar, generates licence notices, audits the built binaries, and reconciles the payload with the notices. The NSIS installer, the AppImage and the macOS app archive get an updater signature.
 
 ## Versioning
 
@@ -50,7 +58,7 @@ The release version is computed, not typed into the workflow.
   ```
 
   `X.Y.Z` can be a new minor or major version, or `X.Y.Z-dev.N` for a prerelease. A bumped version that is higher than the tags and not yet tagged is used as is.
-- A rerun of the workflow on the same merge commit reuses the tag already on that commit.
+- A rerun of the workflow on the same merge commit reuses the tag already on that commit. A re-release takes the next patch even though the commit is tagged.
 - Nothing is committed back to the repository. Each build leg stamps the version into its own checkout.
 - A stable version (`vX.Y.Z`) is published as the latest release, which the in-app updater reads. A `-dev.N` version is published as a prerelease and is never the latest.
 - Release runs are serialized in one concurrency group.

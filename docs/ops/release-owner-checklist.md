@@ -118,17 +118,22 @@ hosted runner yet.
 - **Who:** owner. **Where:** GitHub Actions and Releases.
 - **What:** the release workflow (`release.yml`, as written when this checklist was written) runs when a
   promotion pull request from `development` into `main` is merged in the same repository. It creates a
-  **draft** only. Its jobs in order: `checks` (the CI gates on the merge commit), `prepare` (read-only:
-  version and tag rules), `draft` (the only job that creates the draft), `build` (Windows, Linux and
-  macOS Apple Silicon), `clean-machine` and `clean-machine-macos` (the scripted smokes on fresh runners),
-  `attach` (writes `SHA256SUMS`), `attest`
-  (provenance, public repositories only) and `verify-draft` (a final API check).
+  **draft** first, and publishes it at the end with the platforms whose lanes are green. Its jobs in
+  order: `mode` (what this run is), the checks (`checks-shared` for every run, and `checks-<platform>`
+  and `e2e-<platform>` for each selected platform), `prepare` (read-only: version and tag rules), `sbom`
+  (the SBOMs, once for all platforms), `draft` (the only job that creates the draft), `build-windows`,
+  `build-linux` and `build-macos` (Apple Silicon; build only, with no GitHub token), `clean-machine` and
+  `clean-machine-macos` (the scripted smokes on fresh runners), `plan` (which platforms are green),
+  `attach` (writes `SHA256SUMS` and the updater manifests), `attest`
+  (provenance, public repositories only), `verify-draft` (a final API check), `publish` and
+  `platform-issues`.
   The version rules: `X.Y.Z` gives tag `vX.Y.Z` and a stable release; `X.Y.Z-dev.N` gives tag
   `vX.Y.Z-dev.N` and a prerelease. The version is computed in `prepare` from the existing `v*` tags and
   never committed: each merged promotion gets the patch after the highest stable tag (the first release
   takes the version in the files). If the version in the files is higher than that and not tagged yet
   (a `bump` to a minor, major or `-dev.N` version on `development`), the release takes the file version
-  instead. A tag already on the merge commit keeps its version, so a rerun reuses it. The build legs stamp
+  instead. A tag already on the merge commit keeps its version, so a rerun reuses it (a re-release, below,
+  is the one case that takes the next patch although the commit is tagged). The build lanes stamp
   the computed version into their checkout before building. Release notes are the `CHANGELOG.md` section of
   that version when it exists, otherwise GitHub's generated notes since the previous stable tag.
   Runs of merged promotions share one concurrency group, so they serialize and never compute the same
@@ -146,26 +151,50 @@ hosted runner yet.
   `development` is exercised here before the promotion merges. The dry run builds that merge ref, signs
   the updater artifacts with the real key (so it proves that the `TAURI_SIGNING_PRIVATE_KEY` secret
   matches the public key in `tauri.release.conf.json`), builds the macOS leg ad-hoc (no Apple secret),
-  runs both clean-machine smokes, and assembles the asset set and `latest.json` into the workflow
-  artifact `dry-run-assets` (kept 3 days). It never creates or changes a release, a draft, a tag or an
-  attestation, and it skips `checks` and `e2e`, which run on the pull request as `ci.yml` and `e2e.yml`.
+  runs both clean-machine smokes, and assembles the green platforms' asset set and updater manifests into
+  the workflow artifact `dry-run-assets` (kept 3 days); its step summary lists the platforms the merge
+  would ship and the ones it would carry. It never creates or changes a release, a draft, a tag or an
+  attestation, and it skips the checks, which run on the pull request as `ci.yml` and `e2e.yml`.
   It costs about 25 to 35 minutes of runner time per push to the open promotion pull request (a newer
   push cancels the older dry run). It is not a required check; add `Release` jobs to the `Protect main`
   ruleset only if you want a red dry run to block the merge. Read it before you merge: a red dry run is
   what the merge would have failed on.
-- **Expected (dry run):** `prepare`, the three `build` legs, `clean-machine`, `clean-machine-macos` and
-  `dry-run-assemble` are green; every other job shows as skipped. A real merge then runs the same
-  builds with the draft, the signing and notarization secrets, `attach`, `attest`, `verify-draft` and
-  `publish`.
-- **Failure:** any job red. A failed `clean-machine` leaves the draft in place; the next promotion
-  prunes the stale Windows assets and rebuilds it. Read the failed step's log first. "Re-run" of a failed
-  `Release` run is only for transient failures (a runner or network error): a re-run replays the old merge
-  commit with the workflow file and scripts of that commit, so it cannot pick up a fix. A code or workflow
-  fix goes through `development` and a new promotion pull request, whose new merge commit makes the
-  next run prune the stale draft's assets and rebuild them. The build legs do not cancel each other, so
-  one run shows every failing leg, and the smoke jobs still run for the legs that built.
-- **Closed:** `tauri-action` attaches to the existing draft by release ID (draft 420976097 of the failed
-  run 39818216211 shows the installer, the AppImage, the deb and their signatures attached that way).
+- **Expected (dry run):** `mode`, `prepare`, `sbom`, the three builds, `clean-machine`,
+  `clean-machine-macos`, `plan` and `dry-run-assemble` are green; every other job shows as skipped. A
+  real merge then runs the same builds with the draft, the signing and notarization secrets, `attach`,
+  `attest`, `verify-draft`, `publish` and `platform-issues`.
+- **Partial releases:** a platform is a lane (its tests, its build and its smoke test). A red lane leaves
+  only that platform out: the release publishes with the green ones, as one version, one tag and one
+  release page, and the release notes carry a Platforms table that names the platform and the version it
+  keeps. The left-out platform keeps its previous updater manifest (`latest-<target>-<arch>.json`), so its
+  installed copies see no update; the combined `latest.json`, which installed 0.1.x apps still read,
+  advances only on a full release. The run stays red on purpose when a lane failed, even though the
+  release was published. A red shared check (UI, supply chain, release tools, privacy scan), the SBOM
+  or the version computation stops the release; so does a run with no green platform.
+- **`release-platform` issues:** after a publish, `platform-issues` keeps one open issue per missing
+  platform, titled "Release: <platform> is not shipping" (label `release-platform`): it opens it, or
+  comments on the open one with the version and the run link. A later release that ships the platform
+  closes it with a comment naming the version. Read the issue, then fix the platform on `development`.
+- **Re-release of a platform:** when the fix is already on `main` (or the failure was transient), release
+  `main`'s commit again for the missing platform only:
+  `gh workflow run release.yml --ref main -f platforms=macos-arm64` (a comma-separated subset of
+  `windows-x64`, `linux-x64`, `macos-arm64`). It runs the shared checks and the selected platforms' lanes
+  and publishes the NEXT patch version (a new draft, tag and release; a published release is never
+  edited), with the other platforms carried forward. Its notes say which commit it builds again. If a
+  fix is not on `main` yet, promote it from `development` instead: that builds all three platforms.
+- **Failure:** any job red. A failed lane leaves the release to publish without that platform. A failed
+  shared job leaves the draft in place; the next promotion prunes the stale Windows assets and rebuilds
+  it. Read the failed step's log first. "Re-run failed jobs" of a `Release` run replays the same run: the
+  old merge commit, the workflow file and scripts of that commit, and the same version (a tag already on
+  the commit keeps its version, and the draft is reused). Use it only for transient failures (a runner
+  or network error), including a red lane that failed for that reason when the run did not publish; it
+  cannot pick up a fix. A code or workflow fix goes through `development` and a new promotion pull
+  request. To add a platform to a release that is already published, re-release it (above): "Re-run
+  failed jobs" never changes a published release. The build lanes do not cancel each other, so one run
+  shows every failing lane, and the smoke jobs still run for the builds that succeeded.
+- **Closed:** the builds never upload: `tauri-action` only builds, the build jobs have no GitHub token or
+  write access, and `attach` uploads the files from the workflow artifacts to the existing draft by
+  release ID.
 
 ## G5 Clean-machine run on another machine
 
@@ -222,8 +251,9 @@ hosted runner yet.
 ## G9 CI publishes after the gates, then announce
 
 - **Who:** `release.yml` publishes; the owner announces. **Where:** GitHub Releases.
-- **What:** the last job (`publish`) runs only when every other job has passed, including the draft
-  verification (exact asset set, digests, `latest.json` and the update signatures). It creates the tag
+- **What:** the last publishing job (`publish`) runs only when the shared jobs, `plan` (at least one green
+  platform), `attach`, `attest` and the draft verification (exact asset set, digests, every updater
+  manifest and the update signatures) have passed; a red platform lane does not stop it. It creates the tag
   `vX.Y.Z` on the merge commit (it fails if the tag exists on another commit) and publishes the draft:
   the latest release for `X.Y.Z`, a prerelease for `X.Y.Z-dev.N` (never the latest, so the updater
   ignores it). To stop a release, do not merge the promotion pull request; a failed job leaves the draft
@@ -234,8 +264,8 @@ hosted runner yet.
   where you choose. The announcement text is yours.
 - **Expected:** the release is public, the installer digest matches `SHA256SUMS`, and the release notes
   include the SmartScreen guidance from the [README](../../README.md#install).
-- **Failure:** a job fails, so nothing is published. Read the log. For a transient runner or network
-  failure, "Re-run failed jobs" reuses the draft; for anything in the code or the workflow, fix it on
+- **Failure:** a shared job fails, or no platform is green, so nothing is published. Read the log. For a
+  transient runner or network failure, "Re-run failed jobs" reuses the draft and the version; for anything in the code or the workflow, fix it on
   `development` and promote again (see G4: a re-run replays the old merge commit). A digest mismatch: start
   again from G4.
 

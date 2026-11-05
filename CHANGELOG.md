@@ -157,6 +157,21 @@ drafts take the body of their version section from this file.
   `latest.json` into a workflow artifact, and never creates or changes a release, draft, tag or
   attestation. The build legs no longer cancel each other when one fails, and the smoke jobs still
   run for the legs that built. `release.py check-updater-manifest` checks a local `latest.json`.
+- Releases: the release workflow now publishes per platform. Each of Windows, Linux and macOS is a lane
+  (its tests, its build and its smoke test), and a release carries the platforms whose lanes are green, as
+  one version, one tag and one release page; a red platform no longer blocks the others, and a shared
+  failure (UI, supply chain, release tools, privacy scan, the version or the SBOM) still stops the release.
+  The run stays red when a lane failed, and a `release-platform` issue is opened (and closed when a later
+  release ships the platform). Every platform has its own updater manifest,
+  `latest-<target>-<arch>.json`, and a platform that is not in the release keeps its previous one; the
+  app's updater reads that file first and falls back to `latest.json`, which advances only on a full
+  release (installed 0.1.x apps read it alone). A new manual run of `release.yml` on `main`
+  (`gh workflow run release.yml --ref main -f platforms=macos-arm64`) releases the commit again as the
+  next patch version for the selected platforms and never edits a published release;
+  `release.py next-version --next-patch-even-if-tagged` and `release.py platform-notes --rerelease-of`
+  support it. The SBOMs are written once by their own job, and the build jobs (now the reusable
+  `release-build.yml`) no longer hold the GitHub token or write access: they only build, and `attach`
+  uploads from the workflow artifacts.
 - CI: apt on the Linux runners retries and times out a stalled mirror connection sooner, every CI job
   has a timeout instead of the 6-hour default (the end-to-end jobs already had one), and a failed or cancelled nightly run on
   `development` opens or updates an issue labelled `ci-nightly`.
