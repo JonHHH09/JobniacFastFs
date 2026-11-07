@@ -40,7 +40,7 @@ landlock = "=0.4.7"
 seccompiler = "=0.5.0"
 # Linux safe syscall wrappers for the PDF exporter (files/export/platform_linux.rs): the fs and
 # process APIs only. Exact pin: already locked at 1.1.5 through the existing dependency graph.
-rustix = { version = "=1.1.5", features = ["fs", "process"] }
+rustix = { version = "=1.1.6", features = ["fs", "process"] }
 # Structural readback of generated PDFs; pinned exactly like the writer.
 lopdf = "=0.46.0"
 # Deterministic PDF writer for generated resumes and cover letters.
