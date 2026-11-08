@@ -94,7 +94,7 @@ matches is `unknown`, and `unknown` turns every job on. The classes and what the
 |---|---|---|
 | `prose` | `**/*.md`, `docs/**`, `LICENSE`, issue templates, `CODEOWNERS`, `dependabot.yml`, `.vscode/**`, `.gitignore`, `osv-scanner.toml`, the text check configuration, the other workflows, `scripts/ci/**` | none (the privacy scan, the text checks and the release tool tests always run) |
 | `changelog` | `CHANGELOG.md` | `Release tool unit tests` |
-| `release` | `release.yml`, `scripts/release/**`, `tauri.release.conf.json`; also root `Cargo.toml`, `package.json`, `tauri.conf.json`, which `release.py check-versions` reads | `Release tool unit tests` |
+| `release` | `release.yml`, `release-build.yml`, `scripts/release/**`, `tauri.release.conf.json`; also root `Cargo.toml`, `package.json`, `tauri.conf.json`, which `release.py check-versions` reads | `Release tool unit tests` |
 | `ui` | `src/**`, `index.html`, `public/**`, Vite, TypeScript and biome configuration, pnpm files | `UI`, both `E2E` jobs |
 | `ui-tests` | `playwright/**`, `playwright.config.ts` | `UI` |
 | `e2e-tests` | `e2e/**` | `UI` (biome lints `e2e/`), both `E2E` jobs |

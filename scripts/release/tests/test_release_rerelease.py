@@ -78,6 +78,11 @@ class RereleaseNotes(unittest.TestCase):
         body = release.apply_platform_section("Notes.\n", section)
         self.assertEqual(release.apply_platform_section(body, section), body)
 
+    def test_the_merge_tag_is_the_highest_stable_tag_at_the_commit_or_empty(self) -> None:
+        self.assertEqual(release.merge_release_tag([]), "")
+        self.assertEqual(release.merge_release_tag(["v1.2.3-dev.1", "other"]), "")
+        self.assertEqual(release.merge_release_tag(["v1.2.3", "v1.2.4"]), "v1.2.4")
+
     def test_a_bad_tag_is_refused(self) -> None:
         with self.assertRaises(release.ReleaseError):
             release.platform_notes("1.2.4", (self.MACOS,), None, "example/app", "not a tag")

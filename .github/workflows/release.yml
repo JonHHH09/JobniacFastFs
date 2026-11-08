@@ -280,6 +280,7 @@ jobs:
       tag: ${{ steps.resolve.outputs.tag }}
       prerelease: ${{ steps.resolve.outputs.prerelease }}
       previous_tag: ${{ steps.resolve.outputs.previous_tag }}
+      merge_tag: ${{ steps.resolve.outputs.merge_tag }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -298,6 +299,12 @@ jobs:
         run: |
           set -euo pipefail
           if [ "$MODE" = "rerelease" ]; then
+            # A re-run recomputes the next patch from the tags, which after a published first attempt would
+            # build one more release of the same commit. Fail closed: the owner dispatches a new re-release.
+            if [ "${GITHUB_RUN_ATTEMPT:-1}" -gt 1 ]; then
+              echo "::error::A re-release run cannot be re-run: it would build another release of the same commit. Dispatch a new re-release instead: gh workflow run release.yml --ref main -f platforms=<platforms>" >&2
+              exit 1
+            fi
             python -I scripts/release/release.py next-version --merge-sha "$MERGE_SHA" --next-patch-even-if-tagged
           else
             python -I scripts/release/release.py next-version --merge-sha "$MERGE_SHA"
@@ -586,7 +593,7 @@ jobs:
   #    release, and a shared failure (prepare or sbom) leaves it skipped.
   plan:
     needs: [mode, prepare, sbom, build-windows, build-linux, build-macos, clean-machine, clean-machine-macos]
-    if: ${{ always() && needs.mode.outputs.mode != 'none' && needs.prepare.result == 'success' && needs.sbom.result == 'success' }}
+    if: ${{ !cancelled() && needs.mode.outputs.mode != 'none' && needs.prepare.result == 'success' && needs.sbom.result == 'success' }}
     runs-on: ubuntu-26.04
     timeout-minutes: 5
     permissions: {}
@@ -757,6 +764,7 @@ jobs:
       RELEASE_ID: ${{ needs.draft.outputs.release_id }}
       GREEN: ${{ needs.plan.outputs.green }}
       PREVIOUS_TAG: ${{ needs.prepare.outputs.previous_tag }}
+      MERGE_TAG: ${{ needs.prepare.outputs.merge_tag }}
       MODE: ${{ needs.mode.outputs.mode }}
     outputs:
       has_previous: ${{ steps.previous.outputs.has_previous }}
@@ -834,9 +842,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          if [ "$MODE" = "rerelease" ]; then
+          # "Builds the commit of vX again" is said only when a release tag really points at this commit (an
+          # earlier release whose lanes were all red never tagged it).
+          if [ "$MODE" = "rerelease" ] && [ -n "$MERGE_TAG" ]; then
             python -I scripts/release/release.py platform-notes --version "$VERSION" --platforms "$GREEN" \
-              --previous previous --repo "$GITHUB_REPOSITORY" --rerelease-of "$PREVIOUS_TAG" > platform-notes.md
+              --previous previous --repo "$GITHUB_REPOSITORY" --rerelease-of "$MERGE_TAG" > platform-notes.md
           else
             python -I scripts/release/release.py platform-notes --version "$VERSION" --platforms "$GREEN" \
               --previous previous --repo "$GITHUB_REPOSITORY" > platform-notes.md

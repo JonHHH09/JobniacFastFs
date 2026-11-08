@@ -1788,7 +1788,7 @@ class WorkflowRules(unittest.TestCase):
         plan = self.job("plan")
         for name in ("build-windows", "build-linux", "build-macos", "clean-machine", "clean-machine-macos", "sbom"):
             self.assertRegex(plan, rf"needs: \[[^\]]*\b{name}\b")
-        self.assertIn("if: ${{ always() && needs.mode.outputs.mode != 'none'", plan)
+        self.assertIn("if: ${{ !cancelled() && needs.mode.outputs.mode != 'none'", plan)
         self.assertIn("green: ${{ steps.plan.outputs.green }}", plan)
         self.assertIn("failed: ${{ steps.plan.outputs.failed }}", plan)
         self.assertIn("partial: ${{ steps.plan.outputs.partial }}", plan)
@@ -1839,8 +1839,11 @@ class WorkflowRules(unittest.TestCase):
         self.assertIn('release.py next-version --merge-sha "$MERGE_SHA"', prepare)
         # Only a re-release counts from the highest tag even though the commit is tagged.
         self.assertEqual(prepare.count("--next-patch-even-if-tagged"), 1)
-        self.assertRegex(prepare, r'if \[ "\$MODE" = "rerelease" \]; then\n\s+python -I scripts/release/release\.py '
+        self.assertRegex(prepare, r'if \[ "\$MODE" = "rerelease" \]; then\n(?:\s+#[^\n]*\n)*'
+                                  r'\s+if \[ "\$\{GITHUB_RUN_ATTEMPT:-1\}" -gt 1 \]; then\n[^\n]*::error::[^\n]*\n\s+exit 1\n\s+fi\n'
+                                  r'\s+python -I scripts/release/release\.py '
                                   r'next-version --merge-sha "\$MERGE_SHA" --next-patch-even-if-tagged')
+        self.assertIn("merge_tag: ${{ steps.resolve.outputs.merge_tag }}", prepare)
         self.assertNotIn("resolve-version", (WORKFLOWS / "release.yml").read_text(encoding="utf-8"))
         self.assertIn("previous_tag: ${{ steps.resolve.outputs.previous_tag }}", prepare)
         build = self.job("build", "release-build.yml")

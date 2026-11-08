@@ -34,7 +34,7 @@ The checks skip their heavy jobs when the promotion pull request already passed 
 
 ### Re-release
 
-A platform that was left out is released again by a manual run on `main`: `gh workflow run release.yml --ref main -f platforms=macos-arm64`. It builds `main`'s current commit as the next patch version for the selected platforms only, with a new draft, tag and release. A published release is never edited. The other platforms keep their previous updater manifests.
+A platform that was left out is released again by a manual run on `main`: `gh workflow run release.yml --ref main -f platforms=macos-arm64`. It builds `main`'s current commit as the next patch version for the selected platforms only, with a new draft, tag and release. A published release is never edited. The other platforms keep their previous updater manifests. A re-release run is never re-run from the Actions page ("Re-run all jobs" fails at once, so it cannot build one more release of the same commit); dispatch a new re-release instead.
 
 ### Build legs
 

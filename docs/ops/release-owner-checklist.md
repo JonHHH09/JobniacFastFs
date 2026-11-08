@@ -173,7 +173,7 @@ hosted runner yet.
   release was published. A red shared check (UI, supply chain, release tools, privacy scan), the SBOM
   or the version computation stops the release; so does a run with no green platform.
 - **`release-platform` issues:** after a publish, `platform-issues` keeps one open issue per missing
-  platform, titled "Release: <platform> is not shipping" (label `release-platform`): it opens it, or
+  platform, titled "Release: `<platform>` is not shipping" (label `release-platform`): it opens it, or
   comments on the open one with the version and the run link. A later release that ships the platform
   closes it with a comment naming the version. Read the issue, then fix the platform on `development`.
 - **Re-release of a platform:** when the fix is already on `main` (or the failure was transient), release
@@ -181,7 +181,9 @@ hosted runner yet.
   `gh workflow run release.yml --ref main -f platforms=macos-arm64` (a comma-separated subset of
   `windows-x64`, `linux-x64`, `macos-arm64`). It runs the shared checks and the selected platforms' lanes
   and publishes the NEXT patch version (a new draft, tag and release; a published release is never
-  edited), with the other platforms carried forward. Its notes say which commit it builds again. If a
+  edited), with the other platforms carried forward. Its notes say which commit it builds again (when a
+  release tag points at it). Do not re-run a re-release run: the run fails at once, because it would
+  build one more release of the same commit; dispatch a new re-release instead. If a
   fix is not on `main` yet, promote it from `development` instead: that builds all three platforms.
 - **Failure:** any job red. A failed lane leaves the release to publish without that platform. A failed
   shared job leaves the draft in place; the next promotion prunes the stale Windows assets and rebuilds

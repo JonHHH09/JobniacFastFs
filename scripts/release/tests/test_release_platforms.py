@@ -278,9 +278,18 @@ class PlatformManifests(TempDirCase):
         self.assertEqual(self.read(out, "linux-x86_64")["version"], "1.2.1")
         self.assertEqual(self.read(out, "darwin-aarch64")["version"], "1.2.2")
 
-    def test_a_missing_source_fails_when_the_previous_directory_is_not_empty(self) -> None:
+    def test_a_platform_that_never_shipped_is_skipped_with_a_warning_when_earlier_releases_exist(self) -> None:
         previous = self.make_previous(per_platform=(LINUX,))
-        with self.assertRaisesRegex(release.ReleaseError, "macos-arm64"):
+        assets, out, warnings = self.write_manifests((WINDOWS,), previous)
+        self.assertEqual(len(warnings), 2)
+        self.assertTrue(any("macos-arm64" in warning for warning in warnings))
+        self.assertEqual(self.names(out), ["latest-linux-x86_64.json", "latest-windows-x86_64.json"])
+        release.check_platform_manifests(out, self.VERSION, assets, (WINDOWS,), previous)
+
+    def test_an_unreadable_previous_manifest_still_fails(self) -> None:
+        previous = self.make_previous(per_platform=(LINUX,))
+        (previous / "latest-darwin-aarch64.json").write_text("not json", encoding="utf-8")
+        with self.assertRaisesRegex(release.ReleaseError, "previous updater manifest .* rejected"):
             self.write_manifests((WINDOWS,), previous)
 
     def test_a_platform_with_no_earlier_build_is_skipped_with_a_warning_for_an_empty_previous_directory(self) -> None:

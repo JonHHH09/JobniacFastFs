@@ -324,6 +324,11 @@ def next_version(
     return result, previous
 
 
+def merge_release_tag(tags_at_merge: list[str]) -> str:
+    """The highest stable release tag that points at the merge commit, or empty when none does."""
+    return latest_stable_tag(tags_at_merge)
+
+
 def latest_stable_tag(tags: list[str]) -> str:
     """The tag of the newest stable release (what GitHub serves as the latest release), or empty when none."""
     stable = [version for version in _release_versions(tags) if _is_stable(version)]
@@ -1219,17 +1224,6 @@ def carried_legacy_manifest(previous_dir: Path | None, version: str) -> bytes | 
     return raw
 
 
-def _previous_has_files(previous_dir: Path | None) -> bool:
-    """Whether the previous-manifests directory exists and holds anything (an empty one means a first release)."""
-    return previous_dir is not None and previous_dir.is_dir() and any(previous_dir.iterdir())
-
-
-def _missing_carry(previous_dir: Path | None, platform: str) -> None:
-    """A platform outside the set has no previous manifest: fatal unless there is no previous release at all."""
-    if _previous_has_files(previous_dir):
-        raise ReleaseError(f"the previous release carries no updater manifest for {platform}")
-
-
 def build_platform_manifests(assets_dir: Path, version: str, platforms: tuple[str, ...], previous_dir: Path | None,
                              notes: str, pub_date: str, out_dir: Path) -> list[str]:
     """Writes latest-<key>.json for every updater key (and latest.json) and returns the warnings.
@@ -1247,7 +1241,8 @@ def build_platform_manifests(assets_dir: Path, version: str, platforms: tuple[st
             continue
         carried = carried_manifest(previous_dir, key, version)
         if carried is None:
-            _missing_carry(previous_dir, platform)
+            # The platform never shipped (a first or earlier partial release lacked it): its updater endpoint
+            # stays 404. A manifest that exists but is unreadable or invalid still fails in carried_manifest.
             warnings.append(f"no earlier build of {platform} exists: {target.name} is not written")
         elif carried.raw is not None:
             target.write_bytes(carried.raw)
@@ -1279,7 +1274,6 @@ def check_platform_manifests(manifests_dir: Path, version: str, assets_dir: Path
             continue
         carried = carried_manifest(previous_dir, key, version)
         if carried is None:
-            _missing_carry(previous_dir, platform)
             continue
         expected.add(name)
         if not path.is_file():
@@ -1833,6 +1827,7 @@ def run_command(args: argparse.Namespace) -> int:
             "prerelease": str(intent.prerelease).lower(),
             "previous_tag": previous_tag,
             "latest_stable_tag": latest_stable_tag(tags),
+            "merge_tag": merge_release_tag(tags_at_merge),
         })
     elif command == "set-version":
         set_version(args.repo_root, args.version)
