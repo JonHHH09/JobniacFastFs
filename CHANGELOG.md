@@ -175,6 +175,11 @@ drafts take the body of their version section from this file.
 - CI: apt on the Linux runners retries and times out a stalled mirror connection sooner, every CI job
   has a timeout instead of the 6-hour default (the end-to-end jobs already had one), and a failed or cancelled nightly run on
   `development` opens or updates an issue labelled `ci-nightly`.
+- CI: `scripts/fetch-pdfium.sh` and `scripts/fetch-pdfium.ps1` retry a failed or stalled PDFium download
+  (four attempts of at most two minutes each, so a 5xx from the release asset host no longer fails the
+  job), and the Rust and end-to-end jobs restore PDFium from a cache keyed by the pinned digests. Pull
+  requests restore it but never save it, and a restored library is still checked against its pinned
+  SHA-256.
 - CI: a new job checks spelling (typos), Markdown structure (markdownlint) and local links (lychee,
   offline). Pull requests are filtered by change classes (`scripts/ci/change_classes.toml`): each
   changed path takes the classes of the first matching rule, a path no rule matches runs every

@@ -76,7 +76,24 @@ function Save-Download {
         # Windows PowerShell 5.1 defaults to TLS 1.0/1.1 for some hosts; GitHub requires TLS 1.2.
         [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
     }
-    Invoke-WebRequest -Uri $Url -OutFile $Destination -UseBasicParsing
+    # The release asset host sometimes answers 5xx or stalls. Retry a few times, each attempt bounded, so one
+    # bad response does not fail the run and a stalled host cannot use up a CI job's timeout (at most about
+    # 9 minutes in all). The digest checks after the download catch a corrupt file either way.
+    $attempts = 4
+    for ($attempt = 1; ; $attempt++) {
+        try {
+            Invoke-WebRequest -Uri $Url -OutFile $Destination -UseBasicParsing -TimeoutSec 120
+            return
+        }
+        catch {
+            Remove-Item -LiteralPath $Destination -Force -ErrorAction SilentlyContinue
+            if ($attempt -ge $attempts) {
+                throw
+            }
+            Write-Warning "Download attempt $attempt of $attempts failed ($($_.Exception.Message)); retrying in 15 seconds."
+            Start-Sleep -Seconds 15
+        }
+    }
 }
 
 # Prefer the Windows bsdtar. A Git for Windows GNU tar earlier on PATH reads "C:\..." as a remote host and fails.
