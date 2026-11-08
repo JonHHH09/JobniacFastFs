@@ -35,6 +35,14 @@ runs:
       with:
         # Pull request caches are unreadable by other pull requests and fill the quota.
         save-if: ${{ github.event_name != 'pull_request' }}
+    # The fetch scripts pin PDFium by SHA-256, so their hash keys the cache, and they verify a restored
+    # library against the pinned digest (a mismatch downloads again). Pull requests restore but never save.
+    - name: Restore the pinned PDFium library
+      id: pdfium-cache
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: vendor/pdfium
+        key: pdfium-${{ runner.os }}-${{ hashFiles('scripts/fetch-pdfium.sh', 'scripts/fetch-pdfium.ps1') }}
     - name: Fetch the pinned PDFium library (Linux)
       if: runner.os == 'Linux'
       shell: bash
@@ -53,6 +61,12 @@ runs:
       run: |
         bash scripts/fetch-pdfium.sh mac-arm64
         echo "JOBNIAC_PDFIUM_DIR=$GITHUB_WORKSPACE/vendor/pdfium/mac-arm64" >> "$GITHUB_ENV"
+    - name: Save the pinned PDFium library
+      if: ${{ github.event_name != 'pull_request' && steps.pdfium-cache.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: vendor/pdfium
+        key: pdfium-${{ runner.os }}-${{ hashFiles('scripts/fetch-pdfium.sh', 'scripts/fetch-pdfium.ps1') }}
     - name: Confirm the PDFium library is visible to the tests (macOS)
       if: runner.os == 'macOS'
       shell: bash

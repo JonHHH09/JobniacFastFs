@@ -93,7 +93,12 @@ for platform in "${platforms[@]}"; do
   mkdir -p "$extract" "$stage"
 
   echo "[$platform] downloading $ARCHIVE"
-  curl --fail --silent --show-error --location -o "$archive_path" "$RELEASE_BASE_URL/$ARCHIVE"
+  # The release asset host sometimes answers 5xx or stalls. Retry a few times, each attempt bounded, so one
+  # bad response does not fail the run and a stalled host cannot use up a CI job's timeout (at most about
+  # 9 minutes in all). The digest checks below catch a corrupt download either way.
+  curl --fail --silent --show-error --location \
+    --connect-timeout 30 --max-time 120 --retry 3 --retry-delay 15 --retry-all-errors \
+    -o "$archive_path" "$RELEASE_BASE_URL/$ARCHIVE"
 
   archive_digest="$(sha256_of "$archive_path")"
   if [[ "$archive_digest" != "$ARCHIVE_SHA256" ]]; then
