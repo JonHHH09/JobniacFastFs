@@ -38,7 +38,7 @@ specta-typescript.workspace = true
 tauri = { version = "2", features = [] }
 # Native open dialog of the Documents screen. It is called from Rust only (the picker seam in
 # document_commands), so the webview is granted no dialog permission.
-tauri-plugin-dialog = "=2.8.2"
+tauri-plugin-dialog = "=2.8.4"
 # Writes the MCP endpoint and token to the system clipboard. Called from Rust only (the Settings
 # copy command), so the webview is granted no clipboard permission and the token never crosses IPC.
 tauri-plugin-clipboard-manager = "=2.5.0"
