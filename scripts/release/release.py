@@ -45,7 +45,12 @@ SHA256SUMS = "SHA256SUMS"
 # and the public key placeholder that must be replaced before a release (src-tauri/tauri.release.conf.json).
 UPDATER_MANIFEST = "latest.json"
 UPDATER_PUBKEY_PLACEHOLDER = "REPLACE_WITH_UPDATER_PUBLIC_KEY"
-UPDATER_ENDPOINT = "https://github.com/JonHHH09/JobniacFastFs/releases/latest/download/latest.json"
+# Tauri tries the endpoints in order: the per-platform manifest first (every platform has one from the first
+# release with per-platform manifests on), then the combined latest.json for apps that predate it.
+UPDATER_ENDPOINTS = (
+    "https://github.com/JonHHH09/JobniacFastFs/releases/latest/download/latest-{{target}}-{{arch}}.json",
+    "https://github.com/JonHHH09/JobniacFastFs/releases/latest/download/latest.json",
+)
 # The `platforms` keys of latest.json that the installed copies read (Windows NSIS, Linux AppImage, macOS
 # Apple Silicon app archive).
 UPDATER_PLATFORMS = ("windows-x86_64", "linux-x86_64", "darwin-aarch64")
@@ -123,8 +128,11 @@ def check_updater_config(repo_root: Path) -> None:
             "the updater public key is still the placeholder: set plugins.updater.pubkey in "
             "src-tauri/tauri.release.conf.json (see docs/ops/release-owner-checklist.md, G3)"
         )
-    if updater.get("endpoints") != [UPDATER_ENDPOINT]:
-        raise ReleaseError("plugins.updater.endpoints must be the latest.json of the GitHub releases")
+    if updater.get("endpoints") != list(UPDATER_ENDPOINTS):
+        raise ReleaseError(
+            "plugins.updater.endpoints must be the per-platform manifest of the GitHub releases, "
+            "then its latest.json"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -278,18 +286,29 @@ def _release_versions(tags: list[str]) -> set[str]:
     return {tag[1:] for tag in tags if tag.startswith("v") and VERSION_RE.fullmatch(tag[1:])}
 
 
-def next_version(file_version: str, tags: list[str], tags_at_merge: list[str]) -> tuple[str, str]:
+def next_version(
+    file_version: str, tags: list[str], tags_at_merge: list[str], force_next_patch: bool = False
+) -> tuple[str, str]:
     """The version of this release and the tag of the previous stable release (empty when there is none).
 
     A release tag already on the merge commit keeps its version (a rerun after `publish` tagged it).
     Otherwise it is the patch after the highest stable tag, unless the files' version is higher and not
     tagged yet: a manual `bump` to a minor, major or dev version on development sets that floor.
+
+    `force_next_patch` is the re-release of a commit that already has a release: the version is always the
+    patch after the highest stable tag, even when that tag is on the merge commit and whatever the files say.
+    It needs a stable tag to count from.
     """
     tag_for_version(file_version)
     versions = _release_versions(tags)
     stable = [version for version in versions if _is_stable(version)]
     at_merge = _release_versions(tags_at_merge)
-    if at_merge:
+    if force_next_patch:
+        if not stable:
+            raise ReleaseError("a re-release needs a stable release tag to count from, and there is none")
+        major, minor, patch = (int(part) for part in max(stable, key=_version_key).split("."))
+        result = f"{major}.{minor}.{patch + 1}"
+    elif at_merge:
         result = max(at_merge, key=_version_key)
     elif not stable:
         result = file_version
@@ -305,20 +324,28 @@ def next_version(file_version: str, tags: list[str], tags_at_merge: list[str]) -
     return result, previous
 
 
+def merge_release_tag(tags_at_merge: list[str]) -> str:
+    """The highest stable release tag that points at the merge commit, or empty when none does."""
+    return latest_stable_tag(tags_at_merge)
+
+
 def latest_stable_tag(tags: list[str]) -> str:
     """The tag of the newest stable release (what GitHub serves as the latest release), or empty when none."""
     stable = [version for version in _release_versions(tags) if _is_stable(version)]
     return f"v{max(stable, key=_version_key)}" if stable else ""
 
 
-def check_newest_release_is_ancestor(repo_root: Path, merge_sha: str, tags: list[str], tags_at_merge: list[str]) -> None:
+def check_newest_release_is_ancestor(
+    repo_root: Path, merge_sha: str, tags: list[str], tags_at_merge: list[str], force_next_patch: bool = False
+) -> None:
     """Fails unless the highest stable tag is an ancestor of the merge commit.
 
     A stale re-run of an old merge would otherwise publish older code as a newer latest release. Skipped
-    when the merge commit already carries a release tag (the rerun path) and when no stable tag exists.
+    when the merge commit already carries a release tag (the rerun path; never for a forced next patch,
+    which is a new release of the commit) and when no stable tag exists.
     """
     stable = [version for version in _release_versions(tags) if _is_stable(version)]
-    if not stable or _release_versions(tags_at_merge):
+    if not stable or (_release_versions(tags_at_merge) and not force_next_patch):
         return
     newest = f"v{max(stable, key=_version_key)}"
     completed = subprocess.run(
@@ -1015,9 +1042,20 @@ def prepare_draft(api: GitHubApi, intent: ReleaseIntent, merge_sha: str, body: s
     return int(created["id"])  # type: ignore[index,call-overload]
 
 
+def require_draft(release: dict[str, object]) -> None:
+    """A release is only written to while it is a draft. A published one is never modified.
+
+    A "Re-run failed jobs" of a run that already published keeps the old draft ID, which is then a
+    published release: it must not gain files or notes (a platform is added by a re-release instead).
+    """
+    if release.get("draft") is not True:
+        raise ReleaseError("the release is already published: refusing to modify it (re-release the platform instead)")
+
+
 def attach_assets(api: GitHubApi, release_id: int, directory: Path) -> int:
     """Uploads the assets the draft lacks. An asset with the same name and a different digest fails."""
     release = api.call("GET", f"/releases/{release_id}")
+    require_draft(release)  # type: ignore[arg-type]
     existing = {str(asset["name"]): asset for asset in release["assets"]}  # type: ignore[index,call-overload]
     uploaded = 0
     for path in sorted(entry for entry in directory.iterdir() if entry.is_file()):
@@ -1186,17 +1224,6 @@ def carried_legacy_manifest(previous_dir: Path | None, version: str) -> bytes | 
     return raw
 
 
-def _previous_has_files(previous_dir: Path | None) -> bool:
-    """Whether the previous-manifests directory exists and holds anything (an empty one means a first release)."""
-    return previous_dir is not None and previous_dir.is_dir() and any(previous_dir.iterdir())
-
-
-def _missing_carry(previous_dir: Path | None, platform: str) -> None:
-    """A platform outside the set has no previous manifest: fatal unless there is no previous release at all."""
-    if _previous_has_files(previous_dir):
-        raise ReleaseError(f"the previous release carries no updater manifest for {platform}")
-
-
 def build_platform_manifests(assets_dir: Path, version: str, platforms: tuple[str, ...], previous_dir: Path | None,
                              notes: str, pub_date: str, out_dir: Path) -> list[str]:
     """Writes latest-<key>.json for every updater key (and latest.json) and returns the warnings.
@@ -1214,7 +1241,8 @@ def build_platform_manifests(assets_dir: Path, version: str, platforms: tuple[st
             continue
         carried = carried_manifest(previous_dir, key, version)
         if carried is None:
-            _missing_carry(previous_dir, platform)
+            # The platform never shipped (a first or earlier partial release lacked it): its updater endpoint
+            # stays 404. A manifest that exists but is unreadable or invalid still fails in carried_manifest.
             warnings.append(f"no earlier build of {platform} exists: {target.name} is not written")
         elif carried.raw is not None:
             target.write_bytes(carried.raw)
@@ -1246,7 +1274,6 @@ def check_platform_manifests(manifests_dir: Path, version: str, assets_dir: Path
             continue
         carried = carried_manifest(previous_dir, key, version)
         if carried is None:
-            _missing_carry(previous_dir, platform)
             continue
         expected.add(name)
         if not path.is_file():
@@ -1341,12 +1368,26 @@ def fetch_previous_manifests(api: GitHubApi, out_dir: Path, expect_tag: str) -> 
     return sorted(found)
 
 
-def platform_notes(version: str, platforms: tuple[str, ...], previous_dir: Path | None, repo: str) -> str:
-    """The marked release-notes section for a partial set (empty for a full set): one row per platform."""
-    if len(platforms) == len(PLATFORMS):
+def platform_notes(version: str, platforms: tuple[str, ...], previous_dir: Path | None, repo: str,
+                   rerelease_of: str = "") -> str:
+    """The marked release-notes section for a partial set (empty for a full set): one row per platform.
+
+    `rerelease_of` is the tag whose commit this release builds again (a manual re-release). The section then
+    also says so, and a full set gets a section with that sentence alone.
+    """
+    full = len(platforms) == len(PLATFORMS)
+    if full and not rerelease_of:
         return ""
     if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
         raise ReleaseError("repository must be owner/name")
+    if rerelease_of and not re.fullmatch(r"v\d+\.\d+\.\d+", rerelease_of):
+        raise ReleaseError("--rerelease-of must be a stable release tag")
+    if full:
+        return "\n".join([
+            PLATFORM_NOTES_BEGIN, "### Platforms", "",
+            f"This release builds the commit of {rerelease_of} again, for all platforms.",
+            PLATFORM_NOTES_END,
+        ]) + "\n"
     rows: list[str] = []
     for platform, key in PLATFORM_UPDATER_KEYS.items():
         if platform in platforms:
@@ -1359,10 +1400,16 @@ def platform_notes(version: str, platforms: tuple[str, ...], previous_dir: Path 
                 earlier = carried.data["version"]
                 cell = f"[{earlier}](https://github.com/{repo}/releases/tag/v{earlier})"
         rows.append(f"| {PLATFORM_LABELS[platform]} | {cell} |")
+    again = [
+        f"This release builds the commit of {rerelease_of} again, for "
+        + ", ".join(PLATFORM_LABELS[platform] for platform in PLATFORMS if platform in platforms) + " only.",
+        "",
+    ] if rerelease_of else []
     lines = [
         PLATFORM_NOTES_BEGIN,
         "### Platforms",
         "",
+        *again,
         "This release does not include every platform. A platform that is missing keeps its earlier version, "
         "and its installed copies see no update.",
         "",
@@ -1398,6 +1445,7 @@ def apply_platform_section(body: str, section: str) -> str:
 def annotate_draft(api: GitHubApi, release_id: int, section: str) -> bool:
     """Writes the platform section into the release body. Returns whether the body changed."""
     release = api.release_by_id(release_id)
+    require_draft(release)
     body = release.get("body") or ""
     if not isinstance(body, str):
         raise ReleaseError("release body is not text")
@@ -1585,6 +1633,11 @@ def build_parser() -> argparse.ArgumentParser:
     p = add("next-version", "compute the version of this release from the tags; print the outputs")
     p.add_argument("--repo-root", type=Path, default=REPO_ROOT)
     p.add_argument("--merge-sha", required=True)
+    p.add_argument(
+        "--next-patch-even-if-tagged", action="store_true",
+        help="re-release: the version is the patch after the highest stable tag even when that tag is on the "
+             "merge commit (by default a release tag on the merge commit is a rerun of that version)",
+    )
 
     p = add("set-version", "stamp a version into the three files and Cargo.lock of the checkout (build only)")
     p.add_argument("version", help="X.Y.Z or X.Y.Z-dev.N")
@@ -1724,6 +1777,7 @@ def build_parser() -> argparse.ArgumentParser:
     add_platforms(p)
     p.add_argument("--previous", type=Path, help="manifests downloaded from the previous published release")
     p.add_argument("--repo", required=True)
+    p.add_argument("--rerelease-of", default="", help="the tag whose commit this release builds again (a re-release)")
 
     p = add("annotate-draft", "put the platform-notes section into the draft body (replaces a marked one)")
     p.add_argument("--repo", required=True)
@@ -1760,8 +1814,12 @@ def run_command(args: argparse.Namespace) -> int:
         file_intent = resolve_version(args.repo_root)
         check_checkout(args.repo_root, args.merge_sha)
         tags, tags_at_merge = git_release_tags(args.repo_root, args.merge_sha)
-        check_newest_release_is_ancestor(args.repo_root, args.merge_sha, tags, tags_at_merge)
-        version, previous_tag = next_version(file_intent.version, tags, tags_at_merge)
+        check_newest_release_is_ancestor(
+            args.repo_root, args.merge_sha, tags, tags_at_merge, args.next_patch_even_if_tagged
+        )
+        version, previous_tag = next_version(
+            file_intent.version, tags, tags_at_merge, args.next_patch_even_if_tagged
+        )
         intent = tag_for_version(version)
         write_github_output({
             "version": intent.version,
@@ -1769,6 +1827,7 @@ def run_command(args: argparse.Namespace) -> int:
             "prerelease": str(intent.prerelease).lower(),
             "previous_tag": previous_tag,
             "latest_stable_tag": latest_stable_tag(tags),
+            "merge_tag": merge_release_tag(tags_at_merge),
         })
     elif command == "set-version":
         set_version(args.repo_root, args.version)
@@ -1871,7 +1930,8 @@ def run_command(args: argparse.Namespace) -> int:
         sys.stdout.write(f"fetched {len(names)} previous manifests\n")
     elif command == "platform-notes":
         intent = tag_for_version(args.version)
-        sys.stdout.write(platform_notes(intent.version, parse_platforms(args.platforms), args.previous, args.repo))
+        sys.stdout.write(platform_notes(intent.version, parse_platforms(args.platforms), args.previous, args.repo,
+                                        args.rerelease_of))
     elif command == "annotate-draft":
         changed = annotate_draft(GitHubApi(args.repo, token_from_env()), args.release_id,
                                  args.notes_file.read_text(encoding="utf-8"))

@@ -15,9 +15,10 @@ issue branch ──PR (squash, auto-merge)──▶ development ──PR (merge 
   issue branch after the merge.
 - `development` is promoted to `main` by a pull request that uses a merge commit, so the two
   branches never diverge. Auto-merge is not enabled on it: merging into `main` starts
-  `release.yml`, so the owner merges it deliberately. When every gate passes, its last job tags the
-  merge commit and publishes the release (the latest release for a stable version); a failed gate
-  leaves the draft unpublished. The release version is computed from the existing `v*` tags (the next
+  `release.yml`, so the owner merges it deliberately. Its last job tags the merge commit and publishes
+  the release (the latest release for a stable version) with every platform whose lane (its tests, build
+  and smoke test) is green; a failed shared gate, or no green platform at all, leaves the draft
+  unpublished. The release version is computed from the existing `v*` tags (the next
   patch) and never committed, so the protected branches need no version commit; a manual `bump` on
   `development` only raises the floor.
 
@@ -66,9 +67,10 @@ but a runner that is no longer arm64 fails the release leg, which checks the arc
 
 `Rust (windows-latest)` and `E2E (windows-latest)` run on pull requests whose change classes need them
 (below), and on every full run. The WebDriver suite has no macOS leg (`tauri-driver` has no macOS
-driver). The end-to-end suite is a release
-gate (`release.yml` needs it), so a promotion pull request whose `E2E (...)` checks are red must not
-be merged: the release would stop after the merge.
+driver). The end-to-end suite is a gate of its platform's release lane (`release.yml` needs it), so a
+promotion pull request whose `E2E (...)` checks are red must not be merged: the release would ship
+without that platform (its lane is red) and the run would end red. Only `Branch policy` and
+`CI result (shared)` are required on `main`, so GitHub will not stop that merge; the owner does.
 
 ### Change classes and the gate
 
@@ -92,7 +94,7 @@ matches is `unknown`, and `unknown` turns every job on. The classes and what the
 |---|---|---|
 | `prose` | `**/*.md`, `docs/**`, `LICENSE`, issue templates, `CODEOWNERS`, `dependabot.yml`, `.vscode/**`, `.gitignore`, `osv-scanner.toml`, the text check configuration, the other workflows, `scripts/ci/**` | none (the privacy scan, the text checks and the release tool tests always run) |
 | `changelog` | `CHANGELOG.md` | `Release tool unit tests` |
-| `release` | `release.yml`, `scripts/release/**`, `tauri.release.conf.json`; also root `Cargo.toml`, `package.json`, `tauri.conf.json`, which `release.py check-versions` reads | `Release tool unit tests` |
+| `release` | `release.yml`, `release-build.yml`, `scripts/release/**`, `tauri.release.conf.json`; also root `Cargo.toml`, `package.json`, `tauri.conf.json`, which `release.py check-versions` reads | `Release tool unit tests` |
 | `ui` | `src/**`, `index.html`, `public/**`, Vite, TypeScript and biome configuration, pnpm files | `UI`, both `E2E` jobs |
 | `ui-tests` | `playwright/**`, `playwright.config.ts` | `UI` |
 | `e2e-tests` | `e2e/**` | `UI` (biome lints `e2e/`), both `E2E` jobs |
@@ -153,37 +155,56 @@ UI changes switch no Rust job on, because no Rust test reads the UI; the `E2E` j
   dispatch.
 - Entries expire after 7 days without use; a rerun is then full, which is safe.
 
-`release.yml` calls both `ci.yml` (`checks`, with `release-call: true`) and `e2e.yml` (`e2e`) on the
-promotion merge commit. Both skip the heavy jobs whose marker the promotion pull request or the nightly
-run already saved for that tree, so the build starts about a minute after the merge. A red end-to-end
-suite blocks the release.
+`release.yml` calls `ci.yml` and `e2e.yml` (with `release-call: true`) on the promotion merge commit,
+once per scope: `checks-shared` always, and `checks-linux`, `checks-macos`, `checks-windows`,
+`e2e-linux` and `e2e-windows` for the platforms that are selected. All skip the heavy jobs whose marker
+the promotion pull request or the nightly run already saved for that tree, so the build starts about a
+minute after the merge. A red shared check (UI, supply chain, release tools, privacy scan) stops the
+release. A red platform check takes that platform out of the release and leaves the others in.
 
 Both workflows have a `workflow_call` input `scope` (default `all`; `all`, `shared`, `linux`, `macos` or
 `windows`; any other value fails the gate). The gate turns off every job outside the scope: `shared` is
 UI, supply chain, release tools, the privacy scan and the text checks; `linux` is `Rust (ubuntu-26.04)` and
 `E2E (ubuntu-26.04)`; `macos` is `Rust (macos-latest)`; `windows` is `Rust (windows-latest)` and
-`E2E (windows-latest)`. The current calls in `release.yml` pass no scope, so they run the full set minus
-the already-passed jobs.
+`E2E (windows-latest)`. `release.yml` passes one scope per call.
 
-### Release dry run on the promotion pull request
+### Release lanes, the dry run and the re-release
 
-`release.yml` also runs while the promotion pull request is open (opened, reopened, and every push to
+`release.yml` is a set of per-platform lanes (tests, build and smoke test of one platform) around a shared
+core. A release is one version, one tag and one release page, and it carries the platforms whose lanes are
+green. The `mode` job decides what a run is: `dry` (the open promotion pull request), `release` (the merged
+promotion), `rerelease` (a manual run on `main`) or `none` (everything else is skipped). The `plan` job
+lists the green platforms and fails when there are none. A platform left out keeps its previous updater
+manifest; the combined `latest.json` advances only on a full release. The run stays red when a lane failed
+even though a release was published, and the `platform-issues` job keeps one open `release-platform` issue
+per missing platform. The shared failures that still stop everything are the shared checks, the version
+computation and the SBOM job.
+
+The dry run runs while the promotion pull request is open (opened, reopened, and every push to
 `development`). It uses the workflow of the pull request's merge ref, so a release fix on `development`
 is exercised before the promotion merges. It builds the merge ref on all three platforms, signs the
 updater artifacts with the real key (a same-repository pull request from the PR-protected `development`
 branch is the only one that gets it), builds macOS ad-hoc without any Apple secret, runs both
-clean-machine smokes, and assembles the assets and `latest.json` into a workflow artifact that expires
-after 3 days. It creates no release, draft, tag or attestation, and it skips `checks` and `e2e` (they
-run on the same pull request as `ci.yml` and `e2e.yml`). It takes about 25 to 35 minutes per push to the
-open promotion pull request; a newer push cancels the older run (concurrency group
-`release-dry-run-<PR number>`, separate from the `release` group of real runs).
+clean-machine smokes, and assembles the green platforms' assets and updater manifests into a workflow
+artifact that expires after 3 days; its step summary says which platforms the merge would ship and which
+it would carry. It creates no release, draft, tag or attestation, and it skips the checks (they run on the
+same pull request as `ci.yml` and `e2e.yml`). It takes about 25 to 35 minutes per push to the open promotion
+pull request; a newer push cancels the older run (concurrency group `release-dry-run-<PR number>`,
+separate from the `release` group of real runs).
 
-It is not a required check, and it is not listed under the required checks above: its job names
-(`prepare`, `build`, `clean-machine`, ...) are shared with the real release run, and a pull request
-from another branch skips them all. Add them to the `Protect main` ruleset only if the owner wants a red
-dry run to block the merge. A "Re-run" of a failed `Release` run replays the old merge commit and
-workflow, so it is only for transient runner or network failures; a fix goes through `development`
-and a new promotion (see G4 in the [release owner checklist](release-owner-checklist.md)).
+The re-release is a manual `workflow_dispatch` of `release.yml` on `main` with the input `platforms`
+(for example `gh workflow run release.yml --ref main -f platforms=macos-arm64`). It builds `main`'s
+current commit again as the NEXT patch version for the selected platforms only, with a new draft, tag and
+release; it never edits a published release. It shares the `release` concurrency group, so it queues
+behind a promotion. A dispatch on any other branch skips every job.
+
+The release jobs are not required checks, and they are not listed under the required checks above: their
+job names (`prepare`, `build-windows`, `clean-machine`, ...) are shared by the three modes, and a pull
+request from another branch skips them all. Add them to the `Protect main` ruleset only if the owner wants
+a red dry run to block the merge. A "Re-run failed jobs" of a `Release` run replays the old merge commit,
+workflow and version, so it is only for transient runner or network failures; a fix goes through
+`development` and a new promotion, or, for a platform that was left out of a release, a re-release (see
+G4 in the [release owner checklist](release-owner-checklist.md)).
 
 `ci.yml` and `e2e.yml` no longer run on pushes to `main`: `main` only receives the promotion merge,
 which the release call checks. CodeQL and Scorecard still run on `main`.
