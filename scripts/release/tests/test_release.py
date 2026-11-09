@@ -240,7 +240,7 @@ class UpdaterConfigGate(unittest.TestCase):
         (root / "src-tauri").mkdir()
         data: dict[str, object] = {
             "bundle": {"createUpdaterArtifacts": True},
-            "plugins": {"updater": {"pubkey": pubkey, "endpoints": [release.UPDATER_ENDPOINT]}},
+            "plugins": {"updater": {"pubkey": pubkey, "endpoints": list(release.UPDATER_ENDPOINTS)}},
         }
         data.update(overrides)
         (root / "src-tauri" / "tauri.release.conf.json").write_text(json.dumps(data), encoding="utf-8")
@@ -275,7 +275,7 @@ class UpdaterConfigGate(unittest.TestCase):
         (repo.root / "src-tauri" / "tauri.release.conf.json").write_text(
             json.dumps({
                 "bundle": {"createUpdaterArtifacts": True},
-                "plugins": {"updater": {"pubkey": release.UPDATER_PUBKEY_PLACEHOLDER, "endpoints": [release.UPDATER_ENDPOINT]}},
+                "plugins": {"updater": {"pubkey": release.UPDATER_PUBKEY_PLACEHOLDER, "endpoints": list(release.UPDATER_ENDPOINTS)}},
             }),
             encoding="utf-8",
         )
@@ -477,7 +477,7 @@ class BinaryPubkey(unittest.TestCase):
         (self.tmp / "src-tauri").mkdir()
         config = {
             "bundle": {"createUpdaterArtifacts": True},
-            "plugins": {"updater": {"pubkey": self.PUBKEY, "endpoints": [release.UPDATER_ENDPOINT]}},
+            "plugins": {"updater": {"pubkey": self.PUBKEY, "endpoints": list(release.UPDATER_ENDPOINTS)}},
         }
         (self.tmp / "src-tauri" / "tauri.release.conf.json").write_text(json.dumps(config), encoding="utf-8")
 
@@ -1460,7 +1460,7 @@ class BundleConfig(unittest.TestCase):
         self.assertEqual(bundle["resources"], {self.STAGED_NOTICES: "THIRD-PARTY-NOTICES.txt"})
         self.assertEqual(bundle["macOS"]["frameworks"], [self.PDFIUM_MACOS])
         self.assertIs(bundle["createUpdaterArtifacts"], True)
-        self.assertEqual(effective["plugins"]["updater"]["endpoints"], [release.UPDATER_ENDPOINT])
+        self.assertEqual(effective["plugins"]["updater"]["endpoints"], list(release.UPDATER_ENDPOINTS))
 
     def test_release_config_adds_sidecar_and_notices_and_keeps_pdfium(self) -> None:
         for platform_file, pdfium in (
@@ -1479,14 +1479,15 @@ class BundleConfig(unittest.TestCase):
                 )
 
     def test_release_workflow_passes_the_release_config_to_tauri_action(self) -> None:
-        text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
-        self.assertRegex(text, r"args: --bundles \$\{\{ matrix\.bundles \}\} --config src-tauri/tauri\.release\.conf\.json")
+        text = (WORKFLOWS / "release-build.yml").read_text(encoding="utf-8")
+        self.assertRegex(text, r"args: --bundles \$\{\{ inputs\.bundles \}\} --config src-tauri/tauri\.release\.conf\.json")
 
     def test_the_macos_leg_builds_through_the_signing_script_without_the_github_token(self) -> None:
-        text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
-        self.assertIn("platform: macos-arm64", text)
-        self.assertIn("bundles: app,dmg", text)
-        self.assertIn("library: libpdfium.dylib", text)
+        caller = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        self.assertIn("platform: macos-arm64", caller)
+        self.assertIn("bundles: app,dmg", caller)
+        self.assertIn("library: libpdfium.dylib", caller)
+        text = (WORKFLOWS / "release-build.yml").read_text(encoding="utf-8")
         self.assertIn("bash scripts/release/macos_build.sh", text)
         script = (RELEASE_DIR / "macos_build.sh").read_text(encoding="utf-8")
         self.assertIn("--config src-tauri/tauri.release.conf.json", script)
@@ -1498,13 +1499,17 @@ class BundleConfig(unittest.TestCase):
             "APPLE_ID", "APPLE_PASSWORD", "APPLE_TEAM_ID",
         ):
             with self.subTest(secret=name):
-                # Passed only for the `closed` event of a real release; the dry run gets an empty value (ad-hoc).
-                self.assertEqual(
-                    text.count(f"{name}: ${{{{ github.event.action == 'closed' && secrets.{name} || '' }}}}"), 1)
+                # The called workflow reads each secret once, in the macOS step ...
+                self.assertEqual(text.count(f"{name}: ${{{{ secrets.{name} }}}}"), 1)
                 self.assertEqual(len(re.findall(rf"secrets\.{name}\b", text)), 1)
+                # ... and only the macOS caller passes it, and not in the dry run (the build is ad-hoc there).
+                self.assertEqual(
+                    caller.count(f"{name}: ${{{{ needs.mode.outputs.mode != 'dry' && secrets.{name} || '' }}}}"), 1)
+                self.assertEqual(len(re.findall(rf"secrets\.{name}\b", caller)), 1)
         tauri_action = text.split("uses: tauri-apps/tauri-action", 1)[1].split("- name:", 1)[0]
         self.assertNotIn("APPLE_", tauri_action)
-        self.assertRegex(text, r"- name: Build, and attach the draft assets[^\n]*\n\s+if: runner\.os != 'macOS'")
+        self.assertRegex(text, r"- name: Build \(tauri-action[^\n]*\n\s+if: runner\.os != 'macOS'")
+        self.assertRegex(text, r"- name: Build the macOS bundles[^\n]*\n\s+if: runner\.os == 'macOS'\n")
 
     def test_default_config_has_no_updater_so_dev_builds_need_no_key(self) -> None:
         default = self.load("tauri.conf.json")
@@ -1517,20 +1522,23 @@ class BundleConfig(unittest.TestCase):
                 effective = self.effective(platform_file)
                 self.assertIs(effective["bundle"]["createUpdaterArtifacts"], True)
                 updater = effective["plugins"]["updater"]
-                self.assertEqual(updater["endpoints"], [release.UPDATER_ENDPOINT])
+                self.assertEqual(updater["endpoints"], list(release.UPDATER_ENDPOINTS))
                 self.assertEqual(updater["windows"]["installMode"], "passive")
                 self.assertTrue(updater["pubkey"])
 
     def test_release_workflow_signs_and_writes_the_updater_manifest(self) -> None:
-        text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
-        # latest.json and the signatures come from the `attach` job; two build legs would race to merge
-        # latest.json. `includeUpdaterJson` is not a tauri-action v1 input and was silently ignored.
+        text = (WORKFLOWS / "release-build.yml").read_text(encoding="utf-8")
+        caller = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        # The updater manifests and the signatures come from the `attach` job; two build legs would race to
+        # merge latest.json. `includeUpdaterJson` is not a tauri-action v1 input and was silently ignored.
         self.assertIn("uploadUpdaterJson: false", text)
         self.assertIn("uploadUpdaterSignatures: false", text)
         self.assertNotIn("includeUpdaterJson", text)
-        self.assertIn("release.py updater-manifest", text)
+        self.assertIn("release.py updater-manifests", caller)
         for name in ("TAURI_SIGNING_PRIVATE_KEY", "TAURI_SIGNING_PRIVATE_KEY_PASSWORD"):
             self.assertIn(f"{name}: ${{{{ secrets.{name} }}}}", text)
+            # Every lane gets the real updater key, the dry run too (it proves the key matches the public one).
+            self.assertEqual(caller.count(f"{name}: ${{{{ secrets.{name} }}}}"), 3)
 
     def test_no_workflow_or_script_uses_a_debug_only_config_override(self) -> None:
         for path in list(WORKFLOWS.glob("*.yml")) + [RELEASE_DIR / "release.py"]:
@@ -1550,7 +1558,7 @@ class WorkflowRules(unittest.TestCase):
 
     def workflow_files(self) -> list[Path]:
         # ci.yml is outside this release part; its pins are tracked as an open item in the report.
-        return [WORKFLOWS / "release.yml"]
+        return [WORKFLOWS / "release.yml", WORKFLOWS / "release-build.yml"]
 
     def code_lines(self, path: Path) -> list[str]:
         """Non-comment lines, so the explanations in a workflow do not trip the guard."""
@@ -1581,156 +1589,288 @@ class WorkflowRules(unittest.TestCase):
                     self.assertRegex(reference, r"@[0-9a-f]{40}$")
                     self.assertRegex(line, r"#\s*v?\d", "the pinned version must be in a comment")
 
-    def test_publish_is_the_last_job_with_its_own_write_permission(self) -> None:
+    def condition(self, name: str) -> str:
+        match = re.search(r"(?m)^    if: (?:>-\n((?:      .*\n)+)|(.*)\n)", self.job(name))
+        self.assertIsNotNone(match, f"job {name} has no if")
+        text = match.group(1) or match.group(2)  # type: ignore[union-attr]
+        return " ".join(line.strip() for line in text.splitlines())
+
+    def job(self, name: str, workflow: str = "release.yml") -> str:
+        text = (WORKFLOWS / workflow).read_text(encoding="utf-8")
+        jobs = re.split(r"(?m)^  (?=[a-z][a-z0-9-]*:\n)", text.split("\njobs:\n", 1)[1])
+        return next(job for job in jobs if job.startswith(f"{name}:"))
+
+    def job_names(self) -> list[str]:
         text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
         jobs = re.split(r"(?m)^  (?=[a-z][a-z0-9-]*:\n)", text.split("\njobs:\n", 1)[1])
-        names = [job.split(":", 1)[0] for job in jobs if job.strip()]
-        self.assertEqual(names[-1], "publish")
-        publish = next(job for job in jobs if job.startswith("publish:"))
-        for gate in ("prepare", "draft", "build", "clean-machine", "clean-machine-macos", "attach", "attest", "verify-draft"):
+        return [job.split(":", 1)[0] for job in jobs if re.match(r"[a-z][a-z0-9-]*:\n", job)]
+
+    def test_publish_is_the_only_publisher_and_only_the_issue_job_follows_it(self) -> None:
+        text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        self.assertEqual(self.job_names()[-2:], ["publish", "platform-issues"])
+        publish = self.job("publish")
+        for gate in ("mode", "prepare", "draft", "plan", "attach", "attest", "verify-draft"):
             self.assertRegex(publish, rf"needs: \[[^\]]*\b{gate}\b")
         self.assertRegex(publish, r"permissions:\n\s+contents: write")
         self.assertIn("release.py publish", publish)
         self.assertEqual(text.count("release.py publish"), 1)
         self.assertRegex(publish, r"needs\.verify-draft\.result == 'success'")
-        self.assertRegex(publish, r"needs\.attest\.result == 'skipped'")
+        # Provenance is never skipped by accident: the attest job itself decides on the visibility.
+        self.assertNotIn("needs.attest.result == 'skipped'", publish)
+        self.assertRegex(publish, r"needs\.attest\.result == 'success'")
+        issues = self.job("platform-issues")
+        self.assertRegex(issues, r"needs: \[[^\]]*\bpublish\b")
+        self.assertIn("needs.publish.result == 'success'", issues)
+        # Only issues are written, and nothing is checked out.
+        self.assertRegex(issues, r"permissions:\n\s+issues: write\n")
+        self.assertNotIn("actions/checkout", issues)
+        self.assertNotIn("${{", issues.split("run: |", 1)[1])
 
-    def job(self, name: str) -> str:
-        text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
-        jobs = re.split(r"(?m)^  (?=[a-z][a-z0-9-]*:\n)", text.split("\njobs:\n", 1)[1])
-        return next(job for job in jobs if job.startswith(f"{name}:"))
-
-    def test_merged_runs_share_one_group_dry_runs_and_unmerged_closes_get_their_own(self) -> None:
+    def test_merged_runs_and_re_releases_share_one_group_dry_runs_and_unmerged_closes_get_their_own(self) -> None:
         text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
         block = text.split("\nconcurrency:\n", 1)[1].split("\n\n", 1)[0]
+        self.assertIn("github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' && 'release'", block)
         self.assertIn("github.event.action != 'closed' && format('release-dry-run-{0}', github.event.pull_request.number)", block)
         self.assertIn("|| github.event.pull_request.merged == true && 'release'", block)
         self.assertIn("|| format('skip-{0}', github.run_id)", block)
-        # A newer push cancels an older dry run; a real release run is never cancelled.
-        self.assertIn("cancel-in-progress: ${{ github.event.action != 'closed' }}", block)
+        # A newer push cancels an older dry run; a real release run and a re-release are never cancelled.
+        self.assertIn(
+            "cancel-in-progress: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}", block)
 
-    def test_the_trigger_adds_the_open_events_for_the_dry_run_on_the_promotion_pull_request(self) -> None:
+    def test_the_triggers_are_the_promotion_pull_request_and_a_manual_re_release(self) -> None:
         text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
         self.assertIn("    types: [opened, synchronize, reopened, closed]\n    branches: [main]", text)
+        self.assertIn("  workflow_dispatch:\n    inputs:\n      platforms:", text)
         self.assertNotIn("pull_request_target", text)
-        # A dry run builds the merge ref of the pull request; a real release the merge commit on main.
-        self.assertIn(
-            "MERGE_SHA: ${{ github.event.action != 'closed' && github.sha || github.event.pull_request.merge_commit_sha }}",
-            text,
-        )
+        # The commit comes from the mode job; no workflow-level env decides it any more.
+        self.assertNotIn("\nenv:\n", text)
+        self.assertIn("merge_sha: ${{ steps.decide.outputs.merge_sha }}", self.job("mode"))
+        mode = self.job("mode")
+        self.assertIn('dry | rerelease) merge_sha="$SHA"', mode)
+        self.assertIn('release) merge_sha="$MERGE_COMMIT_SHA"', mode)
+        self.assertIn('"$REF" = "refs/heads/main"', mode)
 
-    CLOSED_AND_MERGED = (
-        "github.event.action == 'closed'",
-        "github.event.pull_request.merged == true",
+    LANE_JOBS = (
+        "checks-shared", "checks-linux", "checks-macos", "checks-windows", "e2e-linux", "e2e-windows",
+        "prepare", "sbom", "draft", "build-windows", "build-linux", "build-macos",
+        "clean-machine", "clean-machine-macos", "plan", "dry-run-assemble", "attach", "attest", "verify-draft",
+        "publish", "platform-issues",
     )
-    PROMOTION = (
-        "github.event.pull_request.head.ref == 'development'",
-        "github.event.pull_request.base.ref == 'main'",
-        "github.event.pull_request.head.repo.full_name == github.repository",
-    )
 
-    def condition(self, name: str) -> str:
-        match = re.search(r"(?m)^    if: (?:>-\n)?((?:      .*\n|    if: .*\n)+)", self.job(name))
-        self.assertIsNotNone(match, f"job {name} has no if")
-        return " ".join(line.strip() for line in match.group(1).splitlines())  # type: ignore[union-attr]
+    def test_every_job_needs_the_mode_job(self) -> None:
+        for name in self.job_names():
+            if name == "mode":
+                continue
+            with self.subTest(job=name):
+                self.assertRegex(self.job(name), r"needs: (?:mode|\[[^\]]*\bmode\b[^\]]*\])")
+        self.assertEqual(sorted(set(self.job_names()) - {"mode"}), sorted(self.LANE_JOBS))
 
-    def test_the_jobs_that_write_to_a_release_run_only_for_a_merged_closed_promotion(self) -> None:
+    def test_the_jobs_that_write_to_a_release_run_only_in_the_release_and_rerelease_modes(self) -> None:
         for name in ("draft", "attach", "attest", "verify-draft", "publish"):
             condition = self.condition(name)
-            for clause in self.CLOSED_AND_MERGED:
-                with self.subTest(job=name, clause=clause):
-                    self.assertIn(clause, condition)
-            # attest only adds the visibility test to the event test.
+            with self.subTest(job=name):
+                self.assertIn("needs.mode.outputs.mode == 'release'", condition)
+                self.assertIn("needs.mode.outputs.mode == 'rerelease'", condition)
+                # Neither the dry run nor an unrelated event can reach them.
+                self.assertNotIn("'dry'", condition)
+        attest = self.job("attest")
+        self.assertNotIn("github.event.repository.visibility", attest)
+        self.assertIn('gh api "repos/$GITHUB_REPOSITORY" --jq .visibility', attest)
+        self.assertEqual(attest.count("steps.visibility.outputs.visibility == 'public'"), 2)
+        self.assertRegex(attest, r"attestations: write\n\s+id-token: write")
+        for name in self.job_names():
             if name != "attest":
-                for clause in self.PROMOTION:
-                    with self.subTest(job=name, clause=clause):
-                        self.assertIn(clause, condition)
+                self.assertNotIn("id-token: write", self.job(name))
 
-    def test_the_dry_run_job_never_runs_for_a_closed_event_and_has_no_write_permission(self) -> None:
+    def test_a_published_release_is_never_attached_to_and_the_previous_tag_is_expected(self) -> None:
+        attach = self.job("attach")
+        first_step = attach.split("    steps:\n", 1)[1].split("      - uses:", 1)[0]
+        self.assertIn("Check that the release is still a draft", first_step)
+        self.assertIn("is already published", first_step)
+        self.assertIn("gh workflow run release.yml --ref main -f platforms=<platform>", first_step)
+        for name in ("attach", "dry-run-assemble"):
+            self.assertIn('--expect-tag "$PREVIOUS_TAG"', self.job(name))
+        self.assertNotIn("latest_stable_tag", (WORKFLOWS / "release.yml").read_text(encoding="utf-8"))
+        self.assertNotIn("continue-on-error", (WORKFLOWS / "release.yml").read_text(encoding="utf-8"))
+        self.assertIn("has_previous: ${{ steps.previous.outputs.has_previous }}", attach)
+        verify = self.job("verify-draft")
+        self.assertIn("needs.attach.outputs.has_previous == 'true'", verify)
+        self.assertIn("needs.attach.outputs.has_previous != 'true'", verify)
+
+    def test_only_a_dispatch_on_main_joins_the_release_group(self) -> None:
+        text = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        block = text.split("\nconcurrency:\n", 1)[1].split("\n\n", 1)[0]
+        self.assertIn(
+            "github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' && 'release' "
+            "|| format('skip-{0}', github.run_id))", block)
+
+    def test_the_dry_run_job_runs_only_in_the_dry_mode_and_has_no_write_permission(self) -> None:
         job = self.job("dry-run-assemble")
-        self.assertIn("github.event.action != 'closed'", self.condition("dry-run-assemble"))
+        self.assertIn("needs.mode.outputs.mode == 'dry'", self.condition("dry-run-assemble"))
+        self.assertIn("needs.plan.result == 'success'", self.condition("dry-run-assemble"))
         self.assertRegex(job, r"permissions:\n\s+contents: read")
         self.assertNotIn("contents: write", job)
-        self.assertNotIn("GITHUB_TOKEN", job)
-        self.assertNotIn("GH_TOKEN", job)
+        # The token reads the previous release's manifests only.
+        self.assertEqual(job.count("secrets.GITHUB_TOKEN"), 1)
         self.assertNotIn("release.py attach", job)
+        self.assertNotIn("annotate-draft", job)
         self.assertNotIn("gh api", job)
         self.assertIn("release.py assemble", job)
-        self.assertIn("release.py updater-manifest", job)
-        self.assertIn("release.py check-updater-manifest", job)
-        # The dry-run artifact must not match the `release-*` pattern that `attach` downloads the legs with.
+        self.assertIn("release.py updater-manifests", job)
+        self.assertIn("release.py check-updater-manifests", job)
+        # The dry-run artifact must not match the `release-*` pattern of the lane artifacts.
         name = re.search(r"(?m)^\s+name: (dry-run-assets)$", job)
         self.assertIsNotNone(name)
         self.assertNotRegex(name.group(1), r"^release-")  # type: ignore[union-attr]
         self.assertRegex(job, r"retention-days: [1-7]\b")
 
-    def test_a_skipped_dependency_never_lets_a_real_release_proceed(self) -> None:
-        # prepare: on `closed` it needs checks and e2e to have succeeded; only a dry run may skip them.
+    def test_only_the_green_lanes_are_downloaded_by_exact_name(self) -> None:
+        for name in ("dry-run-assemble", "attach"):
+            job = self.job(name)
+            with self.subTest(job=name):
+                self.assertNotIn("pattern:", job)
+                for platform in ("windows-x64", "linux-x64", "macos-arm64"):
+                    self.assertIn(
+                        f"if: ${{{{ contains(needs.plan.outputs.green, '{platform}') }}}}\n"
+                        f"        with:\n          name: release-{platform}\n", job)
+                self.assertIn("name: shared-sbom", job)
+                self.assertIn('--platforms "$GREEN" --shared shared', job)
+
+    def test_a_shared_failure_stops_the_release_and_a_lane_failure_does_not(self) -> None:
+        # prepare needs the shared checks (only the dry run may skip them); sbom and plan need prepare and sbom.
         prepare = self.condition("prepare")
-        self.assertIn("(github.event.action != 'closed' || (github.event.pull_request.merged == true "
-                      "&& needs.checks.result == 'success' && needs.e2e.result == 'success'))", prepare)
-        for clause in self.PROMOTION:
-            self.assertIn(clause, prepare)
-        # build: a skipped `draft` is accepted only outside the `closed` event.
-        build = self.condition("build")
-        self.assertIn("needs.prepare.result == 'success'", build)
-        self.assertIn("(needs.draft.result == 'success' || (github.event.action != 'closed' "
-                      "&& needs.draft.result == 'skipped'))", build)
-        self.assertNotIn("needs.draft.result == 'skipped' ||", build)
-        # The checks and e2e calls keep their real-release condition (merged is false on a dry run).
-        for name in ("checks", "e2e"):
-            condition = self.condition(name)
-            for clause in ("github.event.pull_request.merged == true", *self.PROMOTION):
-                self.assertIn(clause, condition)
+        self.assertIn("needs.mode.result == 'success'", prepare)
+        self.assertIn("(needs.mode.outputs.mode == 'dry' || needs.checks-shared.result == 'success')", prepare)
+        self.assertIn("needs.prepare.result == 'success'", self.condition("sbom"))
+        plan = self.condition("plan")
+        self.assertIn("needs.prepare.result == 'success'", plan)
+        self.assertIn("needs.sbom.result == 'success'", plan)
+        # A lane's build needs its own platform's checks (E2E too where it has them); the dry run has none.
+        for name, platform, gates in (
+            ("build-windows", "windows-x64", ("checks-windows", "e2e-windows")),
+            ("build-linux", "linux-x64", ("checks-linux", "e2e-linux")),
+            ("build-macos", "macos-arm64", ("checks-macos",)),
+        ):
+            with self.subTest(job=name):
+                condition = self.condition(name)
+                self.assertIn("!cancelled()", condition)
+                self.assertIn("needs.prepare.result == 'success'", condition)
+                self.assertIn(f"contains(needs.mode.outputs.platforms, '{platform}')", condition)
+                self.assertIn("(needs.mode.outputs.mode == 'dry' || (needs.draft.result == 'success'", condition)
+                for gate in gates:
+                    self.assertIn(f"needs.{gate}.result == 'success'", condition)
+                    self.assertRegex(self.job(name), rf"needs: \[[^\]]*\b{gate}\b")
+                self.assertNotIn("needs.draft.result == 'skipped'", condition)
+                self.assertRegex(self.job(name), r"permissions:\n\s+contents: read\n")
+        # Each platform's checks run only when it is selected; the shared ones always run.
+        for name, platform in (("checks-linux", "linux-x64"), ("checks-macos", "macos-arm64"),
+                               ("checks-windows", "windows-x64"), ("e2e-linux", "linux-x64"),
+                               ("e2e-windows", "windows-x64")):
+            self.assertIn(f"contains(needs.mode.outputs.platforms, '{platform}')", self.condition(name))
+        self.assertNotIn("platforms", self.condition("checks-shared"))
+        self.assertIn("scope: shared", self.job("checks-shared"))
 
     def test_publish_still_needs_every_result_to_be_a_success(self) -> None:
         publish = self.condition("publish")
-        for gate in ("prepare", "draft", "build", "clean-machine", "clean-machine-macos", "attach", "verify-draft"):
+        for gate in ("prepare", "draft", "plan", "attach", "verify-draft"):
             self.assertIn(f"needs.{gate}.result == 'success'", publish)
 
-    def test_the_build_legs_do_not_cancel_each_other(self) -> None:
-        self.assertIn("fail-fast: false", self.job("build"))
-        self.assertNotIn("fail-fast: true", (WORKFLOWS / "release.yml").read_text(encoding="utf-8"))
-        # The smoke jobs still run after a failed leg, so that its failure does not hide theirs.
-        for name in ("clean-machine", "clean-machine-macos"):
-            self.assertIn("needs.build.result == 'failure'", self.condition(name))
-
-    def test_the_dry_run_builds_only_and_passes_no_token_or_apple_secret(self) -> None:
-        build = self.job("build")
-        action = build.split("uses: tauri-apps/tauri-action", 1)[1].split("      - name:", 1)[0]
-        self.assertIn("GITHUB_TOKEN: ${{ github.event.action == 'closed' && secrets.GITHUB_TOKEN || '' }}", action)
-        self.assertIn("tagName: ${{ github.event.action == 'closed' && env.TAG || '' }}", action)
-        self.assertIn(
-            "releaseId: ${{ github.event.action == 'closed' && needs.draft.outputs.release_id || '' }}", action)
-        # No other step of the build job reads the token.
-        self.assertEqual(build.count("secrets.GITHUB_TOKEN"), 1)
-        self.assertIn("MACOS_SIGNING_REQUIRED: ${{ github.event.action == 'closed' && vars.MACOS_SIGNING_REQUIRED || '' }}",
-                      build)
+    def test_the_smoke_tests_run_only_after_their_own_build(self) -> None:
+        for name, build in (("clean-machine", "build-windows"), ("clean-machine-macos", "build-macos")):
+            with self.subTest(job=name):
+                self.assertRegex(self.job(name), rf"needs: \[mode, prepare, {build}\]")
+                self.assertIn(f"needs.{build}.result == 'success'", self.condition(name))
         macos = self.job("clean-machine-macos")
-        self.assertIn("github.event.action == 'closed' && vars.MACOS_SIGNING_REQUIRED == '1' && '--require-developer-id'",
+        self.assertIn("needs.mode.outputs.mode != 'dry' && vars.MACOS_SIGNING_REQUIRED == '1' && '--require-developer-id'",
                       macos)
+
+    def test_the_plan_fails_without_a_green_platform_and_lists_the_green_ones(self) -> None:
+        plan = self.job("plan")
+        for name in ("build-windows", "build-linux", "build-macos", "clean-machine", "clean-machine-macos", "sbom"):
+            self.assertRegex(plan, rf"needs: \[[^\]]*\b{name}\b")
+        self.assertIn("if: ${{ !cancelled() && needs.mode.outputs.mode != 'none'", plan)
+        self.assertIn("green: ${{ steps.plan.outputs.green }}", plan)
+        self.assertIn("failed: ${{ steps.plan.outputs.failed }}", plan)
+        self.assertIn("partial: ${{ steps.plan.outputs.partial }}", plan)
+        self.assertIn('if [ -z "$green" ]; then', plan)
+
+    def test_the_builds_are_calls_of_the_build_workflow_without_the_token_or_write_access(self) -> None:
+        caller = (WORKFLOWS / "release.yml").read_text(encoding="utf-8")
+        self.assertEqual(caller.count("uses: ./.github/workflows/release-build.yml"), 3)
+        build = (WORKFLOWS / "release-build.yml").read_text(encoding="utf-8")
+        # Only a workflow_call trigger, a read-only job, and no step or condition that looks at the event.
+        self.assertRegex(build, r"(?m)^on:\n  workflow_call:\n")
+        self.assertNotIn("pull_request", build.split("\njobs:\n", 1)[1])
+        self.assertNotIn("github.event", build)
+        self.assertNotIn("matrix.", build)
+        job = self.job("build", "release-build.yml")
+        self.assertRegex(job, r"permissions:\n\s+contents: read\n")
+        self.assertNotIn("contents: write", build)
+        # No GitHub token anywhere in it, and tauri-action only builds.
+        self.assertNotIn("GITHUB_TOKEN", build)
+        self.assertNotIn("GH_TOKEN", build)
+        action = job.split("uses: tauri-apps/tauri-action", 1)[1].split("      - name:", 1)[0]
+        self.assertNotIn("tagName", action)
+        self.assertNotIn("releaseId", action)
+        self.assertEqual(sorted(re.findall(r"secrets\.(\w+)", action)),
+                         ["TAURI_SIGNING_PRIVATE_KEY", "TAURI_SIGNING_PRIVATE_KEY_PASSWORD"])
+        self.assertIn("name: Build (${{ inputs.platform }})", job)
+        # The environment of the caller does not reach a called workflow: the values come from the inputs.
+        for variable in ("MERGE_SHA", "RELEASE_OUT", "VERSION", "PLATFORM", "PDFIUM_PLATFORM"):
+            self.assertRegex(job, rf"(?m)^      {variable}: ")
+        # Every dry-run and real-release difference is an input of the caller.
+        self.assertIn("macos-signing-required: ${{ needs.mode.outputs.mode != 'dry' && vars.MACOS_SIGNING_REQUIRED || '' }}",
+                      caller)
+        self.assertIn("MACOS_SIGNING_REQUIRED: ${{ inputs.macos-signing-required }}", build)
+
+    def test_the_sbom_is_written_once_by_its_own_job_and_not_by_a_lane(self) -> None:
+        sbom = self.job("sbom")
+        self.assertIn("name: shared-sbom", sbom)
+        self.assertNotRegex("shared-sbom", r"^release-")
+        self.assertIn("cargo cyclonedx", sbom)
+        self.assertIn("release.py leg-digests", sbom)
+        self.assertIn("cargo-cyclonedx@0.5.9", sbom)
+        self.assertRegex(sbom, r"permissions:\n\s+contents: read\n")
+        self.assertNotIn("cargo cyclonedx", (WORKFLOWS / "release-build.yml").read_text(encoding="utf-8"))
 
     def test_the_version_is_computed_from_the_tags_and_stamped_before_the_builds(self) -> None:
         prepare = self.job("prepare")
         self.assertRegex(prepare, r"fetch-depth: 0")
         self.assertIn('release.py next-version --merge-sha "$MERGE_SHA"', prepare)
+        # Only a re-release counts from the highest tag even though the commit is tagged.
+        self.assertEqual(prepare.count("--next-patch-even-if-tagged"), 1)
+        self.assertRegex(prepare, r'if \[ "\$MODE" = "rerelease" \]; then\n(?:\s+#[^\n]*\n)*'
+                                  r'\s+if \[ "\$\{GITHUB_RUN_ATTEMPT:-1\}" -gt 1 \]; then\n[^\n]*::error::[^\n]*\n\s+exit 1\n\s+fi\n'
+                                  r'\s+python -I scripts/release/release\.py '
+                                  r'next-version --merge-sha "\$MERGE_SHA" --next-patch-even-if-tagged')
+        self.assertIn("merge_tag: ${{ steps.resolve.outputs.merge_tag }}", prepare)
         self.assertNotIn("resolve-version", (WORKFLOWS / "release.yml").read_text(encoding="utf-8"))
         self.assertIn("previous_tag: ${{ steps.resolve.outputs.previous_tag }}", prepare)
-        build = self.job("build")
+        build = self.job("build", "release-build.yml")
         stamp = build.index('release.py set-version "$VERSION"')
         self.assertLess(build.index("release.py check-checkout"), stamp)
         self.assertLess(stamp, build.index("pnpm install"))
 
     def test_draft_verify_and_publish_get_the_version_and_the_draft_id(self) -> None:
         self.assertRegex(self.job("draft"), r'--version "\$VERSION" --previous-tag "\$PREVIOUS_TAG"')
-        self.assertRegex(self.job("draft"), r"needs: prepare")
+        self.assertRegex(self.job("draft"), r"needs: \[mode, prepare\]")
         for name in ("verify-draft", "publish"):
             with self.subTest(job=name):
                 job = self.job(name)
                 self.assertIn('--version "$VERSION" --release-id "$RELEASE_ID"', job)
                 self.assertIn("needs.draft.outputs.release_id", job)
-        self.assertIn("gh api", self.job("attach"))
-        self.assertIn("--notes-file release-notes.md", self.job("attach"))
+        attach = self.job("attach")
+        self.assertIn("gh api", attach)
+        self.assertIn("--notes-file release-notes.md", attach)
+        self.assertIn("release.py annotate-draft", attach)
+        self.assertIn("--rerelease-of", attach)
+        self.assertIn('--platforms "$GREEN" --previous previous', attach)
+        verify = self.job("verify-draft")
+        self.assertIn('--platforms "$GREEN"', verify)
+        self.assertIn("--manifests-dir updater-manifests --previous previous-manifests", verify)
+        self.assertNotIn("latest.json", verify.replace("# ", ""))
+        for artifact in ("release-assets", "updater-manifest", "previous-manifests"):
+            self.assertIn(f"name: {artifact}\n", attach)
 
     def test_checkouts_do_not_persist_credentials(self) -> None:
         for path in self.workflow_files():

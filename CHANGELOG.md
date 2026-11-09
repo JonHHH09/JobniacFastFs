@@ -86,6 +86,10 @@ drafts take the body of their version section from this file.
 
 ### Changed
 
+- `scan_arbeitnow_jobs` `jobTypes` (and the desktop job type choices): a job type matches when, with
+  case and everything but letters and digits removed, it contains a filter value; it was an exact,
+  case-insensitive match. `full_time` now matches "Full Time", "Full-time" and "fulltime permanent". A
+  filter value without letters or digits matches nothing. `tags` keep the exact match.
 - Profile from PDF: a stored PDF with a Europass CV attachment is now read from that attachment
   instead of from the text heuristics, so the profile may differ from what an earlier version built
   from the same file. A PDF without a usable Europass CV is read as before.
@@ -157,9 +161,29 @@ drafts take the body of their version section from this file.
   `latest.json` into a workflow artifact, and never creates or changes a release, draft, tag or
   attestation. The build legs no longer cancel each other when one fails, and the smoke jobs still
   run for the legs that built. `release.py check-updater-manifest` checks a local `latest.json`.
+- Releases: the release workflow now publishes per platform. Each of Windows, Linux and macOS is a lane
+  (its tests, its build and its smoke test), and a release carries the platforms whose lanes are green, as
+  one version, one tag and one release page; a red platform no longer blocks the others, and a shared
+  failure (UI, supply chain, release tools, privacy scan, the version or the SBOM) still stops the release.
+  The run stays red when a lane failed, and a `release-platform` issue is opened (and closed when a later
+  release ships the platform). Every platform has its own updater manifest,
+  `latest-<target>-<arch>.json`, and a platform that is not in the release keeps its previous one; the
+  app's updater reads that file first and falls back to `latest.json`, which advances only on a full
+  release (installed 0.1.x apps read it alone). A new manual run of `release.yml` on `main`
+  (`gh workflow run release.yml --ref main -f platforms=macos-arm64`) releases the commit again as the
+  next patch version for the selected platforms and never edits a published release;
+  `release.py next-version --next-patch-even-if-tagged` and `release.py platform-notes --rerelease-of`
+  support it. The SBOMs are written once by their own job, and the build jobs (now the reusable
+  `release-build.yml`) no longer hold the GitHub token or write access: they only build, and `attach`
+  uploads from the workflow artifacts.
 - CI: apt on the Linux runners retries and times out a stalled mirror connection sooner, every CI job
   has a timeout instead of the 6-hour default (the end-to-end jobs already had one), and a failed or cancelled nightly run on
   `development` opens or updates an issue labelled `ci-nightly`.
+- CI: `scripts/fetch-pdfium.sh` and `scripts/fetch-pdfium.ps1` retry a failed or stalled PDFium download
+  (four attempts of at most two minutes each, so a 5xx from the release asset host no longer fails the
+  job), and the Rust and end-to-end jobs restore PDFium from a cache keyed by the pinned digests. Pull
+  requests restore it but never save it, and a restored library is still checked against its pinned
+  SHA-256.
 - CI: a new job checks spelling (typos), Markdown structure (markdownlint) and local links (lychee,
   offline). Pull requests are filtered by change classes (`scripts/ci/change_classes.toml`): each
   changed path takes the classes of the first matching rule, a path no rule matches runs every
@@ -229,6 +253,12 @@ drafts take the body of their version section from this file.
 
 ### Fixed
 
+- Arbeitnow scan (the desktop screen and `scan_arbeitnow_jobs`): the screen's job type choices matched
+  almost nothing (see Changed). The query searches the whole description, not only the first 1,000
+  characters of its text. A job listed on two overlapping upstream pages is returned once per scan call
+  (a later call with the cursor can still return a job an earlier call returned), and the screen's next
+  page skips jobs it already shows. The page body limit is 16 MiB instead of 4 MiB: the board now serves
+  300 jobs per page, and one page over the limit failed the whole scan.
 - Window close refused after a reload with stale unsaved flags.
 - Arbeitnow next page raced a replacing scan; the artifact page turn could show another document's page;
   the documents and profile-PDF screens now show unavailable on load.
@@ -249,6 +279,10 @@ drafts take the body of their version section from this file.
   `jobniac.exe` with a payload that carries the bundle type Tauri writes into the installer copy, and
   tauri-action no longer uploads its own `latest.json` and signatures to the draft (the input name was
   wrong). The Linux release leg runs the CLI from the deb and the AppImage.
+- WebDriver end-to-end suite: a session waits up to 30 s for tauri-driver to accept connections
+  before it is requested. Requested at once, it could fail with `ECONNREFUSED` on
+  `127.0.0.1:4444` while the driver was still starting, as it did in every Windows run after
+  webdriverio 10.1.0.
 
 ### Performance
 

@@ -6,7 +6,7 @@ use std::net::IpAddr;
 
 use fetch_support::{Reply, declared_response, env_for_name, pki, serve};
 use jobniac_infra::workers::fetch::board::{
-    self, BoardCategory, BoardFailure, BoardResponse, HOST,
+    self, BoardCategory, BoardFailure, BoardResponse, HOST, MAX_BODY_BYTES,
 };
 
 fn public() -> IpAddr {
@@ -59,7 +59,7 @@ async fn non_200_status_is_returned_with_an_empty_unread_body() {
 
 #[tokio::test]
 async fn chunked_body_of_three_mebibytes_is_accepted_and_returned_whole() {
-    // A chunked body below the 4 MiB bound.
+    // A chunked body below the board bound.
     let payload = vec![b'j'; 3 * 1024 * 1024];
     let mut response = b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n".to_vec();
     response.extend_from_slice(format!("{:x}\r\n", payload.len()).as_bytes());
@@ -71,7 +71,7 @@ async fn chunked_body_of_three_mebibytes_is_accepted_and_returned_whole() {
 
 #[tokio::test]
 async fn declared_content_length_of_three_mebibytes_is_admitted_and_read_whole() {
-    // Board bound is four mebibytes: a 2-4 MiB declared length must not hit the job page limit.
+    // A declared length above the 2 MiB job page bound must not hit the job page limit.
     let payload = vec![b'j'; 3 * 1024 * 1024];
     let (outcome, _) = run(
         Reply::Bytes(declared_response(payload.len(), &payload)),
@@ -83,8 +83,8 @@ async fn declared_content_length_of_three_mebibytes_is_admitted_and_read_whole()
 }
 
 #[tokio::test]
-async fn declared_content_length_over_four_mebibytes_is_refused_as_transport() {
-    let declared = 4 * 1024 * 1024 + 1;
+async fn declared_content_length_over_the_bound_is_refused_as_transport() {
+    let declared = MAX_BODY_BYTES + 1;
     let (outcome, _) = run(Reply::Bytes(declared_response(declared, b"x")), 7, None).await;
     assert_eq!(
         outcome.err(),
@@ -96,9 +96,9 @@ async fn declared_content_length_over_four_mebibytes_is_refused_as_transport() {
 }
 
 #[tokio::test]
-async fn chunked_body_over_four_mebibytes_is_a_body_size_failure() {
-    // One byte over the 4 MiB bound.
-    let payload = vec![b'j'; 4 * 1024 * 1024 + 1];
+async fn chunked_body_over_the_bound_is_a_body_size_failure() {
+    // One byte over the board bound.
+    let payload = vec![b'j'; MAX_BODY_BYTES + 1];
     let mut response =
         b"HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n".to_vec();
     response.extend_from_slice(format!("{:x}\r\n", payload.len()).as_bytes());
@@ -178,16 +178,16 @@ fn transport_failure() -> BoardFailure {
 }
 
 #[tokio::test]
-async fn declared_body_of_exactly_four_mebibytes_is_admitted() {
-    let body = vec![b'a'; 4 * 1024 * 1024];
+async fn declared_body_of_exactly_the_bound_is_admitted() {
+    let body = vec![b'a'; MAX_BODY_BYTES];
     let (outcome, _) = run(Reply::Bytes(declared_response(body.len(), &body)), 3, None).await;
-    assert_eq!(outcome.expect("admitted").body.len(), 4 * 1024 * 1024);
+    assert_eq!(outcome.expect("admitted").body.len(), MAX_BODY_BYTES);
 }
 
 #[tokio::test]
-async fn declared_body_one_over_four_mebibytes_is_refused() {
+async fn declared_body_one_over_the_bound_is_refused() {
     let (outcome, _) = run(
-        Reply::Bytes(declared_response(4 * 1024 * 1024 + 1, b"x")),
+        Reply::Bytes(declared_response(MAX_BODY_BYTES + 1, b"x")),
         3,
         None,
     )
@@ -251,9 +251,9 @@ async fn bounded_complete_trailer_is_discarded_and_never_exposed() {
 }
 
 #[tokio::test]
-async fn trailer_bytes_count_against_the_four_mebibyte_budget() {
+async fn trailer_bytes_count_against_the_body_budget() {
     // The data fills the budget exactly, so any trailer byte is over it: a framing failure.
-    let data = vec![b'a'; 4 * 1024 * 1024];
+    let data = vec![b'a'; MAX_BODY_BYTES];
     let mut response =
         b"HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n".to_vec();
     response.extend_from_slice(format!("{:x}\r\n", data.len()).as_bytes());

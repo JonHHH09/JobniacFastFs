@@ -20,8 +20,8 @@ use crate::workers::sandbox::SandboxProfile;
 /// encoded response is replaced by the generic failure.
 pub const FETCH_LINK_IPC_BYTES: u64 = 1024 * 1024;
 
-/// The largest response of the Arbeitnow child: the decoded body (4 MiB) plus 128 KiB for the status, the header block and the framing.
-pub const FETCH_ARBEITNOW_IPC_BYTES: u64 = 4 * 1024 * 1024 + 128 * 1024;
+/// The largest response of the Arbeitnow child: the decoded body (16 MiB) plus 128 KiB for the status, the header block and the framing.
+pub const FETCH_ARBEITNOW_IPC_BYTES: u64 = 16 * 1024 * 1024 + 128 * 1024;
 
 /// The bytes of one mebibyte.
 const MIB: u64 = 1024 * 1024;
@@ -147,7 +147,7 @@ impl WorkerKind {
                 output_bytes: FETCH_LINK_IPC_BYTES + 4,
                 open_files: 64,
             },
-            // The same memory and CPU limits, 10 s wall, and the IPC cap of the decoded body (4 MiB)
+            // The same memory and CPU limits, 10 s wall, and the IPC cap of the decoded body (16 MiB)
             // plus the header block and framing.
             Self::FetchArbeitnow => WorkerLimits {
                 memory_bytes: 1024 * MIB,

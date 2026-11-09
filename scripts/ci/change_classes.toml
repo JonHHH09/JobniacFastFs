@@ -104,9 +104,10 @@ classes = ["ci-all"]
 globs = [".github/workflows/e2e.yml"]
 classes = ["e2e-all"]
 
-# release.yml itself is only exercised by the release dry run; `release` runs the release tool tests.
+# release.yml and the build workflow it calls (release-build.yml) are only exercised by the release dry
+# run; `release` runs the release tool tests, which check their structure.
 [[rule]]
-globs = [".github/workflows/release.yml", "scripts/release/**", "src-tauri/tauri.release.conf.json"]
+globs = [".github/workflows/release.yml", ".github/workflows/release-build.yml", "scripts/release/**", "src-tauri/tauri.release.conf.json"]
 classes = ["release"]
 
 # Nothing in ci.yml or e2e.yml exercises the other workflows.

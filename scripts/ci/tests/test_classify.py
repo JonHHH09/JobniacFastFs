@@ -120,6 +120,7 @@ class RuleTests(unittest.TestCase):
         self.assertEqual(classes_of(".github/workflows/ci.yml"), {"ci-all"})
         self.assertEqual(classes_of(".github/workflows/e2e.yml"), {"e2e-all"})
         self.assertEqual(classes_of(".github/workflows/release.yml"), {"release"})
+        self.assertEqual(classes_of(".github/workflows/release-build.yml"), {"release"})
         for name in ("nightly", "codeql", "wiki", "branch-policy"):
             self.assertEqual(classes_of(f".github/workflows/{name}.yml"), {"prose"}, name)
 
