@@ -269,6 +269,10 @@ drafts take the body of their version section from this file.
   `jobniac.exe` with a payload that carries the bundle type Tauri writes into the installer copy, and
   tauri-action no longer uploads its own `latest.json` and signatures to the draft (the input name was
   wrong). The Linux release leg runs the CLI from the deb and the AppImage.
+- WebDriver end-to-end suite: a session waits up to 30 s for tauri-driver to accept connections
+  before it is requested. Requested at once, it could fail with `ECONNREFUSED` on
+  `127.0.0.1:4444` while the driver was still starting, as it did in every Windows run after
+  webdriverio 10.1.0.
 
 ### Performance
 

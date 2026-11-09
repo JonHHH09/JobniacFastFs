@@ -1,6 +1,7 @@
 // One WebDriver session of the desktop app through tauri-driver, plus failure screenshots.
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync } from "node:fs";
+import { connect } from "node:net";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { remote } from "webdriverio";
@@ -9,6 +10,9 @@ import { webviewUserDataFolder } from "./isolation.mjs";
 
 const DRIVER_HOST = "127.0.0.1";
 const DRIVER_PORT = 4444;
+// How long a freshly started tauri-driver may take to listen. With the 120 s session request this
+// stays inside the 180 s mocha timeout set in `run.mjs`.
+const DRIVER_READY_TIMEOUT_MS = 30_000;
 const exeSuffix = process.platform === "win32" ? ".exe" : "";
 
 /** tauri-driver from `cargo install tauri-driver --locked`, or the one named by TAURI_DRIVER. */
@@ -41,14 +45,20 @@ export async function openSession(env) {
       stderr.push(String(chunk));
     });
   }
+  let driverEnded = false;
   driver.on("exit", (code, signal) => {
+    driverEnded = true;
     stderr.push(`tauri-driver exited with code ${code} signal ${signal}\n`);
   });
   driver.on("error", (error) => {
+    driverEnded = true;
     stderr.push(`tauri-driver could not start: ${error.message}`);
   });
   const session = { driver, browser: undefined, driverLog: stderr };
   try {
+    // `remote` makes one attempt, so a session requested before tauri-driver listens fails at once
+    // with ECONNREFUSED.
+    await waitForDriver(() => driverEnded);
     session.browser = await remote({
       hostname: DRIVER_HOST,
       port: DRIVER_PORT,
@@ -84,6 +94,42 @@ export async function openSession(env) {
     await closeSession(session);
     throw error;
   }
+}
+
+/**
+ * Resolves once the driver port accepts a TCP connection. Rejects when tauri-driver ends first
+ * (`ended` returns true) or the port stays closed for DRIVER_READY_TIMEOUT_MS.
+ */
+async function waitForDriver(ended) {
+  const deadline = Date.now() + DRIVER_READY_TIMEOUT_MS;
+  for (;;) {
+    if (ended()) {
+      throw new Error("tauri-driver ended before it accepted connections");
+    }
+    if (await portAccepts(DRIVER_HOST, DRIVER_PORT)) {
+      return;
+    }
+    if (Date.now() >= deadline) {
+      throw new Error(
+        `tauri-driver did not accept connections on ${DRIVER_HOST}:${DRIVER_PORT} within ${DRIVER_READY_TIMEOUT_MS / 1000} s`,
+      );
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+}
+
+/** Whether a TCP connection to `host`:`port` opens within one second; the socket is closed again. */
+function portAccepts(host, port) {
+  return new Promise((resolve) => {
+    const socket = connect({ host, port });
+    const finish = (accepted) => {
+      socket.destroy();
+      resolve(accepted);
+    };
+    socket.setTimeout(1_000, () => finish(false));
+    socket.once("connect", () => finish(true));
+    socket.once("error", () => finish(false));
+  });
 }
 
 /** The application and driver processes that are running, for the failure report. */
