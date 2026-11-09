@@ -374,15 +374,29 @@ fn every_golden_vector_replays_identically() {
     let document: Value = serde_json::from_str(GOLDEN).unwrap();
     let vectors = document["vectors"].as_array().unwrap();
     assert!(vectors.len() >= 150, "{} vectors", vectors.len());
+    let mut deviations = Vec::new();
     for vector in vectors {
         let id = vector["id"].as_str().unwrap();
         let expected = match vector.get("deviation") {
-            Some(deviation) => deviation["expected"].clone(),
+            Some(deviation) => {
+                assert!(
+                    deviation["reason"].is_string(),
+                    "vector {id} deviation reason"
+                );
+                deviations.push(id);
+                deviation["expected"].clone()
+            }
             None => vector["expected"].clone(),
         };
         let actual = replay(vector);
         assert_eq!(actual, expected, "vector {id}");
     }
+    // The documented deviations from the recorded vectors: whole-description search and one row
+    // per job.
+    assert_eq!(
+        deviations,
+        ["query_after_plain_cap", "offset_10100_emitted_then_refused"]
+    );
 }
 
 #[test]
@@ -1036,4 +1050,135 @@ fn board_failure_on_a_later_page_keeps_earlier_work_private() {
     }));
     assert_eq!(error.code(), ErrorCode::UpstreamUnavailable);
     assert_eq!(error.message(), SAFE_MESSAGE);
+}
+
+// ----- job type keys, whole-description search and repeated jobs -----
+
+fn job_at(slug: &str) -> UpstreamJob {
+    UpstreamJob {
+        slug: slug.to_owned(),
+        ..job()
+    }
+}
+
+fn slugs(result: &ScanResult) -> Vec<&str> {
+    result.jobs.iter().map(|job| job.slug.as_str()).collect()
+}
+
+#[test]
+fn job_types_ignore_case_and_punctuation_and_match_a_containing_type() {
+    let typed = |slug: &str, kind: &str| UpstreamJob {
+        job_types: vec![kind.to_owned()],
+        ..job_at(slug)
+    };
+    let environment = single(
+        vec![
+            typed("spaced", "Full Time"),
+            typed("hyphenated", "Full-time"),
+            typed("permanent", "fulltime permanent"),
+            typed("prefixed", "Permanent - Full-time"),
+            typed("part", "Part-time"),
+            typed("intern", "Internship"),
+            typed("german", "Vollzeit / Ganztägig"),
+        ],
+        false,
+    );
+    let scan = |types: &[&str]| {
+        environment
+            .service
+            .scan(&ScanRequest {
+                job_types: Some(types.iter().map(|kind| (*kind).to_owned()).collect()),
+                limit: Some(10),
+                ..ScanRequest::default()
+            })
+            .unwrap()
+    };
+    assert_eq!(
+        slugs(&scan(&["full_time"])),
+        ["spaced", "hyphenated", "permanent", "prefixed"]
+    );
+    assert_eq!(
+        slugs(&scan(&["PART TIME", "internship"])),
+        ["part", "intern"]
+    );
+    // Letters outside ASCII are kept in the key and compared ignoring case.
+    assert_eq!(slugs(&scan(&["GANZTÄGIG"])), ["german"]);
+    // A value without letters or digits has an empty key and matches nothing.
+    assert!(scan(&["-"]).jobs.is_empty());
+}
+
+#[test]
+fn the_query_searches_the_whole_description_and_the_excerpt_keeps_its_source() {
+    let long = UpstreamJob {
+        html_description: format!("<p>{}needle</p>", "word ".repeat(5000)),
+        ..job_at("long-description")
+    };
+    let result = single(vec![long], false)
+        .service
+        .scan(&ScanRequest {
+            query: Some("needle".to_owned()),
+            limit: Some(1),
+            ..ScanRequest::default()
+        })
+        .unwrap();
+    assert_eq!(slugs(&result), ["long-description"]);
+    // The excerpt is still the capped plain text of the description start.
+    let excerpt = &result.jobs[0].description_excerpt;
+    assert!(excerpt.starts_with("word word"));
+    assert!(excerpt.chars().count() <= 1000);
+    assert!(!excerpt.contains("needle"));
+}
+
+#[test]
+fn a_job_listed_on_two_pages_is_returned_once() {
+    let environment = env(
+        vec![
+            (1, page(vec![job_at("first"), job_at("both")], true)),
+            (2, page(vec![job_at("both"), job_at("second")], false)),
+        ],
+        100,
+        0,
+    );
+    let result = environment
+        .service
+        .scan(&ScanRequest {
+            limit: Some(10),
+            max_pages: Some(2),
+            ..ScanRequest::default()
+        })
+        .unwrap();
+    assert_eq!(slugs(&result), ["first", "both", "second"]);
+    assert_eq!(result.records_inspected, 4);
+    assert_eq!(result.next_cursor, None);
+}
+
+#[test]
+fn the_cursor_offset_counts_a_repeated_match() {
+    let environment = single(
+        vec![
+            job_at("first"),
+            job_at("first"),
+            job_at("second"),
+            job_at("third"),
+        ],
+        false,
+    );
+    let first = environment
+        .service
+        .scan(&ScanRequest {
+            limit: Some(2),
+            ..ScanRequest::default()
+        })
+        .unwrap();
+    assert_eq!(slugs(&first), ["first", "second"]);
+    let rest = environment
+        .service
+        .scan(&ScanRequest {
+            limit: Some(2),
+            cursor: first.next_cursor.clone(),
+            ..ScanRequest::default()
+        })
+        .unwrap();
+    assert_eq!(slugs(&rest), ["third"]);
+    assert_eq!(rest.next_cursor, None);
 }

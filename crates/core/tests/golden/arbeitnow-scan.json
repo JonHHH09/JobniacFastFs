@@ -1397,6 +1397,77 @@
      }
     ],
     "clockReads": 0
+   },
+   "deviation": {
+    "reason": "The query searches the whole description text, not only the first 1,000 code points of its plain text, so a term after that cap matches.",
+    "expected": {
+     "result": {
+      "jobs": [
+       {
+        "slug": "example-job-1",
+        "canonicalUrl": "https://arbeitnow.com/view/example-job-1",
+        "company": "Example GmbH",
+        "title": "Rust Engineer",
+        "location": "Berlin",
+        "remote": true,
+        "postedAt": {
+         "epochSecond": 100,
+         "nanosecond": 0
+        },
+        "tags": [
+         "Rust"
+        ],
+        "jobTypes": [
+         "Full Time"
+        ],
+        "descriptionExcerpt": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxMDAsImV4cGlyZXNBdCI6MTAwMCwic2x1ZyI6ImV4YW1wbGUtam9iLTEiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9leGFtcGxlLWpvYi0xIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTAwLCJ0YWdzIjpbIlJ1c3QiXSwiam9iVHlwZXMiOlsiRnVsbCBUaW1lIl0sImRlc2NyaXB0aW9uRXhjZXJwdCI6Inh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHgifQ.0Sf52h-jKuv013gXxXa1OMt9rmQA0BoC1lgwIGjYRsY"
+       }
+      ],
+      "verifiedCandidates": [
+       {
+        "issuedAt": {
+         "epochSecond": 100,
+         "nanosecond": 0
+        },
+        "expiresAt": {
+         "epochSecond": 1000,
+         "nanosecond": 0
+        },
+        "slug": "example-job-1",
+        "canonicalUrl": "https://arbeitnow.com/view/example-job-1",
+        "company": "Example GmbH",
+        "title": "Rust Engineer",
+        "location": "Berlin",
+        "remote": true,
+        "postedAt": {
+         "epochSecond": 100,
+         "nanosecond": 0
+        },
+        "tags": [
+         "Rust"
+        ],
+        "jobTypes": [
+         "Full Time"
+        ],
+        "descriptionExcerpt": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+       }
+      ],
+      "pagesScanned": 1,
+      "recordsInspected": 1,
+      "nextCursor": null,
+      "source": "arbeitnow",
+      "sourceDocsUrl": "https://www.arbeitnow.com/api/job-board-api",
+      "consistencyNotice": "Upstream results are mutable; this scan is not a snapshot."
+     },
+     "calls": [
+      {
+       "page": 1,
+       "visaSponsorship": null
+      }
+     ],
+     "clockReads": 2
+    }
    }
   },
   {
@@ -18006,6 +18077,91 @@
      }
     ],
     "clockReads": 200
+   },
+   "deviation": {
+    "reason": "A job listed more than once is returned once per scan. The page repeats one job, so the scan returns it once, consumes the page and continues with page 2.",
+    "expected": {
+     "result": {
+      "jobs": [
+       {
+        "slug": "example-job-1",
+        "canonicalUrl": "https://arbeitnow.com/view/example-job-1",
+        "company": "Example GmbH",
+        "title": "Rust Engineer",
+        "location": "Berlin",
+        "remote": true,
+        "postedAt": {
+         "epochSecond": 100,
+         "nanosecond": 0
+        },
+        "tags": [
+         "Rust"
+        ],
+        "jobTypes": [
+         "Full Time"
+        ],
+        "descriptionExcerpt": "Builds things in Berlin.",
+        "candidateToken": "eyJ2IjoxLCJwcm92aWRlciI6ImFyYmVpdG5vdyIsImlzc3VlZEF0IjoxMDAsImV4cGlyZXNBdCI6MTAwMCwic2x1ZyI6ImV4YW1wbGUtam9iLTEiLCJjYW5vbmljYWxVcmwiOiJodHRwczovL2FyYmVpdG5vdy5jb20vdmlldy9leGFtcGxlLWpvYi0xIiwiY29tcGFueSI6IkV4YW1wbGUgR21iSCIsInRpdGxlIjoiUnVzdCBFbmdpbmVlciIsImxvY2F0aW9uIjoiQmVybGluIiwicmVtb3RlIjp0cnVlLCJwb3N0ZWRBdCI6MTAwLCJ0YWdzIjpbIlJ1c3QiXSwiam9iVHlwZXMiOlsiRnVsbCBUaW1lIl0sImRlc2NyaXB0aW9uRXhjZXJwdCI6IkJ1aWxkcyB0aGluZ3MgaW4gQmVybGluLiJ9.n3ei_MiwcGPmDzyS7wrztioCCVGgDDD2ouDZKSo3rDE"
+       }
+      ],
+      "verifiedCandidates": [
+       {
+        "issuedAt": {
+         "epochSecond": 100,
+         "nanosecond": 0
+        },
+        "expiresAt": {
+         "epochSecond": 1000,
+         "nanosecond": 0
+        },
+        "slug": "example-job-1",
+        "canonicalUrl": "https://arbeitnow.com/view/example-job-1",
+        "company": "Example GmbH",
+        "title": "Rust Engineer",
+        "location": "Berlin",
+        "remote": true,
+        "postedAt": {
+         "epochSecond": 100,
+         "nanosecond": 0
+        },
+        "tags": [
+         "Rust"
+        ],
+        "jobTypes": [
+         "Full Time"
+        ],
+        "descriptionExcerpt": "Builds things in Berlin."
+       }
+      ],
+      "pagesScanned": 1,
+      "recordsInspected": 10101,
+      "nextCursor": "MjowOmE5NTA5NjRkMWMzNTVmNDE5YzMzNjRhN2FkMTU0MzA5ZjQ4MzE5M2JhNzY3NjA5N2ZiNzk3M2M1ZTQ0ZWU4MjQ6cTM3Z05IRUhwX2VwMzlsc1ZyMGttbTYzOGREdXpxTHBiRUVfMDBsUkgzdw",
+      "source": "arbeitnow",
+      "sourceDocsUrl": "https://www.arbeitnow.com/api/job-board-api",
+      "consistencyNotice": "Upstream results are mutable; this scan is not a snapshot."
+     },
+     "followResult": {
+      "jobs": [],
+      "verifiedCandidates": [],
+      "pagesScanned": 1,
+      "recordsInspected": 0,
+      "nextCursor": null,
+      "source": "arbeitnow",
+      "sourceDocsUrl": "https://www.arbeitnow.com/api/job-board-api",
+      "consistencyNotice": "Upstream results are mutable; this scan is not a snapshot."
+     },
+     "calls": [
+      {
+       "page": 1,
+       "visaSponsorship": null
+      },
+      {
+       "page": 2,
+       "visaSponsorship": null
+      }
+     ],
+     "clockReads": 2
+    }
    }
   },
   {

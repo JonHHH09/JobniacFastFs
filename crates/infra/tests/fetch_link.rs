@@ -307,7 +307,7 @@ async fn chunked_body_over_the_two_mebibyte_bound_is_refused() {
 
 #[tokio::test]
 async fn declared_content_length_of_three_mebibytes_is_refused_on_the_link_path() {
-    // The job page bound is two mebibytes; the board's four mebibytes do not apply here.
+    // The job page bound is two mebibytes; the board bound does not apply here.
     let (outcome, _, _) = run(
         Reply::Bytes(declared_response(3 * 1024 * 1024, b"x")),
         &[HOST],

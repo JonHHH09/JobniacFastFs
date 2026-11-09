@@ -741,6 +741,12 @@
       "reason": "Fixed Arbeitnow board host (HOST in crates/core/src/arbeitnow/board.rs) used in the userinfo rejection cases: the host after a userinfo part, and the host placed in userinfo before an example.* host. A product constant tested by the fixed-host rule. Reviewed."
     },
     {
+      "sha256": "02ce7a29a456f8f5468d3c3fd9a3412d564514793b5ff9fb3571e9b3dda47074",
+      "classes": ["email"],
+      "paths": ["crates/core/tests/arbeitnow_board.rs"],
+      "reason": "Fixed Arbeitnow board host (HOST in crates/core/src/arbeitnow/board.rs) used in the userinfo rejection cases: the host after a userinfo part, and the host placed in userinfo before an example.* host. A product constant tested by the fixed-host rule. Reviewed."
+    },
+    {
       "sha256": "22928b5ca5fccce042443c0aeb8e9eb6f65a73a2aad845f7cfa5c477bc5e2245",
       "classes": ["local-path"],
       "paths": ["crates/core/tests/documents_list.rs"],
@@ -825,7 +831,19 @@
       "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
     },
     {
+      "sha256": "279b8f7ad91633e86b7401c0ccdc58bef8d84a223674fa11f90da0796e16a6ce",
+      "classes": ["ip-address"],
+      "paths": ["crates/infra/tests/fetch_board.rs"],
+      "reason": "IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
       "sha256": "ace2ef0dedfef55508fb8fa7b20fea45bfd794ebaf5f2f90d09ac205abfad272",
+      "classes": ["ip-address", "personal-data"],
+      "paths": ["crates/infra/tests/fetch_link.rs"],
+      "reason": "Digit run inside a URL in the fetch test, not a phone number (reviewed). IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."
+    },
+    {
+      "sha256": "ed9255cc8242807bc3735aded5b6ef8476cb623a9abb659e912597e80ee7c704",
       "classes": ["ip-address", "personal-data"],
       "paths": ["crates/infra/tests/fetch_link.rs"],
       "reason": "Digit run inside a URL in the fetch test, not a phone number (reviewed). IP literals are well-known public resolvers, documentation or boundary values, or seeded random hosts from a fixed seed; used as test inputs or documented examples (reviewed)."

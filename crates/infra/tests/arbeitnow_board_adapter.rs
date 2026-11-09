@@ -114,7 +114,7 @@ fn a_non_200_answer_with_a_body_is_a_transport_failure() {
 }
 
 #[test]
-fn a_body_over_four_mebibytes_is_a_body_size_failure() {
+fn a_body_over_the_bound_is_a_body_size_failure() {
     assert_eq!(
         failure(ok(vec![b' '; MAX_BODY_BYTES + 1])),
         BoardFailure::BodySize
@@ -122,7 +122,7 @@ fn a_body_over_four_mebibytes_is_a_body_size_failure() {
 }
 
 #[test]
-fn a_declared_length_over_four_mebibytes_is_a_body_size_failure() {
+fn a_declared_length_over_the_bound_is_a_body_size_failure() {
     let declared = (MAX_BODY_BYTES + 1).to_string();
     let response = answer(
         200,

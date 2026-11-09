@@ -39,6 +39,8 @@ pub const ARBEITNOW_CLOSE: &str = "arbeitnow.close";
 pub(crate) struct HeldRow {
     /// The opaque, random row id handed to React.
     pub(crate) row_id: String,
+    /// The board slug of the job, so a next page can skip a job the table holds already.
+    pub(crate) slug: String,
     /// The signed candidate token of the row. Never serialized.
     pub(crate) token: String,
     /// Whether the row was imported already.
@@ -49,6 +51,7 @@ impl fmt::Debug for HeldRow {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("HeldRow")
             .field("row_id", &self.row_id)
+            .field("slug", &self.slug)
             .field("token", &"<redacted>")
             .field("imported", &self.imported)
             .finish()
@@ -113,6 +116,11 @@ impl ArbeitnowSession {
         let filters = self.filters.clone()?;
         let cursor = self.cursor.clone()?;
         Some((filters, cursor, MAX_HELD_ROWS - self.rows.len()))
+    }
+
+    /// Whether the table holds a row of the job with this board slug.
+    pub(crate) fn holds_slug(&self, slug: &str) -> bool {
+        self.rows.iter().any(|row| row.slug == slug)
     }
 
     /// The candidate token of a row that was not imported yet; `None` for an unknown, stale or

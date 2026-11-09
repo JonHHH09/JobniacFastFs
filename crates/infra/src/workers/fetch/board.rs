@@ -34,8 +34,8 @@ pub const HOST: &str = "www.arbeitnow.com";
 /// The total deadline of one board request.
 pub const OPERATION: Duration = Duration::from_secs(10);
 
-/// The largest decoded body (four mebibytes).
-pub const MAX_BODY_BYTES: usize = 4 * 1024 * 1024;
+/// The largest decoded body (sixteen mebibytes, the board port's bound).
+pub const MAX_BODY_BYTES: usize = jobniac_core::arbeitnow::board::MAX_BODY_BYTES;
 
 /// The largest raw header block.
 const MAX_HEADER_BYTES: usize = 16 * 1024;
@@ -253,7 +253,7 @@ async fn fetch_once(
     // fetcher adds 16 bytes).
     let declared =
         admit_response_headers_with_limits(&pairs, body_limit, 0).map_err(|_| transport(true))?;
-    // Data and trailers share the 4 MiB budget. An oversize body is a body-size failure; a trailer
+    // Data and trailers share the 16 MiB budget. An oversize body is a body-size failure; a trailer
     // section that does not fit, or any framing failure, is a retryable transport failure.
     let bytes = io::read_body(response.into_body(), MAX_BODY_BYTES, deadline)
         .await
