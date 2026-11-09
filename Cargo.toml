@@ -31,7 +31,7 @@ getrandom = "0.4"
 hmac = "0.13"
 # PDFium bindings for the PDF worker. Pinned exactly: the bundled PDFium build (chromium/7881)
 # must match the binding's API version feature.
-pdfium-render = "=0.9.4"
+pdfium-render = "=0.9.5"
 # Linux resource limits applied by the worker child to itself (no pre_exec).
 rlimit = "0.11"
 # Linux worker confinement: Landlock filesystem and TCP rules, and a seccomp-BPF filter,
@@ -42,7 +42,7 @@ seccompiler = "=0.5.0"
 # process APIs only. Exact pin: already locked at 1.1.5 through the existing dependency graph.
 rustix = { version = "=1.1.6", features = ["fs", "process"] }
 # Structural readback of generated PDFs; pinned exactly like the writer.
-lopdf = "=0.46.0"
+lopdf = "=0.47.0"
 # Deterministic PDF writer for generated resumes and cover letters.
 pdf-writer = "=0.15.0"
 # Safe XML tree parser for the Europass attachments of imported PDFs (jobniac-core). Pinned exactly:
@@ -52,7 +52,7 @@ roxmltree = "=0.21.2"
 # library, same engine on Windows and Linux). Pinned exactly: the bundled SQLite version is part of
 # the storage contract (STRICT tables, minimum-version check in the health probe).
 rusqlite = { version = "=0.41.1", default-features = false, features = ["bundled", "cache"] }
-rmcp = { version = "=3.8.0", features = ["server", "transport-io", "transport-streamable-http-server", "macros", "schemars"] }
+rmcp = { version = "=3.9.0", features = ["server", "transport-io", "transport-streamable-http-server", "macros", "schemars"] }
 # Loopback Streamable HTTP MCP: the guard and listener in jobniac-mcp. Exact pins match the
 # versions already in Cargo.lock.
 hyper = { version = "=1.12.0", default-features = false, features = ["server", "client", "http1"] }
