@@ -17,3 +17,9 @@ updates:
     target-branch: development
     schedule:
       interval: weekly
+    groups:
+      # The init, analyze and upload-sarif steps must run the same version, or the
+      # CodeQL analyze step fails; one PR moves them together.
+      codeql-action:
+        patterns:
+          - "github/codeql-action*"
