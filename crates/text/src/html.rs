@@ -54,6 +54,18 @@ pub fn html4_unescape(value: Option<&str>) -> String {
 /// ASCII whitespace, strip Java whitespace and cap the result at 1,000 code points. `None` is treated
 /// as empty text.
 pub fn plain(value: Option<&str>) -> String {
+    bound_normalized(&plain_text(value), PLAIN_CAP)
+}
+
+/// Applies the source preparation of [`plain`] without its 1,000 code point cap, for searching the
+/// whole text. `None` is treated as empty text.
+pub fn plain_full(value: Option<&str>) -> String {
+    bound_normalized(&plain_text(value), usize::MAX)
+}
+
+/// The steps of [`plain`] before the cap: decode, remove `script`/`style` elements and tags, replace
+/// the special characters with spaces and collapse ASCII whitespace.
+fn plain_text(value: Option<&str>) -> String {
     let decoded = unescape(value.unwrap_or(""));
     let without_tags = remove_tags(&remove_script_and_style(&decoded));
     let cleaned: String = without_tags
@@ -64,7 +76,7 @@ pub fn plain(value: Option<&str>) -> String {
             other => other,
         })
         .collect();
-    bound_normalized(&collapse_ascii_whitespace(&cleaned), PLAIN_CAP)
+    collapse_ascii_whitespace(&cleaned)
 }
 
 /// Normalizes control characters and ASCII whitespace and caps the text at `cap` code points,

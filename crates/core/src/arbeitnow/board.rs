@@ -6,8 +6,8 @@
 //! next-link validation). There is no IO and no dependency on the transport: the worker hands over
 //! the status, the raw header pairs and the body.
 //!
-//! Limits: 4 MiB body, 500 jobs per page and
-//! 64 list elements.
+//! Limits: 16 MiB body, 500 jobs per page, 64 list elements and a description of
+//! [`MAX_DESCRIPTION_UNITS`] UTF-16 units.
 //!
 //! Notes: a text truncated to a UTF-16 unit cap drops a dangling high surrogate, since a Rust
 //! string cannot hold the lone unit; the body decoders refuse what
@@ -20,8 +20,15 @@ use super::failure::{BoardFailure, RetryAfterSeconds};
 use super::instant::ArbeitnowInstant;
 use crate::outbound::USER_AGENT;
 
-/// Largest accepted response body, in bytes (four mebibytes).
-pub const MAX_BODY_BYTES: usize = 4 * 1024 * 1024;
+/// Largest accepted response body, in bytes (sixteen mebibytes). The live board serves 300 jobs per
+/// page, and a page of long descriptions comes close to 4 MiB.
+pub const MAX_BODY_BYTES: usize = 16 * 1024 * 1024;
+
+/// Longest kept HTML description, in UTF-16 units. The query search reads the whole kept text.
+pub const MAX_DESCRIPTION_UNITS: usize = 262_144;
+
+/// The leading UTF-16 units of the HTML description the candidate excerpt is prepared from.
+pub const EXCERPT_SOURCE_UNITS: usize = 4096;
 
 /// Most jobs one page may carry.
 pub const MAX_JOBS_PER_PAGE: usize = 500;
@@ -66,7 +73,8 @@ pub struct UpstreamJob {
     pub company: String,
     /// The title (at most 256 UTF-16 units).
     pub title: String,
-    /// The HTML description (at most 4096 UTF-16 units).
+    /// The HTML description (at most [`MAX_DESCRIPTION_UNITS`] UTF-16 units). The excerpt is prepared
+    /// from its first [`EXCERPT_SOURCE_UNITS`] units.
     pub html_description: String,
     /// Whether the job is remote, when stated.
     pub remote: Option<bool>,
@@ -298,7 +306,7 @@ fn is_json_media(content_type: Option<&[u8]>) -> bool {
 ///
 /// A 429 is a rate-limited failure carrying the bounded `Retry-After`; another non-200 status is an
 /// `http_status` failure, retryable for `500..=599`. For a 200 the first `Content-Type` must name
-/// JSON and the first `Content-Length`, when present, must be a decimal in `0..=4 MiB`.
+/// JSON and the first `Content-Length`, when present, must be a decimal in `0..=16 MiB`.
 ///
 /// # Errors
 ///
@@ -335,7 +343,7 @@ fn utf16_len(value: &str) -> usize {
 
 /// Truncates to at most `maximum` UTF-16 units. A cut inside a surrogate pair drops the dangling
 /// high surrogate (a Rust string cannot hold the lone unit).
-fn bound(value: &str, maximum: usize) -> String {
+pub fn bound(value: &str, maximum: usize) -> String {
     let mut units = 0;
     let mut result = String::new();
     for ch in value.chars() {
@@ -420,7 +428,7 @@ fn job(value: &JsonValue) -> Result<UpstreamJob, BoardFailure> {
         slug,
         company: text(value, "company_name", 256)?,
         title: text(value, "title", 256)?,
-        html_description: text(value, "description", 4096)?,
+        html_description: text(value, "description", MAX_DESCRIPTION_UNITS)?,
         remote,
         url: text(value, "url", 4096)?,
         tags: list(value, "tags")?,

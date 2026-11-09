@@ -5,8 +5,9 @@
 //! have no Rust form: headers are a slice of byte pairs.
 
 use jobniac_core::arbeitnow::board::{
-    ARBEITNOW_TIMEOUT_SECONDS, ENDPOINT_PATH, HOST, MAX_BODY_BYTES, MAX_JOBS_PER_PAGE,
-    MAX_LIST_ELEMENTS, REQUEST_HEADERS, admit_response, parse_page, validate_request,
+    ARBEITNOW_TIMEOUT_SECONDS, ENDPOINT_PATH, HOST, MAX_BODY_BYTES, MAX_DESCRIPTION_UNITS,
+    MAX_JOBS_PER_PAGE, MAX_LIST_ELEMENTS, REQUEST_HEADERS, admit_response, parse_page,
+    validate_request,
 };
 use jobniac_core::arbeitnow::failure::{BoardCategory, BoardFailure};
 use jobniac_core::arbeitnow::instant::ArbeitnowInstant;
@@ -91,7 +92,7 @@ fn parse_ok(body: &[u8]) -> jobniac_core::arbeitnow::board::Page {
 
 #[test]
 fn constants_match_the_approved_values() {
-    assert_eq!(MAX_BODY_BYTES, 4 * 1024 * 1024);
+    assert_eq!(MAX_BODY_BYTES, 16 * 1024 * 1024);
     assert_eq!(MAX_JOBS_PER_PAGE, 500);
     assert_eq!(MAX_LIST_ELEMENTS, 64);
     assert_eq!(ENDPOINT_PATH, "/api/job-board-api");
@@ -230,9 +231,9 @@ fn content_length_rule() {
     assert_eq!(check("0"), Ok(Some(0)));
     assert_eq!(check("+0"), Ok(Some(0)));
     assert_eq!(check("-0"), Ok(Some(0)));
-    assert_eq!(check("4194304"), Ok(Some(4_194_304)));
+    assert_eq!(check("16777216"), Ok(Some(16_777_216)));
     for value in [
-        "4194305",
+        "16777217",
         "-1",
         "",
         "+",
@@ -510,21 +511,29 @@ fn utf16_truncation_never_leaves_a_lone_surrogate_and_slug_counts_code_points() 
         )),
         BoardCategory::Schema
     );
-    // Caps in UTF-16 units: 256, 256, 4096, 256, 128.
+    // Caps in UTF-16 units: 256, 256, MAX_DESCRIPTION_UNITS, 256, 128.
     let long = "é".repeat(5000);
     let mut value = job("a");
     value["company_name"] = json!(long);
-    value["description"] = json!(long);
+    value["description"] = json!("é".repeat(MAX_DESCRIPTION_UNITS + 10));
     value["location"] = json!(long);
     value["tags"] = json!([long]);
     let page = parse_ok(&envelope(&[value], 1, None, Value::Null));
     assert_eq!(page.jobs[0].company.chars().count(), 256);
-    assert_eq!(page.jobs[0].html_description.chars().count(), 4096);
+    assert_eq!(
+        page.jobs[0].html_description.chars().count(),
+        MAX_DESCRIPTION_UNITS
+    );
     assert_eq!(
         page.jobs[0].location.as_deref().map(|l| l.chars().count()),
         Some(256)
     );
     assert_eq!(page.jobs[0].tags[0].chars().count(), 128);
+    // A description longer than the excerpt source but under the cap is kept whole for the search.
+    let mut whole = job("a");
+    whole["description"] = json!(long);
+    let kept = parse_ok(&envelope(&[whole], 1, None, Value::Null));
+    assert_eq!(kept.jobs[0].html_description, long);
 }
 
 #[test]

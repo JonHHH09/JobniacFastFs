@@ -2,7 +2,8 @@
 //!
 //! Validates the request, pages through an injected [`ArbeitnowBoard`], filters matches locally,
 //! maps matches to [`ScannedJob`]s with signed candidate tokens and produces HMAC-protected
-//! cursors (see [`crate::arbeitnow::cursor`]). No transport and no persistence.
+//! cursors (see [`crate::arbeitnow::cursor`]). A job listed twice within one scan is returned once.
+//! No transport and no persistence.
 //!
 //! Fail closed: every failure is a fresh [`ApplicationError`] with a fixed message and no chained
 //! or private detail. Board failures keep the fixed safe message with their classification
@@ -11,18 +12,19 @@
 //! Not representable in Rust: wrong-typed request or page values, a board that
 //! raises something other than a [`BoardFailure`] (the port is closed), and lone surrogates.
 
+use std::collections::HashSet;
 use std::fmt;
 
 use jobniac_text::java::{java_strip, utf16_length};
 
-use crate::arbeitnow::board::{Page, UpstreamJob};
+use crate::arbeitnow::board::{EXCERPT_SOURCE_UNITS, Page, UpstreamJob, bound as bound_units};
 use crate::arbeitnow::candidates::{ArbeitnowCandidate, CandidateCodec};
 use crate::arbeitnow::cursor::{
     CursorAuthority, CursorKey, REQUEST_MESSAGE, Scope, normalized, terms,
 };
 use crate::arbeitnow::failure::BoardFailure;
 use crate::arbeitnow::instant::{ArbeitnowInstant, MAX_EPOCH_SECOND, MIN_EPOCH_SECOND};
-use crate::arbeitnow::text::{bound_list, plain, plain_bound};
+use crate::arbeitnow::text::{bound_list, plain, plain_bound, plain_full};
 use crate::errors::{ApplicationError, ErrorCode, validation_error};
 use jobniac_text::case::root_lower;
 
@@ -96,7 +98,8 @@ pub struct ScanRequest {
     pub visa_sponsorship: Option<bool>,
     /// Tag filter (OR within the list).
     pub tags: Option<Vec<String>>,
-    /// Job type filter (OR within the list).
+    /// Job type filter (OR within the list). Case and punctuation are ignored, and a job type that
+    /// contains the filter value matches (`full_time` matches "Full-time" and "fulltime permanent").
     pub job_types: Option<Vec<String>>,
     /// Jobs per scan, `1..=100` (default 25).
     pub limit: Option<i64>,
@@ -238,19 +241,22 @@ struct Filters {
 
 impl Filters {
     fn new(request: &ScanRequest) -> Self {
-        let normal = |values: &Option<Vec<String>>| -> Vec<String> {
-            values
-                .iter()
-                .flatten()
-                .map(|value| normalized(value))
-                .collect()
-        };
         Self {
             terms: terms(request.query.as_deref()),
             location: request.location.as_deref().map(normalized),
             remote_only: request.remote_only == Some(true),
-            tags: normal(&request.tags),
-            job_types: normal(&request.job_types),
+            tags: request
+                .tags
+                .iter()
+                .flatten()
+                .map(|value| normalized(value))
+                .collect(),
+            job_types: request
+                .job_types
+                .iter()
+                .flatten()
+                .map(|value| job_type_key(value))
+                .collect(),
         }
     }
 
@@ -266,7 +272,7 @@ impl Filters {
         {
             return false;
         }
-        if !(any_equal(&job.tags, &self.tags) && any_equal(&job.job_types, &self.job_types)) {
+        if !(any_equal(&job.tags, &self.tags) && any_job_type(&job.job_types, &self.job_types)) {
             return false;
         }
         if self.terms.is_empty() {
@@ -277,7 +283,7 @@ impl Filters {
                 job.title.as_str(),
                 job.company.as_str(),
                 job.location.as_deref().unwrap_or(""),
-                &plain(&job.html_description),
+                &plain_full(&job.html_description),
                 &job.tags.join(" "),
                 &job.job_types.join(" "),
             ]
@@ -295,6 +301,27 @@ fn any_equal(actual: &[String], wanted: &[String]) -> bool {
         || actual.iter().any(|value| {
             let lowered = root_lower(value);
             wanted.contains(&lowered)
+        })
+}
+
+/// The comparison key of a job type: lowercased, with everything but letters and digits removed, so
+/// "Full-Time", "full time" and `full_time` share the key `fulltime`.
+fn job_type_key(value: &str) -> String {
+    root_lower(value)
+        .chars()
+        .filter(|character| character.is_alphanumeric())
+        .collect()
+}
+
+/// An empty filter accepts everything; otherwise the key of some job type must contain the key of
+/// some filter value. A filter value without letters or digits matches nothing.
+fn any_job_type(actual: &[String], wanted: &[String]) -> bool {
+    wanted.is_empty()
+        || actual.iter().any(|value| {
+            let key = job_type_key(value);
+            wanted
+                .iter()
+                .any(|filter| !filter.is_empty() && key.contains(filter.as_str()))
         })
 }
 
@@ -349,7 +376,7 @@ impl<B: ArbeitnowBoard, C: CandidateIssuer> ArbeitnowScanService<B, C> {
             .and_then(|second| ArbeitnowInstant::new(second, 0).ok());
         let tags = bound_list(Some(job.tags.as_slice()));
         let job_types = bound_list(Some(job.job_types.as_slice()));
-        let description = plain(&job.html_description);
+        let description = plain(&bound_units(&job.html_description, EXCERPT_SOURCE_UNITS));
         if java_strip(&title).is_empty() || java_strip(&description).is_empty() {
             return Err(failure(UPSTREAM_MESSAGE));
         }
@@ -427,6 +454,9 @@ impl<B: ArbeitnowBoard, C: CandidateIssuer> ArbeitnowScanService<B, C> {
         let mut scanned = 0u32;
         let mut inspected = 0i32;
         let mut jobs: Vec<ScannedJob> = Vec::new();
+        // Slugs this scan returned already. Upstream pages overlap (a job can be listed on two
+        // consecutive pages), so a repeated slug is skipped.
+        let mut seen: HashSet<String> = HashSet::new();
         let next_cursor = loop {
             let page = self.fetch(page_number, request.visa_sponsorship)?;
             scanned += 1;
@@ -439,11 +469,15 @@ impl<B: ArbeitnowBoard, C: CandidateIssuer> ArbeitnowScanService<B, C> {
             if offset > matches.len() {
                 return Err(failure(CURSOR_MESSAGE));
             }
-            let take = (limit - jobs.len()).min(matches.len() - offset);
-            for job in &matches[offset..offset + take] {
-                jobs.push(self.map(job)?);
+            // The offset counts every match, repeated ones included, so a cursor resumes at the
+            // same place whatever this scan skipped.
+            while jobs.len() < limit && offset < matches.len() {
+                let job = matches[offset];
+                offset += 1;
+                if seen.insert(job.slug.clone()) {
+                    jobs.push(self.map(job)?);
+                }
             }
-            offset += take;
             if jobs.len() == limit {
                 break if offset < matches.len() {
                     Some(self.cursor(page_number, offset, &fingerprint)?)

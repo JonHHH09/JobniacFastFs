@@ -203,9 +203,16 @@ pub(crate) async fn run_next<P: ArbeitnowPort + ?Sized>(
         .scan(page)
         .await
         .map_err(|error| scan_error(&error, NEXT_VALIDATION))?;
-    let (held, rows) = held_rows(&result.jobs);
     let cursor = result.next_cursor.clone();
     let mut session = state.arbeitnow_session();
+    // Upstream pages overlap, so a next page can repeat a job an earlier page returned; the table
+    // keeps the first row of each job.
+    let fresh: Vec<ScannedJob> = result
+        .jobs
+        .into_iter()
+        .filter(|job| !session.holds_slug(&job.slug))
+        .collect();
+    let (held, rows) = held_rows(&fresh);
     session.append(held, cursor);
     let has_next = session.has_next();
     drop(session);
@@ -281,6 +288,7 @@ fn held_rows(jobs: &[ScannedJob]) -> (Vec<HeldRow>, Vec<ArbeitnowRowDto>) {
             let dto = row_dto(job, row_id.clone());
             let held = HeldRow {
                 row_id,
+                slug: job.slug.clone(),
                 token: job.candidate_token.clone(),
                 imported: false,
             };
@@ -464,9 +472,10 @@ mod tests {
         }
     }
 
+    /// A scanned job whose slug is derived from its token, so distinct tokens are distinct jobs.
     fn job(title: &str, token: &str, excerpt: &str) -> ScannedJob {
         ScannedJob {
-            slug: "example-slug".to_owned(),
+            slug: format!("slug-{token}"),
             canonical_url: "https://www.arbeitnow.com/jobs/example-slug".to_owned(),
             company: "Example Labs".to_owned(),
             title: title.to_owned(),
@@ -614,6 +623,60 @@ mod tests {
         assert!(!json_of(&second).contains(CURSOR));
         // Both pages keep their own ids; the first page's id is still importable.
         assert_ne!(row_ids(&first)[0], row_ids(&second)[0]);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn a_next_page_skips_a_job_the_table_holds_already() -> Result<(), CommandError> {
+        // Upstream pages overlap: the next page repeats the job of the first page.
+        let state = state();
+        let port = FakePort::with_scans(vec![
+            Ok(scan_result(
+                vec![job("Repeated", TOKEN_A, "")],
+                Some(CURSOR),
+            )),
+            Ok(scan_result(
+                vec![job("Repeated", TOKEN_A, ""), job("New", TOKEN_B, "")],
+                None,
+            )),
+        ]);
+        let first = run_scan(&state, &port, &form()).await?;
+        let second = run_next(&state, &port).await?;
+        assert_eq!(first.rows.len(), 1);
+        let titles: Vec<&str> = second.rows.iter().map(|row| row.title.as_str()).collect();
+        assert_eq!(titles, ["New"]);
+        assert!(!second.has_next_page);
+        assert!(
+            state
+                .arbeitnow_session()
+                .holds_slug(&format!("slug-{TOKEN_B}"))
+        );
+        // The first row keeps its id and stays importable.
+        let import = FakePort::with_imports(vec![Ok(outcome(ImportStatus::CreatedJob))]);
+        assert!(
+            run_import(&state, &import, &first.rows[0].row_id)
+                .await
+                .is_ok()
+        );
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn a_next_page_of_only_held_jobs_adds_no_row_and_can_continue() -> Result<(), CommandError>
+    {
+        let state = state();
+        let port = FakePort::with_scans(vec![
+            Ok(scan_result(vec![job("Held", TOKEN_A, "")], Some(CURSOR))),
+            Ok(scan_result(vec![job("Held", TOKEN_A, "")], Some(CURSOR))),
+            Ok(scan_result(vec![job("Later", TOKEN_B, "")], None)),
+        ]);
+        run_scan(&state, &port, &form()).await?;
+        let repeated = run_next(&state, &port).await?;
+        assert!(repeated.rows.is_empty());
+        assert!(repeated.has_next_page);
+        let later = run_next(&state, &port).await?;
+        assert_eq!(later.rows.len(), 1);
+        assert_eq!(port.scan_requests().len(), 3);
         Ok(())
     }
 
@@ -989,6 +1052,7 @@ mod tests {
         session.replace(
             vec![HeldRow {
                 row_id: "row".to_owned(),
+                slug: "example-slug".to_owned(),
                 token: TOKEN_A.to_owned(),
                 imported: false,
             }],

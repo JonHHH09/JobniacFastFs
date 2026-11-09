@@ -326,7 +326,7 @@ pub fn admit_response_headers(
 }
 
 /// [`admit_response_headers`] with the largest declared `Content-Length` supplied by the caller
-/// (the Arbeitnow board admits four mebibytes where a job page admits two).
+/// (the Arbeitnow board admits sixteen mebibytes where a job page admits two).
 pub fn admit_response_headers_with_limit(
     headers: &[(&[u8], &[u8])],
     body_limit: u64,

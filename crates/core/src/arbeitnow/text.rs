@@ -35,6 +35,12 @@ pub fn plain(value: &str) -> String {
     html::plain(Some(value))
 }
 
+/// The source preparation of [`plain`] without its cap: the whole description as plain text, for
+/// the scan's query search.
+pub fn plain_full(value: &str) -> String {
+    html::plain_full(Some(value))
+}
+
 /// Normalizes controls and ASCII whitespace and caps at `cap` code points, without HTML decoding.
 pub fn bound(value: &str, cap: usize) -> String {
     html::bound(Some(value), cap)

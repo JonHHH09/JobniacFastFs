@@ -86,6 +86,10 @@ drafts take the body of their version section from this file.
 
 ### Changed
 
+- `scan_arbeitnow_jobs` `jobTypes` (and the desktop job type choices): a job type matches when, with
+  case and everything but letters and digits removed, it contains a filter value; it was an exact,
+  case-insensitive match. `full_time` now matches "Full Time", "Full-time" and "fulltime permanent". A
+  filter value without letters or digits matches nothing. `tags` keep the exact match.
 - Profile from PDF: a stored PDF with a Europass CV attachment is now read from that attachment
   instead of from the text heuristics, so the profile may differ from what an earlier version built
   from the same file. A PDF without a usable Europass CV is read as before.
@@ -249,6 +253,12 @@ drafts take the body of their version section from this file.
 
 ### Fixed
 
+- Arbeitnow scan (the desktop screen and `scan_arbeitnow_jobs`): the screen's job type choices matched
+  almost nothing (see Changed). The query searches the whole description, not only the first 1,000
+  characters of its text. A job listed on two overlapping upstream pages is returned once per scan call
+  (a later call with the cursor can still return a job an earlier call returned), and the screen's next
+  page skips jobs it already shows. The page body limit is 16 MiB instead of 4 MiB: the board now serves
+  300 jobs per page, and one page over the limit failed the whole scan.
 - Window close refused after a reload with stale unsaved flags.
 - Arbeitnow next page raced a replacing scan; the artifact page turn could show another document's page;
   the documents and profile-PDF screens now show unavailable on load.

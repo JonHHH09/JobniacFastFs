@@ -37,7 +37,7 @@ impl<S> std::fmt::Debug for GuardedIo<S> {
 
 impl<S> GuardedIo<S> {
     /// Wraps `inner`; the idle timer starts now. `body_limit` is the largest declared body length
-    /// the raw header guard admits (2 MiB for the job page, 4 MiB for the board).
+    /// the raw header guard admits (2 MiB for the job page, 16 MiB for the board).
     pub fn new(inner: S, idle_for: Duration, body_limit: u64) -> Self {
         Self {
             inner,
